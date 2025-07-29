@@ -1,9 +1,11 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using TMPro; // Add this using directive for TMP_Text
 
 public class EnemyHP : MonoBehaviour
 {
     public GameObject hpBarPrefab; // EnemyHPBar 프리팹 (PoolManager에 동일한 이름으로 등록 필요)
+    public GameObject damageTextPrefab; // Assign your DamageText prefab here in the Inspector
     private EnemyHPBar hpBar;
     private float currentHP;
     private float maxHP;
@@ -17,7 +19,6 @@ public class EnemyHP : MonoBehaviour
 
         // 월드캔버스 찾아서 부모 지정
         Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-
 
         // 1. 풀에서 HP바 생성 (부모 설정)
         GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(
@@ -39,7 +40,8 @@ public class EnemyHP : MonoBehaviour
 
     public void TakeDamage()
     {
-        currentHP -= GameManager.Instance.playerStats.attack;
+        int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack); // ← float → int 변환
+        currentHP -= damage;         // currentHP가 float이면 OK (int → float은 암시적 변환 가능)
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
         if (hpBar != null)
@@ -48,15 +50,13 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
+        ShowDamageText(damage);      // DamageText.Show(int)와 타입 일치
         PlayDamageEffect();
 
-        if (currentHP <= 0)
-        {
-            Die();
-        }
+        if (currentHP <= 0) Die();
     }
 
-    public void SkillTakeDamage(int damage)
+    public void SkillTakeDamage(int damage)  // 이미 int면 그대로 사용
     {
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
@@ -67,11 +67,33 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
+        ShowDamageText(damage);
         PlayDamageEffect();
 
-        if (currentHP <= 0)
+        if (currentHP <= 0) Die();
+    }
+    private void ShowDamageText(int damage)
+    {
+        if (damageTextPrefab == null)
         {
-            Die();
+            Debug.LogWarning("damageTextPrefab이 할당되지 않았습니다.");
+            return;
+        }
+
+        Vector3 spawnPosition = transform.position + new Vector3(0, 1f, 0);
+        GameObject damageTextObj = PoolManager.Instance.SpawnFromPool(
+            damageTextPrefab.name,
+            spawnPosition,
+            Quaternion.identity);
+
+        // 부모 설정은 안 해도 되지만 필요시 적의 transform으로 설정 가능
+        damageTextObj.transform.SetParent(null); // 또는 transform
+
+        DamageText damageText = damageTextObj.GetComponent<DamageText>();
+        if (damageText != null)
+        {
+            damageText.Show(damage);
+            Debug.Log($"DamageText 표시: {damage}");
         }
     }
 

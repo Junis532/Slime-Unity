@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.Instance.CurrentState == "Shop")
         {
-            canMove = false;
+            //canMove = false;
         }
         else if (GameManager.Instance.CurrentState == "Game")
         {

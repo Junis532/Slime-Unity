@@ -10,8 +10,8 @@ namespace SkillNumber.Skills
         //Mucus = 3,
         //PoisonGas = 4,
         Fireball = 1,
-        Teleport = 2,
-        Lightning = 3,
-        Windwall = 4
+        //Teleport = 2,
+        Lightning = 2,
+        Windwall = 3
     }
 }

@@ -45,7 +45,7 @@ public class WaveManager : MonoBehaviour
     {
         if (playerSkillController == null)
             playerSkillController = FindFirstObjectByType<JoystickDirectionIndicator3>();
-        Debug.Log("[WaveManager] 스킬 순서: " + string.Join(", ", SkillSelect.FinalSkillOrder));
+ 
         ResetWave();
         StartSpawnLoop();
     }

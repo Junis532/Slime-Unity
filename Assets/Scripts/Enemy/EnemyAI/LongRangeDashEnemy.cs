@@ -26,6 +26,11 @@ public class LongRangeDashEnemy : EnemyBase
     private bool isDashing = false;
     private Vector2 dashDirection;
 
+    // --- 대쉬 후 멈춤 상태 관련 ---
+    public float postDashIdleDuration = 3f;  // 대쉬 후 멈춤 시간
+    private bool isIdle = false;
+    private float idleTimer = 0f;
+
     [Header("대시 프리뷰")]
     public GameObject dashPreviewPrefab;
     public float previewDistanceFromEnemy = 0f;
@@ -67,6 +72,24 @@ public class LongRangeDashEnemy : EnemyBase
     {
         if (!isLive) return;
 
+        // 대쉬 후 멈춤 처리
+        if (isIdle)
+        {
+            idleTimer += Time.deltaTime;
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+
+            if (dashPreviewInstance != null)
+                dashPreviewInstance.SetActive(false);
+
+            if (idleTimer >= postDashIdleDuration)
+            {
+                isIdle = false;
+                idleTimer = 0f;
+                dashTimer = 0f;  // 대쉬 쿨다운도 초기화
+            }
+            return;
+        }
+
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
@@ -83,7 +106,12 @@ public class LongRangeDashEnemy : EnemyBase
             FlipSprite(dashDirection.x);
 
             if (dashTimeElapsed >= dashDuration)
+            {
                 EndDash();
+                // 대시가 끝나면 멈춤 상태로 전환
+                isIdle = true;
+                idleTimer = 0f;
+            }
             return;
         }
 
@@ -149,7 +177,7 @@ public class LongRangeDashEnemy : EnemyBase
         if (dashPreviewInstance != null)
             dashPreviewInstance.SetActive(false);
 
-        // 대시 타이머 체크
+        // 대시 타이머 체크 (멈춤 상태가 아닐 때만)
         dashTimer += Time.deltaTime;
         if (dashTimer >= dashCooldown)
         {
@@ -169,6 +197,9 @@ public class LongRangeDashEnemy : EnemyBase
         {
             transform.position = hit.point - dashDirection.normalized * 0.01f;
             EndDash();
+            // 대시가 벽에 부딪혀도 멈춤 상태로 전환
+            isIdle = true;
+            idleTimer = 0f;
         }
         else
         {
@@ -248,6 +279,8 @@ public class LongRangeDashEnemy : EnemyBase
         isDashing = false;
         dashTimer = 0f;
         pauseTimer = 0f;
+        isIdle = false;
+        idleTimer = 0f;
     }
 
     void OnDestroy()

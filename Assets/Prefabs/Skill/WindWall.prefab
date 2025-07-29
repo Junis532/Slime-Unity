@@ -191,11 +191,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2351395230665144936, guid: c8e350a892ee1c54fb3bd6113d7733f6, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.5500002
+      value: 2.3
       objectReference: {fileID: 0}
     - target: {fileID: 2351395230665144936, guid: c8e350a892ee1c54fb3bd6113d7733f6, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.5500002
+      value: 2.3
       objectReference: {fileID: 0}
     - target: {fileID: 2351395230665144936, guid: c8e350a892ee1c54fb3bd6113d7733f6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -311,5 +311,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageMultiplier: 0.1
-  lifetime: 3
+  lifetime: 2.7
   damageInterval: 0.5

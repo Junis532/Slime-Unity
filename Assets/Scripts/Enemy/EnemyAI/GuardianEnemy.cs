@@ -29,6 +29,12 @@ public class GuardianEnemy : EnemyBase
     // 데미지 루틴
     private bool isDamaging = false;
 
+    // 행동/멈춤 주기용
+    public float moveDuration = 4f;
+    public float idleDuration = 3f;
+    private float actionTimer = 0f;
+    private bool isIdle = false;
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -61,10 +67,47 @@ public class GuardianEnemy : EnemyBase
     {
         if (!isLive || player == null) return;
 
+        actionTimer += Time.deltaTime;
+
+        if (isIdle)
+        {
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            laserLineRenderer.enabled = false;
+            // 멈춤 상태이므로 데미지 코루틴도 중지
+            if (isDamaging)
+            {
+                isDamaging = false;
+                StopAllCoroutines();
+            }
+            return;
+        }
+        else
+        {
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+                laserLineRenderer.enabled = false;
+                if (isDamaging)
+                {
+                    isDamaging = false;
+                    StopAllCoroutines();
+                }
+                return;
+            }
+        }
+
+        // ----------------- 이동 및 회피 -----------------
         Vector2 currentPos = transform.position;
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
 
-        // -------- 장애물 회피 --------
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
         Vector2 avoidanceVector = Vector2.zero;
 
@@ -83,7 +126,7 @@ public class GuardianEnemy : EnemyBase
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
-        // -------- 회전 및 애니메이션 --------
+        // ----------------- 회전 및 애니메이션 -----------------
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -97,7 +140,7 @@ public class GuardianEnemy : EnemyBase
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
 
-        // -------- 레이저 공격 --------
+        // ----------------- 레이저 공격 -----------------
         float distance = Vector2.Distance(player.transform.position, transform.position);
 
         if (distance <= fireRange)

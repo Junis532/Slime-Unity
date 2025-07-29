@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3752687193092183090}
   - component: {fileID: 650055596465423054}
   - component: {fileID: 8816511963348474582}
-  - component: {fileID: 1713953795467074080}
   - component: {fileID: 5340294572256895649}
   - component: {fileID: 5888740913974979812}
   - component: {fileID: 596596526947038125}
@@ -153,18 +152,6 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &1713953795467074080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7565043655989499910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 142cbb362bc1fec4dafe71cff91f6b35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!50 &5340294572256895649
 Rigidbody2D:
   serializedVersion: 5
@@ -240,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27745e7bfefdb6c45bd5c1f4005d44c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpSlider: {fileID: 0}
+  hpFillImage: {fileID: 0}
   hpText: {fileID: 0}
 --- !u!114 &1736361453566371062
 MonoBehaviour:
@@ -337,7 +324,6 @@ MonoBehaviour:
   bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
   mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
   fireballSound: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
-  teleportSound: {fileID: 8300000, guid: ef16ba81ebd644a44986f936e1e14a42, type: 3}
   lightningSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
   windWallSound: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
 --- !u!114 &6045572874715174237

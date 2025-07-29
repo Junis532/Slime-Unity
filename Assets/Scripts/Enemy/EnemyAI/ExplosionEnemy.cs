@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Collections;
 using UnityEngine;
 
 public class ExplosionEnemy : EnemyBase
@@ -13,12 +12,18 @@ public class ExplosionEnemy : EnemyBase
     private Vector2 currentDirection;
 
     public float smoothTime = 0.1f;
-    public float explosionRange = 1.5f; // 폭발 범위
-    public GameObject explosionEffectPrefab; // 폭발 이펙트
+    public float explosionRange = 1.5f;
+    public GameObject explosionEffectPrefab;
 
     [Header("회피 관련")]
-    public float avoidanceRange = 1.5f;        // 장애물 감지 범위
-    public LayerMask obstacleMask;           // 장애물 레이어 지정
+    public float avoidanceRange = 1.5f;
+    public LayerMask obstacleMask;
+
+    [Header("행동/멈춤 주기")]
+    public float moveDuration = 4f;
+    public float idleDuration = 3f;
+    private float actionTimer = 0f;
+    private bool isIdle = false;
 
     void Start()
     {
@@ -33,6 +38,9 @@ public class ExplosionEnemy : EnemyBase
     {
         if (!isLive) return;
 
+        actionTimer += Time.deltaTime;
+
+        // 폭발 거리 내에 플레이어가 있으면 즉시 폭발
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
@@ -40,33 +48,52 @@ public class ExplosionEnemy : EnemyBase
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
         float distanceToPlayer = dirToPlayer.magnitude;
 
-        // 폭발 조건
         if (distanceToPlayer <= explosionRange)
         {
             Explode(player.transform.position);
             return;
         }
 
-        // 장애물 회피 계산
+        // 행동/멈춤 상태 전환
+        if (isIdle)
+        {
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+        else
+        {
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                return;
+            }
+        }
+
+        // 장애물 회피 로직
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer.normalized, avoidanceRange, obstacleMask);
         Vector2 avoidanceVector = Vector2.zero;
 
         if (hit.collider != null)
         {
             Vector2 hitNormal = hit.normal;
-            Vector2 sideStep = Vector2.Perpendicular(hitNormal); // 수직 방향
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
             avoidanceVector = sideStep.normalized * 1.5f;
 
-            Debug.DrawRay(currentPos, sideStep * 2f, Color.green); // 디버그
+            Debug.DrawRay(currentPos, sideStep * 2f, Color.green);
         }
 
-        // 회피 벡터와 플레이어 방향 결합
         Vector2 finalDir = (dirToPlayer.normalized + avoidanceVector).normalized;
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 moveVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(moveVec);
 
-        // 방향 반전 및 애니메이션 처리
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -96,7 +123,7 @@ public class ExplosionEnemy : EnemyBase
         GameManager.Instance.playerStats.currentHP -= damage;
 
         if (GameManager.Instance.playerDamaged != null)
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // Null 예외 방지
+            GameManager.Instance.playerDamaged.PlayDamageEffect();
 
         if (GameManager.Instance.playerStats.currentHP <= 0)
         {

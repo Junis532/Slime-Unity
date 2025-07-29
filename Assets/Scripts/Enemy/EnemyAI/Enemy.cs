@@ -14,8 +14,15 @@ public class Enemy : EnemyBase
     public float smoothTime = 0.1f;
 
     [Header("회피 관련")]
-    public float avoidanceRange = 2f;        // 장애물 감지 범위
-    public LayerMask obstacleMask;           // 장애물 레이어 지정
+    public float avoidanceRange = 2f;
+    public LayerMask obstacleMask;
+
+    [Header("행동/멈춤 주기")]
+    public float moveDuration = 4f;  // 몇 초 동안 움직일지
+    public float idleDuration = 3f;  // 멈추는 시간
+
+    private float actionTimer = 0f;
+    private bool isIdle = false;
 
     void Start()
     {
@@ -30,43 +37,56 @@ public class Enemy : EnemyBase
     {
         if (!isLive) return;
 
+        actionTimer += Time.deltaTime;
+
+        if (isIdle)
+        {
+            // 멈춰있는 상태
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+        else
+        {
+            // 움직이는 상태
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                return;
+            }
+        }
+
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
         Vector2 currentPos = transform.position;
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
 
-        // ------------------ 장애물 레이캐스트 검사 ------------------
+        // 장애물 회피 로직
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
 
         Vector2 avoidanceVector = Vector2.zero;
 
         if (hit.collider != null)
         {
-            // 장애물이 감지됨 → 옆으로 회피 방향 계산
-            Vector2 hitNormal = hit.normal; // 장애물 표면 노멀 벡터
-
-            // hitNormal은 장애물에 수직인 방향이므로, 이를 기준으로 옆으로 회피
-            // 옆 방향 벡터 = hitNormal과 수직 벡터 중 하나 선택
+            Vector2 hitNormal = hit.normal;
             Vector2 sideStep = Vector2.Perpendicular(hitNormal);
+            avoidanceVector = sideStep.normalized * 1.5f;
 
-            // 양쪽 중 적절한 방향 선택 (ex: 오른쪽 방향으로)
-            // 필요하면 cross나 dot 써서 방향 바꿀 수도 있음
-            avoidanceVector = sideStep.normalized * 1.5f; // 강도 조절
-
-            // Debug용
             Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        // ------------------ 최종 방향 ------------------
         Vector2 finalDir = (dirToPlayer + avoidanceVector).normalized;
-
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
-
         Vector2 moveVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(moveVec);
 
-        // 방향 및 애니메이션 처리
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -103,6 +123,5 @@ public class Enemy : EnemyBase
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, avoidanceRange);
-        // Raycast 시각화는 Debug.DrawRay()로 확인 가능
     }
 }

@@ -24,6 +24,12 @@ public class LongRangeEnemy : EnemyBase
     public float avoidanceRange = 2f;       // 장애물 감지 범위
     public LayerMask obstacleMask;          // 장애물 레이어 지정
 
+    // 행동/멈춤 주기용 변수
+    public float moveDuration = 4f;
+    public float idleDuration = 3f;
+    private float actionTimer = 0f;
+    private bool isIdle = false;
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -36,6 +42,30 @@ public class LongRangeEnemy : EnemyBase
     void Update()
     {
         if (!isLive) return;
+
+        actionTimer += Time.deltaTime;
+
+        if (isIdle)
+        {
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+        else
+        {
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+                return;
+            }
+        }
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;

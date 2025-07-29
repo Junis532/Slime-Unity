@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
+    public PlayerController playerController;
     public PlayerDamaged playerDamaged;
     public PlayerDie playerDie;
     public PlayerStats playerStats;
@@ -192,14 +193,14 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (timer != null)
         {
-            timer.ResetTimer(10f);
+            timer.ResetTimer(5f);
         }
 
         diceAnimation.StartRollingLoop();
 
         waveManager.StartSpawnLoop();
-
     }
+
 
     public void ChangeStateToShop()
     {
@@ -207,7 +208,7 @@ public class GameManager : MonoSingleTone<GameManager>
         Debug.Log("상태: Shop - 상점 상태");
         DialogManager.Instance.StartShopDialog();
 
-        diceAnimation.StopRollingLoop();
+        //diceAnimation.ForceStopRolling();
 
         waveManager.StopSpawnLoop();
 
@@ -231,8 +232,9 @@ public class GameManager : MonoSingleTone<GameManager>
                 .SetEase(Ease.OutCubic)
                 .OnComplete(() =>
                 {
-                    //Time.timeScale = 0f;
+                    
                 });
+            playerController.canMove = false;
         }
         else
         {
@@ -246,7 +248,7 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Clear;
         Debug.Log("상태: Clear - 웨이브 클리어");
 
-        diceAnimation.StopRollingLoop();
+        //diceAnimation.StopRollingLoop();
 
         waveManager.StopSpawnLoop();
 

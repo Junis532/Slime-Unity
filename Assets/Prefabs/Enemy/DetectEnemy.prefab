@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  damageTextPrefab: {fileID: 3014368381507237639, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
 --- !u!114 &1082140052244248397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,6 +228,8 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
+  moveDuration: 4
+  idleDuration: 3
 --- !u!1 &5933520022929201632
 GameObject:
   m_ObjectHideFlags: 0

@@ -37,7 +37,7 @@ public class ShopManager : MonoBehaviour
     {
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         rerollButton.onClick.AddListener(RerollItems);
-        nextWaveButton.onClick.AddListener(OnButtonNextWaveClick);
+        nextWaveButton.onClick.AddListener(OnButtonExitClick);
         RerollItems();
     }
 
@@ -52,6 +52,7 @@ public class ShopManager : MonoBehaviour
         rerollPrice = 1; // 초기값으로 리셋
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         UpdateRerollButtonState();
+        UpdateBuyButtonStates();
     }
 
     public void RerollItems()
@@ -90,6 +91,7 @@ public class ShopManager : MonoBehaviour
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         UpdateRerollButtonState();
+        UpdateBuyButtonStates();
     }
 
     public void FirstRerollItems()
@@ -102,7 +104,7 @@ public class ShopManager : MonoBehaviour
             ItemStats item = selectedItems[i];
 
             slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>().text = item.itemName;
-            //slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
+            slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
             slot.transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>().text = item.description;
             slot.transform.Find("ItemIcon").GetComponent<Image>().sprite = item.icon;
 
@@ -117,11 +119,22 @@ public class ShopManager : MonoBehaviour
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         UpdateRerollButtonState();
+        UpdateBuyButtonStates();
     }
 
     void BuyItem(ItemStats item)
     {
-        Debug.Log($"[구매] {item.itemName} - 돈 차감 없음");
+        int playerCoin = GameManager.Instance.playerStats.coin;
+
+        if (playerCoin < item.price)
+        {
+            Debug.Log("코인이 부족하여 구매할 수 없습니다!");
+            return;
+        }
+
+        GameManager.Instance.playerStats.coin -= item.price;
+
+        Debug.Log($"[구매] {item.itemName} - 코인 {item.price} 차감 후 남은 코인: {GameManager.Instance.playerStats.coin}");
 
         //----------------------------------------------------------------------------------------- 1
         if (item == GameManager.Instance.itemStats1)
@@ -284,10 +297,10 @@ public class ShopManager : MonoBehaviour
 
         // 구매 후 모든 버튼 비활성화 (모두 비활성화)
         foreach (GameObject slot in itemSlots)
-            {
-                Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-                buyBtn.interactable = false;
-            }
+        {
+            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+            buyBtn.interactable = false;
+        }
 
         UpdateRerollButtonState();
         UpdateBuyButtonStates();
@@ -315,10 +328,25 @@ public class ShopManager : MonoBehaviour
 
     void UpdateBuyButtonStates()
     {
-        // 빈 구현, 필요시 추가
+        int coin = GameManager.Instance.playerStats.coin;
+
+        foreach (GameObject slot in itemSlots)
+        {
+            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+            TextMeshProUGUI priceText = slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>();
+
+            if (int.TryParse(priceText.text, out int price))
+            {
+                buyBtn.interactable = coin >= price;
+            }
+            else
+            {
+                buyBtn.interactable = false;
+            }
+        }
     }
 
-    public void OnButtonNextWaveClick()
+    public void OnButtonExitClick()
     {
         Debug.Log("다음 웨이브 시작");
         Time.timeScale = 1f;
@@ -329,20 +357,20 @@ public class ShopManager : MonoBehaviour
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
             if (canvasGroup != null)
             {
-                canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
+                canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.7초 동안
             }
             shopPanel.DOAnchorPosY(1500f, 0.7f).SetEase(Ease.InCubic).OnComplete(() =>
             {
                 if (shopUI != null)
                     shopUI.SetActive(false);
             });
+
+            GameManager.Instance.playerController.canMove = true;
         }
         else
         {
             if (shopUI != null)
                 shopUI.SetActive(false);
         }
-
-        GameManager.Instance.waveManager.StartNextWave();
     }
 }

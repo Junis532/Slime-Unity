@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class DetectEnemy : EnemyBase
 {
@@ -15,7 +15,7 @@ public class DetectEnemy : EnemyBase
     public float detectionRange = 5f;
     private bool hasDetectedPlayer = false;
 
-    [Header("½Ã°¢Àû ¹üÀ§ Ç¥½Ã")]
+    [Header("ì‹œê°ì  ë²”ìœ„ í‘œì‹œ")]
     public GameObject rangeVisualPrefab;
     private GameObject rangeVisualInstance;
 
@@ -27,9 +27,15 @@ public class DetectEnemy : EnemyBase
     private readonly float minY = -6f;
     private readonly float maxY = 6f;
 
-    [Header("È¸ÇÇ °ü·Ã")]
+    [Header("íšŒí”¼ ê´€ë ¨")]
     public float avoidanceRange = 2f;
     public LayerMask obstacleMask;
+
+    [Header("í–‰ë™/ë©ˆì¶¤ ì£¼ê¸°")]
+    public float moveDuration = 4f;
+    public float idleDuration = 3f;
+    private float actionTimer = 0f;
+    private bool isIdle = false;
 
     void Start()
     {
@@ -53,27 +59,58 @@ public class DetectEnemy : EnemyBase
         if (!isLive) return;
 
         GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
+        Vector2 toPlayer = Vector2.zero;
+        float distance = 0f;
 
-        Vector2 toPlayer = player.transform.position - transform.position;
-        float distance = toPlayer.magnitude;
-
-        if (toPlayer.x != 0)
+        if (player != null)
         {
-            Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (toPlayer.x < 0 ? -1 : 1);
-            transform.localScale = scale;
+            toPlayer = (Vector2)player.transform.position - (Vector2)transform.position;
+            distance = toPlayer.magnitude;
+
+            if (toPlayer.x != 0)
+            {
+                Vector3 scale = transform.localScale;
+                scale.x = Mathf.Abs(scale.x) * (toPlayer.x < 0 ? -1 : 1);
+                transform.localScale = scale;
+            }
+
+            // í•œ ë²ˆë„ ê°ì§€ ì•ˆ í–ˆìœ¼ë©´, ì›€ì§ì´ê³  ê°€ê¹Œìš¸ ë•Œ ê°ì§€ ì‹œì‘
+            if (!hasDetectedPlayer && distance <= detectionRange && !isIdle)
+            {
+                hasDetectedPlayer = true;
+                if (rangeVisualInstance != null)
+                    Destroy(rangeVisualInstance);
+            }
+            // ê°ì§€ í•´ì œ ì¡°ê±´ ì—†ìŒ â†’ ê°ì§€ ìœ ì§€ë¨
         }
 
-        if (!hasDetectedPlayer && distance <= detectionRange)
-        {
-            hasDetectedPlayer = true;
+        // ğŸ•’ í–‰ë™/ì •ì§€ ì£¼ê¸° ê´€ë¦¬ (ê°ì§€ ì—¬ë¶€ì™€ ë¬´ê´€)
+        actionTimer += Time.deltaTime;
 
-            if (rangeVisualInstance != null)
-                Destroy(rangeVisualInstance);
+        if (isIdle)
+        {
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+        else
+        {
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+                return;
+            }
         }
 
-        if (hasDetectedPlayer)
+        // ê°ì§€ ì—¬ë¶€ì— ë”°ë¼ ì¶”ì  ë˜ëŠ” ëœë¤ ì´ë™
+        if (hasDetectedPlayer && player != null)
         {
             TrackPlayerWithAvoidance(player);
         }
@@ -84,37 +121,31 @@ public class DetectEnemy : EnemyBase
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î ÃßÀû + Àå¾Ö¹° È¸ÇÇ
+    /// í”Œë ˆì´ì–´ ì¶”ì  + ì¥ì• ë¬¼ íšŒí”¼
     /// </summary>
     private void TrackPlayerWithAvoidance(GameObject player)
     {
         Vector2 currentPos = transform.position;
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
 
-        // Àå¾Ö¹° °¨Áö
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
         Vector2 avoidanceVector = Vector2.zero;
 
         if (hit.collider != null)
         {
             Vector2 hitNormal = hit.normal;
-            Vector2 sideStep = Vector2.Perpendicular(hitNormal); // ¿·À¸·Î ÇÇÇØ°¨
-
+            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
             avoidanceVector = sideStep.normalized * 1.5f;
 
-            // Debug
             Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        // ÃÖÁ¾ ¹æÇâ
         Vector2 finalDir = (dirToPlayer + avoidanceVector).normalized;
-
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 moveVec = currentDirection * speed * Time.deltaTime;
 
         transform.Translate(moveVec);
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç
         if (moveVec.magnitude > 0.01f)
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
         else

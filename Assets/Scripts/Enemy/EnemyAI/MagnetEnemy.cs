@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class MagnetEnemy : EnemyBase
 {
@@ -13,17 +13,25 @@ public class MagnetEnemy : EnemyBase
     public float smoothTime = 0.1f;
     public float detectionRange = 5f;
 
-    [Header("½Ã°¢Àû ¹üÀ§ Ç¥½Ã")]
+    [Header("ì‹œê°ì  ë²”ìœ„ í‘œì‹œ")]
     public GameObject rangeVisualPrefab;
     private GameObject rangeVisualInstance;
 
-    [Header("¼Óµµ ¼³Á¤")]
-    public float followSpeed = 2f;    // ÀûÀÌ ÇÃ·¹ÀÌ¾î¸¦ µû¶ó°¡´Â ¼Óµµ
-    public float pullForce = 1.5f;    // ÇÃ·¹ÀÌ¾î¸¦ ²ø¾î´ç±â´Â Èû
+    [Header("ì†ë„ ì„¤ì •")]
+    public float followSpeed = 2f;    // ì ì´ í”Œë ˆì´ì–´ë¥¼ ë”°ë¼ê°€ëŠ” ì†ë„
+    public float pullForce = 1.5f;    // í”Œë ˆì´ì–´ë¥¼ ëŒì–´ë‹¹ê¸°ëŠ” í˜
 
-    [Header("È¸ÇÇ °ü·Ã")]
-    public float avoidanceRange = 2f;        // Àå¾Ö¹° °¨Áö ¹üÀ§
-    public LayerMask obstacleMask;           // Àå¾Ö¹° ·¹ÀÌ¾î ÁöÁ¤
+    [Header("íšŒí”¼ ê´€ë ¨")]
+    public float avoidanceRange = 2f;        // ì¥ì• ë¬¼ ê°ì§€ ë²”ìœ„
+    public LayerMask obstacleMask;           // ì¥ì• ë¬¼ ë ˆì´ì–´ ì§€ì •
+
+    [Header("í–‰ë™/ë©ˆì¶¤ ì£¼ê¸°")]
+    public float moveDuration = 4f;  // ì›€ì§ì´ëŠ” ì‹œê°„
+    public float idleDuration = 3f;  // ë©ˆì¶”ëŠ” ì‹œê°„
+
+    private float actionTimer = 0f;
+    private bool isIdle = false;
+
 
     void Start()
     {
@@ -47,11 +55,35 @@ public class MagnetEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
+        // ğŸŸ¡ ì›€ì§ì„/ë©ˆì¶¤ ì£¼ê¸° ì²˜ë¦¬
+        actionTimer += Time.deltaTime;
+
+        if (isIdle)
+        {
+            if (actionTimer >= idleDuration)
+            {
+                isIdle = false;
+                actionTimer = 0f;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+        else
+        {
+            if (actionTimer >= moveDuration)
+            {
+                isIdle = true;
+                actionTimer = 0f;
+                return;
+            }
+        }
+
         Vector2 currentPos = transform.position;
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
         float distance = dirToPlayer.magnitude;
 
-        // ÁÂ¿ì ¹İÀü
+        // ì¢Œìš° ë°˜ì „
         if (dirToPlayer.x != 0)
         {
             Vector3 scale = transform.localScale;
@@ -59,37 +91,33 @@ public class MagnetEnemy : EnemyBase
             transform.localScale = scale;
         }
 
-        // Àå¾Ö¹° È¸ÇÇ ·¹ÀÌÄ³½ºÆ® °Ë»ç
+        // ì¥ì• ë¬¼ íšŒí”¼ ê²€ì‚¬
         Vector2 dirNormalized = dirToPlayer.normalized;
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirNormalized, avoidanceRange, obstacleMask);
 
         Vector2 avoidanceVector = Vector2.zero;
-
         if (hit.collider != null)
         {
             Vector2 hitNormal = hit.normal;
             Vector2 sideStep = Vector2.Perpendicular(hitNormal);
-
-            avoidanceVector = sideStep.normalized * 1.5f; // Á¶Àı °¡´É
+            avoidanceVector = sideStep.normalized * 1.5f;
             Debug.DrawRay(currentPos, sideStep * 2f, Color.green);
         }
 
-        // ÃÖÁ¾ ¹æÇâ (ÇÃ·¹ÀÌ¾î ¹æÇâ + È¸ÇÇ º¤ÅÍ)
         Vector2 finalDir = (dirNormalized + avoidanceVector).normalized;
 
-        // ÇÃ·¹ÀÌ¾î¸¦ ²ø¾î´ç±â´Â Èû Àû¿ë (°¨Áö ¹üÀ§ ³»)
+        // í”Œë ˆì´ì–´ ëŒì–´ë‹¹ê¹€
         if (distance <= detectionRange)
         {
             Vector3 pullDir = (transform.position - player.transform.position).normalized;
             player.transform.position += pullDir * pullForce * Time.deltaTime;
         }
 
-        // Àû ¿òÁ÷ÀÓ (È¸ÇÇ Æ÷ÇÔ)
+        // ì´ë™
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 moveVec = currentDirection * followSpeed * Time.deltaTime;
         transform.Translate(moveVec);
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç Ã³¸®
         if (currentDirection.magnitude > 0.01f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
@@ -115,7 +143,7 @@ public class MagnetEnemy : EnemyBase
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // »ç¸Á Ã³¸®
+                // ì‚¬ë§ ì²˜ë¦¬
             }
         }
     }

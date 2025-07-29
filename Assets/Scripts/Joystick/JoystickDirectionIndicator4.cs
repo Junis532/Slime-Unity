@@ -2,16 +2,7 @@
 //using System.Collections.Generic;
 //using UnityEngine;
 //using UnityEngine.UI;
-
-//public enum SkillType
-//{
-//    None = 0,
-//    Fireball = 1,
-//    Teleport = 2,
-//    Lightning = 3,
-//    Windwall = 4,
-//    Boom = 5,
-//}
+//using SkillNumber.Skills;
 
 //public class JoystickDirectionIndicator3 : MonoBehaviour
 //{
@@ -31,39 +22,76 @@
 
 //    public GameObject fireballPrefab;
 //    public Transform firePoint;
-
 //    public GameObject lightningPrefab;
 //    public GameObject LightningEffectPrefab;
-
 //    public GameObject windWallPrefab;
-
 //    public GameObject teleportEffectPrefab;
 //    public float teleportEffectDuration = 1f;
-
 //    public GameObject bombPrefab;
+//    public GameObject mucusProjectilePrefab;
 
 //    private GameObject indicatorInstance;
 //    private int currentIndicatorIndex = -1;
-
 //    private PlayerController playerController;
 //    private bool isTouchingJoystick, wasTouchingJoystickLastFrame;
 //    private Vector2 lastInputDirection = Vector2.right;
 //    private float lastInputMagnitude = 0f;
-
 //    private bool hasUsedSkill = false, prevIsRolling = false;
 //    private bool isTeleportMode = false, isLightningMode = false;
 //    private Vector3 teleportTargetPosition, lightningTargetPosition;
 //    private Vector2 lightningCastDirection;
 //    private bool prevBlockInputActive = false;
 
+//    [Header("오디오")]
+//    private AudioSource audioSource;
+//    public AudioClip fireballSound;
+//    //public AudioClip teleportSound;
+//    public AudioClip lightningSound;
+//    public AudioClip windWallSound;
+
+
+
+//    // 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
+//    public int CurrentUsingSkillIndex
+//    {
+//        get
+//        {
+//            int diceValue = DiceAnimation.currentDiceResult;
+//            if (diceValue <= 0 || hasUsedSkill) return 0;
+//            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
+//                return 0;
+//            return SkillSelect.FinalSkillOrder[diceValue - 1];
+//        }
+//    }
+
+//    // 선택적 SkillType 반환(사용처에 따라)
+//    public SkillType CurrentUsingSkillType
+//    {
+//        get
+//        {
+//            int diceValue = DiceAnimation.currentDiceResult;
+//            if (diceValue <= 0 || hasUsedSkill) return SkillType.None;
+//            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
+//                return SkillType.None;
+//            int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceValue - 1];
+//            return (SkillType)mappedSkillNumber;
+//        }
+//    }
+
 //    void Start()
 //    {
 //        playerController = GetComponent<PlayerController>();
 //        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+
+//        audioSource = GetComponent<AudioSource>();
+//        if (audioSource == null)
+//            audioSource = gameObject.AddComponent<AudioSource>();
 //    }
 
 //    void Update()
 //    {
+//        SetDiceImageAlpha(1f);
+
 //        bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
 
 //        skillSaveButton.interactable = !(hasUsedSkill || DiceAnimation.isRolling);
@@ -74,13 +102,19 @@
 //        }
 //        prevBlockInputActive = isBlockActive;
 
+//        if (prevIsRolling && !DiceAnimation.isRolling)
+//        {
+//            ResetInputStates();
+//        }
+
+
 //        if (isBlockActive || DiceAnimation.currentDiceResult <= 0)
 //        {
 //            DisableInputAndIndicators();
 //            return;
 //        }
 
-//        SetDiceImageAlpha(1f);
+
 //        Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
 //        isTouchingJoystick = input.magnitude > 0.2f;
 //        SetHideImageState(!isTouchingJoystick);
@@ -113,6 +147,8 @@
 //                UpdateTeleportIndicator(input);
 //            else if (currentSkill == SkillType.Lightning && isLightningMode)
 //                UpdateLightningIndicator(input);
+//            //else if (currentSkill == SkillType.Mucus && isMucusMode)
+//            //    UpdateMucusIndicator(input);
 //            else
 //            {
 //                OnSkillButtonPressed();
@@ -239,6 +275,8 @@
 //        indicatorInstance.SetActive(true);
 //    }
 
+
+
 //    public void OnSkillButtonPressed()
 //    {
 //        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 1f;
@@ -276,7 +314,6 @@
 //        int skillDiceValue = DiceAnimation.currentDiceResult;
 //        int effectDiceValue;
 
-//        // 세이브 주사위 사용 여부 판단
 //        if (!DiceAnimation.isRolling && DiceAnimation.hasUsedSkill)
 //        {
 //            effectDiceValue = DiceAnimation.noSkillUseCount;
@@ -288,22 +325,22 @@
 //            Debug.Log($"[일반 주사위 사용] 눈금: {effectDiceValue}");
 //        }
 
-//        // 스킬 발동은 무조건 일반 주사위 기준
 //        SkillType skill = GetMappedSkillType(skillDiceValue);
 
-//        // 실제 스킬 발동
 //        switch (skill)
 //        {
 //            case SkillType.Fireball:
 //                ShootFireball();
 //                break;
-//            case SkillType.Teleport:
-//                if (isTeleportMode)
-//                {
-//                    TeleportPlayer(teleportTargetPosition);
-//                    isTeleportMode = false;
-//                }
-//                break;
+
+//            //case SkillType.Teleport:
+//            //    if (isTeleportMode)
+//            //    {
+//            //        TeleportPlayer(teleportTargetPosition);
+//            //        isTeleportMode = false;
+//            //    }
+//            //    break;
+
 //            case SkillType.Lightning:
 //                if (isLightningMode)
 //                {
@@ -312,57 +349,50 @@
 //                    isLightningMode = false;
 //                }
 //                break;
+
 //            case SkillType.Windwall:
 //                SpawnWindWall();
 //                break;
-//            case SkillType.Boom:
-//                ShootBomb();
-//                break;
+
 //            default:
 //                Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
 //                break;
 //        }
 
-//        //// 주사위 알파 깜빡임
-//        //if (diceImage != null)
-//        //    StartCoroutine(BlinkDiceImage());
-
-//        Debug.Log("🎲 스킬 발사!!");
-
 //        hasUsedSkill = true;
 
-//        // 주사위 시각 효과 처리 (effectDiceValue 사용)
-//        GameManager.Instance.diceAnimation.ExecuteSkillEffect(effectDiceValue);
+//        //GameManager.Instance.diceAnimation.ExecuteSkillEffect(effectDiceValue);
 
-//        // 주사위 정지 및 초기화
 //        GameManager.Instance.diceAnimation.OnSkillUsed();
 //    }
-
-
-//    //private IEnumerator BlinkDiceImage()
-//    //{
-//    //    diceImage.gameObject.SetActive(false);
-//    //    yield return new WaitForSeconds(0.1f);
-//    //    diceImage.gameObject.SetActive(true);
-//    //}
 
 //    private void ShootFireball()
 //    {
 //        if (fireballPrefab == null || firePoint == null) return;
+
+//        // Play the Fireball sound if assigned
+//        if (fireballSound != null && audioSource != null)
+//        {
+//            audioSource.PlayOneShot(fireballSound);
+//        }
+
 //        GameObject obj = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
 //        obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
 //        obj.GetComponent<FireballProjectile>()?.Init(lastInputDirection);
 //    }
 
-//    private void TeleportPlayer(Vector3 targetPos)
-//    {
-//        if (teleportEffectPrefab != null)
-//        {
-//            GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
-//            Destroy(effect, teleportEffectDuration);
-//        }
-//        transform.position = targetPos;
-//    }
+//    //private void TeleportPlayer(Vector3 targetPos)
+//    //{
+//    //    if (teleportEffectPrefab != null)
+//    //    {
+//    //        GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
+//    //        Destroy(effect, teleportEffectDuration);
+//    //    }
+//    //    transform.position = targetPos;
+
+//    //    if (teleportSound != null && audioSource != null)
+//    //        audioSource.PlayOneShot(teleportSound);
+//    //}
 
 //    private void CastLightning(Vector3 targetPos)
 //    {
@@ -392,6 +422,7 @@
 //                }
 //            }
 //            yield return new WaitForSeconds(fallDelay);
+
 //            if (lightning == null)
 //            {
 //                lightning = Instantiate(lightningPrefab, targetPos, Quaternion.Euler(0f, 0f, angle));
@@ -403,6 +434,13 @@
 //                lightning.SetActive(true);
 //            }
 //            ld?.Init();
+
+//            // 번개 이펙트 시작할 때 효과음 재생
+//            if (audioSource != null && lightningSound != null)
+//            {
+//                audioSource.PlayOneShot(lightningSound);
+//            }
+
 //            yield return new WaitForSeconds(onTime);
 //            lightning?.SetActive(false);
 //            yield return new WaitForSeconds(offTime);
@@ -413,15 +451,14 @@
 //    private void SpawnWindWall()
 //    {
 //        if (windWallPrefab == null) return;
+
+//        // Play the Wind Wall sound if assigned
+//        if (windWallSound != null && audioSource != null)
+//        {
+//            audioSource.PlayOneShot(windWallSound);
+//        }
+
 //        GameObject wall = Instantiate(windWallPrefab, transform.position, Quaternion.identity);
 //        wall.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-//    }
-
-//    private void ShootBomb()
-//    {
-//        if (bombPrefab == null || firePoint == null) return;
-//        GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
-//        bomb.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-//        bomb.GetComponent<BombProjectile>()?.Init(lastInputDirection);
 //    }
 //}
