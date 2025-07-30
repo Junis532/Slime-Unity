@@ -15,9 +15,9 @@ GameObject:
   - component: {fileID: 5340294572256895649}
   - component: {fileID: 5888740913974979812}
   - component: {fileID: 596596526947038125}
+  - component: {fileID: 977684244640882011}
   - component: {fileID: 1736361453566371062}
   - component: {fileID: 8846341094312032618}
-  - component: {fileID: 977684244640882011}
   - component: {fileID: 6045572874715174237}
   - component: {fileID: 2574320177181981338}
   - component: {fileID: 945894389789902049}
@@ -229,6 +229,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpFillImage: {fileID: 0}
   hpText: {fileID: 0}
+--- !u!114 &977684244640882011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7565043655989499910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d702d46179dd7c468ef9b10e6062bc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  joystick: {fileID: 0}
+  joystickCanvasGroup: {fileID: 0}
+  imageToHideWhenTouching: {fileID: 0}
+  diceImage: {fileID: 0}
+  blockInputCanvas: {fileID: 0}
+  directionSpritePrefabs:
+  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
+  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
+  - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
+  - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
+  distancesFromPlayer:
+  - 3.5
+  - 3
+  - 3
+  - 0
+  spriteBackOffsets:
+  - 0
+  - 0
+  - 0
+  - 0
+  skillAngleOffsets:
+  - 0
+  - 0
+  - 0
+  - 0
+  fireballPrefab: {fileID: 4385281220721116477, guid: 863ef348d239128419786a5d6959f4d0, type: 3}
+  firePoint: {fileID: 8740702165785062773}
+  lightningPrefab: {fileID: 5656251726587522849, guid: aac6e8907f75be642b794a01b6c0cc95, type: 3}
+  LightningEffectPrefab: {fileID: 1740983629059790656, guid: 9d52fa2380601d1428d642d0633462bf, type: 3}
+  windWallPrefab: {fileID: 4984258308688839241, guid: 7bbdd67a7ae301646b15b6ca3545a2ea, type: 3}
+  fireballSound: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
+  lightningSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
+  windWallSound: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
+  waitTimerText: {fileID: 0}
+  CooltimeImange: {fileID: 0}
+  frameRate: 0.05
+  rollDuration: 3
+  waitInterval: 10
 --- !u!114 &1736361453566371062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,56 +326,6 @@ MonoBehaviour:
   - {fileID: -6194320128911903003, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
   frameRate: 0.05
   currentState: 0
---- !u!114 &977684244640882011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7565043655989499910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d702d46179dd7c468ef9b10e6062bc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystick: {fileID: 0}
-  joystickCanvasGroup: {fileID: 0}
-  imageToHideWhenTouching: {fileID: 0}
-  diceImage: {fileID: 0}
-  blockInputCanvas: {fileID: 0}
-  skillSaveButton: {fileID: 0}
-  directionSpritePrefabs:
-  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
-  - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
-  distancesFromPlayer:
-  - 3.5
-  - 3
-  - 3
-  - 0
-  spriteBackOffsets:
-  - 0
-  - 0
-  - 0
-  - 0
-  skillAngleOffsets:
-  - 0
-  - 0
-  - 0
-  - 0
-  fireballPrefab: {fileID: 4385281220721116477, guid: 863ef348d239128419786a5d6959f4d0, type: 3}
-  firePoint: {fileID: 8740702165785062773}
-  lightningPrefab: {fileID: 5656251726587522849, guid: aac6e8907f75be642b794a01b6c0cc95, type: 3}
-  LightningEffectPrefab: {fileID: 1740983629059790656, guid: 9d52fa2380601d1428d642d0633462bf, type: 3}
-  windWallPrefab: {fileID: 4984258308688839241, guid: 7bbdd67a7ae301646b15b6ca3545a2ea, type: 3}
-  teleportEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
-  teleportEffectDuration: 0.3
-  bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
-  mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
-  fireballSound: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
-  lightningSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
-  windWallSound: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
 --- !u!114 &6045572874715174237
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -196,7 +196,7 @@ Transform:
   m_GameObject: {fileID: 5045083376037120503}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.3142853, y: 3.285714, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -274,10 +274,10 @@ MonoBehaviour:
   originalSpeed: 0
   speed: 0
   smoothTime: 0.1
-  dashSpeed: 20
+  dashSpeed: 9
   dashCooldown: 3
-  pauseBeforeDash: 0.2
-  dashDuration: 0.2
+  pauseBeforeDash: 0.3
+  dashDuration: 0.5
   dashPreviewPrefab: {fileID: 5286278096825507868, guid: 83dbeff95386f914380685b0b379f719, type: 3}
   previewDistanceFromEnemy: 2.5
   previewBackOffset: 0
@@ -288,6 +288,7 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
+  cooldownStopDuration: 3
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,6 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
 --- !u!114 &5809478642170743082
 MonoBehaviour:
   m_ObjectHideFlags: 0

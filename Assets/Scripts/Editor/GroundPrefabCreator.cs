@@ -84,7 +84,7 @@ public class GroundPrefabCreator : EditorWindow
         Rigidbody2D rb = go.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Static;
         rb.simulated = true;
-        rb.isKinematic = false;
+        //rb.isKinematic = false;
         rb.useFullKinematicContacts = false;
         rb.sleepMode = RigidbodySleepMode2D.StartAwake;
         rb.interpolation = RigidbodyInterpolation2D.None;

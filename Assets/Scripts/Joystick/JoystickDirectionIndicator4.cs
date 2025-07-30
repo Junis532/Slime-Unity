@@ -2,7 +2,7 @@
 //using System.Collections.Generic;
 //using UnityEngine;
 //using UnityEngine.UI;
-//using SkillNumber.Skills;
+//using SkillNumber.Skills; // Keep this if SkillType enum is defined here
 
 //public class JoystickDirectionIndicator3 : MonoBehaviour
 //{
@@ -25,10 +25,10 @@
 //    public GameObject lightningPrefab;
 //    public GameObject LightningEffectPrefab;
 //    public GameObject windWallPrefab;
-//    public GameObject teleportEffectPrefab;
-//    public float teleportEffectDuration = 1f;
-//    public GameObject bombPrefab;
-//    public GameObject mucusProjectilePrefab;
+//    public GameObject teleportEffectPrefab; // Still present but commented out in use
+//    public float teleportEffectDuration = 1f; // Still present but commented out in use
+//    public GameObject bombPrefab; // Still present but not used
+//    public GameObject mucusProjectilePrefab; // Still present but not used
 
 //    private GameObject indicatorInstance;
 //    private int currentIndicatorIndex = -1;
@@ -37,44 +37,60 @@
 //    private Vector2 lastInputDirection = Vector2.right;
 //    private float lastInputMagnitude = 0f;
 //    private bool hasUsedSkill = false, prevIsRolling = false;
-//    private bool isTeleportMode = false, isLightningMode = false;
-//    private Vector3 teleportTargetPosition, lightningTargetPosition;
+//    private bool isLightningMode = false; // isTeleportMode might not be strictly needed now but kept for consistency with original script
+//    private Vector3 lightningTargetPosition;
 //    private Vector2 lightningCastDirection;
 //    private bool prevBlockInputActive = false;
 
 //    [Header("오디오")]
 //    private AudioSource audioSource;
 //    public AudioClip fireballSound;
-//    //public AudioClip teleportSound;
+//    //public AudioClip teleportSound; // Commented out based on previous script's teleport functionality removal
 //    public AudioClip lightningSound;
 //    public AudioClip windWallSound;
 
+//    // SkillType enum should be defined in SkillNumber.Skills namespace or a global namespace
+//    // For demonstration, if it's not globally accessible, you might need to define it here:
+//    // public enum SkillType
+//    // {
+//    //     None = 0,
+//    //     Fireball = 1,
+//    //     Lightning = 2,
+//    //     Windwall = 3,
+//    //     Teleport = 4, // Keep if other parts of the project still reference it
+//    //     // Add other skills as needed
+//    // }
 
-
-//    // 현재 사용 중인 스킬(플레이어가 dice로 발동한)의 "스킬번호" (1~8)
+//    // CurrentUsingSkillIndex and CurrentUsingSkillType are now simplified
 //    public int CurrentUsingSkillIndex
 //    {
 //        get
 //        {
 //            int diceValue = DiceAnimation.currentDiceResult;
 //            if (diceValue <= 0 || hasUsedSkill) return 0;
-//            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
-//                return 0;
-//            return SkillSelect.FinalSkillOrder[diceValue - 1];
+//            // Directly map dice value to skill index (1, 2, 3 for Fireball, Lightning, Windwall)
+//            if (diceValue >= 1 && diceValue <= 3)
+//            {
+//                return diceValue;
+//            }
+//            return 0; // Return 0 for unmapped or invalid dice results
 //        }
 //    }
 
-//    // 선택적 SkillType 반환(사용처에 따라)
 //    public SkillType CurrentUsingSkillType
 //    {
 //        get
 //        {
 //            int diceValue = DiceAnimation.currentDiceResult;
 //            if (diceValue <= 0 || hasUsedSkill) return SkillType.None;
-//            if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceValue)
-//                return SkillType.None;
-//            int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceValue - 1];
-//            return (SkillType)mappedSkillNumber;
+//            // Directly map dice value to SkillType
+//            switch (diceValue)
+//            {
+//                case 1: return SkillType.Fireball;
+//                case 2: return SkillType.Lightning;
+//                case 3: return SkillType.Windwall;
+//                default: return SkillType.None;
+//            }
 //        }
 //    }
 
@@ -107,13 +123,11 @@
 //            ResetInputStates();
 //        }
 
-
 //        if (isBlockActive || DiceAnimation.currentDiceResult <= 0)
 //        {
 //            DisableInputAndIndicators();
 //            return;
 //        }
-
 
 //        Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
 //        isTouchingJoystick = input.magnitude > 0.2f;
@@ -122,7 +136,7 @@
 //        if (prevIsRolling && !DiceAnimation.isRolling)
 //        {
 //            hasUsedSkill = false;
-//            isTeleportMode = false;
+//            //isTeleportMode = false;
 //            isLightningMode = false;
 //            DiceAnimation.hasUsedSkill = false;
 //        }
@@ -143,12 +157,8 @@
 //            lastInputMagnitude = input.magnitude;
 //            SkillType currentSkill = GetMappedSkillType(DiceAnimation.currentDiceResult);
 
-//            if (currentSkill == SkillType.Teleport && isTeleportMode)
-//                UpdateTeleportIndicator(input);
-//            else if (currentSkill == SkillType.Lightning && isLightningMode)
+//            if (currentSkill == SkillType.Lightning && isLightningMode)
 //                UpdateLightningIndicator(input);
-//            //else if (currentSkill == SkillType.Mucus && isMucusMode)
-//            //    UpdateMucusIndicator(input);
 //            else
 //            {
 //                OnSkillButtonPressed();
@@ -180,7 +190,7 @@
 //        lastInputDirection = Vector2.right;
 //        lastInputMagnitude = 0f;
 //        hasUsedSkill = false;
-//        isTeleportMode = false;
+//        //isTeleportMode = false;
 //        isLightningMode = false;
 //        currentIndicatorIndex = -1;
 
@@ -195,7 +205,7 @@
 //        SetHideImageState(true);
 //        if (indicatorInstance != null) indicatorInstance.SetActive(false);
 //        currentIndicatorIndex = -1;
-//        isTeleportMode = false;
+//        //isTeleportMode = false;
 //        isLightningMode = false;
 //        if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
 //    }
@@ -212,16 +222,24 @@
 //        }
 //    }
 
+//    // Modified to directly map dice result to SkillType
 //    SkillType GetMappedSkillType(int diceResult)
 //    {
-//        if (SkillSelect.FinalSkillOrder == null || SkillSelect.FinalSkillOrder.Count < diceResult || diceResult <= 0)
+//        if (diceResult <= 0)
 //            return SkillType.None;
-//        int mappedSkillNumber = SkillSelect.FinalSkillOrder[diceResult - 1];
-//        return (SkillType)mappedSkillNumber;
+
+//        switch (diceResult)
+//        {
+//            case 1: return SkillType.Fireball;
+//            case 2: return SkillType.Lightning;
+//            case 3: return SkillType.Windwall;
+//            default: return SkillType.None; // For any other dice result
+//        }
 //    }
 
 //    void UpdateSkillIndicator(Vector2 input, int skillIndex)
 //    {
+//        // Adjust skillIndex to be 0-based for list access
 //        int index = skillIndex - 1;
 //        if (index < 0 || index >= directionSpritePrefabs.Count) { indicatorInstance?.SetActive(false); currentIndicatorIndex = -1; return; }
 
@@ -245,37 +263,28 @@
 //        indicatorInstance.transform.position = basePos + offset;
 //    }
 
-//    void UpdateTeleportIndicator(Vector2 input)
-//    {
-//        int index = (int)SkillType.Teleport - 1;
-//        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
-//        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
-//        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
-//        teleportTargetPosition = basePos;
-//        if (indicatorInstance == null) return;
-//        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
-//        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
-//        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-//        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
-//        indicatorInstance.SetActive(true);
-//    }
-
 //    void UpdateLightningIndicator(Vector2 input)
 //    {
-//        int index = (int)SkillType.Lightning - 1;
-//        float maxDist = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 5f;
+//        int index = (int)SkillType.Lightning - 1; // Assuming Lightning is an enum value
+//        // Ensure index is within bounds for distancesFromPlayer and spriteBackOffsets
+//        if (index < 0 || index >= distancesFromPlayer.Count || index >= spriteBackOffsets.Count || index >= skillAngleOffsets.Count)
+//        {
+//            // Handle error or use default values if index is out of bounds
+//            Debug.LogWarning("Lightning indicator arrays out of bounds. Using default values.");
+//            index = 0; // Use a default index or handle as an error
+//        }
+
+//        float maxDist = distancesFromPlayer[index];
 //        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
 //        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
 //        lightningTargetPosition = basePos;
 //        if (indicatorInstance == null) return;
-//        float offset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+//        float offset = spriteBackOffsets[index];
 //        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
 //        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 //        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
 //        indicatorInstance.SetActive(true);
 //    }
-
-
 
 //    public void OnSkillButtonPressed()
 //    {
@@ -286,11 +295,11 @@
 //        currentIndicatorIndex = -1;
 
 //        SkillType currentSkill = GetMappedSkillType(currentDiceResult);
-//        int prefabIndex = (int)currentSkill - 1;
+//        int prefabIndex = (int)currentSkill - 1; // Convert SkillType enum to 0-based index for prefab lists
 //        if (prefabIndex >= 0 && prefabIndex < directionSpritePrefabs.Count)
 //            SetupIndicator(prefabIndex);
 
-//        isTeleportMode = currentSkill == SkillType.Teleport;
+//        // Retain Teleport and Lightning mode flags for their specific indicator updates
 //        isLightningMode = currentSkill == SkillType.Lightning;
 //    }
 
@@ -312,18 +321,6 @@
 //            joystickCanvasGroup.alpha = 0f;
 
 //        int skillDiceValue = DiceAnimation.currentDiceResult;
-//        int effectDiceValue;
-
-//        if (!DiceAnimation.isRolling && DiceAnimation.hasUsedSkill)
-//        {
-//            effectDiceValue = DiceAnimation.noSkillUseCount;
-//            Debug.Log($"[세이브 주사위 사용] 부가 효과 주사위 눈금: {effectDiceValue}");
-//        }
-//        else
-//        {
-//            effectDiceValue = skillDiceValue;
-//            Debug.Log($"[일반 주사위 사용] 눈금: {effectDiceValue}");
-//        }
 
 //        SkillType skill = GetMappedSkillType(skillDiceValue);
 
@@ -333,7 +330,9 @@
 //                ShootFireball();
 //                break;
 
-//            //case SkillType.Teleport:
+//            // Teleport case is commented out based on your original script's commented out section.
+//            // If you wish to re-enable it, uncomment this section and the TeleportPlayer method.
+//            // case SkillType.Teleport:
 //            //    if (isTeleportMode)
 //            //    {
 //            //        TeleportPlayer(teleportTargetPosition);
@@ -342,9 +341,9 @@
 //            //    break;
 
 //            case SkillType.Lightning:
-//                if (isLightningMode)
+//                if (isLightningMode) // Ensure it's in lightning mode to cast
 //                {
-//                    lightningCastDirection = lastInputDirection;
+//                    lightningCastDirection = lastInputDirection; // Capture direction at release
 //                    CastLightning(lightningTargetPosition);
 //                    isLightningMode = false;
 //                }
@@ -361,8 +360,6 @@
 
 //        hasUsedSkill = true;
 
-//        //GameManager.Instance.diceAnimation.ExecuteSkillEffect(effectDiceValue);
-
 //        GameManager.Instance.diceAnimation.OnSkillUsed();
 //    }
 
@@ -370,7 +367,6 @@
 //    {
 //        if (fireballPrefab == null || firePoint == null) return;
 
-//        // Play the Fireball sound if assigned
 //        if (fireballSound != null && audioSource != null)
 //        {
 //            audioSource.PlayOneShot(fireballSound);
@@ -381,18 +377,18 @@
 //        obj.GetComponent<FireballProjectile>()?.Init(lastInputDirection);
 //    }
 
-//    //private void TeleportPlayer(Vector3 targetPos)
-//    //{
-//    //    if (teleportEffectPrefab != null)
-//    //    {
-//    //        GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
-//    //        Destroy(effect, teleportEffectDuration);
-//    //    }
-//    //    transform.position = targetPos;
+//    // private void TeleportPlayer(Vector3 targetPos)
+//    // {
+//    //     if (teleportEffectPrefab != null)
+//    //     {
+//    //         GameObject effect = Instantiate(teleportEffectPrefab, targetPos, Quaternion.identity);
+//    //         Destroy(effect, teleportEffectDuration);
+//    //     }
+//    //     transform.position = targetPos;
 
-//    //    if (teleportSound != null && audioSource != null)
-//    //        audioSource.PlayOneShot(teleportSound);
-//    //}
+//    //     if (teleportSound != null && audioSource != null)
+//    //         audioSource.PlayOneShot(teleportSound);
+//    // }
 
 //    private void CastLightning(Vector3 targetPos)
 //    {
@@ -403,6 +399,7 @@
 //    {
 //        int count = 3;
 //        float onTime = 0.2f, offTime = 0.23f;
+//        // Use lightningCastDirection captured at release, not lastInputDirection
 //        float angle = Mathf.Atan2(lightningCastDirection.y, lightningCastDirection.x) * Mathf.Rad2Deg;
 //        GameObject lightning = null;
 //        LightningDamage ld = null;
@@ -435,7 +432,6 @@
 //            }
 //            ld?.Init();
 
-//            // 번개 이펙트 시작할 때 효과음 재생
 //            if (audioSource != null && lightningSound != null)
 //            {
 //                audioSource.PlayOneShot(lightningSound);
@@ -452,7 +448,6 @@
 //    {
 //        if (windWallPrefab == null) return;
 
-//        // Play the Wind Wall sound if assigned
 //        if (windWallSound != null && audioSource != null)
 //        {
 //            audioSource.PlayOneShot(windWallSound);

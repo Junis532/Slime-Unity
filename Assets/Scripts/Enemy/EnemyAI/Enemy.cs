@@ -17,13 +17,6 @@ public class Enemy : EnemyBase
     public float avoidanceRange = 2f;
     public LayerMask obstacleMask;
 
-    [Header("행동/멈춤 주기")]
-    public float moveDuration = 4f;  // 몇 초 동안 움직일지
-    public float idleDuration = 3f;  // 멈추는 시간
-
-    private float actionTimer = 0f;
-    private bool isIdle = false;
-
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -37,31 +30,6 @@ public class Enemy : EnemyBase
     {
         if (!isLive) return;
 
-        actionTimer += Time.deltaTime;
-
-        if (isIdle)
-        {
-            // 멈춰있는 상태
-            if (actionTimer >= idleDuration)
-            {
-                isIdle = false;
-                actionTimer = 0f;
-            }
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            return;
-        }
-        else
-        {
-            // 움직이는 상태
-            if (actionTimer >= moveDuration)
-            {
-                isIdle = true;
-                actionTimer = 0f;
-                return;
-            }
-        }
-
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
@@ -70,7 +38,6 @@ public class Enemy : EnemyBase
 
         // 장애물 회피 로직
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
-
         Vector2 avoidanceVector = Vector2.zero;
 
         if (hit.collider != null)

@@ -20,7 +20,6 @@ public class LongRangeEnemyStats : ScriptableObject
         speed = 3.4f;
         maxHP = 20;
         currentHP = maxHP;
-        speed = 3.4f;
         attack = 1;
     }
 

@@ -17,22 +17,27 @@ public class PlayerDamaged : MonoBehaviour
     {
         if (spriteRenderer == null) return;
 
-        spriteRenderer.DOKill();  // 혹시 이전 애니메이션 있으면 정리
+        spriteRenderer.DOKill();  // 이전 애니메이션 정리
+
+        if (GameManager.Instance != null && GameManager.Instance.cameraShake != null)
+        {
+            Debug.Log("CameraShake 호출됨");
+            GameManager.Instance.cameraShake.Shake();
+        }
+
         spriteRenderer.color = Color.red;  // 빨간색으로 변경
-        spriteRenderer.DOColor(originalColor, 0.5f);  // 0.5초 동안 원래 색으로 돌아감
-        //GameManager.Instance.audioManager.PlaySFX(AudioManager.Instance.hitSound);  // 효과음 재생
+        spriteRenderer.DOColor(originalColor, 0.5f);  // 원래 색으로 돌아감
+
+        // 진동 추가 (모바일 기기에서만 작동)
+        Handheld.Vibrate();
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
         {
             var zacSkill = playerObj.GetComponent<ZacSkill>();
-            if (zacSkill != null)
+            if (zacSkill != null && zacSkill.enabled)
             {
-                if (zacSkill.enabled)
-                {
-                    zacSkill.SpawnPieces();
-
-                }
+                zacSkill.SpawnPieces();
             }
         }
     }

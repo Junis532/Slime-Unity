@@ -1,34 +1,32 @@
 ﻿using UnityEngine;
 using DG.Tweening;
-using System.Collections; // Make sure this is included for Coroutines
+using System.Collections;
 
 public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
-    public float followDuration = 0.3f; // Duration for the "preparation" state before firing
+    public float followDuration = 0.3f;
 
     private Transform target;
-    // private Transform player; // No longer needed for continuous position update in Update()
-    private bool isFollowingPlayer = true; // Represents the "preparing to fire" state
+    private bool isFollowingPlayer = true;
     private Coroutine moveCoroutine;
     private Collider2D myCollider;
-    // private Vector3 spawnOffset = Vector3.zero; // No longer used for position calculations here
     private bool isDestroying = false;
 
-    // New initialization method called by BulletSpawner
-    // This sets the arrow's initial position and rotation when it's spawned/enabled.
+    [Header("🔍 추적 이펙트 프리팹")]
+    public GameObject trackingEffectPrefab;
+    private GameObject trackingEffectInstance;
+
     public void InitializeBullet(Vector3 startPosition, float startAngle)
     {
-        transform.position = startPosition; // Set the exact starting position
-        transform.rotation = Quaternion.Euler(0, 0, startAngle); // Set the initial facing direction
-        isFollowingPlayer = true; // Ensure it starts in the "preparing" state
+        transform.position = startPosition;
+        transform.rotation = Quaternion.Euler(0, 0, startAngle);
+        isFollowingPlayer = true;
     }
 
-    // This method is still useful for updating rotation during the "preparation" phase,
-    // as the BulletSpawner continues to sync direction.
     public void SyncSetRotation(float angle)
     {
-        if (isFollowingPlayer) // Only update rotation if still in the preparation phase
+        if (isFollowingPlayer)
             transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
@@ -39,85 +37,81 @@ public class BulletAI : MonoBehaviour
 
     void OnEnable()
     {
-        transform.DOKill(); // Clear any previous DOTween animations
+        transform.DOKill();
         isDestroying = false;
-        CancelInvoke(); // Clear any previous Invoke calls
+        CancelInvoke();
 
         if (moveCoroutine != null)
         {
-            StopCoroutine(moveCoroutine); // Stop any previous movement coroutine
+            StopCoroutine(moveCoroutine);
             moveCoroutine = null;
         }
 
-        // isFollowingPlayer will be set by InitializeBullet, but we default it here
-        // in case OnEnable is called without InitializeBullet immediately following (e.g., from pool reset)
         isFollowingPlayer = true;
         target = null;
-        // player = GameObject.FindGameObjectWithTag("Player")?.transform; // No longer used in Update()
 
         if (myCollider != null)
-            myCollider.enabled = false; // Disable collider during preparation
+            myCollider.enabled = false;
 
-        transform.localScale = Vector3.zero; // Start small for scaling animation
+        transform.localScale = Vector3.zero;
 
-        // Auto-destroy after 10 seconds if it doesn't hit anything
         Invoke(nameof(DestroySelf), 10f);
 
-        // Scale up animation
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
             if (myCollider != null)
-                myCollider.enabled = true; // Enable collider once scaled up
+                myCollider.enabled = true;
 
-            // After the scale-up animation, transition to actively seeking an enemy
-            Invoke(nameof(SwitchToEnemy), followDuration);
+            // 🔽 Start SwitchToEnemy safely with delay
+            StartCoroutine(DelayedSwitchToEnemy(followDuration));
         });
     }
 
-    void Update()
+    IEnumerator DelayedSwitchToEnemy(float delay)
     {
-        // ***IMPORTANT CHANGE: Removed the continuous position update from here.***
-        // The BulletSpawner is now responsible for tracking the arrow's position
-        // during the 'isFollowingPlayer' (preparation) phase via SyncBowAndArrowToPlayer().
-        //
-        // if (isFollowingPlayer && player != null)
-        // {
-        //     transform.position = player.position + spawnOffset;
-        // }
+        yield return new WaitForSeconds(delay);
+
+        if (!gameObject.activeInHierarchy) yield break;
+
+        SwitchToEnemy();
     }
 
-    // Changes the bullet's state from "preparing" to "moving towards enemy"
     void SwitchToEnemy()
     {
-        isFollowingPlayer = false; // Arrow is no longer just following the player
-        FindClosestTarget(); // Find the target enemy
+        isFollowingPlayer = false;
+        FindClosestTarget();
 
         if (target != null)
         {
-            moveCoroutine = StartCoroutine(MoveTowardsTarget()); // Start moving towards the target
+            if (trackingEffectPrefab != null)
+            {
+                Vector3 offset = new Vector3(0f, -0.1f, 0f);
+                trackingEffectInstance = Instantiate(trackingEffectPrefab, target.position + offset, Quaternion.identity);
+                trackingEffectInstance.transform.SetParent(target);
+            }
+
+            moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else
         {
-            DestroySelf(); // If no target, destroy itself
+            DestroySelf();
         }
     }
 
-    // Coroutine to move the bullet towards the target enemy
-    System.Collections.IEnumerator MoveTowardsTarget()
+    IEnumerator MoveTowardsTarget()
     {
         while (target != null && target.gameObject.activeInHierarchy && !isDestroying)
         {
             Vector3 direction = (target.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle); // Continuously adjust direction
-            transform.position += direction * moveSpeed * Time.deltaTime; // Move towards target
-            yield return null; // Wait for the next frame
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+            transform.position += direction * moveSpeed * Time.deltaTime;
+            yield return null;
         }
 
-        DestroySelf(); // Destroy when target is lost or destroyed
+        DestroySelf();
     }
 
-    // Finds the closest enemy to the current bullet's position
     void FindClosestTarget()
     {
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
@@ -141,38 +135,41 @@ public class BulletAI : MonoBehaviour
         target = closest;
     }
 
-    // Handles collision with other 2D colliders
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (isDestroying) return; // Prevent multiple destruction calls
+        if (isDestroying) return;
 
-        // Check if the collided object is an enemy
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
-                hp.TakeDamage(); // Apply damage to the enemy
+                hp.TakeDamage();
 
-            DestroySelf(); // Destroy the bullet after hitting an enemy
+            DestroySelf();
         }
     }
 
-    // Method to return the bullet to the object pool
     void DestroySelf()
     {
-        if (isDestroying) return; // Prevent multiple destruction calls
+        if (isDestroying) return;
         isDestroying = true;
 
-        CancelInvoke(); // Cancel all Invoke calls
-        transform.DOKill(); // Stop all DOTween animations
+        CancelInvoke();
+        transform.DOKill();
 
         if (moveCoroutine != null)
         {
-            StopCoroutine(moveCoroutine); // Stop the movement coroutine
+            StopCoroutine(moveCoroutine);
             moveCoroutine = null;
         }
 
-        GameManager.Instance.poolManager.ReturnToPool(gameObject); // Return to pool
+        if (trackingEffectInstance != null)
+        {
+            Destroy(trackingEffectInstance);
+            trackingEffectInstance = null;
+        }
+
+        GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
 }

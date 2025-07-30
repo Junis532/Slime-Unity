@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
+    public CameraShake cameraShake;
     public PlayerController playerController;
     public PlayerDamaged playerDamaged;
     public PlayerDie playerDie;
@@ -37,6 +38,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public DialogManager dialogManager;
     public EnemyHP enemyHP;
     public DiceAnimation diceAnimation;
+    public JoystickDirectionIndicator joystickDirectionIndicator;
     //public FireballProjectile fireballProjectile;
     //public LightningDamage lightningDamage;
     public ZacSkill zacSkill;
@@ -47,6 +49,8 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("상점 패널")]
     public RectTransform shopPanel;
 
+    [Header("게임 시간 설정")]
+    public float gameTime;
 
     private enum GameState
     {
@@ -160,16 +164,25 @@ public class GameManager : MonoSingleTone<GameManager>
         {
             PoolManager.Instance.ReturnToPool(coin);
         }
+
         GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
         foreach (GameObject bullet in bullets)
         {
             PoolManager.Instance.ReturnToPool(bullet);
         }
+
+        GameObject[] enemyHPs = GameObject.FindGameObjectsWithTag("HP");
+        foreach (GameObject enemyHP in enemyHPs)
+        {
+            PoolManager.Instance.ReturnToPool(enemyHP);
+        }
+
         GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
         foreach (GameObject skill in skills)
         {
             Destroy(skill);
         }
+
 
         // 기다리지 않고 바로 상점 상태로 전환
         ChangeStateToClear();
@@ -193,10 +206,10 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (timer != null)
         {
-            timer.ResetTimer(5f);
+            timer.ResetTimer(gameTime);
         }
 
-        diceAnimation.StartRollingLoop();
+        joystickDirectionIndicator.StartRollingLoop();
 
         waveManager.StartSpawnLoop();
     }

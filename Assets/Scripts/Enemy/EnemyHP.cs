@@ -1,14 +1,17 @@
 ﻿using DG.Tweening;
 using UnityEngine;
-using TMPro; // Add this using directive for TMP_Text
+using TMPro;
 
 public class EnemyHP : MonoBehaviour
 {
-    public GameObject hpBarPrefab; // EnemyHPBar 프리팹 (PoolManager에 동일한 이름으로 등록 필요)
-    public GameObject damageTextPrefab; // Assign your DamageText prefab here in the Inspector
+    [Header("체력 관련")]
+    public GameObject hpBarPrefab;
     private EnemyHPBar hpBar;
     private float currentHP;
     private float maxHP;
+
+    [Header("데미지 텍스트")]
+    public GameObject damageTextPrefab; // 풀에 등록 필요
 
     private SpriteRenderer spriteRenderer;
 
@@ -17,31 +20,25 @@ public class EnemyHP : MonoBehaviour
         maxHP = GameManager.Instance.enemyStats.maxHP;
         currentHP = maxHP;
 
-        // 월드캔버스 찾아서 부모 지정
+        // 월드 캔버스에 HP 바 붙이기
         Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-
-        // 1. 풀에서 HP바 생성 (부모 설정)
         GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(
             hpBarPrefab.name, Vector3.zero, Quaternion.identity);
         hpBarObj.transform.SetParent(worldCanvas.transform, false);
 
-        // 2. 초기화 및 비활성화
         hpBar = hpBarObj.GetComponent<EnemyHPBar>();
         hpBar.Init(transform, maxHP);
         hpBarObj.SetActive(false);
 
-        // 3. 스프라이트렌더러 캐싱
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
-        {
-            Debug.LogWarning("SpriteRenderer 컴포넌트를 찾지 못했습니다.");
-        }
+            Debug.LogWarning("SpriteRenderer를 찾지 못했습니다.");
     }
 
     public void TakeDamage()
     {
-        int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack); // ← float → int 변환
-        currentHP -= damage;         // currentHP가 float이면 OK (int → float은 암시적 변환 가능)
+        int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
+        currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
         if (hpBar != null)
@@ -50,13 +47,14 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
-        ShowDamageText(damage);      // DamageText.Show(int)와 타입 일치
         PlayDamageEffect();
+        ShowDamageText(damage);
 
-        if (currentHP <= 0) Die();
+        if (currentHP <= 0)
+            Die();
     }
 
-    public void SkillTakeDamage(int damage)  // 이미 int면 그대로 사용
+    public void SkillTakeDamage(int damage)
     {
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
@@ -67,41 +65,67 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
-        ShowDamageText(damage);
         PlayDamageEffect();
+        ShowDamageText(damage);
 
-        if (currentHP <= 0) Die();
+        if (currentHP <= 0)
+            Die();
     }
+
     private void ShowDamageText(int damage)
     {
         if (damageTextPrefab == null)
         {
-            Debug.LogWarning("damageTextPrefab이 할당되지 않았습니다.");
+            Debug.LogWarning("damageTextPrefab이 설정되지 않았습니다.");
             return;
         }
 
-        Vector3 spawnPosition = transform.position + new Vector3(0, 1f, 0);
-        GameObject damageTextObj = PoolManager.Instance.SpawnFromPool(
+        Vector3 spawnPosition = transform.position;
+        GameObject textObj = PoolManager.Instance.SpawnFromPool(
             damageTextPrefab.name,
             spawnPosition,
-            Quaternion.identity);
+            Quaternion.identity
+        );
 
-        // 부모 설정은 안 해도 되지만 필요시 적의 transform으로 설정 가능
-        damageTextObj.transform.SetParent(null); // 또는 transform
-
-        DamageText damageText = damageTextObj.GetComponent<DamageText>();
-        if (damageText != null)
+        if (textObj == null)
         {
-            damageText.Show(damage);
-            Debug.Log($"DamageText 표시: {damage}");
+            Debug.LogWarning("damageTextObj가 null입니다. 풀에 damageTextPrefab이 등록되었는지 확인하세요.");
+            return;
+        }
+
+        TMP_Text text = textObj.GetComponent<TMP_Text>();
+        if (text != null)
+        {
+            text.text = damage.ToString();
+        }
+        else
+        {
+            Debug.LogWarning("damageTextObj에 TMP_Text 컴포넌트가 없습니다.");
+        }
+
+        Transform t = textObj.transform;
+        if (t != null)
+        {
+            t.position = spawnPosition;
+            t.localScale = Vector3.one;
+            t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+            t.DOScale(1.2f, 0.2f).OnComplete(() =>
+            {
+                t.DOScale(1f, 0.3f);
+            });
+
+            DOVirtual.DelayedCall(0.6f, () =>
+            {
+                PoolManager.Instance.ReturnToPool(textObj);
+            });
         }
     }
+
 
     private void PlayDamageEffect()
     {
         if (spriteRenderer == null) return;
 
-        // 빨간색으로 변경 후 0.2초 후 하얀색으로 복구
         spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
         {
             spriteRenderer.DOColor(Color.white, 0.1f);
@@ -110,11 +134,9 @@ public class EnemyHP : MonoBehaviour
 
     private void Die()
     {
-        // HP바 반환 (Destroy → ReturnToPool)
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
 
-        // 공통 EnemiesDie 스크립트 실행
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null)
         {

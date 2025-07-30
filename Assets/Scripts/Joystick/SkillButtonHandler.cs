@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class SkillButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    public JoystickDirectionIndicator3 directionIndicator;
+    public JoystickDirectionIndicator directionIndicator;
     public CanvasGroup joystickCanvasGroup; // 조이스틱 알파 조절용
     private Image skillImage;
 
