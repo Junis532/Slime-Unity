@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1137159187252463914}
   - component: {fileID: 5432555318403641415}
   - component: {fileID: 3971749417192356573}
+  - component: {fileID: 897030161065753097}
   m_Layer: 0
   m_Name: DetectEnemy
   m_TagString: Enemy
@@ -187,7 +188,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -221,16 +222,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
   detectionRange: 2
   rangeVisualPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
-  randomChangeInterval: 2
-  avoidanceRange: 2
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
   moveDuration: 4
   idleDuration: 3
+--- !u!195 &897030161065753097
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950030168838296181}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &5933520022929201632
 GameObject:
   m_ObjectHideFlags: 0

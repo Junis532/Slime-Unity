@@ -1,31 +1,32 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class ExplosionEnemy : EnemyBase
 {
     private bool isLive = true;
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
+    private NavMeshAgent agent;
 
-    private Vector2 currentVelocity;
-    private Vector2 currentDirection;
-
-    public float smoothTime = 0.1f;
     public float explosionRange = 1.5f;
     public GameObject explosionEffectPrefab;
-
-    [Header("회피 관련")]
-    public float avoidanceRange = 1.5f;
-    public LayerMask obstacleMask;
 
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+        agent = GetComponent<NavMeshAgent>();
 
         originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
+
+        // NavMeshAgent 설정
+        agent.updateRotation = false;
+        agent.updateUpAxis = false; // 2D용
+        agent.speed = speed;
     }
 
     void Update()
@@ -35,39 +36,24 @@ public class ExplosionEnemy : EnemyBase
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
-        Vector2 currentPos = transform.position;
-        Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
-        float distanceToPlayer = dirToPlayer.magnitude;
+        float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
 
-        // 폭발 거리 내에 플레이어가 있으면 즉시 폭발
+        // 플레이어와의 거리 확인 후 폭발
         if (distanceToPlayer <= explosionRange)
         {
-            Explode(player.transform.position);
+            Explode(transform.position);
             return;
         }
 
-        // 장애물 회피 로직
-        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer.normalized, avoidanceRange, obstacleMask);
-        Vector2 avoidanceVector = Vector2.zero;
+        // 플레이어 쫓아감
+        agent.SetDestination(player.transform.position);
 
-        if (hit.collider != null)
-        {
-            Vector2 hitNormal = hit.normal;
-            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
-            avoidanceVector = sideStep.normalized * 1.5f;
-
-            Debug.DrawRay(currentPos, sideStep * 2f, Color.green);
-        }
-
-        Vector2 finalDir = (dirToPlayer.normalized + avoidanceVector).normalized;
-        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
-        Vector2 moveVec = currentDirection * speed * Time.deltaTime;
-        transform.Translate(moveVec);
-
-        if (currentDirection.magnitude > 0.01f)
+        // 애니메이션 처리
+        Vector2 dir = agent.velocity;
+        if (dir.magnitude > 0.1f)
         {
             Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (currentDirection.x < 0 ? -1 : 1);
+            scale.x = Mathf.Abs(scale.x) * (dir.x < 0 ? -1 : 1);
             transform.localScale = scale;
 
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
@@ -118,8 +104,5 @@ public class ExplosionEnemy : EnemyBase
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRange);
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, avoidanceRange);
     }
 }

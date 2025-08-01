@@ -1,18 +1,17 @@
 ﻿using DG.Tweening;
-using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class LongRangeDashEnemy : EnemyBase
+[RequireComponent(typeof(NavMeshAgent))]
+public class NavLongRangeDashEnemy : EnemyBase
 {
     private bool isLive = true;
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
+    private NavMeshAgent agent;
 
-    private Vector2 currentVelocity;
-    private Vector2 currentDirection;
-
-    public float smoothTime = 0.1f;
+    [Header("대시 설정")]
     public float dashSpeed = 20f;
     public float dashCooldown = 3f;
     public float pauseBeforeDash = 0.3f;
@@ -26,8 +25,8 @@ public class LongRangeDashEnemy : EnemyBase
     private bool isDashing = false;
     private Vector2 dashDirection;
 
-    // --- 대쉬 후 멈춤 상태 관련 ---
-    public float postDashIdleDuration = 3f;  // 대쉬 후 멈춤 시간
+    [Header("대시 후 정지")]
+    public float postDashIdleDuration = 3f;
     private bool isIdle = false;
     private float idleTimer = 0f;
 
@@ -39,10 +38,6 @@ public class LongRangeDashEnemy : EnemyBase
 
     [Header("벽 체크")]
     public LayerMask wallLayerMask;
-
-    [Header("회피 관련")]
-    public float avoidanceRange = 1.5f;
-    public LayerMask obstacleMask;
 
     [Header("대시 중 총알")]
     public GameObject bulletPrefab;
@@ -57,9 +52,14 @@ public class LongRangeDashEnemy : EnemyBase
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+        agent = GetComponent<NavMeshAgent>();
 
         originalSpeed = GameManager.Instance.dashEnemyStats.speed;
         speed = originalSpeed;
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.speed = speed;
 
         if (dashPreviewPrefab != null)
         {
@@ -72,7 +72,11 @@ public class LongRangeDashEnemy : EnemyBase
     {
         if (!isLive) return;
 
-        // 대쉬 후 멈춤 처리
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null) return;
+
+        Vector2 toPlayer = (player.transform.position - transform.position).normalized;
+
         if (isIdle)
         {
             idleTimer += Time.deltaTime;
@@ -85,19 +89,12 @@ public class LongRangeDashEnemy : EnemyBase
             {
                 isIdle = false;
                 idleTimer = 0f;
-                dashTimer = 0f;  // 대쉬 쿨다운도 초기화
+                dashTimer = 0f;
+                agent.enabled = true;
             }
             return;
         }
 
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
-
-        Vector2 currentPos = transform.position;
-        Vector2 toPlayer = (player.transform.position - transform.position);
-        Vector2 inputVec = toPlayer.normalized;
-
-        // 대시 중이면 DashMove()
         if (isDashing)
         {
             DashMove();
@@ -106,16 +103,10 @@ public class LongRangeDashEnemy : EnemyBase
             FlipSprite(dashDirection.x);
 
             if (dashTimeElapsed >= dashDuration)
-            {
                 EndDash();
-                // 대시가 끝나면 멈춤 상태로 전환
-                isIdle = true;
-                idleTimer = 0f;
-            }
             return;
         }
 
-        // 대시 준비 상태
         if (isPreparingToDash)
         {
             pauseTimer += Time.deltaTime;
@@ -124,12 +115,11 @@ public class LongRangeDashEnemy : EnemyBase
             if (dashPreviewInstance != null)
             {
                 dashPreviewInstance.SetActive(true);
-
-                Vector3 direction = new Vector3(dashDirection.x, dashDirection.y, 0f).normalized;
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+                Vector3 dir = new Vector3(dashDirection.x, dashDirection.y, 0f).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
                 dashPreviewInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-                Vector3 basePos = transform.position + direction * previewDistanceFromEnemy;
+                Vector3 basePos = transform.position + dir * previewDistanceFromEnemy;
                 Vector3 offset = -dashPreviewInstance.transform.up * previewBackOffset;
                 dashPreviewInstance.transform.position = basePos + offset;
             }
@@ -140,6 +130,7 @@ public class LongRangeDashEnemy : EnemyBase
                 isDashing = true;
                 pauseTimer = 0f;
                 lastDashFireTime = 0f;
+                agent.enabled = false;
 
                 if (dashPreviewInstance != null)
                     dashPreviewInstance.SetActive(false);
@@ -147,43 +138,29 @@ public class LongRangeDashEnemy : EnemyBase
             return;
         }
 
-        // 일반 이동 + 회피
-        Vector2 avoidanceVec = Vector2.zero;
-        RaycastHit2D hit = Physics2D.Raycast(currentPos, inputVec, avoidanceRange, obstacleMask);
-        if (hit.collider != null)
+        // 일반 이동
+        if (agent.enabled)
         {
-            Vector2 normal = hit.normal;
-            Vector2 sideStep = Vector2.Perpendicular(normal).normalized;
-            avoidanceVec = sideStep * 1.5f;
+            agent.SetDestination(player.transform.position);
+            Vector2 dir = agent.velocity;
 
-            Debug.DrawRay(currentPos, sideStep * 2, Color.green);
+            if (dir.magnitude > 0.1f)
+            {
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+                FlipSprite(dir.x);
+            }
+            else
+            {
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            }
         }
 
-        Vector2 finalDir = (inputVec + avoidanceVec).normalized;
-        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
-        Vector2 nextVec = currentDirection * speed * Time.deltaTime;
-        transform.Translate(nextVec);
-
-        if (currentDirection.magnitude > 0.01f)
-        {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-            FlipSprite(currentDirection.x);
-        }
-        else
-        {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-        }
-
-        if (dashPreviewInstance != null)
-            dashPreviewInstance.SetActive(false);
-
-        // 대시 타이머 체크 (멈춤 상태가 아닐 때만)
         dashTimer += Time.deltaTime;
         if (dashTimer >= dashCooldown)
         {
             isPreparingToDash = true;
-            dashDirection = inputVec;
             pauseTimer = 0f;
+            dashDirection = toPlayer;
             return;
         }
     }
@@ -197,9 +174,6 @@ public class LongRangeDashEnemy : EnemyBase
         {
             transform.position = hit.point - dashDirection.normalized * 0.01f;
             EndDash();
-            // 대시가 벽에 부딪혀도 멈춤 상태로 전환
-            isIdle = true;
-            idleTimer = 0f;
         }
         else
         {
@@ -218,8 +192,8 @@ public class LongRangeDashEnemy : EnemyBase
         isDashing = false;
         dashTimeElapsed = 0f;
         dashTimer = 0f;
-        currentDirection = Vector2.zero;
-        currentVelocity = Vector2.zero;
+        isIdle = true;
+        idleTimer = 0f;
     }
 
     private void FireBulletsSideways(Vector2 centerDirection)
@@ -256,9 +230,7 @@ public class LongRangeDashEnemy : EnemyBase
             GameManager.Instance.playerDamaged.PlayDamageEffect();
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
                 GameManager.Instance.playerStats.currentHP = 0;
-            }
         }
     }
 
@@ -281,6 +253,9 @@ public class LongRangeDashEnemy : EnemyBase
         pauseTimer = 0f;
         isIdle = false;
         idleTimer = 0f;
+
+        if (agent != null)
+            agent.enabled = true;
     }
 
     void OnDestroy()

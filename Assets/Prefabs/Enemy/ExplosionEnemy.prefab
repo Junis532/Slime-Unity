@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 1596576362810468025}
   - component: {fileID: 6070919246661804172}
   - component: {fileID: 1353719012252967690}
+  - component: {fileID: 6125118215960809984}
   m_Layer: 0
   m_Name: ExplosionEnemy
   m_TagString: Enemy
@@ -460,7 +461,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -494,15 +495,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
   explosionRange: 0.5
   explosionEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
-  avoidanceRange: 1.5
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 192
-  moveDuration: 4
-  idleDuration: 3
+--- !u!195 &6125118215960809984
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5659302355901705123}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 2.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &5761822747259262643
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,7 +42,7 @@ Transform:
   m_GameObject: {fileID: 7565043655989499910}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -9, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -209,12 +209,12 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.16}
-  m_Radius: 0.13
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.11
 --- !u!114 &596596526947038125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,41 +244,29 @@ MonoBehaviour:
   joystick: {fileID: 0}
   joystickCanvasGroup: {fileID: 0}
   imageToHideWhenTouching: {fileID: 0}
-  diceImage: {fileID: 0}
   blockInputCanvas: {fileID: 0}
   directionSpritePrefabs:
-  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
-  - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
   distancesFromPlayer:
-  - 3.5
   - 3
-  - 3
-  - 0
   spriteBackOffsets:
-  - 0
-  - 0
-  - 0
   - 0
   skillAngleOffsets:
   - 0
   - 0
   - 0
-  - 0
-  fireballPrefab: {fileID: 4385281220721116477, guid: 863ef348d239128419786a5d6959f4d0, type: 3}
-  firePoint: {fileID: 8740702165785062773}
-  lightningPrefab: {fileID: 5656251726587522849, guid: aac6e8907f75be642b794a01b6c0cc95, type: 3}
-  LightningEffectPrefab: {fileID: 1740983629059790656, guid: 9d52fa2380601d1428d642d0633462bf, type: 3}
-  windWallPrefab: {fileID: 4984258308688839241, guid: 7bbdd67a7ae301646b15b6ca3545a2ea, type: 3}
+  slimeJumpLandEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
+  slimeJumpDamage: 30
+  slimeJumpRadius: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
   fireballSound: {fileID: 8300000, guid: 0ad9bfb62c1a28a498459b36c83ff640, type: 3}
   lightningSound: {fileID: 8300000, guid: e17d0f2c65bae4d478946d7c68fbf5bf, type: 3}
   windWallSound: {fileID: 8300000, guid: e88f549ea9bdf01409fac59331b1fc95, type: 3}
   waitTimerText: {fileID: 0}
   CooltimeImange: {fileID: 0}
-  frameRate: 0.05
-  rollDuration: 3
-  waitInterval: 10
+  waitInterval: 5
 --- !u!114 &1736361453566371062
 MonoBehaviour:
   m_ObjectHideFlags: 0

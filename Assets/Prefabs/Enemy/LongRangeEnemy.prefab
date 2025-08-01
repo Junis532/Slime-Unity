@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 2575544821683126937}
   - component: {fileID: 8814799677379845111}
   - component: {fileID: 4938346176872795198}
+  - component: {fileID: 3227472443388158194}
   m_Layer: 10
   m_Name: LongRangeEnemy
   m_TagString: LongRangeEnemy
@@ -198,16 +199,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
   safeDistance: 3
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   bulletSpeed: 5
   fireCooldown: 1
   bulletLifetime: 3
-  avoidanceRange: 3
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!114 &3014388244898049942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,7 +298,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -322,6 +318,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+--- !u!195 &3227472443388158194
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921092420799269478}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &2344402632472148388
 GameObject:
   m_ObjectHideFlags: 0

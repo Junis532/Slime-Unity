@@ -180,6 +180,7 @@ GameObject:
   - component: {fileID: 2641999406311416521}
   - component: {fileID: 7356865628656977087}
   - component: {fileID: 9108037825583224159}
+  - component: {fileID: 954115967608437427}
   m_Layer: 0
   m_Name: DashEnemy
   m_TagString: DashEnemy
@@ -273,7 +274,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
   dashSpeed: 9
   dashCooldown: 3
   pauseBeforeDash: 0.3
@@ -284,10 +284,6 @@ MonoBehaviour:
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 40
-  avoidanceRange: 1.5
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
   cooldownStopDuration: 3
 --- !u!114 &5443989144971844740
 MonoBehaviour:
@@ -383,7 +379,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -403,6 +399,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+--- !u!195 &954115967608437427
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5045083376037120503}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 2.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &6507690071776579670
 GameObject:
   m_ObjectHideFlags: 0

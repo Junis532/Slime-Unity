@@ -1,45 +1,40 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class MagnetEnemy : EnemyBase
 {
     private bool isLive = true;
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
+    private NavMeshAgent agent;
 
-    private Vector2 currentVelocity;
-    private Vector2 currentDirection;
+    private GameObject player;
 
-    public float smoothTime = 0.1f;
+    [Header("추적 및 끌기")]
     public float detectionRange = 5f;
+    public float pullForce = 1.5f;
 
     [Header("시각적 범위 표시")]
     public GameObject rangeVisualPrefab;
     private GameObject rangeVisualInstance;
 
-    [Header("속도 설정")]
-    public float followSpeed = 2f;    // 적이 플레이어를 따라가는 속도
-    public float pullForce = 1.5f;    // 플레이어를 끌어당기는 힘
-
-    [Header("회피 관련")]
-    public float avoidanceRange = 2f;        // 장애물 감지 범위
-    public LayerMask obstacleMask;           // 장애물 레이어 지정
-
-    [Header("행동/멈춤 주기")]
-    public float moveDuration = 4f;  // 움직이는 시간
-    public float idleDuration = 3f;  // 멈추는 시간
-
-    private float actionTimer = 0f;
-    private bool isIdle = false;
-
-
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
+        agent = GetComponent<NavMeshAgent>();
 
-        originalSpeed = followSpeed;
+        originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
+
+        player = GameObject.FindWithTag("Player");
+
+        // NavMeshAgent 설정
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.speed = speed;
 
         if (rangeVisualPrefab != null)
         {
@@ -50,81 +45,38 @@ public class MagnetEnemy : EnemyBase
 
     void Update()
     {
-        if (!isLive) return;
+        if (!isLive || player == null) return;
 
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
+        Vector3 playerPos = player.transform.position;
+        float distance = Vector2.Distance(transform.position, playerPos);
 
-        // 🟡 움직임/멈춤 주기 처리
-        actionTimer += Time.deltaTime;
-
-        if (isIdle)
-        {
-            if (actionTimer >= idleDuration)
-            {
-                isIdle = false;
-                actionTimer = 0f;
-            }
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            return;
-        }
-        else
-        {
-            if (actionTimer >= moveDuration)
-            {
-                isIdle = true;
-                actionTimer = 0f;
-                return;
-            }
-        }
-
-        Vector2 currentPos = transform.position;
-        Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
-        float distance = dirToPlayer.magnitude;
+        // 이동
+        agent.SetDestination(playerPos);
 
         // 좌우 반전
-        if (dirToPlayer.x != 0)
+        Vector2 dir = agent.velocity;
+        if (dir.x != 0)
         {
             Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (dirToPlayer.x < 0 ? -1 : 1);
+            scale.x = Mathf.Abs(scale.x) * (dir.x < 0 ? -1 : 1);
             transform.localScale = scale;
         }
 
-        // 장애물 회피 검사
-        Vector2 dirNormalized = dirToPlayer.normalized;
-        RaycastHit2D hit = Physics2D.Raycast(currentPos, dirNormalized, avoidanceRange, obstacleMask);
-
-        Vector2 avoidanceVector = Vector2.zero;
-        if (hit.collider != null)
-        {
-            Vector2 hitNormal = hit.normal;
-            Vector2 sideStep = Vector2.Perpendicular(hitNormal);
-            avoidanceVector = sideStep.normalized * 1.5f;
-            Debug.DrawRay(currentPos, sideStep * 2f, Color.green);
-        }
-
-        Vector2 finalDir = (dirNormalized + avoidanceVector).normalized;
-
-        // 플레이어 끌어당김
-        if (distance <= detectionRange)
-        {
-            Vector3 pullDir = (transform.position - player.transform.position).normalized;
-            player.transform.position += pullDir * pullForce * Time.deltaTime;
-        }
-
-        // 이동
-        currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
-        Vector2 moveVec = currentDirection * followSpeed * Time.deltaTime;
-        transform.Translate(moveVec);
-
-        if (currentDirection.magnitude > 0.01f)
+        // 이동 애니메이션
+        if (dir.magnitude > 0.1f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
         }
         else
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+        }
+
+        // 플레이어 끌기
+        if (distance <= detectionRange)
+        {
+            Vector3 pullDir = (transform.position - playerPos).normalized;
+            player.transform.position += pullDir * pullForce * Time.deltaTime;
         }
     }
 
@@ -137,8 +89,7 @@ public class MagnetEnemy : EnemyBase
             int damage = GameManager.Instance.enemyStats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
 
-            if (GameManager.Instance.playerDamaged != null)
-                GameManager.Instance.playerDamaged.PlayDamageEffect();
+            GameManager.Instance.playerDamaged?.PlayDamageEffect();
 
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {

@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 3419793013817961083}
   - component: {fileID: 2835314150833180629}
   - component: {fileID: 3984726400083157786}
+  - component: {fileID: 2894885724907707306}
   m_Layer: 0
   m_Name: PotionEnemy
   m_TagString: PotionEnemy
@@ -198,7 +199,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
   stopCooldown: 3
   stopDuration: 3
   dashPreviewPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
@@ -206,10 +206,6 @@ MonoBehaviour:
   previewBackOffset: 0
   potionPrefab: {fileID: 6950589694986560093, guid: 681df01c0e58e284488d0e7a0b837d2b, type: 3}
   potionLifetime: 5
-  avoidanceRange: 1.5
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!114 &5691304153326943676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304,7 +300,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -324,6 +320,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+--- !u!195 &2894885724907707306
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089936311879354214}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &2344402632472148388
 GameObject:
   m_ObjectHideFlags: 0
