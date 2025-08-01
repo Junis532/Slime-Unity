@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using SkillNumber.Skills; // SkillType enum이 이 네임스페이스에 정의돼 있다고 가정
+using DG.Tweening;
+using SkillNumber.Skills;
 
 public class JoystickDirectionIndicator : MonoBehaviour
 {
@@ -13,17 +14,20 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public GameObject imageToHideWhenTouching;
     public GameObject blockInputCanvas;
 
-    [Header("스킬 관련 프리팹 및 위치")]
+    [Header("범위 관련 프리팹 및 위치")]
     public List<GameObject> directionSpritePrefabs;
     public List<float> distancesFromPlayer;
     public List<float> spriteBackOffsets;
     public List<float> skillAngleOffsets;
 
-    public GameObject fireballPrefab;
-    public Transform firePoint;
-    public GameObject lightningPrefab;
-    public GameObject LightningEffectPrefab;
-    public GameObject windWallPrefab;
+    [Header("착지 이펙트")]
+    public GameObject slimeJumpLandEffectPrefab;
+
+
+    [Header("슬라임 점프 설정")]
+    public float slimeJumpDamage = 30f;
+    public float slimeJumpRadius = 5f;
+    public LayerMask enemyLayer;
 
     private GameObject indicatorInstance;
     private int currentIndicatorIndex = -1;
@@ -33,9 +37,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Vector2 lastInputDirection = Vector2.right;
     private float lastInputMagnitude = 0f;
     private bool hasUsedSkill = false;
-    private bool isLightningMode = false;
-    private Vector3 lightningTargetPosition;
-    private Vector2 lightningCastDirection;
     private bool prevBlockInputActive = false;
 
     private AudioSource audioSource;
@@ -47,11 +48,40 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public TMP_Text waitTimerText;
     public Image CooltimeImange;
     public int waitInterval = 10;
+    private bool isTweeningSlime = false;
 
     private Coroutine rollCoroutine;
 
     public static bool isRolling = false;
-    public static int currentDiceResult = 0;
+    public static int currentDiceResult = 1;
+
+    private Vector3 originalScale;
+    private Vector3 originalPosition;
+
+    private bool isUsingSkill = false;
+    public bool IsUsingSkill => isUsingSkill;
+
+    // --- ▼ 추가: 라인 렌더러 준비 ▼ ---
+    private LineRenderer arcLine;
+
+    void Awake()
+    {
+        arcLine = GetComponent<LineRenderer>();
+        if (arcLine == null)
+        {
+            arcLine = gameObject.AddComponent<LineRenderer>();
+            arcLine.startWidth = 0.18f;
+            arcLine.endWidth = 0.10f;
+            arcLine.useWorldSpace = true;
+            arcLine.material = new Material(Shader.Find("Sprites/Default"));
+            arcLine.startColor = new Color(1f, 1f, 0f, 1f);
+            arcLine.endColor = new Color(1f, 1f, 0f, 1f);
+            arcLine.sortingLayerName = "Default"; // 필요에 따라 "UI"로 수정 가능
+            arcLine.sortingOrder = 999;
+            arcLine.positionCount = 0;
+            Debug.Log("LineRenderer가 추가되었습니다.");
+        }
+    }
 
     void Start()
     {
@@ -64,6 +94,13 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
         currentDiceResult = 1;
         StartRollingLoop();
+
+        waitTimerText.text = "";
+        if (CooltimeImange != null)
+            CooltimeImange.fillAmount = 0f;
+
+        originalScale = transform.localScale;
+        originalPosition = transform.position;
     }
 
     void Update()
@@ -71,9 +108,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
         bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
 
         if (prevBlockInputActive && !isBlockActive)
-        {
             ResetInputStates();
-        }
         prevBlockInputActive = isBlockActive;
 
         if (isBlockActive || currentDiceResult <= 0)
@@ -101,8 +136,13 @@ public class JoystickDirectionIndicator : MonoBehaviour
             lastInputMagnitude = input.magnitude;
             SkillType currentSkill = GetMappedSkillType(currentDiceResult);
 
-            if (currentSkill == SkillType.Lightning && isLightningMode)
-                UpdateLightningIndicator(input);
+            if (currentSkill == SkillType.SlimeJump)
+            {
+                //transform.DOMoveY(-0.1f, 0.1f);
+                //transform.DOScaleY(2f, 0.1f);
+
+                UpdateSlimeJumpIndicator(input); // 범위 제한 및 포물선 그리기
+            }
             else
             {
                 OnSkillButtonPressed();
@@ -117,10 +157,17 @@ public class JoystickDirectionIndicator : MonoBehaviour
                 hasUsedSkill = true;
             }
 
-            if (indicatorInstance != null)
-                indicatorInstance.SetActive(false);
+            //if (indicatorInstance != null)
+            //    indicatorInstance.SetActive(false);
             currentIndicatorIndex = -1;
+
+            if (arcLine != null) arcLine.positionCount = 0;
         }
+
+        if (indicatorInstance != null && indicatorInstance.activeSelf && currentDiceResult == 1)
+            DrawArc(transform.position, indicatorInstance.transform.position, 2f, 30);
+        else if (arcLine != null)
+            arcLine.positionCount = 0;
 
         wasTouchingJoystickLastFrame = isTouchingJoystick;
         if (joystick != null)
@@ -134,12 +181,18 @@ public class JoystickDirectionIndicator : MonoBehaviour
         lastInputDirection = Vector2.right;
         lastInputMagnitude = 0f;
         hasUsedSkill = false;
-        isLightningMode = false;
         currentIndicatorIndex = -1;
+
+        transform.DOKill();
+
+        transform.localScale = originalScale;
+        transform.position = originalPosition;
 
         if (indicatorInstance != null) Destroy(indicatorInstance);
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
         if (joystick != null) { joystick.ResetInput(); joystick.enabled = true; }
+
+        if (arcLine != null) arcLine.positionCount = 0;
     }
 
     void DisableInputAndIndicators()
@@ -148,8 +201,10 @@ public class JoystickDirectionIndicator : MonoBehaviour
         SetHideImageState(true);
         if (indicatorInstance != null) indicatorInstance.SetActive(false);
         currentIndicatorIndex = -1;
-        isLightningMode = false;
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
+        transform.DOKill();
+
+        if (arcLine != null) arcLine.positionCount = 0;
     }
 
     void SetHideImageState(bool isVisible) => imageToHideWhenTouching?.SetActive(isVisible);
@@ -158,17 +213,56 @@ public class JoystickDirectionIndicator : MonoBehaviour
     {
         switch (diceResult)
         {
-            case 1: return SkillType.Fireball;
-            case 2: return SkillType.Lightning;
-            case 3: return SkillType.Windwall;
+            case 1: return SkillType.SlimeJump;
             default: return SkillType.None;
         }
+    }
+
+    void UpdateSlimeJumpIndicator(Vector2 input)
+    {
+        int index = (int)SkillType.SlimeJump - 1;
+        if (index < 0 || index >= directionSpritePrefabs.Count)
+        {
+            if (indicatorInstance != null) indicatorInstance.SetActive(false);
+            currentIndicatorIndex = -1;
+            if (arcLine != null) arcLine.positionCount = 0;
+            return;
+        }
+
+        float maxDistance = distancesFromPlayer.Count > index ? distancesFromPlayer[index] : 3f;
+        float backOffset = spriteBackOffsets.Count > index ? spriteBackOffsets[index] : 0f;
+        float offsetAngle = skillAngleOffsets.Count > index ? skillAngleOffsets[index] : 0f;
+
+        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
+        float clampedMagnitude = Mathf.Clamp01(input.magnitude);
+
+        Vector3 targetPos = transform.position + direction * maxDistance * clampedMagnitude;
+
+        if (indicatorInstance == null || currentIndicatorIndex != index)
+        {
+            if (indicatorInstance != null) Destroy(indicatorInstance);
+            indicatorInstance = Instantiate(directionSpritePrefabs[index], transform.position, Quaternion.identity);
+            currentIndicatorIndex = index;
+        }
+
+        indicatorInstance.SetActive(true);
+
+        Vector3 offset = -indicatorInstance.transform.up * backOffset;
+        indicatorInstance.transform.position = targetPos + offset;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + offsetAngle;
+        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     void UpdateSkillIndicator(Vector2 input, int skillIndex)
     {
         int index = skillIndex - 1;
-        if (index < 0 || index >= directionSpritePrefabs.Count) { indicatorInstance?.SetActive(false); currentIndicatorIndex = -1; return; }
+        if (index < 0 || index >= directionSpritePrefabs.Count)
+        {
+            if (indicatorInstance != null) indicatorInstance.SetActive(false);
+            currentIndicatorIndex = -1;
+            return;
+        }
 
         if (currentIndicatorIndex != index)
         {
@@ -190,35 +284,18 @@ public class JoystickDirectionIndicator : MonoBehaviour
         indicatorInstance.transform.position = basePos + offset;
     }
 
-    void UpdateLightningIndicator(Vector2 input)
-    {
-        int index = (int)SkillType.Lightning - 1;
-        float maxDist = distancesFromPlayer[index];
-        Vector3 direction = new Vector3(input.x, input.y, 0f).normalized;
-        Vector3 basePos = transform.position + direction * maxDist * Mathf.Clamp01(input.magnitude);
-        lightningTargetPosition = basePos;
-        if (indicatorInstance == null) return;
-        float offset = spriteBackOffsets[index];
-        indicatorInstance.transform.position = basePos - indicatorInstance.transform.up * offset;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        indicatorInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle + skillAngleOffsets[index]);
-        indicatorInstance.SetActive(true);
-    }
-
     public void OnSkillButtonPressed()
     {
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 1f;
         int currentDice = currentDiceResult;
 
-        if (indicatorInstance != null) Destroy(indicatorInstance);
+        //if (indicatorInstance != null) Destroy(indicatorInstance);
         currentIndicatorIndex = -1;
 
         SkillType currentSkill = GetMappedSkillType(currentDice);
         int prefabIndex = (int)currentSkill - 1;
         if (prefabIndex >= 0 && prefabIndex < directionSpritePrefabs.Count)
             SetupIndicator(prefabIndex);
-
-        isLightningMode = currentSkill == SkillType.Lightning;
     }
 
     void SetupIndicator(int prefabIndex)
@@ -242,19 +319,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
         switch (skill)
         {
-            case SkillType.Fireball:
-                ShootFireball();
-                break;
-            case SkillType.Lightning:
-                if (isLightningMode)
-                {
-                    lightningCastDirection = lastInputDirection;
-                    CastLightning(lightningTargetPosition);
-                    isLightningMode = false;
-                }
-                break;
-            case SkillType.Windwall:
-                SpawnWindWall();
+            case SkillType.SlimeJump:
+                UseSlimeJump();
                 break;
             default:
                 Debug.Log("해당 스킬은 아직 구현되지 않았습니다.");
@@ -265,78 +331,83 @@ public class JoystickDirectionIndicator : MonoBehaviour
         OnSkillUsed();
     }
 
-    private void ShootFireball()
+    private void UseSlimeJump()
     {
-        if (fireballPrefab == null || firePoint == null) return;
+        transform.DOKill();
+        isUsingSkill = true;  // 스킬 사용 시작
 
-        audioSource?.PlayOneShot(fireballSound);
-        GameObject obj = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
-        obj.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
-        obj.GetComponent<FireballProjectile>()?.Init(lastInputDirection);
-    }
+        Vector3 jumpDirection = new Vector3(lastInputDirection.x, lastInputDirection.y, 0).normalized;
+        float jumpDistance = distancesFromPlayer.Count > 3 ? distancesFromPlayer[3] : 3f;
+        Vector3 targetPos = transform.position + jumpDirection * jumpDistance;
 
-    private void CastLightning(Vector3 targetPos)
-    {
-        StartCoroutine(LightningStrikeSequence(targetPos));
-    }
+        float jumpPower = 1.5f;  // 점프 높이
+        int jumpCount = 1;
 
-    private IEnumerator LightningStrikeSequence(Vector3 targetPos)
-    {
-        int count = 3;
-        float onTime = 0.2f, offTime = 0.23f;
-        float angle = Mathf.Atan2(lightningCastDirection.y, lightningCastDirection.x) * Mathf.Rad2Deg;
-        GameObject lightning = null;
-        LightningDamage ld = null;
+        Sequence jumpSeq = DOTween.Sequence();
 
-        for (int i = 0; i < count; i++)
+        jumpSeq.Append(transform.DOJump(targetPos, jumpPower, jumpCount, 0.7f).SetEase(Ease.InOutQuad));
+        jumpSeq.Join(transform.DOScale(originalScale * 1.5f, 0.35f).SetEase(Ease.OutQuad));
+        jumpSeq.Join(transform.DOScale(originalScale, 0.35f).SetDelay(0.35f).SetEase(Ease.InQuad));
+
+        jumpSeq.OnComplete(() =>
         {
-            float fallDelay = 0f;
-            if (LightningEffectPrefab != null)
+            transform.position = targetPos;
+            transform.localScale = originalScale;
+
+            if (slimeJumpLandEffectPrefab != null)
             {
-                Vector3 start = targetPos + Vector3.up * 5f;
-                GameObject effect = Instantiate(LightningEffectPrefab, start, Quaternion.identity);
-                var fallScript = effect.GetComponent<FallingLightningEffect>();
-                if (fallScript != null)
+                GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
+                Destroy(effect, 0.3f);
+            }
+
+            DealSlimeJumpDamage(targetPos);
+            isUsingSkill = false;  // 스킬 사용 종료
+        });
+
+    }
+
+    private string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+
+    void DealSlimeJumpDamage(Vector3 position)
+    {
+        foreach (string tag in enemyTags)
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
+            foreach (GameObject enemy in enemies)
+            {
+                float dist = Vector3.Distance(position, enemy.transform.position);
+                if (dist <= slimeJumpRadius)
                 {
-                    fallScript.targetPosition = targetPos;
-                    fallDelay = Vector3.Distance(start, targetPos) / fallScript.fallSpeed;
+                    EnemyHP enemyhp = enemy.GetComponent<EnemyHP>();
+                    if (enemyhp != null)
+                    {
+                        enemyhp.SkillTakeDamage((int)slimeJumpDamage);
+                    }
                 }
             }
-            yield return new WaitForSeconds(fallDelay);
-
-            if (lightning == null)
-            {
-                lightning = Instantiate(lightningPrefab, targetPos, Quaternion.Euler(0f, 0f, angle));
-                ld = lightning.GetComponent<LightningDamage>();
-            }
-            else
-            {
-                lightning.transform.SetPositionAndRotation(targetPos, Quaternion.Euler(0f, 0f, angle));
-                lightning.SetActive(true);
-            }
-            ld?.Init();
-
-            audioSource?.PlayOneShot(lightningSound);
-
-            yield return new WaitForSeconds(onTime);
-            lightning?.SetActive(false);
-            yield return new WaitForSeconds(offTime);
         }
-        if (lightning != null) Destroy(lightning);
     }
 
-    private void SpawnWindWall()
-    {
-        if (windWallPrefab == null) return;
 
-        audioSource?.PlayOneShot(windWallSound);
-        GameObject wall = Instantiate(windWallPrefab, transform.position, Quaternion.identity);
-        wall.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(lastInputDirection.y, lastInputDirection.x) * Mathf.Rad2Deg);
+
+    void DrawArc(Vector3 from, Vector3 to, float arcHeight = 2f, int segmentCount = 30)
+    {
+        if (arcLine == null) return;
+
+        arcLine.positionCount = segmentCount + 1;
+        for (int i = 0; i <= segmentCount; i++)
+        {
+            float t = (float)i / segmentCount;
+            Vector3 pos = Vector3.Lerp(from, to, t);
+            pos.y += Mathf.Sin(Mathf.PI * t) * arcHeight;
+            pos.z = 0f;  // 반드시 카메라 앞쪽 등 적절히 고정
+            arcLine.SetPosition(i, pos);
+        }
     }
 
     IEnumerator RollingLoopRoutine()
     {
-        while (true)
+        while (hasUsedSkill)
         {
             float waitTime = waitInterval;
             while (waitTime > 0f)
@@ -394,5 +465,11 @@ public class JoystickDirectionIndicator : MonoBehaviour
             rollCoroutine = null;
         }
         rollCoroutine = StartCoroutine(RollingLoopRoutine());
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, slimeJumpRadius);
     }
 }

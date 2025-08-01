@@ -11,9 +11,6 @@ public class BulletSpawner : MonoBehaviour
     [Header("🕒 전체 생성 간격")]
     public float spawnInterval = 2f;
 
-    [Header("🎯 동시에 생성할 총알 개수")]
-    public int bulletCount = 1;
-
     [Header("🌟 화살 발사 연출용 효과 활 프리팹")]
     public GameObject effectBowPrefab;
 

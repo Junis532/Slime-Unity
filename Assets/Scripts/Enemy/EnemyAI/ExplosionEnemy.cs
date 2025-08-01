@@ -19,12 +19,6 @@ public class ExplosionEnemy : EnemyBase
     public float avoidanceRange = 1.5f;
     public LayerMask obstacleMask;
 
-    [Header("행동/멈춤 주기")]
-    public float moveDuration = 4f;
-    public float idleDuration = 3f;
-    private float actionTimer = 0f;
-    private bool isIdle = false;
-
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -38,9 +32,6 @@ public class ExplosionEnemy : EnemyBase
     {
         if (!isLive) return;
 
-        actionTimer += Time.deltaTime;
-
-        // 폭발 거리 내에 플레이어가 있으면 즉시 폭발
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
 
@@ -48,32 +39,11 @@ public class ExplosionEnemy : EnemyBase
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos);
         float distanceToPlayer = dirToPlayer.magnitude;
 
+        // 폭발 거리 내에 플레이어가 있으면 즉시 폭발
         if (distanceToPlayer <= explosionRange)
         {
             Explode(player.transform.position);
             return;
-        }
-
-        // 행동/멈춤 상태 전환
-        if (isIdle)
-        {
-            if (actionTimer >= idleDuration)
-            {
-                isIdle = false;
-                actionTimer = 0f;
-            }
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            return;
-        }
-        else
-        {
-            if (actionTimer >= moveDuration)
-            {
-                isIdle = true;
-                actionTimer = 0f;
-                return;
-            }
         }
 
         // 장애물 회피 로직

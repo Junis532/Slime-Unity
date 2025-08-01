@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using NavMeshPlus.Components;
 
 public class WaveManager : MonoBehaviour
 {
@@ -14,7 +15,6 @@ public class WaveManager : MonoBehaviour
     public float spawnInterval = 5f;
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
-    //public TextMeshProUGUI waveText;
     public int currentWave = 1;
 
     private Coroutine spawnCoroutine;
@@ -29,10 +29,12 @@ public class WaveManager : MonoBehaviour
     public Vector2 portalOffset = new Vector2(0f, 2f);
     private bool portalSpawned = false;
 
+    private bool hasSpawned = false;
+
     void Start()
     {
         ResetWave();
-        StartNextWave(); // 첫 웨이브를 시작합니다.
+        StartNextWave(); // 첫 웨이브 시작
     }
 
     void Update()
@@ -46,93 +48,84 @@ public class WaveManager : MonoBehaviour
 
     void SpawnPortal()
     {
-        if (playerTransform == null)
-        {
-            Debug.LogWarning("플레이어 트랜스폼이 연결되지 않았습니다.");
-            return;
-        }
+        if (playerTransform == null) return;
 
         Vector2 portalPosition = (Vector2)playerTransform.position + portalOffset;
 
-        WaveData currentWaveData = null;
-        if (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
-        {
-            currentWaveData = waveDataList[currentWave - 1];
-        }
+        WaveData currentWaveData = (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
+            ? waveDataList[currentWave - 1] : null;
 
         if (currentWaveData != null && currentWaveData.isShopMap)
         {
-            if (shopPortalPrefab == null)
-            {
-                Debug.LogWarning("상점 포탈 프리팹이 연결되지 않았습니다.");
-                return;
-            }
-            Instantiate(shopPortalPrefab, portalPosition, Quaternion.identity);
-            Debug.Log("[WaveManager] 클리어 상태 - 상점 포탈 생성됨");
+            if (shopPortalPrefab != null)
+                Instantiate(shopPortalPrefab, portalPosition, Quaternion.identity);
         }
         else
         {
-            if (portalPrefab == null)
-            {
-                Debug.LogWarning("포탈 프리팹이 연결되지 않았습니다.");
-                return;
-            }
-            Instantiate(portalPrefab, portalPosition, Quaternion.identity);
-            Debug.Log("[WaveManager] 클리어 상태 - 포탈 생성됨");
+            if (portalPrefab != null)
+                Instantiate(portalPrefab, portalPosition, Quaternion.identity);
         }
     }
-
 
     public void ResetWave()
     {
-        currentWave = 0; // 첫 웨이브 시작 시 currentWave++를 하기 때문에 0으로 설정
-        //UpdateWaveText();
+        currentWave = 0;
+        hasSpawned = false;
     }
-
-    //public void UpdateWaveText()
-    //{
-    //    if (waveText != null)
-    //        waveText.text = $"WAVE {currentWave}";
-    //}
 
     public void StartNextWave()
     {
-        StopSpawnLoop(); // 현재 스폰 루틴이 있다면 중지
+        StopSpawnLoop();
 
         if (currentWave >= waveDataList.Count)
         {
-            Debug.LogWarning("더 이상 웨이브가 없습니다.");
-            GameManager.Instance.ChangeStateToClear(); // 모든 웨이브 클리어
+            GameManager.Instance.ChangeStateToClear();
             return;
         }
 
-        // 이전 맵 제거
         if (currentMapInstance != null)
         {
             Destroy(currentMapInstance);
             currentMapInstance = null;
         }
 
-        // 포탈 스폰 상태 초기화
         portalSpawned = false;
+        hasSpawned = false;
 
-        // 새 맵 프리팹 인스턴스화
         WaveData waveData = waveDataList[currentWave];
         if (waveData.mapPrefab != null)
         {
             currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
             mapBoundary = currentMapInstance.GetComponentInChildren<BoxCollider2D>();
+
+            // ✅ NavMesh 베이크 실행
+            StartCoroutine(BakeNavMeshDelayed(currentMapInstance));
         }
 
         currentWave++;
-        //UpdateWaveText();
         UpdateEnemyHP();
 
         if (ShopManager.Instance != null)
             ShopManager.Instance.ResetRerollPrice();
 
         GameManager.Instance.ChangeStateToGame();
-        StartSpawnLoop(); // 새 웨이브 스폰 루틴 시작
+        StartSpawnLoop();
+    }
+
+    IEnumerator BakeNavMeshDelayed(GameObject mapInstance)
+    {
+        yield return null; // 한 프레임 대기
+
+        NavMeshSurface surface = mapInstance.GetComponentInChildren<NavMeshSurface>();
+        if (surface != null)
+        {
+            surface.BuildNavMesh();
+            Debug.Log($"[WaveManager] {currentWave} 웨이브 NavMesh 베이크 완료");
+        }
+        else
+        {
+            Debug.LogWarning("[WaveManager] NavMeshSurface를 찾을 수 없습니다.");
+        }
     }
 
     bool IsEnemyTag(string tag)
@@ -142,33 +135,24 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnWithWarning()
     {
-        // ★ 상점상태 체크: 상점이면 즉시 중단, 절대 스폰하지 않음
         if (GameManager.Instance != null && GameManager.Instance.IsShop())
             yield break;
 
         WaveData currentWaveData = waveDataList[currentWave - 1];
         if (currentWaveData == null || currentWaveData.MonsterLists.Count == 0)
-        {
-            Debug.LogWarning($"[WaveManager] 유효한 WaveData가 없습니다. currentWave = {currentWave}");
             yield break;
-        }
 
         List<Vector2> spawnPositions = new List<Vector2>();
         List<GameObject> spawnMonsters = new List<GameObject>();
         int spawnCount = currentWaveData.MonsterLists.Count;
 
-        // 경고 이펙트를 표시할 위치들을 미리 계산
         for (int i = 0; i < spawnCount; i++)
         {
-            // 몬스터 리스트에서 랜덤으로 하나 선택
             GameObject selected = currentWaveData.MonsterLists[Random.Range(0, currentWaveData.MonsterLists.Count)];
             spawnMonsters.Add(selected);
-
-            // 몬스터를 항상 월드 좌표 (0, 0, 0)에서 소환합니다.
             spawnPositions.Add(Vector2.zero);
         }
 
-        // 경고 이펙트 표시
         for (int i = 0; i < spawnPositions.Count; i++)
         {
             if (GameManager.Instance != null && GameManager.Instance.IsShop())
@@ -222,11 +206,9 @@ public class WaveManager : MonoBehaviour
 
         yield return new WaitForSeconds(warningDuration);
 
-        // 상점 진입시 혹시나 몬스터 스폰 중단됨(안전장치)
         if (GameManager.Instance != null && GameManager.Instance.IsShop())
             yield break;
 
-        // 몬스터 스폰
         for (int i = 0; i < spawnPositions.Count; i++)
         {
             GameObject prefab = spawnMonsters[i];
@@ -236,9 +218,10 @@ public class WaveManager : MonoBehaviour
         }
 
         Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {spawnCount}마리");
+
+        hasSpawned = true;
     }
 
-    // 경고 이펙트 풀로 반환 (DOTween 정리 포함)
     IEnumerator ReturnWarningToPool(GameObject warning, float duration)
     {
         yield return new WaitForSeconds(duration);
@@ -252,36 +235,27 @@ public class WaveManager : MonoBehaviour
     {
         float waveFactorEnemy = 0.07f + (currentWave / 30000f);
         float waveFactorLongRange = 0.068f + (currentWave / 30000f);
-        int prevEnemyHP = GameManager.Instance.enemyStats.maxHP;
-        int nextEnemyHP = Mathf.FloorToInt(prevEnemyHP + prevEnemyHP * waveFactorEnemy);
-        GameManager.Instance.enemyStats.maxHP = nextEnemyHP;
-        GameManager.Instance.enemyStats.currentHP = nextEnemyHP;
-        int prevDashHP = GameManager.Instance.dashEnemyStats.maxHP;
-        int nextDashHP = Mathf.FloorToInt(prevDashHP + prevDashHP * waveFactorEnemy);
-        GameManager.Instance.dashEnemyStats.maxHP = nextDashHP;
-        GameManager.Instance.dashEnemyStats.currentHP = nextDashHP;
-        int prevLongRangeHP = GameManager.Instance.longRangeEnemyStats.maxHP;
-        int nextLongRangeHP = Mathf.FloorToInt(prevLongRangeHP + prevLongRangeHP * waveFactorLongRange);
-        GameManager.Instance.longRangeEnemyStats.maxHP = nextLongRangeHP;
-        GameManager.Instance.longRangeEnemyStats.currentHP = nextLongRangeHP;
-        int prevPotionHP = GameManager.Instance.potionEnemyStats.maxHP;
-        int nextPotionHP = Mathf.FloorToInt(prevPotionHP + prevPotionHP * waveFactorLongRange);
-        GameManager.Instance.potionEnemyStats.maxHP = nextPotionHP;
-        GameManager.Instance.potionEnemyStats.currentHP = nextPotionHP;
+
+        GameManager.Instance.enemyStats.maxHP = ApplyHPScale(GameManager.Instance.enemyStats.maxHP, waveFactorEnemy);
+        GameManager.Instance.dashEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.dashEnemyStats.maxHP, waveFactorEnemy);
+        GameManager.Instance.longRangeEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.longRangeEnemyStats.maxHP, waveFactorLongRange);
+        GameManager.Instance.potionEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.potionEnemyStats.maxHP, waveFactorLongRange);
+    }
+
+    int ApplyHPScale(int baseHP, float factor)
+    {
+        int newHP = Mathf.FloorToInt(baseHP + baseHP * factor);
+        return newHP;
     }
 
     IEnumerator SpawnerLoopRoutine()
     {
-        float initialDelay = 1f;
-        yield return new WaitForSeconds(initialDelay);
-        while (true)
-        {
-            // ★ Shop 상태 진입시 즉시 중지 (안전장치)
-            if (GameManager.Instance != null && GameManager.Instance.IsShop())
-                yield break;
-            yield return StartCoroutine(SpawnWithWarning());
-            yield return new WaitForSeconds(spawnInterval);
-        }
+        yield return new WaitForSeconds(1f);
+
+        if (hasSpawned || (GameManager.Instance != null && GameManager.Instance.IsShop()))
+            yield break;
+
+        yield return StartCoroutine(SpawnWithWarning());
     }
 
     public void StartSpawnLoop()

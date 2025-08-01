@@ -205,7 +205,7 @@ public class ShopManager : MonoBehaviour
             BulletSpawner spawner = gmObj.GetComponent<BulletSpawner>();
             if (spawner != null)
             {
-                spawner.bulletCount += 1;
+                spawner.spawnInterval -= 1;
             }
         }
         //----------------------------------------------------------------------------------------- 7
