@@ -2418,63 +2418,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 35482973389817195, guid: 8dc862011c8df57498755d25c2eafcbc, type: 3}
   m_PrefabInstance: {fileID: 3288340939715679730}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &426772755
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2679313523671259710, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_Name
-      value: LongRangeDashEnemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -3.066908
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.2726009
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3994736231326151517, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4b66f99b2348194488dc03e18389eb24, type: 3}
 --- !u!1 &440302432
 GameObject:
   m_ObjectHideFlags: 0
@@ -5467,9 +5410,9 @@ GameObject:
   m_Component:
   - component: {fileID: 846765396}
   - component: {fileID: 846765395}
+  - component: {fileID: 846765407}
   - component: {fileID: 846765399}
   - component: {fileID: 846765397}
-  - component: {fileID: 846765398}
   - component: {fileID: 846765401}
   - component: {fileID: 846765400}
   - component: {fileID: 846765404}
@@ -5561,26 +5504,6 @@ MonoBehaviour:
   timerText: {fileID: 1069711806}
   timeRemaining: 10
   timerRunning: 1
---- !u!114 &846765398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846765394}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00860211c61d8cd46afd5cfffcf661f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
-  spawnInterval: 2
-  effectBowPrefab: {fileID: 5252764124514571402, guid: ed0bb0e35e84261439d271ab564525b3, type: 3}
-  bowDistance: 0.6
-  arrowDistanceFromPlayer: 0.6
-  attackGaugeImageParrent: {fileID: 1004875438}
-  attackGaugeImage: {fileID: 36186316}
-  gaugeYOffset: -0.5
 --- !u!114 &846765399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5714,6 +5637,28 @@ MonoBehaviour:
   dialogBackground: {fileID: 1749569206}
   dialogText: {fileID: 1884836102}
   autoNextDelay: 2
+--- !u!114 &846765407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846765394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00860211c61d8cd46afd5cfffcf661f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
+  fireballPrefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
+  useFireball: 1
+  spawnInterval: 1
+  effectBowPrefab: {fileID: 5252764124514571402, guid: ed0bb0e35e84261439d271ab564525b3, type: 3}
+  bowDistance: 0.6
+  arrowDistanceFromPlayer: 0.6
+  attackGaugeImageParrent: {fileID: 1004875438}
+  attackGaugeImage: {fileID: 36186316}
+  gaugeYOffset: -0.5
 --- !u!1 &853750979
 GameObject:
   m_ObjectHideFlags: 0
@@ -10845,6 +10790,9 @@ MonoBehaviour:
     initialSize: 300
   - prefabName: EnemyHP
     prefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+    initialSize: 300
+  - prefabName: Fireball
+    prefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
     initialSize: 300
   - prefabName: EnemyPrefab
     prefab: {fileID: 667012960139048804, guid: 2dca1f8498546a843bfb49880c547331, type: 3}
@@ -16214,4 +16162,3 @@ SceneRoots:
   - {fileID: 816469261}
   - {fileID: 836308968}
   - {fileID: 1443276942}
-  - {fileID: 426772755}

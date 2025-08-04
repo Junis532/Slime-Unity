@@ -8,6 +8,12 @@ public class BulletSpawner : MonoBehaviour
     [Header("🔫 총알 프리팹")]
     public GameObject bulletPrefab;
 
+    [Header("🔥 Fireball 프리팹")]
+    public GameObject fireballPrefab;
+
+    [Header("🟩 Fireball 체크박스 (임시용)")]
+    public bool useFireball = false;
+
     [Header("🕒 전체 생성 간격")]
     public float spawnInterval = 2f;
 
@@ -121,6 +127,8 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
+    private int shotCount = 0;
+
     private void FireArrow()
     {
         arrowIsFlying = false;
@@ -140,8 +148,20 @@ public class BulletSpawner : MonoBehaviour
             effectBowInstance.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
         }
 
+        // 3번째에 fireball 쏘기
+        GameObject bulletToFire = bulletPrefab;
+        if (useFireball && shotCount >= 6 && fireballPrefab != null)
+        {
+            bulletToFire = fireballPrefab;
+            shotCount = 0; // 리셋
+        }
+        else
+        {
+            shotCount++;
+        }
+
         GameObject bullet = GameManager.Instance.poolManager.SpawnFromPool(
-            bulletPrefab.name, currentArrowPosition, Quaternion.Euler(0, 0, arrowAngle));
+            bulletToFire.name, currentArrowPosition, Quaternion.Euler(0, 0, arrowAngle));
 
         lastArrowAI = bullet.GetComponent<BulletAI>();
         if (lastArrowAI != null)

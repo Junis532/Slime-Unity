@@ -54,6 +54,24 @@ public class EnemyHP : MonoBehaviour
             Die();
     }
 
+    public void FireballTakeDamage(int damage)
+    {
+        currentHP -= damage;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+
+        if (hpBar != null)
+        {
+            hpBar.SetHP(currentHP);
+            hpBar.gameObject.SetActive(true);
+        }
+
+        PlayDamageEffect();
+        ShowDamageText(damage);
+
+        if (currentHP <= 0)
+            Die();
+    }
+
     public void SkillTakeDamage(int damage)
     {
         currentHP -= damage;
