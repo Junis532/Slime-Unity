@@ -59,12 +59,14 @@ public class BulletAI : MonoBehaviour
 
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
+            if (!gameObject.activeInHierarchy) return; // 🔐 오브젝트가 비활성화 상태면 실행 X
+
             if (myCollider != null)
                 myCollider.enabled = true;
 
-            // 🔽 Start SwitchToEnemy safely with delay
             StartCoroutine(DelayedSwitchToEnemy(followDuration));
         });
+
     }
 
     IEnumerator DelayedSwitchToEnemy(float delay)

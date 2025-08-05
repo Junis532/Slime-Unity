@@ -16,7 +16,7 @@ public class ShopManager : MonoBehaviour
 
     [Header("버튼")]
     public Button rerollButton;
-    public Button nextWaveButton;
+    public Button exitButton;
 
     [Header("리롤 가격")]
     public TextMeshProUGUI rerollPriceText;
@@ -37,7 +37,7 @@ public class ShopManager : MonoBehaviour
     {
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         rerollButton.onClick.AddListener(RerollItems);
-        nextWaveButton.onClick.AddListener(OnButtonExitClick);
+        exitButton.onClick.AddListener(OnButtonExitClick);
         RerollItems();
     }
 
@@ -141,6 +141,7 @@ public class ShopManager : MonoBehaviour
         {
             GameManager.Instance.playerStats.maxHP += 5;
             GameManager.Instance.playerStats.currentHP += 5;
+            GameManager.Instance.playerStats.currentHP += Random.Range(1, 6); // 추가 HP 회복
         }
         //----------------------------------------------------------------------------------------- 2
         else if (item == GameManager.Instance.itemStats2)
@@ -165,7 +166,8 @@ public class ShopManager : MonoBehaviour
         //----------------------------------------------------------------------------------------- 3
         else if (item == GameManager.Instance.itemStats3)
         {
-            GameManager.Instance.playerStats.speed *= 1.03f;
+            GameManager.Instance.playerStats.speed *= 1.05f;
+            GameManager.Instance.playerStats.maxHP -= 5;
         }
         //----------------------------------------------------------------------------------------- 4
         else if (item == GameManager.Instance.itemStats4)
@@ -274,6 +276,7 @@ public class ShopManager : MonoBehaviour
         //-----------------------------------------------------------------------------------------
         else if (item == GameManager.Instance.itemStats10)
         {
+
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj != null)
             {
@@ -348,7 +351,7 @@ public class ShopManager : MonoBehaviour
 
     public void OnButtonExitClick()
     {
-        Debug.Log("다음 웨이브 시작");
+        Debug.Log("상점 나감");
         Time.timeScale = 1f;
 
         if (shopPanel != null)
@@ -359,11 +362,7 @@ public class ShopManager : MonoBehaviour
             {
                 canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.7초 동안
             }
-            shopPanel.DOAnchorPosY(1500f, 0.7f).SetEase(Ease.InCubic).OnComplete(() =>
-            {
-                if (shopUI != null)
-                    shopUI.SetActive(false);
-            });
+            shopPanel.DOAnchorPosY(1500f, 0.7f);
 
             GameManager.Instance.playerController.canMove = true;
         }

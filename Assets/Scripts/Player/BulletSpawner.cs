@@ -15,7 +15,7 @@ public class BulletSpawner : MonoBehaviour
     public bool useFireball = false;
 
     [Header("🕒 전체 생성 간격")]
-    public float spawnInterval = 2f;
+    public float spawnInterval = 1f;
 
     [Header("🌟 화살 발사 연출용 효과 활 프리팹")]
     public GameObject effectBowPrefab;

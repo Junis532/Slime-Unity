@@ -52,6 +52,8 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("게임 시간 설정")]
     public float gameTime;
 
+    private bool isGameStarted = false;
+
     private enum GameState
     {
         Lobby,
@@ -108,7 +110,6 @@ public class GameManager : MonoSingleTone<GameManager>
         dashEnemyStats.ResetStats();
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
-        //waveManager.UpdateWaveText();
 
 
         if (shopUI != null)
@@ -136,6 +137,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
                 // 적 죽음 및 상점 진입 코루틴 시작
                 StartCoroutine(WaitForEnemiesDieAndGoShop());
+
             }
         }
     }
@@ -212,6 +214,17 @@ public class GameManager : MonoSingleTone<GameManager>
         joystickDirectionIndicator.StartRollingLoop();
 
         waveManager.StartSpawnLoop();
+
+        if (!isGameStarted)
+        {
+            isGameStarted = true;
+            // 첫 웨이브 시작 시 NavMesh 베이크
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                player.transform.position = new Vector3(-9, 0, 0);
+            }
+        }
     }
 
 
@@ -220,8 +233,6 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
         DialogManager.Instance.StartShopDialog();
-
-        //diceAnimation.ForceStopRolling();
 
         waveManager.StopSpawnLoop();
 
@@ -240,19 +251,8 @@ public class GameManager : MonoSingleTone<GameManager>
             {
                 canvasGroup.DOFade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
             }
-            // 부드럽게 X=0으로 이동 후 타임스케일 0으로 변경
-            shopPanel.DOAnchorPosY(0f, 0.7f)
-                .SetEase(Ease.OutCubic)
-                .OnComplete(() =>
-                {
-                    
-                });
+            shopPanel.DOAnchorPosY(0f, 0.7f);
             playerController.canMove = false;
-        }
-        else
-        {
-            // shopPanel이 null일 경우 타임스케일 바로 0으로 처리
-            Time.timeScale = 0f;
         }
     }
 
@@ -261,12 +261,12 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Clear;
         Debug.Log("상태: Clear - 웨이브 클리어");
 
-        //diceAnimation.StopRollingLoop();
-
         waveManager.StopSpawnLoop();
 
         Time.timeScale = 1f;
         if (shopUI != null) shopUI.SetActive(false);
+
+        isGameStarted = false;
     }
 
     public void ChangeStateToEnd()

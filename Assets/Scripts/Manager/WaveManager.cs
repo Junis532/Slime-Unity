@@ -26,7 +26,7 @@ public class WaveManager : MonoBehaviour
     [Header("포탈")]
     public GameObject portalPrefab;
     public GameObject shopPortalPrefab;
-    public Vector2 portalOffset = new Vector2(0f, 2f);
+    public Vector2 portalPosition = new Vector2(8f, 0f);
     private bool portalSpawned = false;
 
     private bool hasSpawned = false;
@@ -35,6 +35,7 @@ public class WaveManager : MonoBehaviour
     {
         ResetWave();
         StartNextWave(); // 첫 웨이브 시작
+
     }
 
     void Update()
@@ -48,9 +49,7 @@ public class WaveManager : MonoBehaviour
 
     void SpawnPortal()
     {
-        if (playerTransform == null) return;
-
-        Vector2 portalPosition = (Vector2)playerTransform.position + portalOffset;
+        Vector2 portalPosition = new Vector2(8f, 0f); // 항상 x=8, y=0에 포탈 생성
 
         WaveData currentWaveData = (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
             ? waveDataList[currentWave - 1] : null;

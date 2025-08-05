@@ -26,7 +26,7 @@ public class ShopPortal : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            player.transform.Translate(-101.5f, 0, 0); // 상점 지역으로 이동  
+            player.transform.position = new Vector3(-101.5f, 0, 0);
             Debug.Log("플레이어가 3초간 포탈 안에 머물러 상점 지역으로 이동!");
             Destroy(gameObject);
         }

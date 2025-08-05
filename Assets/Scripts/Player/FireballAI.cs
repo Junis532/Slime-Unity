@@ -66,11 +66,14 @@ public class FireballAI : MonoBehaviour
 
         transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
         {
+            if (!gameObject.activeInHierarchy) return;
+
             if (myCollider != null)
                 myCollider.enabled = true;
 
             StartCoroutine(DelayedSwitchToEnemy(followDuration));
         });
+
     }
 
     IEnumerator DelayedSwitchToEnemy(float delay)
