@@ -44,7 +44,13 @@ public class PlayerWall : MonoBehaviour
 
             if (allInside)
             {
-                Debug.Log("Player is fully inside the wall!");
+
+                if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+                {
+                    Debug.Log("스킬 사용 중이라 낭떨어지 무시");
+                    return;
+                }
+                    Debug.Log("Player is fully inside the wall!");
 
                 PlayerController playerCtrl = GetComponent<PlayerController>();
                 if (playerCtrl != null)

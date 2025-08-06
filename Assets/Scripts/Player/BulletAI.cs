@@ -6,6 +6,7 @@ public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
     public float followDuration = 0.3f;
+    public bool slow = false;
 
     private Transform target;
     private bool isFollowingPlayer = true;
@@ -148,9 +149,43 @@ public class BulletAI : MonoBehaviour
             if (hp != null)
                 hp.TakeDamage();
 
+            // ✅ 슬로우 적용
+            if (slow)
+            {
+                EnemyBase enemyBase = other.GetComponent<EnemyBase>();
+                if (enemyBase != null)
+                {
+                    StartCoroutine(SlowEnemy(enemyBase, 0.5f));
+                }
+            }
+
             DestroySelf();
         }
     }
+
+    // BulletAI 슬로우 코루틴에서 로그 추가 및 안전성 체크
+
+    IEnumerator SlowEnemy(EnemyBase enemy, float slowRatio)
+    {
+        if (enemy == null)
+        {
+            Debug.LogWarning("SlowEnemy: enemy is null at start");
+            yield break;
+        }
+
+        float original = enemy.originalSpeed;
+
+        Debug.Log($"SlowEnemy: Applying slow. originalSpeed={original}, slowRatio={slowRatio}");
+
+        enemy.SetSpeed(original * slowRatio);
+
+        yield return new WaitForSeconds(1f);
+
+        Debug.Log("SlowEnemy: Restoring original speed");
+        enemy.SetSpeed(original);
+    }
+
+
 
     void DestroySelf()
     {

@@ -168,6 +168,11 @@ public class ShopManager : MonoBehaviour
         {
             GameManager.Instance.playerStats.speed *= 1.05f;
             GameManager.Instance.playerStats.maxHP -= 5;
+
+            if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
+            {
+                GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
+            }
         }
         //----------------------------------------------------------------------------------------- 4
         else if (item == GameManager.Instance.itemStats4)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MucusArea : MonoBehaviour
 {
-    private float slowRatio = 0.3f; // 속도를 50%로 줄임
+    private float slowRatio = 0.5f; // 속도를 50%로 줄임
     private bool isSlowing = false;
 
     // 범위 내 느려진 적들 저장

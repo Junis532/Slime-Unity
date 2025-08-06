@@ -138,9 +138,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
             if (currentSkill == SkillType.SlimeJump)
             {
-                //transform.DOMoveY(-0.1f, 0.1f);
-                //transform.DOScaleY(2f, 0.1f);
-
                 UpdateSlimeJumpIndicator(input); // 범위 제한 및 포물선 그리기
             }
             else
@@ -151,19 +148,24 @@ public class JoystickDirectionIndicator : MonoBehaviour
         }
         else
         {
+            // --- 🔧 스킬 취소 처리 ---
             if (wasTouchingJoystickLastFrame && !hasUsedSkill && lastInputMagnitude > 0.3f)
             {
                 OnSkillButtonReleased();
                 hasUsedSkill = true;
             }
 
-            //if (indicatorInstance != null)
-            //    indicatorInstance.SetActive(false);
-            currentIndicatorIndex = -1;
+            // 🔧 스킬 입력이 취소되었으므로 범위 및 라인 제거
+            if (indicatorInstance != null)
+                indicatorInstance.SetActive(false);
 
-            if (arcLine != null) arcLine.positionCount = 0;
+            if (arcLine != null)
+                arcLine.positionCount = 0;
+
+            currentIndicatorIndex = -1;
         }
 
+        // 🔄 포물선 업데이트 (슬라임 점프일 때만)
         if (indicatorInstance != null && indicatorInstance.activeSelf && currentDiceResult == 1)
             DrawArc(transform.position, indicatorInstance.transform.position, 2f, 30);
         else if (arcLine != null)
@@ -173,6 +175,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
         if (joystick != null)
             joystick.enabled = !isRolling && !hasUsedSkill;
     }
+
 
     void ResetInputStates()
     {

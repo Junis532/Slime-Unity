@@ -3355,10 +3355,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.055555556
+    x: 0
     y: 0
-    width: 0.8888889
-    height: 1
+    width: 0.2962963
+    height: 0.44444445
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -5209,8 +5209,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8e49f0e60d1804428fccb4f600f84fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 3.4
   speed: 0
+  originalSpeed: 3.4
   smoothTime: 0.1
   skillInterval: 3
   dropTime: 0.5
@@ -5642,7 +5642,7 @@ MonoBehaviour:
   zacSkill: {fileID: 1919898604}
   shopUI: {fileID: 764383708}
   shopPanel: {fileID: 90027631}
-  gameTime: 10
+  gameTime: 30
 --- !u!4 &846765396
 Transform:
   m_ObjectHideFlags: 0
@@ -5745,7 +5745,7 @@ MonoBehaviour:
   currentWave: 0
   portalPrefab: {fileID: 3551012877482958990, guid: 93a0453960e86944da83a2ae2333b388, type: 3}
   shopPortalPrefab: {fileID: 2479632577079671408, guid: 597a1942bea8f8540bd430d2522af653, type: 3}
-  portalOffset: {x: 0, y: 0}
+  portalPosition: {x: 8, y: 0}
 --- !u!114 &846765404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8509,8 +8509,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 647, y: 28.84}
-  m_SizeDelta: {x: 78.3193, y: 57.6791}
+  m_AnchoredPosition: {x: 595.93, y: 28.84}
+  m_SizeDelta: {x: 68.71, y: 57.6791}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1302668473
 MonoBehaviour:
@@ -10999,7 +10999,7 @@ MonoBehaviour:
   - prefabName: EnemyHP
     prefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
     initialSize: 300
-  - prefabName: EnemyPrefab
+  - prefabName: EnemyPrefab_01
     prefab: {fileID: 667012960139048804, guid: 2dca1f8498546a843bfb49880c547331, type: 3}
     initialSize: 1
   - prefabName: EnemyPrefab_02
@@ -16254,6 +16254,10 @@ PrefabInstance:
       propertyPath: CooltimeImange
       value: 
       objectReference: {fileID: 885820772}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: slimeJumpRadius
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: blockInputCanvas
       value: 

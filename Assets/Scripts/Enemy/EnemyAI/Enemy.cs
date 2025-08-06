@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI; // NavMeshAgent
 using DG.Tweening;
 
@@ -21,9 +21,9 @@ public class Enemy : EnemyBase
         originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
 
-        // NavMeshAgent ¼³Á¤
+        // NavMeshAgent ì„¤ì •
         agent.updateRotation = false;
-        agent.updateUpAxis = false; // 2DÀÏ °æ¿ì ÇÊ¼ö
+        agent.updateUpAxis = false; // 2Dì¼ ê²½ìš° í•„ìˆ˜
         agent.speed = speed;
     }
 
@@ -36,7 +36,7 @@ public class Enemy : EnemyBase
 
         agent.SetDestination(player.transform.position);
 
-        // ÀÌµ¿ ¾Ö´Ï¸ŞÀÌ¼Ç Ã³¸®
+        // ì´ë™ ì• ë‹ˆë©”ì´ì…˜ ì²˜ë¦¬
         Vector2 dir = agent.velocity;
 
         if (dir.magnitude > 0.1f)
@@ -53,6 +53,14 @@ public class Enemy : EnemyBase
         }
     }
 
+    public override void SetSpeed(float newSpeed)
+    {
+        speed = newSpeed;
+        if (agent != null)
+            agent.speed = newSpeed; // âœ… ì‹¤ì§ˆ ì´ë™ì†ë„ì— ë°˜ì˜
+    }
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive) return;
@@ -61,7 +69,7 @@ public class Enemy : EnemyBase
         {
             if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                Debug.Log("½ºÅ³ »ç¿ë ÁßÀÌ¶ó ¸ó½ºÅÍ µ¥¹ÌÁö ¹«½Ã");
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
                 return;
             }
 
@@ -72,7 +80,7 @@ public class Enemy : EnemyBase
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                // Á×À½ Ã³¸®
+                // ì£½ìŒ ì²˜ë¦¬
             }
         }
     }

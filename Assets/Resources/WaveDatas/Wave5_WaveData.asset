@@ -12,38 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0370b8350af9074ebad45cccee60eaf, type: 3}
   m_Name: Wave5_WaveData
   m_EditorClassIdentifier: 
-  skillMonsterLists:
-  - monsters:
-    - {fileID: 8847101972784448359, guid: 371c1216db1428c4a843c6e3a2c50820, type: 3}
-    - {fileID: 1237129817742183486, guid: b391a71ff1d5a5a4894ef9606c013d22, type: 3}
-    - {fileID: 7402118277218628972, guid: a9203d7f7e5f8fb4aacc5eacfebd6c60, type: 3}
-    - {fileID: 13824927093301827, guid: e359a31dfb560d54dbfd4d812cf62fed, type: 3}
-    - {fileID: 3392239743107653290, guid: 52e4fb3c19a82c140b4a5f8fc5f8e16c, type: 3}
-    - {fileID: 9212327244895764985, guid: 477fca3ae7717434a8e7cc4fba010c18, type: 3}
-    - {fileID: 4283070405193138936, guid: bd700aec3741b984f81c7e34c4b52308, type: 3}
-  - monsters:
-    - {fileID: 8480623311141170132, guid: 4a2a19b36c5dadf48ab8ae6e32df45ac, type: 3}
-    - {fileID: 7932767109772811646, guid: e55c6bf5b978916409a8389ba3a004f2, type: 3}
-    - {fileID: 1335179596553281429, guid: 8b200e4f1532471418665e6390e01a48, type: 3}
-    - {fileID: 2877549797481120003, guid: dc6fe63e2084acb4c900b0d61f157362, type: 3}
-    - {fileID: 982628057777081112, guid: a460e384bc3df454aaa9d3badb9fd2c4, type: 3}
-    - {fileID: 8708567865527780027, guid: 275eb4b9212d0ef48a13c827fa928cc9, type: 3}
-    - {fileID: 1696222908739083035, guid: 35f12374d671cec4a896e5b935a8270a, type: 3}
-  - monsters:
-    - {fileID: 7994732534507966569, guid: ec6e48797248a324e81f467e4941e7fd, type: 3}
-    - {fileID: 5233429151611888204, guid: 8f3400ec316a66043989d885ad9b4854, type: 3}
-    - {fileID: 8997212694757572845, guid: 14f7171da571c914db37fddb4122ca05, type: 3}
-    - {fileID: 7138495614865503571, guid: b9b4559b6cc7dae47a6c1fc14f897cde, type: 3}
-    - {fileID: 726710317583024019, guid: 661a1ef12efcbd04a909dc9dbc21f30a, type: 3}
-    - {fileID: 7690267022270844596, guid: 7da87a90702f2b542a851c8a96b0fc13, type: 3}
-    - {fileID: 4263975483038788105, guid: d6ec8118be6257244b7405c7ec6932e7, type: 3}
-  - monsters:
-    - {fileID: 8480623311141170132, guid: d97bdbfbefb2dbb4eaddc5a8aee9361c, type: 3}
-    - {fileID: 6162550853712639807, guid: 671283309dddebc4da89d3b207289268, type: 3}
-    - {fileID: 7746017597296949627, guid: 2feb3aa1bbb531842a5734cb20755f86, type: 3}
-    - {fileID: 124268588059905696, guid: 5788d1a2a5a023d43a6649dd13b516fd, type: 3}
-    - {fileID: 3784265466479086041, guid: 0718c5884de6a4243bb16759345edba2, type: 3}
-    - {fileID: 428286352455415260, guid: bd2ba4b2ad133fb4e8bd35e47e68c342, type: 3}
-    - {fileID: 7829080493430335794, guid: 702ffc51e4a8dad468c2f5a848b9b160, type: 3}
-  minSpawnCount: 3
-  maxSpawnCount: 5
+  MonsterLists:
+  - {fileID: 3169557852246675673, guid: d00147651278c5f4fb443baa5a2fb84b, type: 3}
+  mapPrefab: {fileID: 3905550376314750322, guid: 3358f86b5f077ab46bbc3e28b335fb82, type: 3}
+  isShopMap: 0
