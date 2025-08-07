@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Cinemachine;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
@@ -40,18 +41,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public EnemyHP enemyHP;
     public DiceAnimation diceAnimation;
     public JoystickDirectionIndicator joystickDirectionIndicator;
-    //public FireballProjectile fireballProjectile;
-    //public LightningDamage lightningDamage;
     public ZacSkill zacSkill;
-
-    [Header("UI")]
-    public GameObject shopUI;
-
-    [Header("상점 패널")]
-    public RectTransform shopPanel;
-
-    [Header("게임 시간 설정")]
-    public float gameTime;
 
     private bool isGameStarted = false;
 
@@ -112,15 +102,6 @@ public class GameManager : MonoSingleTone<GameManager>
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
 
-
-        if (shopUI != null)
-        {
-            CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
-            canvasGroup.alpha = 0f;
-            shopUI.SetActive(false);
-
-        }
-
     }
 
     private void Update()
@@ -163,7 +144,6 @@ public class GameManager : MonoSingleTone<GameManager>
             }
         }
 
-        // 코인, 총알, 스킬 삭제 부분 그대로
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
         foreach (GameObject coin in coins)
         {
@@ -188,10 +168,8 @@ public class GameManager : MonoSingleTone<GameManager>
             Destroy(skill);
         }
 
-
-        // 기다리지 않고 바로 상점 상태로 전환
         ChangeStateToClear();
-        //ChangeStateToClear();
+
         yield break;
     }
 
@@ -200,8 +178,6 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Lobby;
         Debug.Log("상태: Lobby - 게임 대기 중");
-        Time.timeScale = 1f;
-        if (shopUI != null) shopUI.SetActive(false);
     }
 
     public void ChangeStateToGame()
@@ -209,18 +185,12 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Game;
         Debug.Log("상태: Game - 웨이브 진행 중");
 
-        if (timer != null)
-        {
-            timer.ResetTimer(gameTime);
-        }
-
         joystickDirectionIndicator.StartRollingLoop();
 
         waveManager.StartSpawnLoop();
 
         if (!isGameStarted)
         {
-            shopUI.SetActive(false); //나중에 수정 할 것
             isGameStarted = true;
             // 첫 웨이브 시작 시 NavMesh 베이크
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -236,28 +206,28 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
-        DialogManager.Instance.StartShopDialog();
+        //DialogManager.Instance.StartShopDialog();
 
-        waveManager.StopSpawnLoop();
+        ////waveManager.StopSpawnLoop();
 
-        shopManager.FirstRerollItems();
+        //shopManager.FirstRerollItems();
 
-        if (shopUI != null)
-        {
-            shopUI.SetActive(true);
-        }
+        //if (shopUI != null)
+        //{
+        //    shopUI.SetActive(true);
+        //}
 
-        if (shopPanel != null)
-        {
+        //if (shopPanel != null)
+        //{
 
-            CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
-            if (canvasGroup != null)
-            {
-                canvasGroup.DOFade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
-            }
-            shopPanel.DOAnchorPosY(0f, 0.7f);
-            playerController.canMove = false;
-        }
+        //    CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
+        //    if (canvasGroup
+        //    {
+        //        canvasGroup.DOF != null)ade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
+        //    }
+        //    shopPanel.DOAnchorPosY(0f, 0.7f);
+        //    playerController.canMove = false;
+        //}
     }
 
     public void ChangeStateToClear()
@@ -267,8 +237,6 @@ public class GameManager : MonoSingleTone<GameManager>
 
         waveManager.StopSpawnLoop();
 
-        Time.timeScale = 1f;
-        if (shopUI != null) shopUI.SetActive(false);
 
         isGameStarted = false;
     }
@@ -277,7 +245,6 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.End;
         Debug.Log("상태: End - 게임 오버");
-        if (shopUI != null) shopUI.SetActive(false);
     }
 
 

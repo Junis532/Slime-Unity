@@ -14,8 +14,11 @@ public class EnemyHP : MonoBehaviour
 
     [Header("데미지 텍스트")]
     public GameObject damageTextPrefab; // 풀에 등록 필요
+    public GameObject cDamageTextPrefab; // 풀에서 가져온 인스턴스
 
     private SpriteRenderer spriteRenderer;
+
+    private float criticalChance = 10f;
 
     void Start()
     {
@@ -41,25 +44,51 @@ public class EnemyHP : MonoBehaviour
 
     public void TakeDamage()
     {
-        int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-        if (hpBar != null)
+        if (Random.Range(0f, 100f) < criticalChance)
         {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
+            Debug.Log("Critical Hit!");
+            int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 1.5f);
+            currentHP -= damage;
+            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+
+            if (hpBar != null)
+            {
+                hpBar.SetHP(currentHP);
+                hpBar.gameObject.SetActive(true);
+            }
+
+            // 슬로우 중일 때는 데미지 이펙트 없음
+            if (!bulletSpawner.slowSkillActive)
+                PlayDamageEffect();
+
+            ShowCDamageText(damage);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+
+            if (currentHP <= 0)
+                Die();
         }
+        else
+        {
+            int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
+            currentHP -= damage;
+            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
-        // 슬로우 중일 때는 데미지 이펙트 없음
-        if (!bulletSpawner.slowSkillActive)
-            PlayDamageEffect();
+            if (hpBar != null)
+            {
+                hpBar.SetHP(currentHP);
+                hpBar.gameObject.SetActive(true);
+            }
 
-        ShowDamageText(damage);
-        GameManager.Instance.cameraShake.GenerateImpulse();
+            // 슬로우 중일 때는 데미지 이펙트 없음
+            if (!bulletSpawner.slowSkillActive)
+                PlayDamageEffect();
 
-        if (currentHP <= 0)
-            Die();
+            ShowDamageText(damage);
+
+            if (currentHP <= 0)
+                Die();
+        }
+        
     }
 
 
@@ -93,7 +122,6 @@ public class EnemyHP : MonoBehaviour
         }
 
         PlayDamageEffect();
-        ShowDamageText(damage);
 
         if (currentHP <= 0)
             Die();
@@ -128,6 +156,55 @@ public class EnemyHP : MonoBehaviour
         else
         {
             Debug.LogWarning("damageTextObj에 TMP_Text 컴포넌트가 없습니다.");
+        }
+
+        Transform t = textObj.transform;
+        if (t != null)
+        {
+            t.position = spawnPosition;
+            t.localScale = Vector3.one;
+            t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+            t.DOScale(1.2f, 0.2f).OnComplete(() =>
+            {
+                t.DOScale(1f, 0.3f);
+            });
+
+            DOVirtual.DelayedCall(0.6f, () =>
+            {
+                PoolManager.Instance.ReturnToPool(textObj);
+            });
+        }
+    }
+
+    private void ShowCDamageText(int damage)
+    {
+        if (cDamageTextPrefab == null)
+        {
+            Debug.LogWarning("cDamageTextPrefab이 설정되지 않았습니다.");
+            return;
+        }
+
+        Vector3 spawnPosition = transform.position;
+        GameObject textObj = PoolManager.Instance.SpawnFromPool(
+            cDamageTextPrefab.name,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        if (textObj == null)
+        {
+            Debug.LogWarning("cDamageTextObj가 null입니다. 풀에 damageTextPrefab이 등록되었는지 확인하세요.");
+            return;
+        }
+
+        TMP_Text text = textObj.GetComponent<TMP_Text>();
+        if (text != null)
+        {
+            text.text = damage.ToString();
+        }
+        else
+        {
+            Debug.LogWarning("cDamageTextObj에 TMP_Text 컴포넌트가 없습니다.");
         }
 
         Transform t = textObj.transform;

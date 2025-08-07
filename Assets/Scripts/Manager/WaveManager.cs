@@ -130,8 +130,8 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         UpdateEnemyHP();
 
-        if (ShopManager.Instance != null)
-            ShopManager.Instance.ResetRerollPrice();
+        if (GameManager.Instance.shopManager != null)
+            GameManager.Instance.shopManager.ResetRerollPrice();
 
         GameManager.Instance.ChangeStateToGame();
         StartSpawnLoop();

@@ -41,8 +41,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     private AudioSource audioSource;
     public AudioClip fireballSound;
-    public AudioClip lightningSound;
-    public AudioClip windWallSound;
 
     [Header("스킬 쿨타임 관련")]
     public TMP_Text waitTimerText;

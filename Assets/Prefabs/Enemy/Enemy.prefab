@@ -108,8 +108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c66a088e24d3f241a9a11b147c32676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
+  originalSpeed: 0
 --- !u!114 &3818131844207129269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
 --- !u!114 &9034176444359971680
 MonoBehaviour:
   m_ObjectHideFlags: 0

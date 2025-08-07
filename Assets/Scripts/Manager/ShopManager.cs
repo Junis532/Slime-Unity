@@ -362,7 +362,6 @@ public class ShopManager : MonoSingleTone<ShopManager>
     public void OnButtonExitClick()
     {
         Debug.Log("상점 나감");
-        Time.timeScale = 1f;
 
         if (shopPanel != null)
         {
@@ -373,6 +372,7 @@ public class ShopManager : MonoSingleTone<ShopManager>
                 canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.7초 동안
             }
             shopPanel.DOAnchorPosY(1500f, 0.7f);
+            //shopUI.SetActive(false);
 
             GameManager.Instance.playerController.canMove = true;
         }
