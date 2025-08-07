@@ -10,6 +10,8 @@ public class EnemyHP : MonoBehaviour
     private float currentHP;
     private float maxHP;
 
+    private BulletSpawner bulletSpawner;
+
     [Header("데미지 텍스트")]
     public GameObject damageTextPrefab; // 풀에 등록 필요
 
@@ -33,6 +35,8 @@ public class EnemyHP : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
             Debug.LogWarning("SpriteRenderer를 찾지 못했습니다.");
+
+        bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
     }
 
     public void TakeDamage()
@@ -47,12 +51,17 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
-        PlayDamageEffect();
+        // 슬로우 중일 때는 데미지 이펙트 없음
+        if (!bulletSpawner.slowSkillActive)
+            PlayDamageEffect();
+
         ShowDamageText(damage);
+        GameManager.Instance.cameraShake.GenerateImpulse();
 
         if (currentHP <= 0)
             Die();
     }
+
 
     public void FireballTakeDamage(int damage)
     {

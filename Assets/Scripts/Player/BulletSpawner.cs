@@ -14,6 +14,10 @@ public class BulletSpawner : MonoBehaviour
     [Header("🟩 Fireball 체크박스 (임시용)")]
     public bool useFireball = false;
 
+    [Header("슬로우 화살")]
+    public bool slowSkillActive = false;  // 슬로우 스킬 활성 여부
+
+
     [Header("🕒 전체 생성 간격")]
     public float spawnInterval = 1f;
 
@@ -25,14 +29,6 @@ public class BulletSpawner : MonoBehaviour
 
     [Header("🎯 플레이어로부터 화살의 거리")]
     public float arrowDistanceFromPlayer = 1.2f;
-
-    [Header("플레이어 공격 게이지 부모")]
-    public Image attackGaugeImageParrent;
-    public Image attackGaugeImage;
-
-    [Header("게이지가 위치할 Y 오프셋 (플레이어 기준)")]
-    public float gaugeYOffset = -0.1f;
-
 
     private float timer;
     private GameObject bowInstance;
@@ -64,43 +60,19 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
+    private bool canFire = true;
+
     void Update()
     {
         if (!GameManager.Instance.IsGame()) return;
-        if (playerTransform == null || bulletPrefab == null) return;
+        if (playerTransform == null || bulletPrefab == null) return;    
 
-        // 🟢 게이지 UI 위치 따라다니게
-        if (attackGaugeImageParrent != null)
-        {
-            Vector3 gaugePos = playerTransform.position + new Vector3(0, gaugeYOffset, 0);
-            attackGaugeImageParrent.transform.position = Camera.main.WorldToScreenPoint(gaugePos);
-
-            // 🔴 채워지는 방식
-            attackGaugeImage.fillAmount = timer / spawnInterval;
-        }
-
-        // 플레이어 정지 여부 판단
+        // 플레이어 정지 판단
         bool isPlayerStill = Vector3.Distance(previousPlayerPosition, playerTransform.position) < playerStillThreshold;
         previousPlayerPosition = playerTransform.position;
 
-        if (!isPlayerStill)
-        {
-            timer = 0f;
-        }
-
-
-        // 적 존재 여부 확인
-        bool hasEnemy = false;
-        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-        foreach (string tag in enemyTags)
-        {
-            if (GameObject.FindGameObjectWithTag(tag) != null)
-            {
-                hasEnemy = true;
-                break;
-            }
-        }
-        if (!hasEnemy) return;
+        // 적 있는지 확인
+        if (!HasEnemyInScene()) return;
 
         // 가장 가까운 적 방향 계산
         Transform closestEnemy = FindClosestEnemy(playerTransform.position);
@@ -117,15 +89,38 @@ public class BulletSpawner : MonoBehaviour
         SyncBowAndArrowToPlayer();
         SyncBowAndArrowDirection(arrowAngle);
 
-        if (isPlayerStill)
+        // 발사 조건: 정지 중 & 발사 가능 상태
+        if (isPlayerStill && canFire)
+        {
+            FireArrow();
+            canFire = false;
+            timer = 0f;
+        }
+
+        // 쿨타임 타이머
+        if (!canFire)
         {
             timer += Time.deltaTime;
             if (timer >= spawnInterval)
             {
-                FireArrow();
+                canFire = true;
             }
         }
     }
+
+    bool HasEnemyInScene()
+{
+    string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+    foreach (string tag in enemyTags)
+    {
+        if (GameObject.FindGameObjectWithTag(tag) != null)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 
     private int shotCount = 0;
 

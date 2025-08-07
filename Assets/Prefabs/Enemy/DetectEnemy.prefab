@@ -220,12 +220,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e854916a47761554cbb3cf71c53466c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
-  detectionRange: 2
-  rangeVisualPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
+  originalSpeed: 0
+  detectionRange: 3
   moveDuration: 4
-  idleDuration: 3
 --- !u!195 &897030161065753097
 NavMeshAgent:
   m_ObjectHideFlags: 0

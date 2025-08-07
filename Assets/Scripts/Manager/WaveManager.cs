@@ -45,7 +45,33 @@ public class WaveManager : MonoBehaviour
             SpawnPortal();
             portalSpawned = true;
         }
+
+        // ✅ 적이 모두 죽었고 아직 Clear 상태가 아니라면
+        if (hasSpawned && GameManager.Instance.CurrentState == "Game")
+        {
+            if (AreAllEnemiesDead())
+            {
+                GameManager.Instance.ChangeStateToClear();
+                Debug.Log("[WaveManager] 모든 적 처치 -> 상태 Clear로 전환");
+            }
+        }
     }
+
+    bool AreAllEnemiesDead()
+    {
+        // 현재 씬에 남아있는 적 GameObject가 있는지 확인
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        // 특수한 적들 (DashEnemy 등)도 검사
+        GameObject[] dashEnemies = GameObject.FindGameObjectsWithTag("DashEnemy");
+        GameObject[] longRangeEnemies = GameObject.FindGameObjectsWithTag("LongRangeEnemy");
+        GameObject[] potionEnemies = GameObject.FindGameObjectsWithTag("PotionEnemy");
+
+        int totalEnemies = allEnemies.Length + dashEnemies.Length + longRangeEnemies.Length + potionEnemies.Length;
+
+        return totalEnemies == 0;
+    }
+
 
     void SpawnPortal()
     {

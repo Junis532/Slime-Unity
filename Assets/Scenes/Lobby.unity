@@ -3848,10 +3848,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.28611112
+    x: 0.055555556
     y: 0
-    width: 0.2962963
-    height: 0.4361111
+    width: 0.8888889
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -4534,6 +4534,8 @@ MonoBehaviour:
   fadeSpeed: 0.5
   footprinterInterval: 0.1
   isFootprint: 0
+  autoTogglePoisonGas: 0
+  toggleInterval: 15
 --- !u!114 &464397814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4591,9 +4593,7 @@ MonoBehaviour:
   joystick: {fileID: 0}
   joystickCanvasGroup: {fileID: 0}
   imageToHideWhenTouching: {fileID: 0}
-  diceImage: {fileID: 0}
   blockInputCanvas: {fileID: 0}
-  skillSaveButton: {fileID: 0}
   directionSpritePrefabs:
   - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
@@ -4626,16 +4626,18 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  fireballPrefab: {fileID: 4385281220721116477, guid: 863ef348d239128419786a5d6959f4d0, type: 3}
-  firePoint: {fileID: 464397811}
-  lightningPrefab: {fileID: 5656251726587522849, guid: aac6e8907f75be642b794a01b6c0cc95, type: 3}
-  LightningEffectPrefab: {fileID: 1740983629059790656, guid: 9d52fa2380601d1428d642d0633462bf, type: 3}
-  windWallPrefab: {fileID: 4984258308688839241, guid: 7bbdd67a7ae301646b15b6ca3545a2ea, type: 3}
-  teleportEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
-  teleportEffectDuration: 0.3
-  bombPrefab: {fileID: 8517574302876455814, guid: ed60bfeb4525fe14089a56f15bf64b98, type: 3}
-  mucusProjectilePrefab: {fileID: 510499459271775873, guid: b1c9f09cf981a484aa62f0834a32805a, type: 3}
-  teleportSound: {fileID: 0}
+  slimeJumpLandEffectPrefab: {fileID: 0}
+  slimeJumpDamage: 30
+  slimeJumpRadius: 5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  fireballSound: {fileID: 0}
+  lightningSound: {fileID: 0}
+  windWallSound: {fileID: 0}
+  waitTimerText: {fileID: 0}
+  CooltimeImange: {fileID: 0}
+  waitInterval: 10
 --- !u!114 &464397818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4648,7 +4650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27745e7bfefdb6c45bd5c1f4005d44c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpSlider: {fileID: 0}
+  hpFillImage: {fileID: 0}
   hpText: {fileID: 0}
 --- !u!1001 &472908976
 PrefabInstance:
@@ -5820,6 +5822,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b2e482a63af3d43b6044d02c0759cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraShake: {fileID: 0}
+  playerController: {fileID: 0}
   playerDamaged: {fileID: 0}
   playerDie: {fileID: 0}
   playerStats: {fileID: 11400000, guid: 0365ba13a9443ef439cc30e6f3181af9, type: 2}
@@ -5836,6 +5840,8 @@ MonoBehaviour:
   itemStats6: {fileID: 0}
   itemStats7: {fileID: 0}
   itemStats8: {fileID: 0}
+  itemStats9: {fileID: 0}
+  itemStats10: {fileID: 0}
   enemy: {fileID: 0}
   dashEnemy: {fileID: 0}
   longRangeEnemy: {fileID: 0}
@@ -5848,9 +5854,11 @@ MonoBehaviour:
   dialogManager: {fileID: 0}
   enemyHP: {fileID: 0}
   diceAnimation: {fileID: 0}
+  joystickDirectionIndicator: {fileID: 0}
   zacSkill: {fileID: 0}
   shopUI: {fileID: 0}
   shopPanel: {fileID: 0}
+  gameTime: 0
 --- !u!4 &630532414
 Transform:
   m_ObjectHideFlags: 0
@@ -13013,7 +13021,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0

@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -117,7 +118,9 @@ public class GameManager : MonoSingleTone<GameManager>
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
             canvasGroup.alpha = 0f;
             shopUI.SetActive(false);
+
         }
+
     }
 
     private void Update()
@@ -217,6 +220,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (!isGameStarted)
         {
+            shopUI.SetActive(false); //나중에 수정 할 것
             isGameStarted = true;
             // 첫 웨이브 시작 시 NavMesh 베이크
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -273,7 +277,6 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.End;
         Debug.Log("상태: End - 게임 오버");
-        Time.timeScale = 0f;
         if (shopUI != null) shopUI.SetActive(false);
     }
 

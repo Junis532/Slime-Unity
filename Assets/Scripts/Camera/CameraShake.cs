@@ -3,17 +3,29 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-    public CinemachineImpulseSource impulseSource;
+    [SerializeField]
+    private CinemachineImpulseSource impulseSource;
 
-    public void Shake()
+    [SerializeField]
+    private float magnitude = 1f;
+
+    [SerializeField]
+    private float roughness = 1f;
+
+    private void Update()
     {
-        if (impulseSource != null)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            impulseSource.GenerateImpulse();
+            GenerateImpulse();
         }
-        else
-        {
-            Debug.LogWarning("CinemachineImpulseSource가 할당되지 않았습니다.");
-        }
+    }
+
+    public void GenerateImpulse()
+    {
+        // 방향 없이 그냥 흔들림
+        impulseSource.GenerateImpulse();
+
+        // 만약 방향 및 세기를 넣고 싶다면:
+        // impulseSource.GenerateImpulse(Vector3.up * magnitude);
     }
 }

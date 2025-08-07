@@ -6,7 +6,9 @@ public class BulletAI : MonoBehaviour
 {
     public float moveSpeed = 20f;
     public float followDuration = 0.3f;
-    public bool slow = false;
+
+    private SlowSkill slowSkill;
+    private BulletSpawner bulletSpawner;
 
     private Transform target;
     private bool isFollowingPlayer = true;
@@ -34,6 +36,8 @@ public class BulletAI : MonoBehaviour
     void Awake()
     {
         myCollider = GetComponent<Collider2D>();
+        slowSkill = Object.FindFirstObjectByType<SlowSkill>();
+        bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
     }
 
     void OnEnable()
@@ -142,6 +146,36 @@ public class BulletAI : MonoBehaviour
     {
         if (isDestroying) return;
 
+        // 🔹 벽(Obstacle 레이어) 충돌 시 박히는 효과
+        if (other.CompareTag("Obstacle"))
+        {
+            // 이동 정지
+            transform.DOKill();
+            moveSpeed = 0f;
+
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+                moveCoroutine = null;
+            }
+
+            // 콜라이더 비활성화
+            if (myCollider != null)
+                myCollider.enabled = false;
+
+            // 추적 이펙트 제거
+            if (trackingEffectInstance != null)
+            {
+                Destroy(trackingEffectInstance);
+                trackingEffectInstance = null;
+            }
+
+            // (선택) 벽에 "박히는" 효과를 위해 정지 후 파괴
+            Invoke(nameof(DestroySelf), 1.5f);
+            return;
+        }
+
+        // 🔸 적 충돌 처리
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {
@@ -149,40 +183,17 @@ public class BulletAI : MonoBehaviour
             if (hp != null)
                 hp.TakeDamage();
 
-            // ✅ 슬로우 적용
-            if (slow)
+            if (bulletSpawner != null && bulletSpawner.slowSkillActive && slowSkill != null)
             {
                 EnemyBase enemyBase = other.GetComponent<EnemyBase>();
                 if (enemyBase != null)
                 {
-                    StartCoroutine(SlowEnemy(enemyBase, 0.5f));
+                    slowSkill.ApplySlow(enemyBase);
                 }
             }
 
             DestroySelf();
         }
-    }
-
-    // BulletAI 슬로우 코루틴에서 로그 추가 및 안전성 체크
-
-    IEnumerator SlowEnemy(EnemyBase enemy, float slowRatio)
-    {
-        if (enemy == null)
-        {
-            Debug.LogWarning("SlowEnemy: enemy is null at start");
-            yield break;
-        }
-
-        float original = enemy.originalSpeed;
-
-        Debug.Log($"SlowEnemy: Applying slow. originalSpeed={original}, slowRatio={slowRatio}");
-
-        enemy.SetSpeed(original * slowRatio);
-
-        yield return new WaitForSeconds(1f);
-
-        Debug.Log("SlowEnemy: Restoring original speed");
-        enemy.SetSpeed(original);
     }
 
 

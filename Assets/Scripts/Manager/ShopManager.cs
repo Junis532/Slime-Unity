@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopManager : MonoBehaviour
+public class ShopManager : MonoSingleTone<ShopManager>
 {
     public static ShopManager Instance;
 
@@ -136,7 +136,7 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log($"[구매] {item.itemName} - 코인 {item.price} 차감 후 남은 코인: {GameManager.Instance.playerStats.coin}");
 
-        //----------------------------------------------------------------------------------------- 1
+        //----------------------------------------------------------------------------------------- 1 ✅
         if (item == GameManager.Instance.itemStats1)
         {
             GameManager.Instance.playerStats.maxHP += 5;
@@ -163,7 +163,7 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        //----------------------------------------------------------------------------------------- 3
+        //----------------------------------------------------------------------------------------- 3 ✅
         else if (item == GameManager.Instance.itemStats3)
         {
             GameManager.Instance.playerStats.speed *= 1.05f;
@@ -200,19 +200,19 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        //----------------------------------------------------------------------------------------- 5
+        //----------------------------------------------------------------------------------------- 5 ✅
         else if (item == GameManager.Instance.itemStats5)
         {
             GameManager.Instance.playerStats.attack *= 1.02f;
         }
-        //----------------------------------------------------------------------------------------- 6
+        //----------------------------------------------------------------------------------------- 6 ✅
         else if (item == GameManager.Instance.itemStats6)
         {
             GameObject gmObj = GameManager.Instance.gameObject;
             BulletSpawner spawner = gmObj.GetComponent<BulletSpawner>();
             if (spawner != null)
             {
-                spawner.spawnInterval -= 1;
+                spawner.spawnInterval -= 0.1f;
             }
         }
         //----------------------------------------------------------------------------------------- 7
@@ -257,7 +257,7 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        //-----------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------- 9
         else if (item == GameManager.Instance.itemStats9)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
@@ -278,28 +278,33 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-        //-----------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------- 10 ✅
         else if (item == GameManager.Instance.itemStats10)
         {
-
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
+            GameObject gmObj = GameObject.Find("GameManager");
+            if (gmObj != null)
             {
-                var MucusSkill = playerObj.GetComponent<MucusSkill>();
-                if (MucusSkill != null)
+                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
+                if (bulletSpawner != null)
                 {
-                    if (!MucusSkill.enabled)
+                    if (!bulletSpawner.slowSkillActive)
                     {
-                        MucusSkill.enabled = true;
-
+                        bulletSpawner.slowSkillActive = true;
+                        Debug.Log("[Shop] BulletSpawner의 slowSkillActive가 활성화됨");
                     }
                     else
                     {
-                        Debug.Log("[Shop] 이미 활성화됨");
+                        var slowSkill = gmObj.GetComponent<SlowSkill>();
+                        if (slowSkill != null)
+                        {
+                            slowSkill.slowDuration += 0.5f; // 슬로우 지속 시간 증가
+                            Debug.Log("[Shop] BulletSpawner의 슬로우 지속 시간이 증가됨");
+                        }
                     }
                 }
             }
         }
+
         //-----------------------------------------------------------------------------------------
 
 
@@ -370,11 +375,6 @@ public class ShopManager : MonoBehaviour
             shopPanel.DOAnchorPosY(1500f, 0.7f);
 
             GameManager.Instance.playerController.canMove = true;
-        }
-        else
-        {
-            if (shopUI != null)
-                shopUI.SetActive(false);
         }
     }
 }

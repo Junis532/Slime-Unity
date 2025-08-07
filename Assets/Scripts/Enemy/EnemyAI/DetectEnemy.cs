@@ -13,13 +13,8 @@ public class DetectEnemy : EnemyBase
     public float detectionRange = 5f;
     private bool hasDetectedPlayer = false;
 
-    public GameObject rangeVisualPrefab;
-    private GameObject rangeVisualInstance;
-
     public float moveDuration = 4f;
-    public float idleDuration = 3f;
-    private float actionTimer = 0f;
-    private bool isIdle = false;
+    private float moveTimer = 0f;
 
     private Vector3 randomDestination;
 
@@ -35,12 +30,6 @@ public class DetectEnemy : EnemyBase
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.speed = speed;
-
-        if (rangeVisualPrefab != null)
-        {
-            rangeVisualInstance = Instantiate(rangeVisualPrefab, transform.position, Quaternion.identity, transform);
-            rangeVisualInstance.transform.localScale = Vector3.one * detectionRange * 2f;
-        }
 
         PickRandomDestination();
     }
@@ -64,41 +53,9 @@ public class DetectEnemy : EnemyBase
                 transform.localScale = scale;
             }
 
-            if (!hasDetectedPlayer && distance <= detectionRange && !isIdle)
+            if (!hasDetectedPlayer && distance <= detectionRange)
             {
                 hasDetectedPlayer = true;
-                if (rangeVisualInstance != null)
-                    Destroy(rangeVisualInstance);
-            }
-        }
-
-        // 행동/정지 주기
-        actionTimer += Time.deltaTime;
-
-        if (isIdle)
-        {
-            if (actionTimer >= idleDuration)
-            {
-                isIdle = false;
-                actionTimer = 0f;
-
-                if (!hasDetectedPlayer)
-                    PickRandomDestination();
-            }
-
-            agent.SetDestination(transform.position);
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            return;
-        }
-        else
-        {
-            if (actionTimer >= moveDuration)
-            {
-                isIdle = true;
-                actionTimer = 0f;
-                agent.SetDestination(transform.position);
-                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-                return;
             }
         }
 
@@ -108,10 +65,14 @@ public class DetectEnemy : EnemyBase
         }
         else
         {
-            if (Vector3.Distance(transform.position, randomDestination) < 0.5f)
+            moveTimer += Time.deltaTime;
+
+            if (moveTimer >= moveDuration || Vector3.Distance(transform.position, randomDestination) < 0.5f)
             {
                 PickRandomDestination();
+                moveTimer = 0f;
             }
+
             agent.SetDestination(randomDestination);
         }
 
@@ -119,10 +80,6 @@ public class DetectEnemy : EnemyBase
         if (agent.velocity.magnitude > 0.1f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-        }
-        else
-        {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 
@@ -154,8 +111,5 @@ public class DetectEnemy : EnemyBase
     private void OnDestroy()
     {
         isLive = false;
-
-        if (rangeVisualInstance != null)
-            Destroy(rangeVisualInstance);
     }
 }

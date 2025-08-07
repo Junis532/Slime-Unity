@@ -22,7 +22,7 @@ public class PlayerDamaged : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.cameraShake != null)
         {
             Debug.Log("CameraShake 호출됨");
-            GameManager.Instance.cameraShake.Shake();
+            //GameManager.Instance.cameraShake.GenerateImpulse();
         }
 
         spriteRenderer.color = Color.red;  // 빨간색으로 변경
