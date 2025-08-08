@@ -9,6 +9,10 @@ public class EnemiesDie : MonoBehaviour
     [Header("죽을 때 드랍할 코인")]
     public GameObject coinPrefab;
 
+    [Header("죽을 때 포션")]
+    public GameObject potionPrefab; // 풀에 등록 필요
+    public float potionDropChance = 0.1f; // 10% 확률로 포션 드랍
+
     public void SetGroupController(GroupController group)
     {
         this.groupController = group;
@@ -23,6 +27,15 @@ public class EnemiesDie : MonoBehaviour
         {
             // PoolManager로 코인 소환
             PoolManager.Instance.SpawnFromPool(coinPrefab.name, transform.position, Quaternion.identity);
+        }
+
+        if (potionPrefab != null)
+        {
+            if (Random.value <= potionDropChance)
+            {
+                PoolManager.Instance.SpawnFromPool(potionPrefab.name, transform.position, Quaternion.identity);
+            }
+            
         }
 
         Sequence deathSequence = DOTween.Sequence();

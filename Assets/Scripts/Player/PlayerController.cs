@@ -17,6 +17,12 @@ public class PlayerController : MonoBehaviour
     [Header("조이스틱")]
     public VariableJoystick joystick;
 
+    [Header("조이스틱 방향 표시")]
+    public GameObject directionIndicatorPrefab;
+    private GameObject directionIndicatorInstance;
+
+    public float directionIndicatorDistance = 0.5f; // 원이 플레이어로부터 떨어진 거리
+
     [Header("장애물 레이어")]
     public LayerMask obstacleLayer;  // Obstacle 레이어만 포함
 
@@ -26,6 +32,13 @@ public class PlayerController : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimation = GetComponent<PlayerAnimation>();
+
+        if (directionIndicatorPrefab != null)
+        {
+            directionIndicatorInstance = Instantiate(directionIndicatorPrefab, transform.position, Quaternion.identity);
+            directionIndicatorInstance.transform.SetParent(transform); // 플레이어에 자식으로 붙임
+        }
+
     }
 
     void Update()
@@ -72,6 +85,8 @@ public class PlayerController : MonoBehaviour
 
         transform.Translate(finalMove);
 
+        UpdateDirectionIndicator(); // 방향 원 업데이트
+
         // 방향 전환
         float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
         if (flipInput < -0.01f) spriteRenderer.flipX = true;
@@ -82,6 +97,22 @@ public class PlayerController : MonoBehaviour
             playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
         else
             playerAnimation.PlayAnimation(PlayerAnimation.State.Move);
+    }
+
+    void UpdateDirectionIndicator()
+    {
+        if (directionIndicatorInstance == null) return;
+
+        if (inputVec.magnitude > 0.1f)
+        {
+            directionIndicatorInstance.SetActive(true);
+            Vector2 offset = inputVec.normalized * directionIndicatorDistance;
+            directionIndicatorInstance.transform.localPosition = offset;
+        }
+        else
+        {
+            directionIndicatorInstance.SetActive(false); // 입력이 없으면 숨김
+        }
     }
 
     bool IsObstacleAhead(Vector2 moveDelta)

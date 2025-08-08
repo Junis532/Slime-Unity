@@ -15,8 +15,9 @@ public class TurretEnemy : EnemyBase
     public float bulletSpeed = 3f;
     public float bulletLifetime = 3f;
 
-    [Header("시각적 범위 표시")]
-    private GameObject rangeVisualInstance;
+    private LineRenderer lineRenderer;
+
+    private bool isPreparingToFire = false; // 발사 준비중 상태
 
     void Start()
     {
@@ -25,6 +26,17 @@ public class TurretEnemy : EnemyBase
 
         originalSpeed = GameManager.Instance.longRangeEnemyStats.speed;
         speed = originalSpeed;
+
+        // LineRenderer 세팅
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.enabled = false;
+
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.05f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.red;
     }
 
     void Update()
@@ -32,7 +44,11 @@ public class TurretEnemy : EnemyBase
         if (!isLive) return;
 
         GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
+        if (player == null)
+        {
+            lineRenderer.enabled = false;
+            return;
+        }
 
         Vector2 toPlayer = player.transform.position - transform.position;
         float distance = toPlayer.magnitude;
@@ -47,14 +63,60 @@ public class TurretEnemy : EnemyBase
 
         if (distance <= fireRange)
         {
-            if (Time.time - lastFireTime >= fireCooldown)
+            // 발사 준비 중이든 아니든 선은 계속 보여준다
+            if (!lineRenderer.enabled)
+                lineRenderer.enabled = true;
+
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, player.transform.position);
+
+            if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
             {
-                Shoot(toPlayer.normalized);
-                lastFireTime = Time.time;
+                StartCoroutine(PrepareAndShoot());
             }
 
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle); //  공격 시 애니메이션
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
+        else
+        {
+            if (lineRenderer.enabled)
+                lineRenderer.enabled = false;
+
+            isPreparingToFire = false;
+            StopAllCoroutines();
+        }
+    }
+
+    private System.Collections.IEnumerator PrepareAndShoot()
+    {
+        isPreparingToFire = true;
+
+        float timer = 0f;
+        while (timer < 1f)
+        {
+            timer += Time.deltaTime;
+            // 대기 중에도 Update()에서 계속 선과 위치를 갱신하므로 여기선 그냥 기다리기만 하면 됨
+            yield return null;
+        }
+
+        // 발사 직전 선 숨기기
+        lineRenderer.enabled = false;
+
+        // 발사 방향 계산 (가장 최근 플레이어 위치로)
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            Vector2 dir = (player.transform.position - transform.position).normalized;
+            Shoot(dir);
+            lastFireTime = Time.time;
+        }
+
+        // 발사 후 잠시 후 선 다시 켜기
+        yield return new WaitForSeconds(0.3f);
+        if (isLive)
+            lineRenderer.enabled = true;
+
+        isPreparingToFire = false;
     }
 
 
@@ -74,10 +136,8 @@ public class TurretEnemy : EnemyBase
 
     private void OnDestroy()
     {
-        if (rangeVisualInstance != null)
-        {
-            Destroy(rangeVisualInstance);
-        }
+        if (lineRenderer != null)
+            Destroy(lineRenderer);
 
         isLive = false;
     }

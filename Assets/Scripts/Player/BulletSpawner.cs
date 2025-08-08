@@ -17,7 +17,6 @@ public class BulletSpawner : MonoBehaviour
     [Header("슬로우 화살")]
     public bool slowSkillActive = false;  // 슬로우 스킬 활성 여부
 
-
     [Header("🕒 전체 생성 간격")]
     public float spawnInterval = 1f;
 
@@ -30,19 +29,30 @@ public class BulletSpawner : MonoBehaviour
     [Header("🎯 플레이어로부터 화살의 거리")]
     public float arrowDistanceFromPlayer = 1.2f;
 
+    [Header("🎯 타겟팅 표시 프리팹")]
+    public GameObject targetingPrefab; // 기존 타겟팅 표시 프리팹
+
+    [Header("🎯 추가 타겟팅 표시 프리팹")]
+    public GameObject extraTargetingPrefab; // y + 2 위치에 띄울 다른 프리팹
+
     private float timer;
     private GameObject bowInstance;
     private GameObject effectBowInstance;
     private Transform playerTransform;
+    private SpriteRenderer playerSpriteRenderer;
     private bool isBowActive = true;
     private BulletAI lastArrowAI = null;
     private bool arrowIsFlying = false;
     private float arrowAngle = 0f;
     private Vector3 currentBowPosition;
     private Vector3 currentArrowPosition;
-
     private Vector3 previousPlayerPosition;
     private float playerStillThreshold = 0.01f;
+
+    // 타겟 표시 관련
+    private Transform currentTarget;
+    private GameObject targetingInstance;
+    private GameObject extraTargetingInstance;
 
     void Start()
     {
@@ -50,6 +60,7 @@ public class BulletSpawner : MonoBehaviour
         if (playerObj != null)
         {
             playerTransform = playerObj.transform;
+            playerSpriteRenderer = playerObj.GetComponent<SpriteRenderer>();
             previousPlayerPosition = playerTransform.position;
         }
 
@@ -65,21 +76,34 @@ public class BulletSpawner : MonoBehaviour
     void Update()
     {
         if (!GameManager.Instance.IsGame()) return;
-        if (playerTransform == null || bulletPrefab == null) return;    
+        if (playerTransform == null || bulletPrefab == null) return;
 
-        // 플레이어 정지 판단
         bool isPlayerStill = Vector3.Distance(previousPlayerPosition, playerTransform.position) < playerStillThreshold;
         previousPlayerPosition = playerTransform.position;
 
-        // 적 있는지 확인
-        if (!HasEnemyInScene()) return;
+        if (!HasEnemyInScene())
+        {
+            ClearTargeting();
+            return;
+        }
+
+        // 타겟 갱신
+        UpdateTargeting();
 
         // 가장 가까운 적 방향 계산
-        Transform closestEnemy = FindClosestEnemy(playerTransform.position);
         Vector3 playerToEnemyDir = Vector3.right;
-        if (closestEnemy != null)
+        if (currentTarget != null)
         {
-            playerToEnemyDir = (closestEnemy.position - playerTransform.position).normalized;
+            playerToEnemyDir = (currentTarget.position - playerTransform.position).normalized;
+        }
+
+        // *** 플레이어 Flip 처리 (Idle 상태일 때만) ***
+        if (IsPlayerIdle() && playerSpriteRenderer != null)
+        {
+            if (playerToEnemyDir.x > 0.01f)
+                playerSpriteRenderer.flipX = false;  // 오른쪽 바라보기
+            else if (playerToEnemyDir.x < -0.01f)
+                playerSpriteRenderer.flipX = true;   // 왼쪽 바라보기
         }
 
         currentBowPosition = playerTransform.position + playerToEnemyDir * bowDistance;
@@ -89,7 +113,6 @@ public class BulletSpawner : MonoBehaviour
         SyncBowAndArrowToPlayer();
         SyncBowAndArrowDirection(arrowAngle);
 
-        // 발사 조건: 정지 중 & 발사 가능 상태
         if (isPlayerStill && canFire)
         {
             FireArrow();
@@ -97,7 +120,6 @@ public class BulletSpawner : MonoBehaviour
             timer = 0f;
         }
 
-        // 쿨타임 타이머
         if (!canFire)
         {
             timer += Time.deltaTime;
@@ -109,18 +131,74 @@ public class BulletSpawner : MonoBehaviour
     }
 
     bool HasEnemyInScene()
-{
-    string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-    foreach (string tag in enemyTags)
     {
-        if (GameObject.FindGameObjectWithTag(tag) != null)
+        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+        foreach (string tag in enemyTags)
         {
-            return true;
+            if (GameObject.FindGameObjectWithTag(tag) != null)
+                return true;
+        }
+        return false;
+    }
+
+    void UpdateTargeting()
+    {
+        if (currentTarget != null)
+        {
+            EnemyHP enemyHP = currentTarget.GetComponent<EnemyHP>();
+            if (enemyHP != null && enemyHP.currentHP <= 0)
+            {
+                ClearTargeting();
+                currentTarget = null;
+            }
+        }
+
+        Transform closestEnemy = FindClosestEnemy(playerTransform.position);
+
+        if (closestEnemy != currentTarget)
+        {
+            ClearTargeting();
+            currentTarget = closestEnemy;
+
+            if (currentTarget != null)
+            {
+                Vector3 offset = Vector3.zero;
+                var col = currentTarget.GetComponent<Collider2D>();
+                if (col != null)
+                    offset = new Vector3(0f, col.bounds.extents.y - 0.9f, 0f);
+
+                if (targetingPrefab != null)
+                {
+                    targetingInstance = Instantiate(targetingPrefab, currentTarget.position + offset, Quaternion.identity);
+                    targetingInstance.transform.SetParent(currentTarget);
+                }
+
+                if (extraTargetingPrefab != null)
+                {
+                    Vector3 extraOffset = offset + new Vector3(0f, 1.3f, 0f);
+                    extraTargetingInstance = Instantiate(extraTargetingPrefab, currentTarget.position + extraOffset, Quaternion.Euler(0f, 0f, -90f));
+                    extraTargetingInstance.transform.SetParent(currentTarget);
+                }
+            }
         }
     }
-    return false;
-}
 
+    void ClearTargeting()
+    {
+        if (targetingInstance != null)
+        {
+            Destroy(targetingInstance);
+            targetingInstance = null;
+        }
+
+        if (extraTargetingInstance != null)
+        {
+            Destroy(extraTargetingInstance);
+            extraTargetingInstance = null;
+        }
+
+        currentTarget = null;
+    }
 
     private int shotCount = 0;
 
@@ -143,12 +221,11 @@ public class BulletSpawner : MonoBehaviour
             effectBowInstance.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
         }
 
-        // 3번째에 fireball 쏘기
         GameObject bulletToFire = bulletPrefab;
         if (useFireball && shotCount >= 6 && fireballPrefab != null)
         {
             bulletToFire = fireballPrefab;
-            shotCount = 0; // 리셋
+            shotCount = 0;
         }
         else
         {
@@ -175,9 +252,7 @@ public class BulletSpawner : MonoBehaviour
         arrowIsFlying = true;
 
         if (effectBowInstance != null)
-        {
             effectBowInstance.SetActive(false);
-        }
 
         if (bowInstance != null)
             bowInstance.SetActive(true);
@@ -228,4 +303,15 @@ public class BulletSpawner : MonoBehaviour
 
         return closest;
     }
+
+    bool IsPlayerIdle()
+    {
+        // 예1) 플레이어 애니메이터가 있고, 현재 상태가 Idle인지 체크
+        // Animator animator = GameManager.Instance.playerAnimator;
+        // return animator.GetCurrentAnimatorStateInfo(0).IsName("Idle");
+
+        // 예2) 플레이어 상태를 enum 등으로 관리하는 경우
+        return GameManager.Instance.playerAnimation.currentState == PlayerAnimation.State.Idle;
+    }
+
 }

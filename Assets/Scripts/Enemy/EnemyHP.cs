@@ -4,10 +4,11 @@ using TMPro;
 
 public class EnemyHP : MonoBehaviour
 {
+    
     [Header("체력 관련")]
     public GameObject hpBarPrefab;
     private EnemyHPBar hpBar;
-    private float currentHP;
+    public float currentHP;
     private float maxHP;
 
     private BulletSpawner bulletSpawner;
@@ -15,6 +16,10 @@ public class EnemyHP : MonoBehaviour
     [Header("데미지 텍스트")]
     public GameObject damageTextPrefab; // 풀에 등록 필요
     public GameObject cDamageTextPrefab; // 풀에서 가져온 인스턴스
+
+    [Header("이펙트 프리팹")]
+    public GameObject hitEffectPrefab; // 이펙트 프리팹 (풀 등록 필요)
+
 
     private SpriteRenderer spriteRenderer;
 
@@ -60,6 +65,7 @@ public class EnemyHP : MonoBehaviour
             // 슬로우 중일 때는 데미지 이펙트 없음
             if (!bulletSpawner.slowSkillActive)
                 PlayDamageEffect();
+                PlayHitEffect();
 
             ShowCDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
@@ -82,6 +88,7 @@ public class EnemyHP : MonoBehaviour
             // 슬로우 중일 때는 데미지 이펙트 없음
             if (!bulletSpawner.slowSkillActive)
                 PlayDamageEffect();
+                PlayHitEffect();
 
             ShowDamageText(damage);
 
@@ -122,10 +129,41 @@ public class EnemyHP : MonoBehaviour
         }
 
         PlayDamageEffect();
+        ShowDamageText(damage);
 
         if (currentHP <= 0)
             Die();
     }
+
+    private void PlayHitEffect()
+    {
+        if (hitEffectPrefab == null)
+        {
+            Debug.LogWarning("hitEffectPrefab이 설정되지 않았습니다.");
+            return;
+        }
+
+        Vector3 spawnPosition = transform.position;
+
+        GameObject effectObj = PoolManager.Instance.SpawnFromPool(
+            hitEffectPrefab.name,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        if (effectObj == null)
+        {
+            Debug.LogWarning("hitEffectPrefab이 풀에서 생성되지 않았습니다.");
+            return;
+        }
+
+        // 이펙트 0.3초 후 풀로 반환
+        DOVirtual.DelayedCall(0.3f, () =>
+        {
+            PoolManager.Instance.ReturnToPool(effectObj);
+        });
+    }
+
 
     private void ShowDamageText(int damage)
     {

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class LongRangeEnemyBullet : MonoBehaviour
 {
+    // 이걸 true로 하면 Obstacle 태그에 닿으면 총알이 사라짐
+    public bool destroyOnObstacle = false;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -17,7 +20,11 @@ public class LongRangeEnemyBullet : MonoBehaviour
                 //GameManager.Instance.PlayerDie?.Invoke(); // 함수가 있다면 호출
             }
 
-            // 자기 자신(총알 등) 삭제
+            Destroy(gameObject);
+        }
+        else if (destroyOnObstacle && collision.CompareTag("Obstacle"))
+        {
+            // Obstacle 태그에 닿았을 때 총알 삭제
             Destroy(gameObject);
         }
     }

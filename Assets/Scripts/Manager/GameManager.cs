@@ -9,6 +9,8 @@ using Unity.Cinemachine;
 public class GameManager : MonoSingleTone<GameManager>
 {
     public CameraShake cameraShake;
+    public CinemachineCamera cineCamera;
+    public PlayerAnimation playerAnimation;
     public PlayerController playerController;
     public PlayerDamaged playerDamaged;
     public PlayerDie playerDie;
@@ -44,6 +46,9 @@ public class GameManager : MonoSingleTone<GameManager>
     public ZacSkill zacSkill;
 
     private bool isGameStarted = false;
+
+    public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);
+    public Vector3 fixedPosition = new Vector3(-100, 0, 0);
 
     private enum GameState
     {
@@ -106,71 +111,97 @@ public class GameManager : MonoSingleTone<GameManager>
 
     private void Update()
     {
-        if (currentState == GameState.Game && timer != null && timer.timerRunning)
-        {
-            if (timer.timeRemaining > 0)
-            {
-                timer.timeRemaining -= Time.deltaTime;
-                timer.UpdateTimerDisplay();
-            }
-            else
-            {
-                timer.timeRemaining = 0;
-                timer.timerRunning = false;
-                timer.UpdateTimerDisplay();
+        //if (currentState == GameState.Game && timer != null && timer.timerRunning)
+        //{
+        //    if (timer.timeRemaining > 0)
+        //    {
+        //        timer.timeRemaining -= Time.deltaTime;
+        //        timer.UpdateTimerDisplay();
+        //    }
+        //    else
+        //    {
+        //        timer.timeRemaining = 0;
+        //        timer.timerRunning = false;
+        //        timer.UpdateTimerDisplay();
 
-                // 적 죽음 및 상점 진입 코루틴 시작
-                StartCoroutine(WaitForEnemiesDieAndGoShop());
+        //        // 적 죽음 및 상점 진입 코루틴 시작
+        //        StartCoroutine(WaitForEnemiesDieAndGoShop());
 
-            }
-        }
+        //    }
+        //}
     }
 
-    private IEnumerator WaitForEnemiesDieAndGoShop()
+    //private IEnumerator WaitForEnemiesDieAndGoShop()
+    //{
+    //    // 모든 적들에게 죽으라고 명령
+    //    string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+
+    //    foreach (string tag in enemyTags)
+    //    {
+    //        GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
+    //        foreach (GameObject enemyObject in enemies)
+    //        {
+    //            EnemiesDie enemiesDie = enemyObject.GetComponent<EnemiesDie>();
+    //            if (enemiesDie != null)
+    //            {
+    //                enemiesDie.Die();
+    //            }
+    //        }
+    //    }
+
+    //    GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+    //    foreach (GameObject coin in coins)
+    //    {
+    //        PoolManager.Instance.ReturnToPool(coin);
+    //    }
+
+    //    GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
+    //    foreach (GameObject bullet in bullets)
+    //    {
+    //        PoolManager.Instance.ReturnToPool(bullet);
+    //    }
+
+    //    GameObject[] enemyHPs = GameObject.FindGameObjectsWithTag("HP");
+    //    foreach (GameObject enemyHP in enemyHPs)
+    //    {
+    //        PoolManager.Instance.ReturnToPool(enemyHP);
+    //    }
+
+    //    GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
+    //    foreach (GameObject skill in skills)
+    //    {
+    //        Destroy(skill);
+    //    }
+
+    //    ChangeStateToClear();
+
+    //    yield break;
+    //}
+
+
+    private void AutoCollectCoins()
     {
-        // 모든 적들에게 죽으라고 명령
-        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-
-        foreach (string tag in enemyTags)
-        {
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
-            foreach (GameObject enemyObject in enemies)
-            {
-                EnemiesDie enemiesDie = enemyObject.GetComponent<EnemiesDie>();
-                if (enemiesDie != null)
-                {
-                    enemiesDie.Die();
-                }
-            }
-        }
-
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+
+        if (coins.Length == 0) return;
+
+        Vector3 playerPos = GameManager.Instance.playerController.transform.position;
+
         foreach (GameObject coin in coins)
         {
-            PoolManager.Instance.ReturnToPool(coin);
+            Transform coinTransform = coin.transform;
+
+            // DOTween으로 플레이어에게 날아오게
+            coinTransform.DOMove(playerPos, 0.5f)
+                .SetEase(Ease.InCubic)
+                .OnComplete(() =>
+                {
+                    // 코인 풀로 반환 (또는 플레이어에 코인 추가 처리)
+                    PoolManager.Instance.ReturnToPool(coin);
+
+                    // 예: GameManager.Instance.playerStats.AddGold(1);
+                });
         }
-
-        GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
-        foreach (GameObject bullet in bullets)
-        {
-            PoolManager.Instance.ReturnToPool(bullet);
-        }
-
-        GameObject[] enemyHPs = GameObject.FindGameObjectsWithTag("HP");
-        foreach (GameObject enemyHP in enemyHPs)
-        {
-            PoolManager.Instance.ReturnToPool(enemyHP);
-        }
-
-        GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
-        foreach (GameObject skill in skills)
-        {
-            Destroy(skill);
-        }
-
-        ChangeStateToClear();
-
-        yield break;
     }
 
 
@@ -199,6 +230,15 @@ public class GameManager : MonoSingleTone<GameManager>
                 player.transform.position = new Vector3(-9, 0, 0);
             }
         }
+
+        if (cineCamera != null)
+        {
+            var followComponent = cineCamera.GetComponent<CinemachineFollow>();
+            if (followComponent != null)
+            {
+                followComponent.TrackerSettings.PositionDamping = gPositionDamping;
+            }
+        }
     }
 
 
@@ -206,28 +246,14 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
-        //DialogManager.Instance.StartShopDialog();
+    //    if (cineCamera != null)
+    //    {
+    //        cineCamera.Follow = null;
+    //        cineCamera.LookAt = null;
 
-        ////waveManager.StopSpawnLoop();
-
-        //shopManager.FirstRerollItems();
-
-        //if (shopUI != null)
-        //{
-        //    shopUI.SetActive(true);
-        //}
-
-        //if (shopPanel != null)
-        //{
-
-        //    CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
-        //    if (canvasGroup
-        //    {
-        //        canvasGroup.DOF != null)ade(1f, 0.7f);  // 0f = 완전 투명, 0.5초 동안
-        //    }
-        //    shopPanel.DOAnchorPosY(0f, 0.7f);
-        //    playerController.canMove = false;
-        //}
+    //        // 위치 고정
+    //        cineCamera.transform.position = fixedPosition;
+    //    }
     }
 
     public void ChangeStateToClear()
@@ -237,9 +263,12 @@ public class GameManager : MonoSingleTone<GameManager>
 
         waveManager.StopSpawnLoop();
 
-
         isGameStarted = false;
+
+        // 코인 자동 수집
+        AutoCollectCoins();
     }
+
 
     public void ChangeStateToEnd()
     {

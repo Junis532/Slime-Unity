@@ -35,15 +35,14 @@ public class WaveManager : MonoBehaviour
     {
         ResetWave();
         StartNextWave(); // 첫 웨이브 시작
-
     }
 
     void Update()
     {
         if (!portalSpawned && GameManager.Instance.CurrentState == "Clear")
         {
-            SpawnPortal();
             portalSpawned = true;
+            StartCoroutine(ShakeAndSpawnPortal());
         }
 
         // ✅ 적이 모두 죽었고 아직 Clear 상태가 아니라면
@@ -54,6 +53,26 @@ public class WaveManager : MonoBehaviour
                 GameManager.Instance.ChangeStateToClear();
                 Debug.Log("[WaveManager] 모든 적 처치 -> 상태 Clear로 전환");
             }
+        }
+    }
+
+    IEnumerator ShakeAndSpawnPortal()
+    {
+        if (GameManager.Instance.cameraShake != null)
+        {
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
+            GameManager.Instance.cameraShake.GenerateImpulse();
+
+            SpawnPortal();
         }
     }
 
@@ -72,10 +91,9 @@ public class WaveManager : MonoBehaviour
         return totalEnemies == 0;
     }
 
-
     void SpawnPortal()
     {
-        Vector2 portalPosition = new Vector2(8f, 0f); // 항상 x=8, y=0에 포탈 생성
+        Vector2 portalPos = portalPosition;
 
         WaveData currentWaveData = (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
             ? waveDataList[currentWave - 1] : null;
@@ -83,12 +101,12 @@ public class WaveManager : MonoBehaviour
         if (currentWaveData != null && currentWaveData.isShopMap)
         {
             if (shopPortalPrefab != null)
-                Instantiate(shopPortalPrefab, portalPosition, Quaternion.identity);
+                Instantiate(shopPortalPrefab, portalPos, Quaternion.identity);
         }
         else
         {
             if (portalPrefab != null)
-                Instantiate(portalPrefab, portalPosition, Quaternion.identity);
+                Instantiate(portalPrefab, portalPos, Quaternion.identity);
         }
     }
 
