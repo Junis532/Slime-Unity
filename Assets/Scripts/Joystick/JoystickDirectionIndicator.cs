@@ -103,17 +103,18 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     void Update()
     {
-        bool isBlockActive = blockInputCanvas != null && blockInputCanvas.activeSelf;
+        bool isShopState = GameManager.Instance != null && GameManager.Instance.CurrentState == "Shop";
 
-        if (prevBlockInputActive && !isBlockActive)
+        if (prevBlockInputActive && !isShopState)
             ResetInputStates();
-        prevBlockInputActive = isBlockActive;
+        prevBlockInputActive = isShopState;
 
-        if (isBlockActive || currentDiceResult <= 0)
+        if (isShopState || currentDiceResult <= 0)
         {
             DisableInputAndIndicators();
             return;
         }
+
 
         Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
         isTouchingJoystick = input.magnitude > 0.2f;

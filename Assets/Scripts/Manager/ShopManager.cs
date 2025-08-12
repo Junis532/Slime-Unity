@@ -4,9 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopManager : MonoSingleTone<ShopManager>
+public class ShopManager : MonoBehaviour
 {
-    public static ShopManager Instance;
 
     [Header("아이템 데이터")]
     public List<ItemStats> allItems;
@@ -27,11 +26,6 @@ public class ShopManager : MonoSingleTone<ShopManager>
 
     [Header("상점 UI 오브젝트")]
     public GameObject shopUI;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     private void Start()
     {
@@ -372,7 +366,16 @@ public class ShopManager : MonoSingleTone<ShopManager>
                 canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.7초 동안
             }
             shopPanel.DOAnchorPosY(1500f, 0.7f);
-            //shopUI.SetActive(false);
+            if (shopUI != null)
+            {
+
+                Canvas canvas = shopUI.GetComponent<Canvas>();
+                if (canvas != null)
+                {
+                    canvas.sortingOrder = -1;  // 정렬 순서를 0으로 설정
+                }
+            }
+
 
             GameManager.Instance.playerController.canMove = true;
         }
