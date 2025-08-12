@@ -141,6 +141,7 @@ public class WaveManager : MonoBehaviour
             currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
             mapBoundary = currentMapInstance.GetComponentInChildren<BoxCollider2D>();
 
+
             // ✅ NavMesh 베이크 실행
             StartCoroutine(BakeNavMeshDelayed(currentMapInstance));
         }
