@@ -28,7 +28,7 @@ public class FireballAI : MonoBehaviour
         isFollowingPlayer = true;
 
         // ✅ 공격력 기반 데미지 Init
-        damagePerTick = Mathf.FloorToInt(GameManager.Instance.playerStats.attack * 1.5f);
+        damagePerTick = Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 1.5f);
     }
 
     public void SyncSetRotation(float angle)
@@ -152,23 +152,34 @@ public class FireballAI : MonoBehaviour
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
             {
-                StartCoroutine(ApplyDotDamage(hp));
+                // DOT가 끝나면 DestroySelf() 실행
+                StartCoroutine(ApplyDotDamageAndDestroy(hp));
             }
 
-            DestroySelf();
+            // 충돌 즉시 움직임/충돌 중단
+            if (myCollider != null)
+                myCollider.enabled = false;
+
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+                moveCoroutine = null;
+            }
         }
     }
 
-    IEnumerator ApplyDotDamage(EnemyHP hp)
+    IEnumerator ApplyDotDamageAndDestroy(EnemyHP hp)
     {
         float elapsed = 0f;
 
-        while (elapsed < duration && hp != null)
+        while (elapsed < duration && hp != null && hp.gameObject.activeInHierarchy)
         {
-            hp.SkillTakeDamage(damagePerTick);
+            hp.FireballTakeDamage(damagePerTick);
             yield return new WaitForSeconds(interval);
             elapsed += interval;
         }
+
+        DestroySelf(); // DOT 끝난 후 반환
     }
 
     void DestroySelf()

@@ -21,10 +21,7 @@ public class PlayerController : MonoBehaviour
     public GameObject directionIndicatorPrefab;
     private GameObject directionIndicatorInstance;
 
-    public float directionIndicatorDistance = 0.5f; // 원이 플레이어로부터 떨어진 거리
-
-    [Header("장애물 레이어")]
-    public LayerMask obstacleLayer;  // Obstacle 레이어만 포함
+    public float directionIndicatorDistance = 0.3f; // 원이 플레이어로부터 떨어진 거리
 
     private Vector2 keyboardInput;
 
@@ -38,7 +35,6 @@ public class PlayerController : MonoBehaviour
             directionIndicatorInstance = Instantiate(directionIndicatorPrefab, transform.position, Quaternion.identity);
             directionIndicatorInstance.transform.SetParent(transform); // 플레이어에 자식으로 붙임
         }
-
     }
 
     void Update()
@@ -73,17 +69,8 @@ public class PlayerController : MonoBehaviour
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
         Vector2 moveDelta = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
 
-        Vector2 moveX = new Vector2(moveDelta.x, 0f);
-        Vector2 moveY = new Vector2(0f, moveDelta.y);
-
-        bool canMoveX = !IsObstacleAhead(moveX);
-        bool canMoveY = !IsObstacleAhead(moveY);
-
-        Vector2 finalMove = Vector2.zero;
-        if (canMoveX) finalMove.x = moveDelta.x;
-        if (canMoveY) finalMove.y = moveDelta.y;
-
-        transform.Translate(finalMove);
+        // 장애물 체크 없이 바로 이동
+        transform.Translate(moveDelta);
 
         UpdateDirectionIndicator(); // 방향 원 업데이트
 
@@ -103,30 +90,33 @@ public class PlayerController : MonoBehaviour
     {
         if (directionIndicatorInstance == null) return;
 
-        if (inputVec.magnitude > 0.1f)
+        float playerSize = GetPlayerSize(); // 플레이어 크기 반영
+        float inputStrength = Mathf.Clamp01(inputVec.magnitude); // 입력 세기 (0~1)
+
+        // 거리 = 기본 거리 × 입력 세기 × 플레이어 크기
+        float dynamicDistance = directionIndicatorDistance * inputStrength * playerSize;
+
+        if (inputStrength > 0.05f) // 아주 미세한 입력은 표시 안 함
         {
             directionIndicatorInstance.SetActive(true);
-            Vector2 offset = inputVec.normalized * directionIndicatorDistance;
+            Vector2 offset = inputVec.normalized * dynamicDistance;
             directionIndicatorInstance.transform.localPosition = offset;
         }
         else
         {
-            directionIndicatorInstance.SetActive(false); // 입력이 없으면 숨김
+            directionIndicatorInstance.SetActive(false);
         }
     }
 
-    bool IsObstacleAhead(Vector2 moveDelta)
+    float GetPlayerSize()
     {
-        Collider2D col = GetComponent<Collider2D>();
-        if (col == null) return false;
-
-        Vector2 newPos = (Vector2)transform.position + moveDelta;
-        Vector2 boxSize = col.bounds.size * 0.9f;
-
-        Collider2D hit = Physics2D.OverlapBox(newPos, boxSize, 0f, obstacleLayer);
-        return hit != null;
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null && sr.sprite != null)
+        {
+            return Mathf.Max(sr.bounds.size.x, sr.bounds.size.y);
+        }
+        return 1f;
     }
-
 
 
     void OnMove(InputValue value)

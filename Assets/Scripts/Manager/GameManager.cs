@@ -179,30 +179,46 @@ public class GameManager : MonoSingleTone<GameManager>
     //}
 
 
+    private IEnumerator MoveCoinToPlayer(GameObject coin, float duration)
+    {
+        float elapsed = 0f;
+        Transform coinTransform = coin.transform;
+        Vector3 startPos = coinTransform.position;
+
+        while (elapsed < duration)
+        {
+            if (GameManager.Instance.playerController != null)
+            {
+                Vector3 playerPos = GameManager.Instance.playerController.transform.position;
+                coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 마지막에 확실히 플레이어 위치로 이동
+        coinTransform.position = GameManager.Instance.playerController.transform.position;
+
+        // 코인 풀로 반환
+        PoolManager.Instance.ReturnToPool(coin);
+
+        // 예: 골드 추가 처리
+        // GameManager.Instance.playerStats.AddGold(1);
+    }
+
     private void AutoCollectCoins()
     {
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
 
         if (coins.Length == 0) return;
 
-        Vector3 playerPos = GameManager.Instance.playerController.transform.position;
-
         foreach (GameObject coin in coins)
         {
-            Transform coinTransform = coin.transform;
-
-            // DOTween으로 플레이어에게 날아오게
-            coinTransform.DOMove(playerPos, 0.5f)
-                .SetEase(Ease.InCubic)
-                .OnComplete(() =>
-                {
-                    // 코인 풀로 반환 (또는 플레이어에 코인 추가 처리)
-                    PoolManager.Instance.ReturnToPool(coin);
-
-                    // 예: GameManager.Instance.playerStats.AddGold(1);
-                });
+            StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
         }
     }
+
 
 
     public void ChangeStateToIdle()

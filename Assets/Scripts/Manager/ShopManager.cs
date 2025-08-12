@@ -144,25 +144,25 @@ public class ShopManager : MonoSingleTone<ShopManager>
             GameManager.Instance.playerStats.currentHP += Random.Range(1, 6); // 추가 HP 회복
         }
         //----------------------------------------------------------------------------------------- 2
-        else if (item == GameManager.Instance.itemStats2)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
-            {
-                var poisonSkill = playerObj.GetComponent<PoisonSkill>();
-                if (poisonSkill != null)
-                {
-                    if (!poisonSkill.enabled)
-                    {
-                        poisonSkill.enabled = true;
-                    }
-                    else
-                    {
-                        poisonSkill.poisonLifetime += 1; // 독 지속 시간 증가
-                    }
-                }
-            }
-        }
+        //else if (item == GameManager.Instance.itemStats2)
+        //{
+        //    GameObject playerObj = GameObject.FindWithTag("Player");
+        //    if (playerObj != null)
+        //    {
+        //        var poisonSkill = playerObj.GetComponent<PoisonSkill>();
+        //        if (poisonSkill != null)
+        //        {
+        //            if (!poisonSkill.enabled)
+        //            {
+        //                poisonSkill.enabled = true;
+        //            }
+        //            else
+        //            {
+        //                poisonSkill.poisonLifetime += 1; // 독 지속 시간 증가
+        //            }
+        //        }
+        //    }
+        //}
         //----------------------------------------------------------------------------------------- 3 ✅
         else if (item == GameManager.Instance.itemStats3)
         {
@@ -175,31 +175,31 @@ public class ShopManager : MonoSingleTone<ShopManager>
             }
         }
         //----------------------------------------------------------------------------------------- 4
-        else if (item == GameManager.Instance.itemStats4)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
-            {
-                var meteorSkill = playerObj.GetComponent<MeteorOrbitSkill>();
-                if (meteorSkill != null)
-                {
-                    if (!meteorSkill.enabled)
-                    {
-                        meteorSkill.enabled = true;
-                        meteorSkill.meteorCount = 1;
-                    }
-                    else
-                    {
-                        if (meteorSkill.meteorCount < 4)
-                            meteorSkill.meteorCount += 1;
-                        else
-                            meteorSkill.rotationSpeed += 20;
+        //else if (item == GameManager.Instance.itemStats4)
+        //{
+        //    GameObject playerObj = GameObject.FindWithTag("Player");
+        //    if (playerObj != null)
+        //    {
+        //        var meteorSkill = playerObj.GetComponent<MeteorOrbitSkill>();
+        //        if (meteorSkill != null)
+        //        {
+        //            if (!meteorSkill.enabled)
+        //            {
+        //                meteorSkill.enabled = true;
+        //                meteorSkill.meteorCount = 1;
+        //            }
+        //            else
+        //            {
+        //                if (meteorSkill.meteorCount < 4)
+        //                    meteorSkill.meteorCount += 1;
+        //                else
+        //                    meteorSkill.rotationSpeed += 20;
 
-                        meteorSkill.RefreshMeteor();
-                    }
-                }
-            }
-        }
+        //                meteorSkill.RefreshMeteor();
+        //            }
+        //        }
+        //    }
+        //}
         //----------------------------------------------------------------------------------------- 5 ✅
         else if (item == GameManager.Instance.itemStats5)
         {
@@ -216,68 +216,68 @@ public class ShopManager : MonoSingleTone<ShopManager>
             }
         }
         //----------------------------------------------------------------------------------------- 7
-        else if (item == GameManager.Instance.itemStats7)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
-            {
-                var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
-                if (footprinterSkill != null)
-                {
-                    if (!footprinterSkill.enabled)
-                    {
-                        footprinterSkill.enabled = true;
+        //else if (item == GameManager.Instance.itemStats7)
+        //{
+        //    GameObject playerObj = GameObject.FindWithTag("Player");
+        //    if (playerObj != null)
+        //    {
+        //        var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
+        //        if (footprinterSkill != null)
+        //        {
+        //            if (!footprinterSkill.enabled)
+        //            {
+        //                footprinterSkill.enabled = true;
 
-                    }
-                    else
-                    {
-                        Debug.Log("[Shop] 이미 활성화됨");
-                    }
-                }
-            }
-        }
+        //            }
+        //            else
+        //            {
+        //                Debug.Log("[Shop] 이미 활성화됨");
+        //            }
+        //        }
+        //    }
+        //}
         //----------------------------------------------------------------------------------------- 8
-        else if (item == GameManager.Instance.itemStats8)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
-            {
-                var zacSkill = playerObj.GetComponent<ZacSkill>();
-                if (zacSkill != null)
-                {
-                    if (!zacSkill.enabled)
-                    {
-                        zacSkill.enabled = true;
+        //else if (item == GameManager.Instance.itemStats8)
+        //{
+        //    GameObject playerObj = GameObject.FindWithTag("Player");
+        //    if (playerObj != null)
+        //    {
+        //        var zacSkill = playerObj.GetComponent<ZacSkill>();
+        //        if (zacSkill != null)
+        //        {
+        //            if (!zacSkill.enabled)
+        //            {
+        //                zacSkill.enabled = true;
 
-                    }
-                    else
-                    {
-                        Debug.Log("[Shop] 이미 활성화됨");
-                    }
-                }
-            }
-        }
+        //            }
+        //            else
+        //            {
+        //                Debug.Log("[Shop] 이미 활성화됨");
+        //            }
+        //        }
+        //    }
+        //}
         //----------------------------------------------------------------------------------------- 9
-        else if (item == GameManager.Instance.itemStats9)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
-            {
-                var BombSkill = playerObj.GetComponent<BombSkill>();
-                if (BombSkill != null)
-                {
-                    if (!BombSkill.enabled)
-                    {
-                        BombSkill.enabled = true;
+        //else if (item == GameManager.Instance.itemStats9)
+        //{
+        //    GameObject playerObj = GameObject.FindWithTag("Player");
+        //    if (playerObj != null)
+        //    {
+        //        var BombSkill = playerObj.GetComponent<BombSkill>();
+        //        if (BombSkill != null)
+        //        {
+        //            if (!BombSkill.enabled)
+        //            {
+        //                BombSkill.enabled = true;
 
-                    }
-                    else
-                    {
-                        Debug.Log("[Shop] 이미 활성화됨");
-                    }
-                }
-            }
-        }
+        //            }
+        //            else
+        //            {
+        //                Debug.Log("[Shop] 이미 활성화됨");
+        //            }
+        //        }
+        //    }
+        //}
         //----------------------------------------------------------------------------------------- 10 ✅
         else if (item == GameManager.Instance.itemStats10)
         {

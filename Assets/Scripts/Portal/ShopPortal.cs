@@ -11,7 +11,7 @@ public class ShopPortal : MonoBehaviour
     public float requiredStayTime = 3f;
 
     public Image loadingImage; // 씬에 존재하는 이미지, 프리팹 내부가 아님
-    public float fadeDuration = 1f;
+    public float fadeDuration = 0.5f;
 
     private Canvas loadingCanvas;
 
@@ -65,12 +65,12 @@ public class ShopPortal : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            player.transform.position = new Vector3(-101.5f, 0f, 0);
+            player.transform.position = new Vector3(-51.5f, 0f, 0);
             GameManager.Instance.ChangeStateToShop();
             Debug.Log("플레이어가 3초간 포탈 안에 머물러 상점 지역으로 이동!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.7f);
 
         yield return loadingImage.DOFade(0f, fadeDuration).WaitForCompletion();
 

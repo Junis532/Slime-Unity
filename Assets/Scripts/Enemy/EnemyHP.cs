@@ -4,7 +4,6 @@ using TMPro;
 
 public class EnemyHP : MonoBehaviour
 {
-    
     [Header("체력 관련")]
     public GameObject hpBarPrefab;
     private EnemyHPBar hpBar;
@@ -14,17 +13,14 @@ public class EnemyHP : MonoBehaviour
     private BulletSpawner bulletSpawner;
 
     [Header("데미지 텍스트")]
-    public GameObject damageTextPrefab; // 풀에 등록 필요
-    public GameObject cDamageTextPrefab; // 풀에서 가져온 인스턴스
+    public GameObject damageTextPrefab;
+    public GameObject cDamageTextPrefab;
 
     [Header("이펙트 프리팹")]
-    public GameObject hitEffectPrefab; // 이펙트 프리팹 (풀 등록 필요)
+    public GameObject hitEffectPrefab;
 
     private Transform playerTransform;
-
-
     private SpriteRenderer spriteRenderer;
-
     private float criticalChance = 10f;
 
     void Start()
@@ -48,76 +44,70 @@ public class EnemyHP : MonoBehaviour
 
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
 
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        // 플레이어 찾기 (없을 경우 null)
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            playerTransform = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogWarning("플레이어를 찾지 못했습니다. playerTransform이 null 상태입니다.");
+            playerTransform = null;
+        }
     }
 
     public void TakeDamage()
     {
-        Vector3 knockbackDir = (transform.position - playerTransform.position).normalized;
-        float knockbackDistance = 0.5f;
+        Vector3 knockbackDir = Vector3.zero;
+        if (playerTransform != null)
+        {
+            knockbackDir = (transform.position - playerTransform.position).normalized;
+        }
+
+        float knockbackDistance = 0.3f;
         float knockbackDuration = 0.1f;
 
+        bool isCritical = Random.Range(0f, 100f) < criticalChance;
+        int damage = isCritical
+            ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 1.5f)
+            : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
 
+        currentHP -= damage;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
-        if (Random.Range(0f, 100f) < criticalChance)
+        if (hpBar != null)
         {
-            Debug.Log("Critical Hit!");
-            int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 1.5f);
-            currentHP -= damage;
-            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+            hpBar.SetHP(currentHP);
+            hpBar.gameObject.SetActive(true);
+        }
 
-            if (hpBar != null)
-            {
-                hpBar.SetHP(currentHP);
-                hpBar.gameObject.SetActive(true);
-            }
+        if (!bulletSpawner.slowSkillActive)
+        {
+            PlayDamageEffect();
+            PlayHitEffect();
+        }
 
-            // 슬로우 중이 아닐 때만 이펙트 재생
-            if (!bulletSpawner.slowSkillActive)
-            {
-                PlayDamageEffect();
-                PlayHitEffect();
-            }
-
+        if (isCritical)
+        {
             ShowCDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
-
-            // 나머지 기존 TakeDamage 코드 내에서 넉백 적용
-            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
-                     .SetEase(Ease.OutQuad);
-
-            if (currentHP <= 0)
-                Die();
         }
         else
         {
-            int damage = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
-            currentHP -= damage;
-            currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-            if (hpBar != null)
-            {
-                hpBar.SetHP(currentHP);
-                hpBar.gameObject.SetActive(true);
-            }
-
-            if (!bulletSpawner.slowSkillActive)
-            {
-                PlayDamageEffect();
-                PlayHitEffect();
-            }
-
             ShowDamageText(damage);
+        }
 
-            // DOTween 넉백
+        // 플레이어가 있을 때만 넉백
+        if (playerTransform != null)
+        {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
-
-            if (currentHP <= 0)
-                Die();
         }
-    }
 
+        if (currentHP <= 0)
+            Die();
+    }
 
     public void FireballTakeDamage(int damage)
     {
@@ -157,41 +147,26 @@ public class EnemyHP : MonoBehaviour
 
     private void PlayHitEffect()
     {
-        if (hitEffectPrefab == null)
-        {
-            Debug.LogWarning("hitEffectPrefab이 설정되지 않았습니다.");
-            return;
-        }
+        if (hitEffectPrefab == null) return;
 
         Vector3 spawnPosition = transform.position;
-
         GameObject effectObj = PoolManager.Instance.SpawnFromPool(
             hitEffectPrefab.name,
             spawnPosition,
             Quaternion.identity
         );
 
-        if (effectObj == null)
-        {
-            Debug.LogWarning("hitEffectPrefab이 풀에서 생성되지 않았습니다.");
-            return;
-        }
+        if (effectObj == null) return;
 
-        // 이펙트 0.3초 후 풀로 반환
         DOVirtual.DelayedCall(0.3f, () =>
         {
             PoolManager.Instance.ReturnToPool(effectObj);
         });
     }
 
-
     private void ShowDamageText(int damage)
     {
-        if (damageTextPrefab == null)
-        {
-            Debug.LogWarning("damageTextPrefab이 설정되지 않았습니다.");
-            return;
-        }
+        if (damageTextPrefab == null) return;
 
         Vector3 spawnPosition = transform.position;
         GameObject textObj = PoolManager.Instance.SpawnFromPool(
@@ -200,47 +175,30 @@ public class EnemyHP : MonoBehaviour
             Quaternion.identity
         );
 
-        if (textObj == null)
-        {
-            Debug.LogWarning("damageTextObj가 null입니다. 풀에 damageTextPrefab이 등록되었는지 확인하세요.");
-            return;
-        }
+        if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
         if (text != null)
-        {
             text.text = damage.ToString();
-        }
-        else
-        {
-            Debug.LogWarning("damageTextObj에 TMP_Text 컴포넌트가 없습니다.");
-        }
 
         Transform t = textObj.transform;
-        if (t != null)
+        t.position = spawnPosition;
+        t.localScale = Vector3.one;
+        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() =>
         {
-            t.position = spawnPosition;
-            t.localScale = Vector3.one;
-            t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-            t.DOScale(1.2f, 0.2f).OnComplete(() =>
-            {
-                t.DOScale(1f, 0.3f);
-            });
+            t.DOScale(1f, 0.3f);
+        });
 
-            DOVirtual.DelayedCall(0.6f, () =>
-            {
-                PoolManager.Instance.ReturnToPool(textObj);
-            });
-        }
+        DOVirtual.DelayedCall(0.6f, () =>
+        {
+            PoolManager.Instance.ReturnToPool(textObj);
+        });
     }
 
     private void ShowCDamageText(int damage)
     {
-        if (cDamageTextPrefab == null)
-        {
-            Debug.LogWarning("cDamageTextPrefab이 설정되지 않았습니다.");
-            return;
-        }
+        if (cDamageTextPrefab == null) return;
 
         Vector3 spawnPosition = transform.position;
         GameObject textObj = PoolManager.Instance.SpawnFromPool(
@@ -249,40 +207,26 @@ public class EnemyHP : MonoBehaviour
             Quaternion.identity
         );
 
-        if (textObj == null)
-        {
-            Debug.LogWarning("cDamageTextObj가 null입니다. 풀에 damageTextPrefab이 등록되었는지 확인하세요.");
-            return;
-        }
+        if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
         if (text != null)
-        {
             text.text = damage.ToString();
-        }
-        else
-        {
-            Debug.LogWarning("cDamageTextObj에 TMP_Text 컴포넌트가 없습니다.");
-        }
 
         Transform t = textObj.transform;
-        if (t != null)
+        t.position = spawnPosition;
+        t.localScale = Vector3.one;
+        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() =>
         {
-            t.position = spawnPosition;
-            t.localScale = Vector3.one;
-            t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-            t.DOScale(1.2f, 0.2f).OnComplete(() =>
-            {
-                t.DOScale(1f, 0.3f);
-            });
+            t.DOScale(1f, 0.3f);
+        });
 
-            DOVirtual.DelayedCall(0.6f, () =>
-            {
-                PoolManager.Instance.ReturnToPool(textObj);
-            });
-        }
+        DOVirtual.DelayedCall(0.6f, () =>
+        {
+            PoolManager.Instance.ReturnToPool(textObj);
+        });
     }
-
 
     private void PlayDamageEffect()
     {
@@ -301,8 +245,6 @@ public class EnemyHP : MonoBehaviour
 
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null)
-        {
             enemiesDie.Die();
-        }
     }
 }
