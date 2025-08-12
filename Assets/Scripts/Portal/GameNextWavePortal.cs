@@ -22,6 +22,11 @@ public class GameNextWavePortal : MonoBehaviour
             }
             waveStarted = true;
             GameManager.Instance.waveManager.StartNextWave();
+
+            if (GameManager.Instance.CurrentState == "Game")
+            {
+                waveStarted = false;
+            }
             Debug.Log("플레이어가 3초간 포탈 안에 머물러 다음 웨이브 시작!");
         }
     }

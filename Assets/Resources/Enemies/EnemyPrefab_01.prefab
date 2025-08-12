@@ -49,6 +49,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TurretEnemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3138796063724582110, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -118,6 +122,10 @@ PrefabInstance:
     - target: {fileID: 1950030168838296181, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
       propertyPath: m_Name
       value: DetectEnemy (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950030168838296181, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3820103089169164755, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
       propertyPath: m_LocalScale.x
@@ -237,9 +245,17 @@ PrefabInstance:
       propertyPath: avoidanceRange
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 3282849741527501235, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4452142985382545897, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
       propertyPath: m_Name
       value: Enemy 1 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4452142985382545897, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -315,9 +331,17 @@ PrefabInstance:
       propertyPath: enemyMask.m_Bits
       value: 1024
       objectReference: {fileID: 0}
+    - target: {fileID: 3282849741527501235, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4452142985382545897, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
       propertyPath: m_Name
       value: Enemy 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4452142985382545897, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -340,6 +364,10 @@ PrefabInstance:
     - target: {fileID: 3138796063724582110, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_Name
       value: TurretEnemy (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3138796063724582110, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalScale.x
@@ -410,6 +438,10 @@ PrefabInstance:
     - target: {fileID: 1950030168838296181, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
       propertyPath: m_Name
       value: DetectEnemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950030168838296181, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3820103089169164755, guid: 2e26a0bf749bf1d428dd82c5cc0d6034, type: 3}
       propertyPath: m_LocalScale.x

@@ -1,6 +1,6 @@
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class LongRangeEnemy : EnemyBase
@@ -8,16 +8,23 @@ public class LongRangeEnemy : EnemyBase
     private bool isLive = true;
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
-
     private NavMeshAgent agent;
 
-    public float safeDistance = 3f;
+    [Header("랜덤 이동 관련")]
+    public float moveDuration = 3f;  // 이동 시간
+    private float moveTimer = 0f;
+    private Vector3 randomDestination;
 
+    [Header("발사 관련")]
+    public float fireCooldown = 2f;  // 쏘는 주기
+    private float lastFireTime;
     public GameObject bulletPrefab;
     public float bulletSpeed = 3f;
-    public float fireCooldown = 1.5f;
-    private float lastFireTime;
     public float bulletLifetime = 3f;
+    private bool isPreparingToFire = false;
+
+    [Header("라인렌더러")]
+    private LineRenderer lineRenderer;
 
     void Start()
     {
@@ -31,6 +38,18 @@ public class LongRangeEnemy : EnemyBase
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.speed = speed;
+
+        PickRandomDestination();
+
+        // 라인렌더러 세팅
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.enabled = false;
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.05f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.red;
     }
 
     void Update()
@@ -38,57 +57,80 @@ public class LongRangeEnemy : EnemyBase
         if (!isLive) return;
 
         GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
-
-        Vector2 currentPos = transform.position;
-        Vector2 toPlayer = (Vector2)player.transform.position - currentPos;
-        float distance = toPlayer.magnitude;
-        Vector2 dirToPlayer = toPlayer.normalized;
-
-        if (distance < safeDistance)
+        if (player == null)
         {
-            // 플레이어와 멀어지도록 목적지 설정
-            Vector2 escapeTarget = currentPos - dirToPlayer * safeDistance;
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(escapeTarget, out hit, 2f, NavMesh.AllAreas))
-            {
-                agent.SetDestination(hit.position);
-            }
-
-            // 발사 타이밍
-            if (Time.time - lastFireTime >= fireCooldown)
-            {
-                Shoot(dirToPlayer);
-                lastFireTime = Time.time;
-            }
-        }
-        else
-        {
-            // 플레이어 쪽으로 천천히 접근
-            agent.SetDestination(player.transform.position);
+            lineRenderer.enabled = false;
+            return;
         }
 
-        // 방향 처리 및 애니메이션
-        Vector2 dir = agent.velocity;
-
-        if (dir.magnitude > 0.1f)
+        // 좌우 반전
+        Vector2 toPlayer = (Vector2)player.transform.position - (Vector2)transform.position;
+        if (toPlayer.x != 0)
         {
             Vector3 scale = transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (dir.x < 0 ? -1 : 1);
+            scale.x = Mathf.Abs(scale.x) * (toPlayer.x < 0 ? -1 : 1);
             transform.localScale = scale;
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
         }
-        else
+
+        // 발사 쿨타임 체크
+        if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
         {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            StartCoroutine(PrepareAndShoot(player));
+        }
+        else if (!isPreparingToFire) // 발사 준비중이 아닐 때만 이동
+        {
+            moveTimer += Time.deltaTime;
+            if (moveTimer >= moveDuration || Vector3.Distance(transform.position, randomDestination) < 0.5f)
+            {
+                PickRandomDestination();
+                moveTimer = 0f;
+            }
+            agent.SetDestination(randomDestination);
+
+            if (agent.velocity.magnitude > 0.1f)
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+            else
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 
-    void Shoot(Vector2 dir)
+    private IEnumerator PrepareAndShoot(GameObject player)
+    {
+        isPreparingToFire = true;
+
+        // 이동 멈춤
+        agent.SetDestination(transform.position);
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+
+        // 조준선 켜기
+        lineRenderer.enabled = true;
+        float timer = 0f;
+        while (timer < 1f)
+        {
+            timer += Time.deltaTime;
+            if (player != null)
+            {
+                lineRenderer.SetPosition(0, transform.position);
+                lineRenderer.SetPosition(1, player.transform.position);
+            }
+            yield return null;
+        }
+
+        // 발사
+        lineRenderer.enabled = false;
+        if (player != null)
+        {
+            Vector2 dir = ((Vector2)player.transform.position - (Vector2)transform.position).normalized;
+            Shoot(dir);
+            lastFireTime = Time.time;
+        }
+
+        isPreparingToFire = false;
+    }
+
+    private void Shoot(Vector2 dir)
     {
         GameObject bullet = PoolManager.Instance.SpawnFromPool(bulletPrefab.name, transform.position, Quaternion.identity);
-
         if (bullet != null)
         {
             BulletBehavior bulletBehavior = bullet.GetComponent<BulletBehavior>();
@@ -99,21 +141,20 @@ public class LongRangeEnemy : EnemyBase
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void PickRandomDestination()
     {
-        if (!isLive) return;
+        float minX = -10f, maxX = 10f, minY = -6f, maxY = 6f;
+        randomDestination = new Vector3(
+            Random.Range(minX, maxX),
+            Random.Range(minY, maxY),
+            0f
+        );
+    }
 
-        if (collision.CompareTag("Player"))
-        {
-            int damage = GameManager.Instance.longRangeEnemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // 죽음 처리
-            }
-        }
+    private void OnDestroy()
+    {
+        isLive = false;
+        if (lineRenderer != null)
+            Destroy(lineRenderer);
     }
 }

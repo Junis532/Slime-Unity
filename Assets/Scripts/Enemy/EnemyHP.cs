@@ -20,6 +20,8 @@ public class EnemyHP : MonoBehaviour
     [Header("이펙트 프리팹")]
     public GameObject hitEffectPrefab; // 이펙트 프리팹 (풀 등록 필요)
 
+    private Transform playerTransform;
+
 
     private SpriteRenderer spriteRenderer;
 
@@ -45,10 +47,18 @@ public class EnemyHP : MonoBehaviour
             Debug.LogWarning("SpriteRenderer를 찾지 못했습니다.");
 
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
+
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     public void TakeDamage()
     {
+        Vector3 knockbackDir = (transform.position - playerTransform.position).normalized;
+        float knockbackDistance = 0.5f;
+        float knockbackDuration = 0.1f;
+
+
+
         if (Random.Range(0f, 100f) < criticalChance)
         {
             Debug.Log("Critical Hit!");
@@ -62,13 +72,19 @@ public class EnemyHP : MonoBehaviour
                 hpBar.gameObject.SetActive(true);
             }
 
-            // 슬로우 중일 때는 데미지 이펙트 없음
+            // 슬로우 중이 아닐 때만 이펙트 재생
             if (!bulletSpawner.slowSkillActive)
+            {
                 PlayDamageEffect();
                 PlayHitEffect();
+            }
 
             ShowCDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
+
+            // 나머지 기존 TakeDamage 코드 내에서 넉백 적용
+            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
+                     .SetEase(Ease.OutQuad);
 
             if (currentHP <= 0)
                 Die();
@@ -85,17 +101,21 @@ public class EnemyHP : MonoBehaviour
                 hpBar.gameObject.SetActive(true);
             }
 
-            // 슬로우 중일 때는 데미지 이펙트 없음
             if (!bulletSpawner.slowSkillActive)
+            {
                 PlayDamageEffect();
                 PlayHitEffect();
+            }
 
             ShowDamageText(damage);
+
+            // DOTween 넉백
+            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
+                     .SetEase(Ease.OutQuad);
 
             if (currentHP <= 0)
                 Die();
         }
-        
     }
 
 
