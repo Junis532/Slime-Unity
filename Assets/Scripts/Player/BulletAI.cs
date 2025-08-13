@@ -295,6 +295,8 @@ public class BulletAI : MonoBehaviour
             if (myCollider != null)
                 myCollider.enabled = true;
 
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound);
+
             StartCoroutine(DelayedSwitchToEnemy(followDuration));
         });
     }
@@ -317,13 +319,6 @@ public class BulletAI : MonoBehaviour
         {
             // 타겟 위치로부터 방향 고정
             fixedDirection = (target.position - transform.position).normalized;
-
-            //if (trackingEffectPrefab != null)
-            //{
-            //    Vector3 offset = new Vector3(0f, -0.1f, 0f);
-            //    trackingEffectInstance = Instantiate(trackingEffectPrefab, target.position + offset, Quaternion.identity);
-            //    trackingEffectInstance.transform.SetParent(target);
-            //}
 
             moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }

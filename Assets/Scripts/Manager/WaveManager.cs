@@ -58,8 +58,13 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator ShakeAndSpawnPortal()
     {
+
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.portalSpawnSound);
+
         if (GameManager.Instance.cameraShake != null)
         {
+            GameManager.Instance.cameraShake.GenerateImpulse();
+            yield return new WaitForSeconds(0.1f);
             GameManager.Instance.cameraShake.GenerateImpulse();
             yield return new WaitForSeconds(0.1f);
             GameManager.Instance.cameraShake.GenerateImpulse();

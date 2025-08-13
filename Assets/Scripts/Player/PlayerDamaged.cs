@@ -19,11 +19,7 @@ public class PlayerDamaged : MonoBehaviour
 
         spriteRenderer.DOKill();  // 이전 애니메이션 정리
 
-        if (GameManager.Instance != null && GameManager.Instance.cameraShake != null)
-        {
-            Debug.Log("CameraShake 호출됨");
-            //GameManager.Instance.cameraShake.GenerateImpulse();
-        }
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.hitSound);
 
         spriteRenderer.color = Color.red;  // 빨간색으로 변경
         spriteRenderer.DOColor(originalColor, 0.5f);  // 원래 색으로 돌아감

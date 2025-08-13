@@ -11,7 +11,7 @@ public class NextWavePortal : MonoBehaviour
     public float requiredStayTime = 3f;
 
     public Image loadingImage;  // 씬에 존재하는 로딩 이미지 (프리팹 내부 아님)
-    public float fadeDuration = 0.5f;
+    public float fadeDuration = 0.1f;
 
     private Canvas loadingCanvas;
 
@@ -76,7 +76,7 @@ public class NextWavePortal : MonoBehaviour
             waveStarted = false;  // 다음 웨이브 시작 후 다시 false로 설정
         }
 
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(0.5f);
 
         GameManager.Instance.waveManager.StartNextWave();
 

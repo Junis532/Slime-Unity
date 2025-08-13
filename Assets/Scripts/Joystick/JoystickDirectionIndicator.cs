@@ -338,6 +338,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
         transform.DOKill();
         isUsingSkill = true;  // 스킬 사용 시작
 
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
+
         Vector3 jumpDirection = new Vector3(lastInputDirection.x, lastInputDirection.y, 0).normalized;
         float jumpDistance = distancesFromPlayer.Count > 3 ? distancesFromPlayer[3] : 3f;
         Vector3 targetPos = transform.position + jumpDirection * jumpDistance;
