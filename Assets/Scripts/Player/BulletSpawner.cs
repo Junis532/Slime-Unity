@@ -97,17 +97,23 @@ public class BulletSpawner : MonoBehaviour
             playerToEnemyDir = (currentTarget.position - playerTransform.position).normalized;
         }
 
-        // *** 플레이어 Flip 처리 (Idle 상태일 때만) ***
+        // *** 플레이어 Flip 처리 ***
         if (IsPlayerIdle() && playerSpriteRenderer != null)
         {
             if (playerToEnemyDir.x > 0.01f)
-                playerSpriteRenderer.flipX = false;  // 오른쪽 바라보기
+                playerSpriteRenderer.flipX = false;
             else if (playerToEnemyDir.x < -0.01f)
-                playerSpriteRenderer.flipX = true;   // 왼쪽 바라보기
+                playerSpriteRenderer.flipX = true;
         }
 
-        currentBowPosition = playerTransform.position + playerToEnemyDir * bowDistance;
-        currentArrowPosition = playerTransform.position + playerToEnemyDir * arrowDistanceFromPlayer;
+        // 플레이어 크기 비례 거리 계산
+        float playerWidth = playerSpriteRenderer.bounds.size.x;
+        float bowDist = bowDistance * playerWidth;
+        float arrowDist = arrowDistanceFromPlayer * playerWidth;
+
+        // 활, 화살 위치
+        currentBowPosition = playerTransform.position + playerToEnemyDir * bowDist;
+        currentArrowPosition = playerTransform.position + playerToEnemyDir * arrowDist;
         arrowAngle = Mathf.Atan2(playerToEnemyDir.y, playerToEnemyDir.x) * Mathf.Rad2Deg;
 
         SyncBowAndArrowToPlayer();
@@ -129,6 +135,7 @@ public class BulletSpawner : MonoBehaviour
             }
         }
     }
+
 
     bool HasEnemyInScene()
     {

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class ShopManager : MonoBehaviour
 {
-
     [Header("아이템 데이터")]
     public List<ItemStats> allItems;
 
@@ -43,7 +42,7 @@ public class ShopManager : MonoBehaviour
 
     public void ResetRerollPrice()
     {
-        rerollPrice = 1; // 초기값으로 리셋
+        rerollPrice = 1;
         rerollPriceText.text = $"리롤 {rerollPrice}원";
         UpdateRerollButtonState();
         UpdateBuyButtonStates();
@@ -60,7 +59,7 @@ public class ShopManager : MonoBehaviour
         }
 
         GameManager.Instance.playerStats.coin -= rerollPrice;
-        rerollPrice *= 2; // 리롤 가격 증가
+        rerollPrice *= 2;
 
         List<ItemStats> selectedItems = GetRandomItems(itemSlots.Count);
 
@@ -78,8 +77,9 @@ public class ShopManager : MonoBehaviour
             buyBtn.onClick.RemoveAllListeners();
 
             ItemStats capturedItem = item;
-            buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
+            buyBtn.onClick.AddListener(() => BuyItem(capturedItem, slot));
 
+            // 🎯 리롤 시 모든 버튼 다시 활성화
             buyBtn.interactable = true;
         }
 
@@ -106,8 +106,9 @@ public class ShopManager : MonoBehaviour
             buyBtn.onClick.RemoveAllListeners();
 
             ItemStats capturedItem = item;
-            buyBtn.onClick.AddListener(() => BuyItem(capturedItem));
+            buyBtn.onClick.AddListener(() => BuyItem(capturedItem, slot));
 
+            // 🎯 초기 아이템 설정 시 모든 버튼 활성화
             buyBtn.interactable = true;
         }
 
@@ -116,7 +117,7 @@ public class ShopManager : MonoBehaviour
         UpdateBuyButtonStates();
     }
 
-    void BuyItem(ItemStats item)
+    void BuyItem(ItemStats item, GameObject slot)
     {
         int playerCoin = GameManager.Instance.playerStats.coin;
 
@@ -130,149 +131,33 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log($"[구매] {item.itemName} - 코인 {item.price} 차감 후 남은 코인: {GameManager.Instance.playerStats.coin}");
 
-        //----------------------------------------------------------------------------------------- 1 ✅
-        if (item == GameManager.Instance.itemStats1)
+        // ====== 아이템 효과 적용 ======
+        if (item == GameManager.Instance.itemStats1) // 최대체력 증가 + 회복
         {
             GameManager.Instance.playerStats.maxHP += 5;
             GameManager.Instance.playerStats.currentHP += 5;
-            GameManager.Instance.playerStats.currentHP += Random.Range(1, 6); // 추가 HP 회복
         }
-        //----------------------------------------------------------------------------------------- 2
-        //else if (item == GameManager.Instance.itemStats2)
-        //{
-        //    GameObject playerObj = GameObject.FindWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        var poisonSkill = playerObj.GetComponent<PoisonSkill>();
-        //        if (poisonSkill != null)
-        //        {
-        //            if (!poisonSkill.enabled)
-        //            {
-        //                poisonSkill.enabled = true;
-        //            }
-        //            else
-        //            {
-        //                poisonSkill.poisonLifetime += 1; // 독 지속 시간 증가
-        //            }
-        //        }
-        //    }
-        //}
-        //----------------------------------------------------------------------------------------- 3 ✅
         else if (item == GameManager.Instance.itemStats3)
         {
             GameManager.Instance.playerStats.speed *= 1.05f;
             GameManager.Instance.playerStats.maxHP -= 5;
-
             if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
             {
                 GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
             }
         }
-        //----------------------------------------------------------------------------------------- 4
-        //else if (item == GameManager.Instance.itemStats4)
-        //{
-        //    GameObject playerObj = GameObject.FindWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        var meteorSkill = playerObj.GetComponent<MeteorOrbitSkill>();
-        //        if (meteorSkill != null)
-        //        {
-        //            if (!meteorSkill.enabled)
-        //            {
-        //                meteorSkill.enabled = true;
-        //                meteorSkill.meteorCount = 1;
-        //            }
-        //            else
-        //            {
-        //                if (meteorSkill.meteorCount < 4)
-        //                    meteorSkill.meteorCount += 1;
-        //                else
-        //                    meteorSkill.rotationSpeed += 20;
-
-        //                meteorSkill.RefreshMeteor();
-        //            }
-        //        }
-        //    }
-        //}
-        //----------------------------------------------------------------------------------------- 5 ✅
         else if (item == GameManager.Instance.itemStats5)
         {
             GameManager.Instance.playerStats.attack *= 1.02f;
         }
-        //----------------------------------------------------------------------------------------- 6 ✅
         else if (item == GameManager.Instance.itemStats6)
         {
-            GameObject gmObj = GameManager.Instance.gameObject;
-            BulletSpawner spawner = gmObj.GetComponent<BulletSpawner>();
+            BulletSpawner spawner = GameManager.Instance.gameObject.GetComponent<BulletSpawner>();
             if (spawner != null)
             {
                 spawner.spawnInterval -= 0.1f;
             }
         }
-        //----------------------------------------------------------------------------------------- 7
-        //else if (item == GameManager.Instance.itemStats7)
-        //{
-        //    GameObject playerObj = GameObject.FindWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        var footprinterSkill = playerObj.GetComponent<FootprinterSkill>();
-        //        if (footprinterSkill != null)
-        //        {
-        //            if (!footprinterSkill.enabled)
-        //            {
-        //                footprinterSkill.enabled = true;
-
-        //            }
-        //            else
-        //            {
-        //                Debug.Log("[Shop] 이미 활성화됨");
-        //            }
-        //        }
-        //    }
-        //}
-        //----------------------------------------------------------------------------------------- 8
-        //else if (item == GameManager.Instance.itemStats8)
-        //{
-        //    GameObject playerObj = GameObject.FindWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        var zacSkill = playerObj.GetComponent<ZacSkill>();
-        //        if (zacSkill != null)
-        //        {
-        //            if (!zacSkill.enabled)
-        //            {
-        //                zacSkill.enabled = true;
-
-        //            }
-        //            else
-        //            {
-        //                Debug.Log("[Shop] 이미 활성화됨");
-        //            }
-        //        }
-        //    }
-        //}
-        //----------------------------------------------------------------------------------------- 9
-        //else if (item == GameManager.Instance.itemStats9)
-        //{
-        //    GameObject playerObj = GameObject.FindWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        var BombSkill = playerObj.GetComponent<BombSkill>();
-        //        if (BombSkill != null)
-        //        {
-        //            if (!BombSkill.enabled)
-        //            {
-        //                BombSkill.enabled = true;
-
-        //            }
-        //            else
-        //            {
-        //                Debug.Log("[Shop] 이미 활성화됨");
-        //            }
-        //        }
-        //    }
-        //}
-        //----------------------------------------------------------------------------------------- 10 ✅
         else if (item == GameManager.Instance.itemStats10)
         {
             GameObject gmObj = GameObject.Find("GameManager");
@@ -284,30 +169,24 @@ public class ShopManager : MonoBehaviour
                     if (!bulletSpawner.slowSkillActive)
                     {
                         bulletSpawner.slowSkillActive = true;
-                        Debug.Log("[Shop] BulletSpawner의 slowSkillActive가 활성화됨");
+                        Debug.Log("[Shop] BulletSpawner의 slowSkillActive 활성화");
                     }
                     else
                     {
                         var slowSkill = gmObj.GetComponent<SlowSkill>();
                         if (slowSkill != null)
                         {
-                            slowSkill.slowDuration += 0.5f; // 슬로우 지속 시간 증가
-                            Debug.Log("[Shop] BulletSpawner의 슬로우 지속 시간이 증가됨");
+                            slowSkill.slowDuration += 0.5f;
+                            Debug.Log("[Shop] 슬로우 지속 시간 증가");
                         }
                     }
                 }
             }
         }
 
-        //-----------------------------------------------------------------------------------------
-
-
-        // 구매 후 모든 버튼 비활성화 (모두 비활성화)
-        foreach (GameObject slot in itemSlots)
-        {
-            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-            buyBtn.interactable = false;
-        }
+        // 🎯 클릭한 슬롯만 비활성화
+        Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+        buyBtn.interactable = false;
 
         UpdateRerollButtonState();
         UpdateBuyButtonStates();
@@ -344,11 +223,9 @@ public class ShopManager : MonoBehaviour
 
             if (int.TryParse(priceText.text, out int price))
             {
-                buyBtn.interactable = coin >= price;
-            }
-            else
-            {
-                buyBtn.interactable = false;
+                // 이미 비활성화된 버튼은 그대로 두기
+                if (buyBtn.interactable)
+                    buyBtn.interactable = coin >= price;
             }
         }
     }
@@ -363,20 +240,17 @@ public class ShopManager : MonoBehaviour
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
             if (canvasGroup != null)
             {
-                canvasGroup.DOFade(0f, 0.7f);  // 0f = 완전 투명, 0.7초 동안
+                canvasGroup.DOFade(0f, 0.7f);
             }
             shopPanel.DOAnchorPosY(1500f, 0.7f);
             if (shopUI != null)
             {
-
                 Canvas canvas = shopUI.GetComponent<Canvas>();
                 if (canvas != null)
                 {
-                    canvas.sortingOrder = -1;  // 정렬 순서를 0으로 설정
+                    canvas.sortingOrder = -1;
                 }
             }
-
-
             GameManager.Instance.playerController.canMove = true;
         }
     }

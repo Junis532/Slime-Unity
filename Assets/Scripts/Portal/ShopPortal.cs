@@ -5,9 +5,6 @@ using System.Collections;
 
 public class ShopPortal : MonoBehaviour
 {
-    private bool shopWarp = false;
-    private bool playerInside = false;
-    private float stayTimer = 0f;
     public float requiredStayTime = 3f;
 
     public Image loadingImage; // 씬에 존재하는 이미지, 프리팹 내부가 아님
@@ -42,19 +39,6 @@ public class ShopPortal : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (shopWarp || !playerInside) return;
-
-        stayTimer += Time.deltaTime;
-
-        if (stayTimer >= requiredStayTime)
-        {
-            shopWarp = true;
-            StartCoroutine(WarpWithFade());
-        }
-    }
-
     private IEnumerator WarpWithFade()
     {
         if (loadingCanvas != null)
@@ -65,12 +49,12 @@ public class ShopPortal : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            player.transform.position = new Vector3(-31.5f, -0.5f, 0);
+            player.transform.position = new Vector3(-31.5f, 0f, 0);
             GameManager.Instance.ChangeStateToShop();
             Debug.Log("플레이어가 3초간 포탈 안에 머물러 상점 지역으로 이동!");
         }
 
-        yield return new WaitForSeconds(0.55f);
+        yield return new WaitForSeconds(0.5f);
 
         yield return loadingImage.DOFade(0f, fadeDuration).WaitForCompletion();
 
@@ -84,17 +68,8 @@ public class ShopPortal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerInside = true;
-            stayTimer = 0f;
+            StartCoroutine(WarpWithFade());
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInside = false;
-            stayTimer = 0f;
-        }
-    }
 }

@@ -262,14 +262,20 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
-    //    if (cineCamera != null)
-    //    {
-    //        cineCamera.Follow = null;
-    //        cineCamera.LookAt = null;
 
-    //        // 위치 고정
-    //        cineCamera.transform.position = fixedPosition;
-    //    }
+        GameObject[] zaces = GameObject.FindGameObjectsWithTag("HPPotion");
+        foreach (GameObject zac in zaces)
+        {
+            PoolManager.Instance.ReturnToPool(zac);
+        }
+        //    if (cineCamera != null)
+        //    {
+        //        cineCamera.Follow = null;
+        //        cineCamera.LookAt = null;
+
+        //        // 위치 고정
+        //        cineCamera.transform.position = fixedPosition;
+        //    }
     }
 
     public void ChangeStateToClear()

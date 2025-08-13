@@ -5,12 +5,8 @@ using System.Collections;
 
 public class NextWavePortal : MonoBehaviour
 {
-    private bool waveStarted = false;
-    private bool playerInside = false;
-    private float stayTimer = 0f;
-    public float requiredStayTime = 3f;
 
-    public Image loadingImage;  // 씬에 존재하는 로딩 이미지 (프리팹 내부 아님)
+    public Image loadingImage;
     public float fadeDuration = 0.1f;
 
     private Canvas loadingCanvas;
@@ -41,19 +37,6 @@ public class NextWavePortal : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (waveStarted || !playerInside) return;
-
-        stayTimer += Time.deltaTime;
-
-        if (stayTimer >= requiredStayTime)
-        {
-            waveStarted = true;
-            StartCoroutine(StartNextWaveWithFade());
-        }
-    }
-
     private IEnumerator StartNextWaveWithFade()
     {
         if (loadingCanvas != null)
@@ -65,15 +48,6 @@ public class NextWavePortal : MonoBehaviour
         if (player != null)
         {
             player.transform.position = new Vector3(-9, 0, 0);
-        }
-
-        waveStarted = true;
-
-
-        // 게임 상태가 여전히 "Game"이면 waveStarted를 false로 되돌림 (기존 코드 유지)
-        if (GameManager.Instance.CurrentState == "Game")
-        {
-            waveStarted = false;  // 다음 웨이브 시작 후 다시 false로 설정
         }
 
         yield return new WaitForSeconds(0.5f);
@@ -93,17 +67,8 @@ public class NextWavePortal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerInside = true;
-            stayTimer = 0f; // 타이머 초기화
+            StartCoroutine(StartNextWaveWithFade());
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInside = false;
-            stayTimer = 0f; // 나가면 타이머 리셋
-        }
-    }
 }
