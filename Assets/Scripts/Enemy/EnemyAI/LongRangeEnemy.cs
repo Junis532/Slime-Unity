@@ -19,7 +19,7 @@ public class LongRangeEnemy : EnemyBase
     public float fireCooldown = 2f;  // ╫Н╢б аж╠Б
     private float lastFireTime;
     public GameObject bulletPrefab;
-    public float bulletSpeed = 3f;
+    public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
     private bool isPreparingToFire = false;
 

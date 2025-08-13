@@ -39,7 +39,9 @@ public class GameManager : MonoSingleTone<GameManager>
     public PoolManager poolManager;
     public ShopManager shopManager;
     public WaveManager waveManager;
-    public DialogManager dialogManager;
+
+    public ShopEnter shopEnter;
+    //public DialogManager dialogManager;
     public EnemyHP enemyHP;
     public DiceAnimation diceAnimation;
     public JoystickDirectionIndicator joystickDirectionIndicator;
@@ -108,76 +110,6 @@ public class GameManager : MonoSingleTone<GameManager>
         potionEnemyStats.ResetStats();
 
     }
-
-    private void Update()
-    {
-        //if (currentState == GameState.Game && timer != null && timer.timerRunning)
-        //{
-        //    if (timer.timeRemaining > 0)
-        //    {
-        //        timer.timeRemaining -= Time.deltaTime;
-        //        timer.UpdateTimerDisplay();
-        //    }
-        //    else
-        //    {
-        //        timer.timeRemaining = 0;
-        //        timer.timerRunning = false;
-        //        timer.UpdateTimerDisplay();
-
-        //        // 적 죽음 및 상점 진입 코루틴 시작
-        //        StartCoroutine(WaitForEnemiesDieAndGoShop());
-
-        //    }
-        //}
-    }
-
-    //private IEnumerator WaitForEnemiesDieAndGoShop()
-    //{
-    //    // 모든 적들에게 죽으라고 명령
-    //    string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-
-    //    foreach (string tag in enemyTags)
-    //    {
-    //        GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
-    //        foreach (GameObject enemyObject in enemies)
-    //        {
-    //            EnemiesDie enemiesDie = enemyObject.GetComponent<EnemiesDie>();
-    //            if (enemiesDie != null)
-    //            {
-    //                enemiesDie.Die();
-    //            }
-    //        }
-    //    }
-
-    //    GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-    //    foreach (GameObject coin in coins)
-    //    {
-    //        PoolManager.Instance.ReturnToPool(coin);
-    //    }
-
-    //    GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
-    //    foreach (GameObject bullet in bullets)
-    //    {
-    //        PoolManager.Instance.ReturnToPool(bullet);
-    //    }
-
-    //    GameObject[] enemyHPs = GameObject.FindGameObjectsWithTag("HP");
-    //    foreach (GameObject enemyHP in enemyHPs)
-    //    {
-    //        PoolManager.Instance.ReturnToPool(enemyHP);
-    //    }
-
-    //    GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
-    //    foreach (GameObject skill in skills)
-    //    {
-    //        Destroy(skill);
-    //    }
-
-    //    ChangeStateToClear();
-
-    //    yield break;
-    //}
-
 
     private IEnumerator MoveCoinToPlayer(GameObject coin, float duration)
     {

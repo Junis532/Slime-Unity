@@ -60,6 +60,7 @@ public class ShopPortal : MonoBehaviour
 
         if (loadingCanvas != null)
             loadingCanvas.sortingOrder = -1;  // 페이드아웃 후 원래대로
+        GameManager.Instance.shopEnter.ResetTrigger();
 
         Destroy(gameObject);
     }

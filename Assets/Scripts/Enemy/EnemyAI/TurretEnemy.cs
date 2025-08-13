@@ -12,7 +12,7 @@ public class TurretEnemy : EnemyBase
     private float lastFireTime;
 
     public GameObject bulletPrefab;
-    public float bulletSpeed = 3f;
+    public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
 
     private LineRenderer lineRenderer;

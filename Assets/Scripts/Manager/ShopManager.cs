@@ -36,7 +36,7 @@ public class ShopManager : MonoBehaviour
 
     public void InitShopUI()
     {
-        UpdateRerollButtonState();
+        //UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
 
@@ -44,7 +44,7 @@ public class ShopManager : MonoBehaviour
     {
         rerollPrice = 1;
         rerollPriceText.text = $"리롤 {rerollPrice}원";
-        UpdateRerollButtonState();
+        //UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
 
@@ -84,7 +84,7 @@ public class ShopManager : MonoBehaviour
         }
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
-        UpdateRerollButtonState();
+        //UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
 
@@ -113,7 +113,7 @@ public class ShopManager : MonoBehaviour
         }
 
         rerollPriceText.text = $"리롤 {rerollPrice}원";
-        UpdateRerollButtonState();
+        //UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
 
@@ -184,11 +184,15 @@ public class ShopManager : MonoBehaviour
             }
         }
 
-        // 🎯 클릭한 슬롯만 비활성화
-        Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-        buyBtn.interactable = false;
+        // 모든 슬롯의 Buy 버튼 비활성화
+        foreach (GameObject s in itemSlots)
+        {
+            Button btn = s.transform.Find("BuyButton").GetComponent<Button>();
+            btn.interactable = false;
+        }
 
-        UpdateRerollButtonState();
+
+        //UpdateRerollButtonState();
         UpdateBuyButtonStates();
     }
 
@@ -206,11 +210,11 @@ public class ShopManager : MonoBehaviour
         return result;
     }
 
-    void UpdateRerollButtonState()
-    {
-        int coin = GameManager.Instance.playerStats.coin;
-        rerollButton.interactable = coin >= rerollPrice;
-    }
+    //void UpdateRerollButtonState()
+    //{
+    //    int coin = GameManager.Instance.playerStats.coin;
+    //    rerollButton.interactable = coin >= rerollPrice;
+    //}
 
     void UpdateBuyButtonStates()
     {

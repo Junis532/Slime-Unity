@@ -16,9 +16,11 @@
 //    private Collider2D myCollider;
 //    private bool isDestroying = false;
 
-//    [Header("🔍 추적 이펙트 프리팹")]
-//    public GameObject trackingEffectPrefab;
-//    private GameObject trackingEffectInstance;
+//    //[Header("🔍 추적 이펙트 프리팹")]
+//    //public GameObject trackingEffectPrefab;
+//    //private GameObject trackingEffectInstance;
+
+//    private Vector3 fixedDirection; // 타겟 추적 시작 시 고정된 방향
 
 //    public void InitializeBullet(Vector3 startPosition, float startAngle)
 //    {
@@ -64,14 +66,15 @@
 
 //        transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
 //        {
-//            if (!gameObject.activeInHierarchy) return; // 🔐 오브젝트가 비활성화 상태면 실행 X
+//            if (!gameObject.activeInHierarchy) return; // 오브젝트가 비활성화 상태면 실행 X
 
 //            if (myCollider != null)
 //                myCollider.enabled = true;
 
+//            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound);
+
 //            StartCoroutine(DelayedSwitchToEnemy(followDuration));
 //        });
-
 //    }
 
 //    IEnumerator DelayedSwitchToEnemy(float delay)
@@ -90,12 +93,8 @@
 
 //        if (target != null)
 //        {
-//            if (trackingEffectPrefab != null)
-//            {
-//                Vector3 offset = new Vector3(0f, -0.1f, 0f);
-//                trackingEffectInstance = Instantiate(trackingEffectPrefab, target.position + offset, Quaternion.identity);
-//                trackingEffectInstance.transform.SetParent(target);
-//            }
+//            // 타겟 위치로부터 방향 고정
+//            fixedDirection = (target.position - transform.position).normalized;
 
 //            moveCoroutine = StartCoroutine(MoveTowardsTarget());
 //        }
@@ -107,12 +106,13 @@
 
 //    IEnumerator MoveTowardsTarget()
 //    {
+//        // 고정된 방향으로 회전 한 번만
+//        float angle = Mathf.Atan2(fixedDirection.y, fixedDirection.x) * Mathf.Rad2Deg;
+//        transform.rotation = Quaternion.Euler(0, 0, angle);
+
 //        while (target != null && target.gameObject.activeInHierarchy && !isDestroying)
 //        {
-//            Vector3 direction = (target.position - transform.position).normalized;
-//            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-//            transform.rotation = Quaternion.Euler(0, 0, angle);
-//            transform.position += direction * moveSpeed * Time.deltaTime;
+//            transform.position += fixedDirection * moveSpeed * Time.deltaTime;
 //            yield return null;
 //        }
 
@@ -146,10 +146,9 @@
 //    {
 //        if (isDestroying) return;
 
-//        // 🔹 벽(Obstacle 레이어) 충돌 시 박히는 효과
+//        // 벽(Obstacle) 충돌 처리
 //        if (other.CompareTag("Obstacle"))
 //        {
-//            // 이동 정지
 //            transform.DOKill();
 //            moveSpeed = 0f;
 
@@ -159,23 +158,20 @@
 //                moveCoroutine = null;
 //            }
 
-//            // 콜라이더 비활성화
 //            if (myCollider != null)
 //                myCollider.enabled = false;
 
-//            // 추적 이펙트 제거
-//            if (trackingEffectInstance != null)
-//            {
-//                Destroy(trackingEffectInstance);
-//                trackingEffectInstance = null;
-//            }
+//            //if (trackingEffectInstance != null)
+//            //{
+//            //    Destroy(trackingEffectInstance);
+//            //    trackingEffectInstance = null;
+//            //}
 
-//            // (선택) 벽에 "박히는" 효과를 위해 정지 후 파괴
 //            Invoke(nameof(DestroySelf), 1.5f);
 //            return;
 //        }
 
-//        // 🔸 적 충돌 처리
+//        // 적 충돌 처리
 //        if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
 //            other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
 //        {
@@ -196,8 +192,6 @@
 //        }
 //    }
 
-
-
 //    void DestroySelf()
 //    {
 //        if (isDestroying) return;
@@ -212,114 +206,52 @@
 //            moveCoroutine = null;
 //        }
 
-//        if (trackingEffectInstance != null)
-//        {
-//            Destroy(trackingEffectInstance);
-//            trackingEffectInstance = null;
-//        }
+//        //if (trackingEffectInstance != null)
+//        //{
+//        //    Destroy(trackingEffectInstance);
+//        //    trackingEffectInstance = null;
+//        //}
 
 //        GameManager.Instance.poolManager.ReturnToPool(gameObject);
 //    }
 //}
 
 using UnityEngine;
-using DG.Tweening;
 using System.Collections;
 
 public class BulletAI : MonoBehaviour
 {
-    public float moveSpeed = 20f;
-    public float followDuration = 0.3f;
-
-    private SlowSkill slowSkill;
-    private BulletSpawner bulletSpawner;
-
+    public float moveSpeed = 15f;
     private Transform target;
-    private bool isFollowingPlayer = true;
+    private bool isDestroying = false;
     private Coroutine moveCoroutine;
     private Collider2D myCollider;
-    private bool isDestroying = false;
+    private BulletSpawner bulletSpawner;
 
-    //[Header("🔍 추적 이펙트 프리팹")]
-    //public GameObject trackingEffectPrefab;
-    //private GameObject trackingEffectInstance;
-
-    private Vector3 fixedDirection; // 타겟 추적 시작 시 고정된 방향
+    private Vector3 fixedDirection;
 
     public void InitializeBullet(Vector3 startPosition, float startAngle)
     {
         transform.position = startPosition;
         transform.rotation = Quaternion.Euler(0, 0, startAngle);
-        isFollowingPlayer = true;
-    }
+        if (myCollider != null) myCollider.enabled = true;
 
-    public void SyncSetRotation(float angle)
-    {
-        if (isFollowingPlayer)
-            transform.rotation = Quaternion.Euler(0, 0, angle);
+        SwitchToEnemy(); // 생성 즉시 발사
+        Invoke(nameof(DestroySelf), 10f);
     }
 
     void Awake()
     {
         myCollider = GetComponent<Collider2D>();
-        slowSkill = Object.FindFirstObjectByType<SlowSkill>();
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
-    }
-
-    void OnEnable()
-    {
-        transform.DOKill();
-        isDestroying = false;
-        CancelInvoke();
-
-        if (moveCoroutine != null)
-        {
-            StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
-
-        isFollowingPlayer = true;
-        target = null;
-
-        if (myCollider != null)
-            myCollider.enabled = false;
-
-        transform.localScale = Vector3.zero;
-
-        Invoke(nameof(DestroySelf), 10f);
-
-        transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
-        {
-            if (!gameObject.activeInHierarchy) return; // 오브젝트가 비활성화 상태면 실행 X
-
-            if (myCollider != null)
-                myCollider.enabled = true;
-
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound);
-
-            StartCoroutine(DelayedSwitchToEnemy(followDuration));
-        });
-    }
-
-    IEnumerator DelayedSwitchToEnemy(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        if (!gameObject.activeInHierarchy) yield break;
-
-        SwitchToEnemy();
     }
 
     void SwitchToEnemy()
     {
-        isFollowingPlayer = false;
         FindClosestTarget();
-
         if (target != null)
         {
-            // 타겟 위치로부터 방향 고정
             fixedDirection = (target.position - transform.position).normalized;
-
             moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else
@@ -330,7 +262,6 @@ public class BulletAI : MonoBehaviour
 
     IEnumerator MoveTowardsTarget()
     {
-        // 고정된 방향으로 회전 한 번만
         float angle = Mathf.Atan2(fixedDirection.y, fixedDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
 
@@ -339,7 +270,6 @@ public class BulletAI : MonoBehaviour
             transform.position += fixedDirection * moveSpeed * Time.deltaTime;
             yield return null;
         }
-
         DestroySelf();
     }
 
@@ -362,7 +292,6 @@ public class BulletAI : MonoBehaviour
                 }
             }
         }
-
         target = closest;
     }
 
@@ -370,48 +299,30 @@ public class BulletAI : MonoBehaviour
     {
         if (isDestroying) return;
 
-        // 벽(Obstacle) 충돌 처리
         if (other.CompareTag("Obstacle"))
         {
-            transform.DOKill();
             moveSpeed = 0f;
-
-            if (moveCoroutine != null)
-            {
-                StopCoroutine(moveCoroutine);
-                moveCoroutine = null;
-            }
-
-            if (myCollider != null)
-                myCollider.enabled = false;
-
-            //if (trackingEffectInstance != null)
-            //{
-            //    Destroy(trackingEffectInstance);
-            //    trackingEffectInstance = null;
-            //}
-
-            Invoke(nameof(DestroySelf), 1.5f);
+            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+            // 투사체가 장애물 위치에서 바로 삭제되도록
+            DestroySelf();
             return;
         }
 
-        // 적 충돌 처리
+
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {
             EnemyHP hp = other.GetComponent<EnemyHP>();
-            if (hp != null)
-                hp.TakeDamage();
+            if (hp != null) hp.TakeDamage();
 
-            if (bulletSpawner != null && bulletSpawner.slowSkillActive && slowSkill != null)
+            if (bulletSpawner != null && bulletSpawner.slowSkillActive)
             {
                 EnemyBase enemyBase = other.GetComponent<EnemyBase>();
                 if (enemyBase != null)
                 {
-                    slowSkill.ApplySlow(enemyBase);
+                    Object.FindFirstObjectByType<SlowSkill>()?.ApplySlow(enemyBase);
                 }
             }
-
             DestroySelf();
         }
     }
@@ -421,22 +332,7 @@ public class BulletAI : MonoBehaviour
         if (isDestroying) return;
         isDestroying = true;
 
-        CancelInvoke();
-        transform.DOKill();
-
-        if (moveCoroutine != null)
-        {
-            StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
-
-        //if (trackingEffectInstance != null)
-        //{
-        //    Destroy(trackingEffectInstance);
-        //    trackingEffectInstance = null;
-        //}
-
+        if (moveCoroutine != null) StopCoroutine(moveCoroutine);
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
 }
-
