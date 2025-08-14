@@ -102,10 +102,17 @@ public class LongRangeEnemy : EnemyBase
         agent.SetDestination(transform.position);
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
 
+        // 원래 선 굵기/색 저장
+        float startWidth = 0.05f;
+        Color startColor = Color.red;
+
         // 조준선 켜기
         lineRenderer.enabled = true;
+
+        float duration = 1f; // 준비 시간
         float timer = 0f;
-        while (timer < 1f)
+
+        while (timer < duration)
         {
             timer += Time.deltaTime;
             if (player != null)
@@ -113,6 +120,17 @@ public class LongRangeEnemy : EnemyBase
                 lineRenderer.SetPosition(0, transform.position);
                 lineRenderer.SetPosition(1, player.transform.position);
             }
+
+            // 굵기, 알파 점점 줄이기
+            float t = timer / duration;
+            float width = Mathf.Lerp(startWidth, 0f, t);
+            lineRenderer.startWidth = width;
+            lineRenderer.endWidth = width;
+
+            Color fadeColor = Color.Lerp(startColor, new Color(startColor.r, startColor.g, startColor.b, 0f), t);
+            lineRenderer.startColor = fadeColor;
+            lineRenderer.endColor = fadeColor;
+
             yield return null;
         }
 
@@ -124,6 +142,12 @@ public class LongRangeEnemy : EnemyBase
             Shoot(dir);
             lastFireTime = Time.time;
         }
+
+        // 굵기/색 복원 (다음 발사 대비)
+        lineRenderer.startWidth = startWidth;
+        lineRenderer.endWidth = startWidth;
+        lineRenderer.startColor = startColor;
+        lineRenderer.endColor = startColor;
 
         isPreparingToFire = false;
     }
