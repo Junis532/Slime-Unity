@@ -164,6 +164,12 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Game;
         Debug.Log("상태: Game - 웨이브 진행 중");
 
+        GameObject[] zaces = GameObject.FindGameObjectsWithTag("HPPotion");
+        foreach (GameObject zac in zaces)
+        {
+            PoolManager.Instance.ReturnToPool(zac);
+        }
+
         joystickDirectionIndicator.StartRollingLoop();
 
         waveManager.StartSpawnLoop();
@@ -195,11 +201,7 @@ public class GameManager : MonoSingleTone<GameManager>
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
 
-        GameObject[] zaces = GameObject.FindGameObjectsWithTag("HPPotion");
-        foreach (GameObject zac in zaces)
-        {
-            PoolManager.Instance.ReturnToPool(zac);
-        }
+        
         //    if (cineCamera != null)
         //    {
         //        cineCamera.Follow = null;

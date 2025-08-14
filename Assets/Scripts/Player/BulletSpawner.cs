@@ -338,62 +338,76 @@ public class BulletSpawner : MonoBehaviour
     public float spawnInterval = 1f;
     [Header("플레이어 기준 거리")]
     public float arrowDistanceFromPlayer = 0f;
+    [Header("멈춘 후 대기 시간")]
+    public float stopDelay = 0.1f;
 
-    private float timer;
-    private PlayerController playerController; // PlayerController 참조
-    private bool wasStillLastFrame = false;
+    private float stopDelayTimer = 0f; // 멈춘 시간 누적
+    private float spawnTimer = 0f;     // 발사 간격 타이머
+    private bool firedAfterStop = false; // 멈춘 후 첫발 여부 체크
+
+    private PlayerController playerController;
+    private bool isStillLastFrame = false;
 
     void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             playerController = playerObj.GetComponent<PlayerController>();
-        }
     }
 
     void Update()
     {
         if (playerController == null || bulletPrefab == null) return;
 
-        // 입력 기반으로 "멈춤" 감지
-        bool isStill = playerController.inputVec.magnitude < 0.05f; // 거의 입력이 없는 상태
+        bool isStill = playerController.inputVec.magnitude < 0.05f;
 
-        // ── 1) 움직이다 멈춘 순간: 즉시 발사
-        if (!wasStillLastFrame && isStill)
+        if (isStill)
         {
-            FireArrow();
-        }
-        // ── 2) 계속 멈춰 있으면 간격 맞춰 발사
-        else if (wasStillLastFrame && isStill)
-        {
-            timer += Time.deltaTime;
-            if (timer >= spawnInterval)
+            // 멈춘 시간 누적
+            stopDelayTimer += Time.deltaTime;
+
+            // stopDelay 이후 첫 발
+            if (!firedAfterStop && stopDelayTimer >= stopDelay)
             {
                 FireArrow();
+                spawnTimer = 0f;
+                firedAfterStop = true;
+            }
+
+            // 첫 발사 이후에는 spawnInterval 주기로 발사
+            if (firedAfterStop)
+            {
+                spawnTimer += Time.deltaTime;
+                if (spawnTimer >= spawnInterval)
+                {
+                    FireArrow();
+                    spawnTimer = 0f;
+                }
             }
         }
+        else
+        {
+            // 움직이면 시간 초기화
+            stopDelayTimer = 0f;
+            spawnTimer = 0f;
+            firedAfterStop = false;
+        }
 
-        // 현재 상태 저장
-        wasStillLastFrame = isStill;
+        isStillLastFrame = isStill;
     }
 
     private void FireArrow()
     {
-        timer = 0f; // 발사 간격 초기화
-        GameObject bulletToFire = bulletPrefab;
+        GameObject bulletToFire = (useFireball && fireballPrefab != null)
+            ? fireballPrefab
+            : bulletPrefab;
 
-        // Fireball 모드
-        if (useFireball && fireballPrefab != null)
-        {
-            bulletToFire = fireballPrefab;
-        }
-
-        Vector3 fireDir = playerController.transform.right; // 오른쪽 방향 기준
+        Vector3 fireDir = playerController.transform.right;
         Vector3 spawnPos = playerController.transform.position + fireDir * arrowDistanceFromPlayer;
 
         GameObject bullet = GameManager.Instance.poolManager.SpawnFromPool(
-            bulletToFire.name, spawnPos, Quaternion.identity);
+            bulletToFire.name, spawnPos, Quaternion.identity
+        );
 
         BulletAI bulletAI = bullet.GetComponent<BulletAI>();
         if (bulletAI != null)
@@ -403,3 +417,4 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 }
+

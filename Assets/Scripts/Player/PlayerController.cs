@@ -57,7 +57,17 @@ public class PlayerController : MonoBehaviour
         );
 
         // 2) 조이스틱 입력
+        //Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
+
+        // 2) 조이스틱 입력
         Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
+
+        // 조이스틱 입력 세기 무시하고 항상 방향만 사용
+        if (joystickInput.magnitude > 0.05f)
+            joystickInput = joystickInput.normalized;
+        else
+            joystickInput = Vector2.zero;
+
 
         // 3) 두 입력 합치기
         inputVec = keyboardInput + joystickInput;

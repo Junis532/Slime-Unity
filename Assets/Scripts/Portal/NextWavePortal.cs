@@ -5,9 +5,8 @@ using System.Collections;
 
 public class NextWavePortal : MonoBehaviour
 {
-
     public Image loadingImage;
-    public float fadeDuration = 0.1f;
+    public float fadeDuration = 0.5f;
 
     private Canvas loadingCanvas;
 
@@ -59,8 +58,7 @@ public class NextWavePortal : MonoBehaviour
         if (loadingCanvas != null)
             loadingCanvas.sortingOrder = -1;  // 페이드아웃 후 원래값으로
 
-
-        Destroy(gameObject);  // 포탈 삭제
+        Destroy(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -70,5 +68,4 @@ public class NextWavePortal : MonoBehaviour
             StartCoroutine(StartNextWaveWithFade());
         }
     }
-
 }
