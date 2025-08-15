@@ -70,7 +70,7 @@ public class EnemyHP : MonoBehaviour
 
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
         int damage = isCritical
-            ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 1.5f)
+            ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
             : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
 
         currentHP -= damage;

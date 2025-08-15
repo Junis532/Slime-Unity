@@ -16,7 +16,6 @@ public class WaveManager : MonoBehaviour
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
     public int currentWave = 1;
-
     private Coroutine spawnCoroutine;
 
     [Header("맵 관련")]
@@ -28,7 +27,6 @@ public class WaveManager : MonoBehaviour
     public GameObject shopPortalPrefab;
     public Vector2 portalPosition = new Vector2(8f, 0f);
     private bool portalSpawned = false;
-
     private bool hasSpawned = false;
 
     void Start()
@@ -58,48 +56,33 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator ShakeAndSpawnPortal()
     {
-
         AudioManager.Instance.PlaySFX(AudioManager.Instance.portalSpawnSound);
 
         if (GameManager.Instance.cameraShake != null)
         {
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-            yield return new WaitForSeconds(0.1f);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-
+            for (int i = 0; i < 7; i++)
+            {
+                GameManager.Instance.cameraShake.GenerateImpulse();
+                yield return new WaitForSeconds(0.1f);
+            }
             SpawnPortal();
         }
     }
 
     bool AreAllEnemiesDead()
     {
-        // 현재 씬에 남아있는 적 GameObject가 있는지 확인
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-
-        // 특수한 적들 (DashEnemy 등)도 검사
         GameObject[] dashEnemies = GameObject.FindGameObjectsWithTag("DashEnemy");
         GameObject[] longRangeEnemies = GameObject.FindGameObjectsWithTag("LongRangeEnemy");
         GameObject[] potionEnemies = GameObject.FindGameObjectsWithTag("PotionEnemy");
 
         int totalEnemies = allEnemies.Length + dashEnemies.Length + longRangeEnemies.Length + potionEnemies.Length;
-
         return totalEnemies == 0;
     }
 
     void SpawnPortal()
     {
         Vector2 portalPos = portalPosition;
-
         WaveData currentWaveData = (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
             ? waveDataList[currentWave - 1] : null;
 
@@ -124,7 +107,6 @@ public class WaveManager : MonoBehaviour
     public void StartNextWave()
     {
         StopSpawnLoop();
-
         if (currentWave >= waveDataList.Count)
         {
             GameManager.Instance.ChangeStateToClear();
@@ -145,15 +127,11 @@ public class WaveManager : MonoBehaviour
         {
             currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
             mapBoundary = currentMapInstance.GetComponentInChildren<BoxCollider2D>();
-
-
-            // ✅ NavMesh 베이크 실행
             StartCoroutine(BakeNavMeshDelayed(currentMapInstance));
         }
 
         currentWave++;
         UpdateEnemyHP();
-
         if (GameManager.Instance.shopManager != null)
             GameManager.Instance.shopManager.ResetRerollPrice();
 
@@ -163,8 +141,7 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator BakeNavMeshDelayed(GameObject mapInstance)
     {
-        yield return null; // 한 프레임 대기
-
+        yield return null;
         NavMeshSurface surface = mapInstance.GetComponentInChildren<NavMeshSurface>();
         if (surface != null)
         {
@@ -182,6 +159,28 @@ public class WaveManager : MonoBehaviour
         return tag == "Enemy" || tag == "DashEnemy" || tag == "LongRangeEnemy" || tag == "PotionEnemy";
     }
 
+    /// <summary>
+    /// 개별 경고 이펙트 표시
+    /// </summary>
+    void ShowWarningEffect(Vector2 pos)
+    {
+        if (warningEffectPrefab == null) return;
+
+        GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
+            warningEffectPrefab.name, pos, Quaternion.identity);
+
+        if (warning != null)
+        {
+            SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.color = new Color(1, 0, 0, 0);
+                sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
+            }
+            StartCoroutine(ReturnWarningToPool(warning, warningDuration));
+        }
+    }
+
     IEnumerator SpawnWithWarning()
     {
         if (GameManager.Instance != null && GameManager.Instance.IsShop())
@@ -191,85 +190,50 @@ public class WaveManager : MonoBehaviour
         if (currentWaveData == null || currentWaveData.MonsterLists.Count == 0)
             yield break;
 
-        List<Vector2> spawnPositions = new List<Vector2>();
-        List<GameObject> spawnMonsters = new List<GameObject>();
         int spawnCount = currentWaveData.MonsterLists.Count;
 
         for (int i = 0; i < spawnCount; i++)
         {
-            GameObject selected = currentWaveData.MonsterLists[Random.Range(0, currentWaveData.MonsterLists.Count)];
-            spawnMonsters.Add(selected);
-            spawnPositions.Add(Vector2.zero);
-        }
-
-        for (int i = 0; i < spawnPositions.Count; i++)
-        {
             if (GameManager.Instance != null && GameManager.Instance.IsShop())
                 yield break;
 
-            GameObject prefab = spawnMonsters[i];
-            Vector2 spawnPos = spawnPositions[i];
+            float delay = 0f;
+            if (i < currentWaveData.spawnDelays.Count)
+                delay = currentWaveData.spawnDelays[i];
+            if (delay > 0f)
+                yield return new WaitForSeconds(delay);
 
+            GameObject prefab = currentWaveData.MonsterLists[i];
+            Vector2 spawnPos = Vector2.zero; // 필요 시 랜덤 위치 가능
+
+            // 임시 오브젝트 생성 (비활성 상태)
             GameObject tempObj = Instantiate(prefab, spawnPos, Quaternion.identity);
             tempObj.SetActive(false);
 
-            bool hasRealEnemy = false;
-            var allMonsters = tempObj.GetComponentsInChildren<Transform>();
-            foreach (var t in allMonsters)
+            // 자식 중 적 태그를 가진 오브젝트 위치마다 경고 표시
+            var allTransforms = tempObj.GetComponentsInChildren<Transform>();
+            foreach (var t in allTransforms)
             {
                 if (t == tempObj.transform) continue;
-                if (IsEnemyTag(t.gameObject.tag) && warningEffectPrefab != null)
+                if (IsEnemyTag(t.gameObject.tag))
                 {
-                    GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
-                        warningEffectPrefab.name, t.position, Quaternion.identity);
-                    if (warning != null)
-                    {
-                        SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-                        if (sr != null)
-                        {
-                            sr.color = new Color(1, 0, 0, 0);
-                            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
-                        }
-                        StartCoroutine(ReturnWarningToPool(warning, warningDuration));
-                    }
-                    hasRealEnemy = true;
+                    ShowWarningEffect(t.position);
                 }
             }
-            if (!hasRealEnemy && IsEnemyTag(tempObj.tag) && warningEffectPrefab != null)
-            {
-                GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
-                    warningEffectPrefab.name, spawnPos, Quaternion.identity);
-                if (warning != null)
-                {
-                    SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-                    if (sr != null)
-                    {
-                        sr.color = new Color(1, 0, 0, 0);
-                        sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
-                    }
-                    StartCoroutine(ReturnWarningToPool(warning, warningDuration));
-                }
-            }
-            Destroy(tempObj);
-        }
 
-        yield return new WaitForSeconds(warningDuration);
+            // 경고 시간 대기
+            yield return new WaitForSeconds(warningDuration);
 
-        if (GameManager.Instance != null && GameManager.Instance.IsShop())
-            yield break;
-
-        for (int i = 0; i < spawnPositions.Count; i++)
-        {
-            GameObject prefab = spawnMonsters[i];
-            Vector2 spawnPos = spawnPositions[i];
-
+            // 실제 스폰
             GameManager.Instance.poolManager.SpawnFromPool(prefab.name, spawnPos, Quaternion.identity);
-        }
+            Destroy(tempObj);
 
-        Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {spawnCount}마리");
+            Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {i + 1}/{spawnCount}");
+        }
 
         hasSpawned = true;
     }
+
 
     IEnumerator ReturnWarningToPool(GameObject warning, float duration)
     {
@@ -300,7 +264,6 @@ public class WaveManager : MonoBehaviour
     IEnumerator SpawnerLoopRoutine()
     {
         yield return new WaitForSeconds(1f);
-
         if (hasSpawned || (GameManager.Instance != null && GameManager.Instance.IsShop()))
             yield break;
 
