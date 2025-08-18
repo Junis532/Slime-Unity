@@ -8,10 +8,10 @@ public class CameraShake : MonoBehaviour
     private CinemachineImpulseSource impulseSource;
 
     [SerializeField]
-    private float magnitude = 1f;
+    private float magnitude = 0.5f;
 
     [SerializeField]
-    private float roughness = 1f;
+    private float roughness = 0.5f;
 
     private CinemachineCamera virtualCamera;
     private CinemachineBasicMultiChannelPerlin noise;
