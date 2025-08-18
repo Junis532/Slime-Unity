@@ -33,12 +33,29 @@ public class BulletSpawner : MonoBehaviour
     [Header("총알 간 각도 퍼짐 (도 단위)")]
     public float spreadAngle = 10f;
 
+    [Header("타겟 표시 프리팹")]
+    public GameObject targetMarkerPrefab;
+
+    [Header("타겟 마커 위치 오프셋")]
+    public Vector3 targetMarkerOffset = new Vector3(0, 0, 0); // 기본: 적 위 1유닛
+
+    [Header("두 번째 타겟 표시 프리팹")]
+    public GameObject secondTargetMarkerPrefab;
+
+    [Header("두 번째 타겟 마커 위치 오프셋")]
+    public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0); // 첫 번째 마커보다 살짝 위
+
+    private GameObject secondMarker;
+
+
+
     private float stopDelayTimer = 0f;
     private float spawnTimer = 0f;
     private bool firedAfterStop = false;
     private PlayerController playerController;
 
     private int fireCount = 0;
+    private GameObject currentMarker;
 
     void Start()
     {
@@ -51,6 +68,62 @@ public class BulletSpawner : MonoBehaviour
     {
         if (playerController == null || bulletPrefab == null) return;
 
+        Transform closestEnemy = FindClosestEnemy();
+
+        // 첫 번째 마커
+        if (targetMarkerPrefab != null)
+        {
+            if (closestEnemy != null)
+            {
+                Vector3 markerPos = closestEnemy.position + targetMarkerOffset;
+
+                if (currentMarker == null)
+                {
+                    currentMarker = Instantiate(targetMarkerPrefab, markerPos, Quaternion.identity);
+                }
+                else
+                {
+                    currentMarker.transform.position = markerPos;
+                }          
+            }
+            else
+            {
+                if (currentMarker != null)
+                {
+                    Destroy(currentMarker);
+                    currentMarker = null;
+                }
+            }
+        }
+
+        if (secondTargetMarkerPrefab != null)
+        {
+            if (closestEnemy != null)
+            {
+                Vector3 markerPos = closestEnemy.position + secondTargetMarkerOffset;
+
+                if (secondMarker == null)
+                {
+                    secondMarker = Instantiate(secondTargetMarkerPrefab, markerPos, Quaternion.Euler(0, 0, -90));
+                }
+                else
+                {
+                    secondMarker.transform.position = markerPos;
+                    // rotation은 생성 시만 적용하거나 필요 없으면 제거
+                }
+            }
+            else
+            {
+                if (secondMarker != null)
+                {
+                    Destroy(secondMarker);
+                    secondMarker = null;
+                }
+            }
+        }
+
+
+        // 기존 발사 로직
         bool isStill = playerController.inputVec.magnitude < 0.05f;
         float actualSpawnInterval = spawnInterval / Mathf.Max(0.1f, attackSpeedMultiplier);
 
@@ -60,7 +133,7 @@ public class BulletSpawner : MonoBehaviour
 
             if (!firedAfterStop && stopDelayTimer >= stopDelay)
             {
-                FireArrow();
+                FireArrow(closestEnemy);
                 spawnTimer = 0f;
                 firedAfterStop = true;
             }
@@ -70,7 +143,7 @@ public class BulletSpawner : MonoBehaviour
                 spawnTimer += Time.deltaTime;
                 if (spawnTimer >= actualSpawnInterval)
                 {
-                    FireArrow();
+                    FireArrow(closestEnemy);
                     spawnTimer = 0f;
                 }
             }
@@ -83,13 +156,12 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
-    private void FireArrow()
+    private Transform FindClosestEnemy()
     {
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-
-        // 가운데 총알 기준으로 가장 가까운 적 찾기
-        Transform centerTarget = null;
+        Transform closest = null;
         float closestDist = Mathf.Infinity;
+
         foreach (string tag in enemyTags)
         {
             GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
@@ -99,11 +171,16 @@ public class BulletSpawner : MonoBehaviour
                 if (dist < closestDist)
                 {
                     closestDist = dist;
-                    centerTarget = enemy.transform;
+                    closest = enemy.transform;
                 }
             }
         }
 
+        return closest;
+    }
+
+    private void FireArrow(Transform centerTarget)
+    {
         if (centerTarget == null) return; // 적 없으면 발사 안 함
 
         fireCount++;

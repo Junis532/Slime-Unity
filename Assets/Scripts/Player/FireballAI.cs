@@ -103,6 +103,15 @@ public class FireballAI : MonoBehaviour
     {
         if (isDestroying) return;
 
+        if (other.CompareTag("Obstacle"))
+        {
+            moveSpeed = 0f;
+            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+            // 투사체가 장애물 위치에서 바로 삭제되도록
+            DestroySelf();
+            return;
+        }
+
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {
