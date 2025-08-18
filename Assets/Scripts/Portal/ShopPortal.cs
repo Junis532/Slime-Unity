@@ -5,7 +5,6 @@ using System.Collections;
 
 public class ShopPortal : MonoBehaviour
 {
-    public float requiredStayTime = 3f;
 
     public Image loadingImage; // 씬에 존재하는 이미지, 프리팹 내부가 아님
     public float fadeDuration = 0.1f;

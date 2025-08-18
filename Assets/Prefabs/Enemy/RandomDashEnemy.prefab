@@ -110,10 +110,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   originalSpeed: 0
-  dashDuration: 0.6
-  waitDuration: 1
   dashSpeed: 100
-  dashDistance: 5
+  dashDistance: 3
+  dashDuration: 0.6
+  waitDuration: 0.2
+  scaleMultiplier: 1.2
+  scaleTime: 0.1
 --- !u!114 &3818131844207129269
 MonoBehaviour:
   m_ObjectHideFlags: 0
