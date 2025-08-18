@@ -4356,10 +4356,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.08974359
+    x: -0.25
     y: 0
-    width: 0.82051283
-    height: 1
+    width: 0.5
+    height: 0
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -7426,7 +7426,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   fireballPrefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
-  useFireball: 1
+  useFireball: 0
   fireballDotMultiplier: 0.5
   slowSkillActive: 0
   spawnInterval: 0.8
@@ -19805,7 +19805,7 @@ PrefabInstance:
       objectReference: {fileID: 129433694}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitInterval
-      value: 30
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitTimerText
