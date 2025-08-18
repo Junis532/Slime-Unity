@@ -7432,13 +7432,16 @@ MonoBehaviour:
   spawnInterval: 0.8
   attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 0
-  stopDelay: 0.18
-  bulletsPerShot: 3
+  stopDelay: 0.15
+  bulletsPerShot: 1
   spreadAngle: 20
   targetMarkerPrefab: {fileID: 5449532905997063942, guid: 4b37bf068a319aa43b900b30474eaab9, type: 3}
   targetMarkerOffset: {x: 0, y: -0.4, z: 0}
   secondTargetMarkerPrefab: {fileID: 8031171983659952707, guid: c6af006d9168eab45bb5c3616fcc002f, type: 3}
   secondTargetMarkerOffset: {x: 0, y: 1, z: 0}
+  bowEffectPrefab: {fileID: 11980439846263621, guid: 6d8bffe71f9d58e419b426465a39f627, type: 3}
+  bowEffectDuration: 0.3
+  bowDistance: 0.8
 --- !u!114 &846765408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13951,7 +13954,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1815178679
 MonoBehaviour:
   m_ObjectHideFlags: 0

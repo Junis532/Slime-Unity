@@ -37,17 +37,25 @@ public class BulletSpawner : MonoBehaviour
     public GameObject targetMarkerPrefab;
 
     [Header("타겟 마커 위치 오프셋")]
-    public Vector3 targetMarkerOffset = new Vector3(0, 0, 0); // 기본: 적 위 1유닛
+    public Vector3 targetMarkerOffset = new Vector3(0, 0, 0);
 
     [Header("두 번째 타겟 표시 프리팹")]
     public GameObject secondTargetMarkerPrefab;
 
     [Header("두 번째 타겟 마커 위치 오프셋")]
-    public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0); // 첫 번째 마커보다 살짝 위
+    public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0);
+
+    [Header("Bow 이펙트 프리팹")]
+    public GameObject bowEffectPrefab;
+
+    [Header("Bow 이펙트 지속 시간")]
+    public float bowEffectDuration = 0.2f;
+
+    [Header("Bow 거리")]
+    public float bowDistance = 0.7f; // 플레이어에서 이 거리에 Bow 이펙트가 생성됨
 
     private GameObject secondMarker;
-
-
+    private GameObject currentMarker;
 
     private float stopDelayTimer = 0f;
     private float spawnTimer = 0f;
@@ -55,7 +63,6 @@ public class BulletSpawner : MonoBehaviour
     private PlayerController playerController;
 
     private int fireCount = 0;
-    private GameObject currentMarker;
 
     void Start()
     {
@@ -70,60 +77,8 @@ public class BulletSpawner : MonoBehaviour
 
         Transform closestEnemy = FindClosestEnemy();
 
-        // 첫 번째 마커
-        if (targetMarkerPrefab != null)
-        {
-            if (closestEnemy != null)
-            {
-                Vector3 markerPos = closestEnemy.position + targetMarkerOffset;
+        UpdateMarkers(closestEnemy);
 
-                if (currentMarker == null)
-                {
-                    currentMarker = Instantiate(targetMarkerPrefab, markerPos, Quaternion.identity);
-                }
-                else
-                {
-                    currentMarker.transform.position = markerPos;
-                }          
-            }
-            else
-            {
-                if (currentMarker != null)
-                {
-                    Destroy(currentMarker);
-                    currentMarker = null;
-                }
-            }
-        }
-
-        if (secondTargetMarkerPrefab != null)
-        {
-            if (closestEnemy != null)
-            {
-                Vector3 markerPos = closestEnemy.position + secondTargetMarkerOffset;
-
-                if (secondMarker == null)
-                {
-                    secondMarker = Instantiate(secondTargetMarkerPrefab, markerPos, Quaternion.Euler(0, 0, -90));
-                }
-                else
-                {
-                    secondMarker.transform.position = markerPos;
-                    // rotation은 생성 시만 적용하거나 필요 없으면 제거
-                }
-            }
-            else
-            {
-                if (secondMarker != null)
-                {
-                    Destroy(secondMarker);
-                    secondMarker = null;
-                }
-            }
-        }
-
-
-        // 기존 발사 로직
         bool isStill = playerController.inputVec.magnitude < 0.05f;
         float actualSpawnInterval = spawnInterval / Mathf.Max(0.1f, attackSpeedMultiplier);
 
@@ -156,6 +111,45 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
+    private void UpdateMarkers(Transform closestEnemy)
+    {
+        // 첫 번째 마커
+        if (targetMarkerPrefab != null)
+        {
+            if (closestEnemy != null)
+            {
+                Vector3 markerPos = closestEnemy.position + targetMarkerOffset;
+                if (currentMarker == null)
+                    currentMarker = Instantiate(targetMarkerPrefab, markerPos, Quaternion.identity);
+                else
+                    currentMarker.transform.position = markerPos;
+            }
+            else if (currentMarker != null)
+            {
+                Destroy(currentMarker);
+                currentMarker = null;
+            }
+        }
+
+        // 두 번째 마커
+        if (secondTargetMarkerPrefab != null)
+        {
+            if (closestEnemy != null)
+            {
+                Vector3 markerPos = closestEnemy.position + secondTargetMarkerOffset;
+                if (secondMarker == null)
+                    secondMarker = Instantiate(secondTargetMarkerPrefab, markerPos, Quaternion.Euler(0, 0, -90));
+                else
+                    secondMarker.transform.position = markerPos;
+            }
+            else if (secondMarker != null)
+            {
+                Destroy(secondMarker);
+                secondMarker = null;
+            }
+        }
+    }
+
     private Transform FindClosestEnemy()
     {
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
@@ -181,14 +175,18 @@ public class BulletSpawner : MonoBehaviour
 
     private void FireArrow(Transform centerTarget)
     {
-        if (centerTarget == null) return; // 적 없으면 발사 안 함
+        if (centerTarget == null) return;
 
         fireCount++;
         bool isFireballShot = (fireCount % 7 == 0) && (fireballPrefab != null) && useFireball;
 
-        // 가운데 총알 방향 (적 추적)
         Vector3 dirToTarget = (centerTarget.position - playerController.transform.position).normalized;
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
+
+        // 플레이어 Flip 처리
+        FlipPlayer(dirToTarget);
+
+        SpawnBowEffect(dirToTarget);
 
         int count = Mathf.Max(1, bulletsPerShot);
         float totalSpread = spreadAngle * (count - 1);
@@ -196,8 +194,8 @@ public class BulletSpawner : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            bool isCenter = (i == count / 2); // 중앙 총알 판별
-            bool isFireballThisShot = isCenter && isFireballShot; // 중앙+Fireball 여부
+            bool isCenter = (i == count / 2);
+            bool isFireballThisShot = isCenter && isFireballShot;
             GameObject bulletPrefabToUse = isFireballThisShot ? fireballPrefab : bulletPrefab;
 
             float angle = centerAngle + startOffset + i * spreadAngle;
@@ -212,38 +210,55 @@ public class BulletSpawner : MonoBehaviour
             {
                 FireballAI fireballAI = bullet.GetComponent<FireballAI>();
                 if (fireballAI != null)
-                {
-                    fireballAI.InitializeBullet(spawnPos, angle); // Fireball 전용 초기화
-                }
+                    fireballAI.InitializeBullet(spawnPos, angle);
 
-                // Fireball 알파값 1로 초기화 (부모 + 자식 VFX)
-                SpriteRenderer sr = bullet.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    Color c = sr.color;
-                    c.a = 1f;
-                    sr.color = c;
-                }
-
-                for (int j = 0; j < bullet.transform.childCount; j++)
-                {
-                    SpriteRenderer childSr = bullet.transform.GetChild(j).GetComponent<SpriteRenderer>();
-                    if (childSr != null)
-                    {
-                        Color cc = childSr.color;
-                        cc.a = 1f;
-                        childSr.color = cc;
-                    }
-                }
+                SetAlphaRecursive(bullet, 1f);
             }
             else
             {
                 BulletAI bulletAI = bullet.GetComponent<BulletAI>();
                 if (bulletAI != null)
-                {
-                    bulletAI.InitializeBullet(spawnPos, angle, isCenter); // 일반 화살 초기화
-                }
+                    bulletAI.InitializeBullet(spawnPos, angle, isCenter);
             }
         }
+    }
+
+    private void FlipPlayer(Vector3 dir)
+    {
+        SpriteRenderer sr = playerController.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            // 오른쪽 기준이면 flipX false, 왼쪽이면 flipX true
+            sr.flipX = dir.x < 0;
+        }
+    }
+
+
+    private void SpawnBowEffect(Vector3 dirToTarget)
+    {
+        if (bowEffectPrefab == null) return;
+
+        float angle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg + 180f;
+        Vector3 offset = dirToTarget.normalized * bowDistance;
+
+        GameObject bowEffect = Instantiate(bowEffectPrefab, Vector3.zero, Quaternion.Euler(0, 0, angle));
+
+        BowEffectFollow follow = bowEffect.AddComponent<BowEffectFollow>();
+        follow.offset = offset;
+        follow.duration = bowEffectDuration;
+    }
+
+    private void SetAlphaRecursive(GameObject obj, float alpha)
+    {
+        SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Color c = sr.color;
+            c.a = alpha;
+            sr.color = c;
+        }
+
+        foreach (Transform child in obj.transform)
+            SetAlphaRecursive(child.gameObject, alpha);
     }
 }
