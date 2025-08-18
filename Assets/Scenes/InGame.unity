@@ -7279,8 +7279,8 @@ MonoBehaviour:
   itemStats6: {fileID: 11400000, guid: 8d89ae8f10f29924b87f9b0c26e43ff8, type: 2}
   itemStats7: {fileID: 11400000, guid: aa6a25ba063bf4741b381fbac7c0b38a, type: 2}
   itemStats8: {fileID: 11400000, guid: 8beb16c754f0a9c48bbb4d7a39c0bfba, type: 2}
-  itemStats9: {fileID: 11400000, guid: f5cd27e1ccd119b468b1e6ceb901be8b, type: 2}
-  itemStats10: {fileID: 11400000, guid: 161baf6cfb795c14d8bd275065ec996e, type: 2}
+  itemStats9: {fileID: 0}
+  itemStats10: {fileID: 0}
   enemy: {fileID: 0}
   dashEnemy: {fileID: 0}
   longRangeEnemy: {fileID: 0}
@@ -7355,10 +7355,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allItems:
   - {fileID: 11400000, guid: 195fd2a0906dc734696b703a254046a8, type: 2}
+  - {fileID: 11400000, guid: 7dddee111973b4b42889d1dcd2403714, type: 2}
   - {fileID: 11400000, guid: edd2781c83795934ea7808483d5a0916, type: 2}
+  - {fileID: 11400000, guid: 7cee4be7bac23e44ba628e4f4bbc2c0b, type: 2}
   - {fileID: 11400000, guid: 22a400c3fa2d0ed42a17e39fd44e3580, type: 2}
   - {fileID: 11400000, guid: 8d89ae8f10f29924b87f9b0c26e43ff8, type: 2}
-  - {fileID: 11400000, guid: 161baf6cfb795c14d8bd275065ec996e, type: 2}
+  - {fileID: 11400000, guid: aa6a25ba063bf4741b381fbac7c0b38a, type: 2}
+  - {fileID: 11400000, guid: 8beb16c754f0a9c48bbb4d7a39c0bfba, type: 2}
   itemSlots:
   - {fileID: 1775516859}
   - {fileID: 1483349284}
@@ -7423,11 +7426,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   fireballPrefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
-  useFireball: 0
+  useFireball: 1
+  fireballDotMultiplier: 0.5
   slowSkillActive: 0
   spawnInterval: 0.8
+  attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 0
   stopDelay: 0.18
+  bulletsPerShot: 1
+  spreadAngle: 20
 --- !u!114 &846765408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12458,7 +12465,7 @@ MonoBehaviour:
   pools:
   - prefabName: Bullet
     prefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
-    initialSize: 100
+    initialSize: 300
   - prefabName: Fireball
     prefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
     initialSize: 300
@@ -15438,6 +15445,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3344983fe50c94d46a621fc463258d29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1919898643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798450364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9f19728694845045ab4070d0ff26112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hpHeal: 0
+  hpHealAmount: 1
 --- !u!1 &1927653874
 GameObject:
   m_ObjectHideFlags: 0
@@ -19895,6 +19916,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       insertIndex: 11
       addedObject: {fileID: 1919898628}
+    - targetCorrespondingSourceObject: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1919898643}
   m_SourcePrefab: {fileID: 100100000, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
 --- !u!1001 &8969564651292436921
 PrefabInstance:

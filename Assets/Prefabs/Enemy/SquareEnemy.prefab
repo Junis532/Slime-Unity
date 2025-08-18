@@ -486,7 +486,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4070768516742696757
 Transform:
   m_ObjectHideFlags: 0
@@ -572,7 +572,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
 --- !u!114 &2504053785915587193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,6 +674,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  potionPrefab: {fileID: 0}
+  potionDropChance: 1
 --- !u!114 &7874035136133528898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -683,8 +688,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09414e4bebb863b4ebd2c8d7ab02948d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
+  originalSpeed: 0
   pathCenter: {x: 0, y: 0}
   pathWidth: 20
   pathHeight: 12

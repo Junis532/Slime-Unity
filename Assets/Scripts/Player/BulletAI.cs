@@ -230,14 +230,36 @@ public class BulletAI : MonoBehaviour
 
     private Vector3 fixedDirection;
 
-    public void InitializeBullet(Vector3 startPosition, float startAngle)
+    public bool followEnemy = true;
+
+    public void InitializeBullet(Vector3 startPosition, float startAngle, bool follow = true)
     {
         transform.position = startPosition;
         transform.rotation = Quaternion.Euler(0, 0, startAngle);
+        followEnemy = follow;
+
         if (myCollider != null) myCollider.enabled = true;
 
-        SwitchToEnemy(); // 생성 즉시 발사
+        if (followEnemy)
+            SwitchToEnemy(); // 적 추적
+        else
+        {
+            // 추적 없이 발사 각도대로 직선 이동
+            float angleRad = startAngle * Mathf.Deg2Rad;
+            fixedDirection = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0);
+            moveCoroutine = StartCoroutine(MoveStraight());
+        }
+
         Invoke(nameof(DestroySelf), 10f);
+    }
+
+    IEnumerator MoveStraight()
+    {
+        while (!isDestroying)
+        {
+            transform.position += fixedDirection * moveSpeed * Time.deltaTime;
+            yield return null;
+        }
     }
 
     void Awake()
@@ -252,6 +274,7 @@ public class BulletAI : MonoBehaviour
         if (target != null)
         {
             fixedDirection = (target.position - transform.position).normalized;
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound);
             moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else

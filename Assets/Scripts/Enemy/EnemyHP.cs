@@ -168,13 +168,15 @@ public class EnemyHP : MonoBehaviour
     {
         if (damageTextPrefab == null) return;
 
+        // ✅ 데미지가 0 이하일 경우 텍스트 띄우지 않음
+        if (damage <= 0) return;
+
         Vector3 spawnPosition = transform.position;
         GameObject textObj = PoolManager.Instance.SpawnFromPool(
             damageTextPrefab.name,
             spawnPosition,
             Quaternion.identity
         );
-
         if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
@@ -195,6 +197,7 @@ public class EnemyHP : MonoBehaviour
             PoolManager.Instance.ReturnToPool(textObj);
         });
     }
+
 
     private void ShowCDamageText(int damage)
     {
@@ -238,13 +241,34 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
+    private bool isDead = false; // 적이 죽었는지 상태
+
     private void Die()
     {
+        if (isDead) return; // 이미 죽었으면 아무것도 하지 않음
+        isDead = true;       // 죽음 상태로 변경
+
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
+
+        // ✅ 플레이어 HP 회복
+        PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();
+        int healAmount = playerHeal.hpHealAmount; // PlayerHeal 스크립트에서 설정
+        if (playerHeal != null && playerHeal.hpHeal)
+        {
+            GameManager.Instance.playerStats.currentHP += healAmount;
+            GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
+                GameManager.Instance.playerStats.currentHP,
+                0,
+                GameManager.Instance.playerStats.maxHP
+            );
+        }
+
 
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null)
             enemiesDie.Die();
     }
+
+
 }
