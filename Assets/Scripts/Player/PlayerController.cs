@@ -39,14 +39,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.CurrentState == "Shop")
-        {
-            //canMove = false;
-        }
-        else if (GameManager.Instance.CurrentState == "Game")
-        {
-            canMove = true;
-        }
 
         if (!canMove) return;
 

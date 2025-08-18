@@ -39,19 +39,11 @@ public class DetectEnemy : EnemyBase
         if (!isLive) return;
 
         GameObject player = GameObject.FindWithTag("Player");
-        float distance = 0f;
 
         if (player != null)
         {
             Vector2 toPlayer = (Vector2)player.transform.position - (Vector2)transform.position;
-            distance = toPlayer.magnitude;
-
-            if (toPlayer.x != 0)
-            {
-                Vector3 scale = transform.localScale;
-                scale.x = Mathf.Abs(scale.x) * (toPlayer.x < 0 ? -1 : 1);
-                transform.localScale = scale;
-            }
+            float distance = toPlayer.magnitude;
 
             if (!hasDetectedPlayer && distance <= detectionRange)
             {
@@ -59,6 +51,7 @@ public class DetectEnemy : EnemyBase
             }
         }
 
+        // 이동
         if (hasDetectedPlayer && player != null)
         {
             agent.SetDestination(player.transform.position);
@@ -76,10 +69,24 @@ public class DetectEnemy : EnemyBase
             agent.SetDestination(randomDestination);
         }
 
+        // --- 이동 방향으로 캐릭터 바라보기 ---
+        Vector3 scale = transform.localScale;
+        float vx = agent.velocity.x;
+
+        if (Mathf.Abs(vx) > 0.01f) // 거의 정지 상태에서는 뒤집지 않음
+        {
+            scale.x = Mathf.Abs(scale.x) * (vx < 0 ? -1 : 1);
+            transform.localScale = scale;
+        }
+
         // 애니메이션 처리
         if (agent.velocity.magnitude > 0.1f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+        }
+        else
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 

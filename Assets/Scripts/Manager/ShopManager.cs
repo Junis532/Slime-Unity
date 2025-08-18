@@ -257,6 +257,8 @@ public class ShopManager : MonoBehaviour
 
         //UpdateRerollButtonState();
         UpdateBuyButtonStates();
+
+        OnButtonExitClick();
     }
 
     List<ItemStats> GetRandomItems(int count)

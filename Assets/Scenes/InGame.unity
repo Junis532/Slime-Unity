@@ -7397,7 +7397,7 @@ MonoBehaviour:
   currentWave: 0
   portalPrefab: {fileID: 3551012877482958990, guid: 93a0453960e86944da83a2ae2333b388, type: 3}
   shopPortalPrefab: {fileID: 2479632577079671408, guid: 597a1942bea8f8540bd430d2522af653, type: 3}
-  portalPosition: {x: 8, y: 0}
+  portalPosition: {x: 5.3, y: 0}
 --- !u!114 &846765405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7433,7 +7433,7 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 0
   stopDelay: 0.18
-  bulletsPerShot: 1
+  bulletsPerShot: 3
   spreadAngle: 20
 --- !u!114 &846765408
 MonoBehaviour:
@@ -13947,7 +13947,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1815178679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14202,7 +14202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1834065279
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19798,7 +19798,7 @@ PrefabInstance:
       objectReference: {fileID: 129433694}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitInterval
-      value: 5
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitTimerText
@@ -19810,7 +19810,7 @@ PrefabInstance:
       objectReference: {fileID: 885820772}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: slimeJumpRadius
-      value: 2
+      value: 1.7
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: blockInputCanvas
@@ -19824,6 +19824,10 @@ PrefabInstance:
       propertyPath: imageToHideWhenTouching
       value: 
       objectReference: {fileID: 37500851}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: slimeJumpLandEffectPrefab
+      value: 
+      objectReference: {fileID: 1967835574231978638, guid: b340209fcbbc0b642893d60ad53777b6, type: 3}
     - target: {fileID: 1736361453566371062, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Enabled
       value: 0

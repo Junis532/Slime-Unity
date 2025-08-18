@@ -96,6 +96,7 @@ public class EnemyHP : MonoBehaviour
         else
         {
             ShowDamageText(damage);
+
         }
 
         // 플레이어가 있을 때만 넉백
@@ -250,6 +251,7 @@ public class EnemyHP : MonoBehaviour
 
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
+        GameManager.Instance.cameraShake.GenerateImpulse();
 
         // ✅ 플레이어 HP 회복
         PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();

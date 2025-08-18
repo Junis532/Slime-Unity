@@ -139,17 +139,22 @@ public class GameManager : MonoSingleTone<GameManager>
         // GameManager.Instance.playerStats.AddGold(1);
     }
 
-    private void AutoCollectCoins()
+    private void AutoCollectItems()
     {
+        // 코인 자동 수집 처리
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-
-        if (coins.Length == 0) return;
-
         foreach (GameObject coin in coins)
         {
             StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
         }
+        // zac 자동 수집 처리 (태그명에 맞게 변경)
+        GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
+        foreach (GameObject zac in zacs)
+        {
+            StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
+        }
     }
+
 
 
 
@@ -182,6 +187,7 @@ public class GameManager : MonoSingleTone<GameManager>
             if (player != null)
             {
                 player.transform.position = new Vector3(-9, 0, 0);
+                playerController.canMove = true;
             }
         }
 
@@ -200,8 +206,8 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.Shop;
         Debug.Log("상태: Shop - 상점 상태");
+        playerController.canMove = true;
 
-        
         //    if (cineCamera != null)
         //    {
         //        cineCamera.Follow = null;
@@ -222,7 +228,7 @@ public class GameManager : MonoSingleTone<GameManager>
         isGameStarted = false;
 
         // 코인 자동 수집
-        AutoCollectCoins();
+        AutoCollectItems();
     }
 
 

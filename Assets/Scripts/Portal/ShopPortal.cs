@@ -44,6 +44,8 @@ public class ShopPortal : MonoBehaviour
         if (loadingCanvas != null)
             loadingCanvas.sortingOrder = 10;  // 페이드인 시 상위 레이어로
 
+        GameManager.Instance.playerController.canMove = false;
+
         yield return loadingImage.DOFade(1f, fadeDuration).WaitForCompletion();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");

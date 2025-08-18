@@ -1,125 +1,79 @@
 ﻿using UnityEngine;
-using DG.Tweening;
 using System.Collections;
 
 public class FireballAI : MonoBehaviour
 {
-    [Header("이동 관련 설정")]
+    [Header("이동 설정")]
     public float moveSpeed = 10f;
-    public float followDuration = 0.3f;
-
-    [Header("DOT 관련 설정")]
-    public float duration = 5f;     // DOT 지속시간
-    public float interval = 1f;     // DOT 한 틱 간격
-    private int damagePerTick;      // 틱당 데미지
-
     private Transform target;
-    private bool isFollowingPlayer = true;
     private Coroutine moveCoroutine;
     private Collider2D myCollider;
     private bool isDestroying = false;
 
-    [Header("추적 이펙트 프리팹")]
-    public GameObject trackingEffectPrefab;
-    private GameObject trackingEffectInstance;
+    private Vector3 fixedDirection;
+    public bool followEnemy = true;
 
-    private bool isApplyingDot = false; // 중복 DOT 방지
-    private SpriteRenderer spriteRenderer;
+    [Header("DOT 설정")]
+    public float duration = 5f;
+    public float interval = 1f;
+    private int damagePerTick;
+
+    void Awake()
+    {
+        myCollider = GetComponent<Collider2D>();
+    }
 
     // 초기화
-    public void InitializeBullet(Vector3 startPosition, float startAngle)
+    public void InitializeBullet(Vector3 startPosition, float startAngle, bool follow = true)
     {
         transform.position = startPosition;
         transform.rotation = Quaternion.Euler(0, 0, startAngle);
+        followEnemy = follow;
 
-        // 공격력 기반 DOT 설정
+        // 공격력 기반 DOT
         damagePerTick = Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 0.5f);
         if (damagePerTick <= 0) damagePerTick = 1;
 
         if (myCollider != null) myCollider.enabled = true;
 
-        // ✅ 생성 즉시 적 탐색 + 발사
-        SwitchToEnemy();
-
-        // 안전 장치 (10초 후 자동 삭제)
-        Invoke(nameof(DestroySelf), 10f);
-    }
-
-    public void SyncSetRotation(float angle)
-    {
-        if (isFollowingPlayer)
-            transform.rotation = Quaternion.Euler(0, 0, angle);
-    }
-
-    void Awake()
-    {
-        myCollider = GetComponent<Collider2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    void OnEnable()
-    {
-        transform.DOKill();
-        isDestroying = false;
-        isApplyingDot = false;
-        CancelInvoke();
-
-        if (moveCoroutine != null)
+        if (followEnemy)
         {
-            StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
+            SwitchToEnemy();
+        }
+        else
+        {
+            // 직선 이동
+            float angleRad = startAngle * Mathf.Deg2Rad;
+            fixedDirection = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0);
+            moveCoroutine = StartCoroutine(MoveStraight());
         }
 
-        isFollowingPlayer = false; // ✅ 바로 적으로 날아가므로 false
-        target = null;
-
-        if (myCollider != null)
-            myCollider.enabled = false;
-
-        if (spriteRenderer != null)
-            spriteRenderer.color = new Color(1, 1, 1, 1);
-
-        transform.localScale = Vector3.zero;
         Invoke(nameof(DestroySelf), 10f);
+    }
 
-        transform.DOScale(0.5f, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
+    IEnumerator MoveStraight()
+    {
+        while (!isDestroying)
         {
-            if (!gameObject.activeInHierarchy) return;
-
-            if (myCollider != null)
-                myCollider.enabled = true;
-            SwitchToEnemy();
-        });
+            transform.position += fixedDirection * moveSpeed * Time.deltaTime;
+            yield return null;
+        }
     }
 
     void SwitchToEnemy()
     {
-        isFollowingPlayer = false;
         FindClosestTarget();
-
         if (target != null)
         {
-            moveCoroutine = StartCoroutine(MoveTowardsTarget());
+            fixedDirection = (target.position - transform.position).normalized;
+            float angle = Mathf.Atan2(fixedDirection.y, fixedDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+            moveCoroutine = StartCoroutine(MoveStraight()); // 적 방향으로 직선 이동
         }
         else
         {
             DestroySelf();
         }
-    }
-
-    IEnumerator MoveTowardsTarget()
-    {
-        // 🔥 딜레이 없이 바로 방향 잡고 돌진
-        Vector3 direction = (target.position - transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        while (target != null && target.gameObject.activeInHierarchy && !isDestroying)
-        {
-            transform.position += direction * moveSpeed * Time.deltaTime;
-            yield return null;
-        }
-        DestroySelf();
     }
 
     void FindClosestTarget()
@@ -147,16 +101,7 @@ public class FireballAI : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (isDestroying || isApplyingDot) return;
-
-        if (other.CompareTag("Obstacle"))
-        {
-            moveSpeed = 0f;
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            // 투사체가 장애물 위치에서 바로 삭제되도록
-            DestroySelf();
-            return;
-        }
+        if (isDestroying) return;
 
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
@@ -164,48 +109,50 @@ public class FireballAI : MonoBehaviour
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
             {
-                isApplyingDot = true;
+                // DOT 적용 후 삭제
                 StartCoroutine(ApplyDotDamageAndDestroy(hp));
             }
-
-            // ✅ Fireball을 보이지 않게 (DOT는 유지됨)
-            if (spriteRenderer != null)
-                spriteRenderer.color = new Color(1, 1, 1, 0);
 
             if (myCollider != null)
                 myCollider.enabled = false;
 
             if (moveCoroutine != null)
-            {
                 StopCoroutine(moveCoroutine);
-                moveCoroutine = null;
-            }
+
+            // 자식 오브젝트 모두 비활성화
+            foreach (Transform child in transform)
+                child.gameObject.SetActive(false);
+
+            // 스프라이트 투명 처리
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
         }
     }
+
 
     IEnumerator ApplyDotDamageAndDestroy(EnemyHP hp)
     {
         float elapsed = 0f;
-
-        if (hp == null || hp.gameObject == null) yield break;
-        if (!hp.gameObject.activeInHierarchy) yield break;
+        if (hp == null) yield break;
 
         // 첫 도트 즉시 적용
         hp.FireballTakeDamage(damagePerTick);
+        elapsed += interval;
 
-        while (elapsed + interval < duration)
+        while (elapsed < duration)
         {
             yield return new WaitForSeconds(interval);
 
-            if (hp == null || hp.gameObject == null) yield break;
-            if (!hp.gameObject.activeInHierarchy) yield break;
+            // 적이 null이거나 비활성화, 혹은 체력이 0 이하이면 즉시 종료
+            if (hp == null || !hp.gameObject.activeInHierarchy || hp.currentHP <= 0)
+                break;
 
             hp.FireballTakeDamage(damagePerTick);
-
             elapsed += interval;
         }
 
-        DestroySelf();
+        DestroySelf(); // DOT 끝나거나 적이 죽으면 Fireball 삭제
     }
 
 
@@ -213,20 +160,9 @@ public class FireballAI : MonoBehaviour
     {
         if (isDestroying) return;
         isDestroying = true;
-        CancelInvoke();
-        transform.DOKill();
 
         if (moveCoroutine != null)
-        {
             StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
-
-        if (trackingEffectInstance != null)
-        {
-            Destroy(trackingEffectInstance);
-            trackingEffectInstance = null;
-        }
 
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }

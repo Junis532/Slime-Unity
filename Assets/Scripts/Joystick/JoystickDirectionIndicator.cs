@@ -20,6 +20,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public List<float> spriteBackOffsets;
     public List<float> skillAngleOffsets;
 
+    private GameObject landingIndicatorInstance; // 점프 착지 범위 표시용
+
     [Header("착지 이펙트")]
     public GameObject slimeJumpLandEffectPrefab;
 
@@ -101,20 +103,46 @@ public class JoystickDirectionIndicator : MonoBehaviour
         originalPosition = transform.position;
     }
 
+    private bool wasInGameStateLastFrame = false; // 이전 프레임 게임 상태 저장
+
     void Update()
     {
+        bool isGameState = GameManager.Instance != null && GameManager.Instance.CurrentState == "Game";
         bool isShopState = GameManager.Instance != null && GameManager.Instance.CurrentState == "Shop";
 
+        // --- 게임 상태로 전환되었을 때만 쿨타임 초기화 ---
+        if (isGameState && !wasInGameStateLastFrame)
+        {
+            hasUsedSkill = false;
+
+            if (waitTimerText != null)
+                waitTimerText.text = "";
+
+            if (CooltimeImange != null)
+                CooltimeImange.fillAmount = 0f;
+
+            if (rollCoroutine != null)
+            {
+                StopCoroutine(rollCoroutine);
+                rollCoroutine = null;
+            }
+
+            StartRollingLoop(); // 롤링 루프 재시작
+        }
+
+        wasInGameStateLastFrame = isGameState; // 상태 저장
+
+        // --- 기존 블록 입력 처리 ---
         if (prevBlockInputActive && !isShopState)
             ResetInputStates();
         prevBlockInputActive = isShopState;
 
+        // --- 입력 비활성 상태 처리 ---
         if (isShopState || currentDiceResult <= 0)
         {
             DisableInputAndIndicators();
             return;
         }
-
 
         Vector2 input = (joystick != null) ? new Vector2(joystick.Horizontal, joystick.Vertical) : playerController.InputVector;
         isTouchingJoystick = input.magnitude > 0.2f;
@@ -136,9 +164,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
             SkillType currentSkill = GetMappedSkillType(currentDiceResult);
 
             if (currentSkill == SkillType.SlimeJump)
-            {
-                UpdateSlimeJumpIndicator(input); // 범위 제한 및 포물선 그리기
-            }
+                UpdateSlimeJumpIndicator(input);
             else
             {
                 OnSkillButtonPressed();
@@ -147,14 +173,12 @@ public class JoystickDirectionIndicator : MonoBehaviour
         }
         else
         {
-            // --- 🔧 스킬 취소 처리 ---
             if (wasTouchingJoystickLastFrame && !hasUsedSkill && lastInputMagnitude > 0.3f)
             {
                 OnSkillButtonReleased();
                 hasUsedSkill = true;
             }
 
-            // 🔧 스킬 입력이 취소되었으므로 범위 및 라인 제거
             if (indicatorInstance != null)
                 indicatorInstance.SetActive(false);
 
@@ -164,7 +188,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
             currentIndicatorIndex = -1;
         }
 
-        // 🔄 포물선 업데이트 (슬라임 점프일 때만)
         if (indicatorInstance != null && indicatorInstance.activeSelf && currentDiceResult == 1)
             DrawArc(transform.position, indicatorInstance.transform.position, 2f, 30);
         else if (arcLine != null)
@@ -336,23 +359,37 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private void UseSlimeJump()
     {
         transform.DOKill();
-        isUsingSkill = true;  // 스킬 사용 시작
-
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
+        isUsingSkill = true;
 
         Vector3 jumpDirection = new Vector3(lastInputDirection.x, lastInputDirection.y, 0).normalized;
         float jumpDistance = distancesFromPlayer.Count > 3 ? distancesFromPlayer[3] : 3f;
         Vector3 targetPos = transform.position + jumpDirection * jumpDistance;
 
-        float jumpPower = 1.5f;  // 점프 높이
+        // --- 착지 위치 표시 (프리팹 크기 기준으로 radius 보정) ---
+        int index = (int)SkillType.SlimeJump - 1;
+        if (landingIndicatorInstance != null) Destroy(landingIndicatorInstance);
+
+        if (index >= 0 && index < directionSpritePrefabs.Count)
+        {
+            landingIndicatorInstance = Instantiate(directionSpritePrefabs[index], targetPos, Quaternion.identity);
+
+            // SpriteRenderer 기준 월드 단위 스케일 계산
+            SpriteRenderer sr = landingIndicatorInstance.GetComponent<SpriteRenderer>();
+            if (sr != null && sr.sprite != null)
+            {
+                float spriteDiameter = Mathf.Max(sr.sprite.bounds.size.x, sr.sprite.bounds.size.y);
+                float scaleFactor = slimeJumpRadius * 2f / spriteDiameter; // 반지름 -> 직경
+                landingIndicatorInstance.transform.localScale = sr.transform.localScale * scaleFactor;
+            }
+            landingIndicatorInstance.SetActive(true);
+        }
+
+        float jumpPower = 1.5f;
         int jumpCount = 1;
-
         Sequence jumpSeq = DOTween.Sequence();
-
         jumpSeq.Append(transform.DOJump(targetPos, jumpPower, jumpCount, 0.7f).SetEase(Ease.InOutQuad));
         jumpSeq.Join(transform.DOScale(originalScale * 1.5f, 0.35f).SetEase(Ease.OutQuad));
         jumpSeq.Join(transform.DOScale(originalScale, 0.35f).SetDelay(0.35f).SetEase(Ease.InQuad));
-
         jumpSeq.OnComplete(() =>
         {
             transform.position = targetPos;
@@ -365,10 +402,13 @@ public class JoystickDirectionIndicator : MonoBehaviour
             }
 
             DealSlimeJumpDamage(targetPos);
-            isUsingSkill = false;  // 스킬 사용 종료
-        });
+            isUsingSkill = false;
 
+            // --- 착지 표시 제거 ---
+            if (landingIndicatorInstance != null) Destroy(landingIndicatorInstance);
+        });
     }
+
 
     private string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
 

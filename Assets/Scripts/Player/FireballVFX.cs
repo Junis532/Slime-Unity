@@ -1,32 +1,26 @@
-//using UnityEngine;
+using UnityEngine;
 
-//public class FireVFX : MonoBehaviour
-//{
-//    public ParticleSystem fireVFX;
-//    private Vector3 lastPosition;
+public class FireballVFX : MonoBehaviour
+{
+    public Transform parentProjectile;   // 부모 투사체 Transform
+    public ParticleSystem ps;
+    public float speedMagnitude = 5f;
 
-//    void Start()
-//    {
-//        lastPosition = transform.position;
-//    }
+    void Update()
+    {
+        if (parentProjectile == null || ps == null)
+            return;
 
-//    void LateUpdate()
-//    {
-//        // 부모 이동 방향 계산
-//        Vector3 moveDir = transform.position - lastPosition;
-//        lastPosition = transform.position;
+        Vector3 parentDir = (parentProjectile.position - transform.position).normalized;
+        // 또는 parentProjectile.forward, 프로젝트 방향에 따라 다름
 
-//        if (moveDir.sqrMagnitude > 0.001f)
-//        {
-//            // 불길을 이동 방향의 반대로 회전
-//            fireVFX.transform.rotation = Quaternion.LookRotation(-moveDir.normalized, Vector3.up);
+        Vector3 reverseDir = -parentDir;
 
-//            // Particle 위치를 부모 위치에 맞춤
-//            fireVFX.transform.position = transform.position;
+        var velOverLifetime = ps.velocityOverLifetime;
+        velOverLifetime.enabled = true;
+        velOverLifetime.space = ParticleSystemSimulationSpace.Local;
 
-//            // 재생
-//            if (!fireVFX.isPlaying)
-//                fireVFX.Play();
-//        }
-//    }
-//}
+        velOverLifetime.x = new ParticleSystem.MinMaxCurve(reverseDir.x * speedMagnitude);
+        velOverLifetime.y = new ParticleSystem.MinMaxCurve(reverseDir.y * speedMagnitude);
+    }
+}

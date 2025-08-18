@@ -41,6 +41,8 @@ public class NextWavePortal : MonoBehaviour
         if (loadingCanvas != null)
             loadingCanvas.sortingOrder = 10;  // 페이드인 시 최상위 레이어
 
+        GameManager.Instance.playerController.canMove = false;
+
         yield return loadingImage.DOFade(1f, fadeDuration).WaitForCompletion();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
