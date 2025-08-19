@@ -4356,10 +4356,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: -0.25
+    x: 0.08974359
     y: 0
-    width: 0.5
-    height: 0
+    width: 0.82051283
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -7220,8 +7220,12 @@ MonoBehaviour:
   clickSound: {fileID: 0}
   attackSound: {fileID: 0}
   hitSound: {fileID: 8300000, guid: 04f9259e1919ad54aad9bcf12a2c565b, type: 3}
+  arrowHit: {fileID: 8300000, guid: 00d6d9eae640a7e43a27b88720b601a1, type: 3}
   arrowSound: {fileID: 8300000, guid: b54d4c9c7620f5440964f3bd39b680d5, type: 3}
-  jumpSound: {fileID: 8300000, guid: f16ed6ba38d816e49945205a817328ce, type: 3}
+  arrowWall: {fileID: 8300000, guid: d8a4261250ee91b4c88b961326b1d3ec, type: 3}
+  coin: {fileID: 8300000, guid: 229f0e0cb62e26c408fc7b96ab54a25b, type: 3}
+  jumpSound: {fileID: 8300000, guid: b240f83555590a640abc30aa8b6e008b, type: 3}
+  land: {fileID: 8300000, guid: cfa40f7d92c25eb41a0702c1c88761dc, type: 3}
   portalSpawnSound: {fileID: 8300000, guid: 4e0f3fdfa9d178a448280055eb5ad085, type: 3}
 --- !u!1 &846765394
 GameObject:
@@ -7439,9 +7443,6 @@ MonoBehaviour:
   targetMarkerOffset: {x: 0, y: -0.4, z: 0}
   secondTargetMarkerPrefab: {fileID: 8031171983659952707, guid: c6af006d9168eab45bb5c3616fcc002f, type: 3}
   secondTargetMarkerOffset: {x: 0, y: 1, z: 0}
-  bowEffectPrefab: {fileID: 11980439846263621, guid: 6d8bffe71f9d58e419b426465a39f627, type: 3}
-  bowEffectDuration: 0.3
-  bowDistance: 0.8
 --- !u!114 &846765408
 MonoBehaviour:
   m_ObjectHideFlags: 0

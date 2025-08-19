@@ -324,13 +324,16 @@ public class BulletAI : MonoBehaviour
 
         if (other.CompareTag("Obstacle"))
         {
-            moveSpeed = 0f;
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
+            // 이동 중단
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            // 투사체가 장애물 위치에서 바로 삭제되도록
-            DestroySelf();
+
+            // 🔹 현재 위치, 회전 그대로 유지 (화살이 벽에 꽂힌 상태처럼 보임)
+
+            // 🔹 1초 뒤 제거
+            Invoke(nameof(DestroySelf), 1f);
             return;
         }
-
 
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
@@ -349,6 +352,7 @@ public class BulletAI : MonoBehaviour
             DestroySelf();
         }
     }
+
 
     void DestroySelf()
     {

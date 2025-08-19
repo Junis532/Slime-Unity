@@ -45,14 +45,14 @@ public class BulletSpawner : MonoBehaviour
     [Header("두 번째 타겟 마커 위치 오프셋")]
     public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0);
 
-    [Header("Bow 이펙트 프리팹")]
-    public GameObject bowEffectPrefab;
+    //[Header("Bow 이펙트 프리팹")]
+    //public GameObject bowEffectPrefab;
 
-    [Header("Bow 이펙트 지속 시간")]
-    public float bowEffectDuration = 0.2f;
+    //[Header("Bow 이펙트 지속 시간")]
+    //public float bowEffectDuration = 0.2f;
 
-    [Header("Bow 거리")]
-    public float bowDistance = 0.7f; // 플레이어에서 이 거리에 Bow 이펙트가 생성됨
+    //[Header("Bow 거리")]
+    //public float bowDistance = 0.7f; // 플레이어에서 이 거리에 Bow 이펙트가 생성됨
 
     private GameObject secondMarker;
     private GameObject currentMarker;
@@ -186,7 +186,7 @@ public class BulletSpawner : MonoBehaviour
         // 플레이어 Flip 처리
         FlipPlayer(dirToTarget);
 
-        SpawnBowEffect(dirToTarget);
+        //SpawnBowEffect(dirToTarget);
 
         int count = Mathf.Max(1, bulletsPerShot);
         float totalSpread = spreadAngle * (count - 1);
@@ -234,19 +234,19 @@ public class BulletSpawner : MonoBehaviour
     }
 
 
-    private void SpawnBowEffect(Vector3 dirToTarget)
-    {
-        if (bowEffectPrefab == null) return;
+    //private void SpawnBowEffect(Vector3 dirToTarget)
+    //{
+    //    if (bowEffectPrefab == null) return;
 
-        float angle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg + 180f;
-        Vector3 offset = dirToTarget.normalized * bowDistance;
+    //    float angle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg + 180f;
+    //    Vector3 offset = dirToTarget.normalized * bowDistance;
 
-        GameObject bowEffect = Instantiate(bowEffectPrefab, Vector3.zero, Quaternion.Euler(0, 0, angle));
+    //    GameObject bowEffect = Instantiate(bowEffectPrefab, Vector3.zero, Quaternion.Euler(0, 0, angle));
 
-        BowEffectFollow follow = bowEffect.AddComponent<BowEffectFollow>();
-        follow.offset = offset;
-        follow.duration = bowEffectDuration;
-    }
+    //    BowEffectFollow follow = bowEffect.AddComponent<BowEffectFollow>();
+    //    follow.offset = offset;
+    //    follow.duration = bowEffectDuration;
+    //}
 
     private void SetAlphaRecursive(GameObject obj, float alpha)
     {

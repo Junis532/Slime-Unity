@@ -361,6 +361,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
         transform.DOKill();
         isUsingSkill = true;
 
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
         Vector3 jumpDirection = new Vector3(lastInputDirection.x, lastInputDirection.y, 0).normalized;
         float jumpDistance = distancesFromPlayer.Count > 3 ? distancesFromPlayer[3] : 3f;
         Vector3 targetPos = transform.position + jumpDirection * jumpDistance;
@@ -400,7 +401,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
                 GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
                 Destroy(effect, 0.3f);
             }
-
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
             DealSlimeJumpDamage(targetPos);
             isUsingSkill = false;
 

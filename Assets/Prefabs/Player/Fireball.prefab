@@ -80,8 +80,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 4cacda453f2748ea9bf733add23bf6cb, type: 3}
-  m_Color: {r: 1, g: 0.46642107, b: 0.07232696, a: 1}
+  m_Sprite: {fileID: 21300000, guid: d0bb161510844425be104dcbbf814073, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -98,7 +98,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4569160523590299005}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -125,8 +125,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.0014744774, y: 0.017875738}
-  m_Radius: 0.068644926
+  m_Offset: {x: -0.0014744774, y: -0.0052347407}
+  m_Radius: 0.045534447
 --- !u!114 &5753430073618012958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,6 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 71339239525025918, guid: 0a16e16140a59514a899a8e60b54cced, type: 3}
+    - {fileID: 1161752639024570014, guid: 0a16e16140a59514a899a8e60b54cced, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

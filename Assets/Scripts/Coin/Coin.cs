@@ -46,6 +46,7 @@ public class Coin : MonoBehaviour
 
     void CollectCoin()
     {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.coin);
         GameManager.Instance.playerStats.coin += 1;
         PoolManager.Instance.ReturnToPool(gameObject);
     }

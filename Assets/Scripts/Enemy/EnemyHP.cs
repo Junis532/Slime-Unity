@@ -90,13 +90,14 @@ public class EnemyHP : MonoBehaviour
 
         if (isCritical)
         {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
             ShowCDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
             ShowDamageText(damage);
-
         }
 
         // 플레이어가 있을 때만 넉백
@@ -112,6 +113,7 @@ public class EnemyHP : MonoBehaviour
 
     public void FireballTakeDamage(int damage)
     {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 

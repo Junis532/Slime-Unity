@@ -14,8 +14,12 @@ public class AudioManager : MonoBehaviour
     public AudioClip clickSound;
     public AudioClip attackSound;
     public AudioClip hitSound;
+    public AudioClip arrowHit;
     public AudioClip arrowSound;
+    public AudioClip arrowWall;
+    public AudioClip coin;
     public AudioClip jumpSound;
+    public AudioClip land;
     public AudioClip portalSpawnSound;
 
     void Awake()
@@ -57,9 +61,17 @@ public class AudioManager : MonoBehaviour
     public void PlayClickSound() => PlaySFX(clickSound);
     public void PlayAttackSound() => PlaySFX(attackSound);
     public void PlayHitSound() => PlaySFX(hitSound);
+
+    public void PlayArrowHitSound() => PlaySFX(arrowHit);
     public void PlayArrowSound() => PlaySFX(arrowSound);
 
+    public void PlayArrowWallSound() => PlaySFX(arrowWall);
+
+    public void PlayCoinSound() => PlaySFX(coin);
+
     public void PlayJumpSound() => PlaySFX(jumpSound);
+
+    public void PlayLandSound() => PlaySFX(land);
 
     public void PlayPortalSpawnSound() => PlaySFX(portalSpawnSound);
 }

@@ -105,6 +105,7 @@ public class FireballAI : MonoBehaviour
 
         if (other.CompareTag("Obstacle"))
         {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
             moveSpeed = 0f;
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
             // 투사체가 장애물 위치에서 바로 삭제되도록
