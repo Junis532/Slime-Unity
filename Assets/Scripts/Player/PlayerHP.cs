@@ -20,8 +20,9 @@ public class PlayerHP : MonoBehaviour
             // FillAmount는 0 ~ 1 사이의 값이므로 비율로 설정
             hpFillImage.fillAmount = currentHP / maxHP;
 
-            // 텍스트 업데이트
-            hpText.text = $"{(int)currentHP} / {(int)maxHP}";
+            hpText.text = $"{(int)currentHP}"; // 체력 숫자 표시
+            //// 텍스트 업데이트
+            //hpText.text = $"{(int)currentHP} / {(int)maxHP}";
         }
     }
 }

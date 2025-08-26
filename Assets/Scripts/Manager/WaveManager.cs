@@ -133,7 +133,7 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         UpdateEnemyHP();
         if (GameManager.Instance.shopManager != null)
-            GameManager.Instance.shopManager.ResetRerollPrice();
+            //GameManager.Instance.shopManager.ResetRerollPrice();
 
         GameManager.Instance.ChangeStateToGame();
         StartSpawnLoop();
@@ -246,6 +246,9 @@ public class WaveManager : MonoBehaviour
 
     void UpdateEnemyHP()
     {
+        // 📌 웨이브 1에서는 HP 고정
+        if (currentWave <= 1) return;
+
         float waveFactorEnemy = 0.07f + (currentWave / 30000f);
         float waveFactorLongRange = 0.068f + (currentWave / 30000f);
 
@@ -254,6 +257,7 @@ public class WaveManager : MonoBehaviour
         GameManager.Instance.longRangeEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.longRangeEnemyStats.maxHP, waveFactorLongRange);
         GameManager.Instance.potionEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.potionEnemyStats.maxHP, waveFactorLongRange);
     }
+
 
     int ApplyHPScale(int baseHP, float factor)
     {

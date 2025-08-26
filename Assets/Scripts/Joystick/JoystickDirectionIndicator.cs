@@ -27,7 +27,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
 
     [Header("슬라임 점프 설정")]
-    public float slimeJumpDamage = 30f;
+    public float slimeJumpDamage = 1000f;
     public float slimeJumpRadius = 5f;
     public LayerMask enemyLayer;
 

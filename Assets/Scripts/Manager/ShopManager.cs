@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -26,116 +27,222 @@ public class ShopManager : MonoBehaviour
     [Header("상점 UI 오브젝트")]
     public GameObject shopUI;
 
+    private ItemStats[] selectedItems = new ItemStats[3];
+
     private void Start()
     {
         rerollPriceText.text = $"리롤 {rerollPrice}원";
-        rerollButton.onClick.AddListener(RerollItems);
+        rerollButton.onClick.AddListener(ShowItemChoices);
         exitButton.onClick.AddListener(OnButtonExitClick);
-        RerollItems();
-    }
 
-    public void InitShopUI()
-    {
-        //UpdateRerollButtonState();
-        UpdateBuyButtonStates();
-    }
-
-    public void ResetRerollPrice()
-    {
-        rerollPrice = 1;
-        rerollPriceText.text = $"리롤 {rerollPrice}원";
-        //UpdateRerollButtonState();
-        UpdateBuyButtonStates();
-    }
-
-    public void RerollItems()
-    {
-        int coin = GameManager.Instance.playerStats.coin;
-
-        if (coin < rerollPrice)
-        {
-            Debug.Log("코인이 부족하여 리롤할 수 없습니다!");
-            return;
-        }
-
-        GameManager.Instance.playerStats.coin -= rerollPrice;
-        rerollPrice *= 2;
-
-        List<ItemStats> selectedItems = GetRandomItems(itemSlots.Count);
-
-        for (int i = 0; i < itemSlots.Count; i++)
-        {
-            GameObject slot = itemSlots[i];
-            ItemStats item = selectedItems[i];
-
-            slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>().text = item.itemName;
-            slot.transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>().text = item.description;
-            slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
-            slot.transform.Find("ItemIcon").GetComponent<Image>().sprite = item.icon;
-
-            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-            buyBtn.onClick.RemoveAllListeners();
-
-            ItemStats capturedItem = item;
-            buyBtn.onClick.AddListener(() => BuyItem(capturedItem, slot));
-
-            // 🎯 리롤 시 모든 버튼 다시 활성화
-            buyBtn.interactable = true;
-        }
-
-        rerollPriceText.text = $"리롤 {rerollPrice}원";
-        //UpdateRerollButtonState();
-        UpdateBuyButtonStates();
+        FirstRerollItems();
     }
 
     public void FirstRerollItems()
     {
-        List<ItemStats> selectedItems = GetRandomItems(itemSlots.Count);
+        List<ItemStats> selected = GetRandomItems(itemSlots.Count);
 
         for (int i = 0; i < itemSlots.Count; i++)
         {
             GameObject slot = itemSlots[i];
-            ItemStats item = selectedItems[i];
+            ItemStats item = selected[i];
 
-            slot.transform.Find("ItemName").GetComponent<TextMeshProUGUI>().text = item.itemName;
-            slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
-            slot.transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>().text = item.description;
-            slot.transform.Find("ItemIcon").GetComponent<Image>().sprite = item.icon;
-
+            TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
+            TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
+            TMP_Text priceText = slot.transform.Find("ItemPrice").GetComponent<TMP_Text>();
+            Image icon = slot.transform.Find("ItemIcon").GetComponent<Image>();
             Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+
+            nameText.text = item.itemName;
+            descText.text = item.description;
+            priceText.text = item.price.ToString();
+            icon.sprite = item.icon;
+
+            // 처음엔 투명
+            icon.transform.localScale = Vector3.zero;
+            SetAlpha(icon, 0f);
+            SetAlpha(nameText, 0f);
+            SetAlpha(priceText, 0f);
+            SetAlpha(descText, 0f);
+
             buyBtn.onClick.RemoveAllListeners();
-
-            ItemStats capturedItem = item;
-            buyBtn.onClick.AddListener(() => BuyItem(capturedItem, slot));
-
-            // 🎯 초기 아이템 설정 시 모든 버튼 활성화
-            buyBtn.interactable = true;
+            int idx = i;
+            buyBtn.onClick.AddListener(() => OnSelectItem(idx));
         }
 
-        rerollPriceText.text = $"리롤 {rerollPrice}원";
-        //UpdateRerollButtonState();
+        ShowItemChoices();
+    }
+
+    public void ShowItemChoices()
+    {
+        if (allItems.Count < itemSlots.Count)
+        {
+            Debug.LogWarning("allItems에 충분한 아이템이 없습니다!");
+            return;
+        }
+
+        gameObject.SetActive(true);
+        StartCoroutine(RollItemsCoroutine());
+    }
+
+    private IEnumerator RollItemsCoroutine()
+    {
+        float duration = 1f;
+        float timer = 0f;
+
+        // 슬롯 아이콘 랜덤 회전 효과
+        while (timer < duration)
+        {
+            for (int i = 0; i < itemSlots.Count; i++)
+            {
+                int rand = Random.Range(0, allItems.Count);
+                Image icon = itemSlots[i].transform.Find("ItemIcon").GetComponent<Image>();
+                icon.sprite = allItems[rand].icon;
+                icon.transform.localScale = Vector3.one;
+                SetAlpha(icon, 1f);
+            }
+
+            timer += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        // 최종 아이템 선택
+        List<ItemStats> tempList = new List<ItemStats>(allItems);
+        for (int i = 0; i < itemSlots.Count; i++)
+        {
+            int rand = Random.Range(0, tempList.Count);
+            selectedItems[i] = tempList[rand];
+            tempList.RemoveAt(rand);
+
+            GameObject slot = itemSlots[i];
+            Image icon = slot.transform.Find("ItemIcon").GetComponent<Image>();
+            TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
+            TMP_Text priceText = slot.transform.Find("ItemPrice").GetComponent<TMP_Text>();
+            TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
+            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+
+            icon.sprite = selectedItems[i].icon;
+            icon.transform.localScale = Vector3.zero;
+            SetAlpha(icon, 0f);
+
+            nameText.text = selectedItems[i].itemName;
+            priceText.text = selectedItems[i].price.ToString();
+            descText.text = selectedItems[i].description;
+
+            // 처음엔 투명
+            SetAlpha(nameText, 0f);
+            SetAlpha(priceText, 0f);
+            SetAlpha(descText, 0f);
+
+            buyBtn.onClick.RemoveAllListeners();
+            int idx = i;
+            buyBtn.onClick.AddListener(() => OnSelectItem(idx));
+        }
+
+        // DOTween Sequence
+        Sequence seq = DOTween.Sequence();
+        for (int i = 0; i < itemSlots.Count; i++)
+        {
+            Transform iconT = itemSlots[i].transform.Find("ItemIcon");
+            TMP_Text nameText = itemSlots[i].transform.Find("ItemName").GetComponent<TMP_Text>();
+            TMP_Text priceText = itemSlots[i].transform.Find("ItemPrice").GetComponent<TMP_Text>();
+            TMP_Text descText = itemSlots[i].transform.Find("ItemDescription").GetComponent<TMP_Text>();
+
+            seq.Append(iconT.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+            seq.Join(iconT.GetComponent<Image>().DOFade(1f, 0.3f));
+            seq.Join(nameText.DOFade(1f, 0.3f));
+            seq.Join(priceText.DOFade(1f, 0.3f));
+            seq.Join(descText.DOFade(1f, 0.3f));
+        }
+
+        // ★ 여기서 버튼 상태 업데이트
         UpdateBuyButtonStates();
+    }
+
+
+    private void OnSelectItem(int index)
+    {
+        GameObject slot = itemSlots[index];
+        ItemStats chosenItem = selectedItems[index];
+
+        // 선택 시 나머지 버튼 모두 비활성화
+        DisableAllBuyButtons();
+
+        Transform iconT = slot.transform.Find("ItemIcon");
+        TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
+        TMP_Text priceText = slot.transform.Find("ItemPrice").GetComponent<TMP_Text>();
+        TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
+        Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(iconT.DOScale(1.3f, 0.2f).SetEase(Ease.OutBounce));
+
+        for (int i = 0; i < itemSlots.Count; i++)
+        {
+            if (i == index) continue;
+
+            Transform otherIcon = itemSlots[i].transform.Find("ItemIcon");
+            TMP_Text otherName = itemSlots[i].transform.Find("ItemName").GetComponent<TMP_Text>();
+            TMP_Text otherPrice = itemSlots[i].transform.Find("ItemPrice").GetComponent<TMP_Text>();
+            TMP_Text otherDesc = itemSlots[i].transform.Find("ItemDescription").GetComponent<TMP_Text>();
+
+            otherIcon.DOScale(0f, 0.2f);
+            otherIcon.GetComponent<Image>().DOFade(0f, 0.2f);
+            otherName.DOFade(0f, 0.2f);
+            otherPrice.DOFade(0f, 0.2f);
+            otherDesc.DOFade(0f, 0.2f);
+        }
+
+        seq.Append(iconT.DOScale(1f, 0.2f).SetDelay(0.3f));
+        seq.OnComplete(() =>
+        {
+            BuyItem(chosenItem, slot);
+        });
+    }
+
+    // 나머지 버튼 모두 비활성화
+    private void DisableAllBuyButtons()
+    {
+        foreach (GameObject slot in itemSlots)
+        {
+            Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
+            buyBtn.interactable = false;
+            buyBtn.onClick.RemoveAllListeners();
+        }
+    }
+
+    private void SetAlpha(Graphic g, float alpha)
+    {
+        Color c = g.color;
+        c.a = alpha;
+        g.color = c;
     }
 
     void BuyItem(ItemStats item, GameObject slot)
     {
-        int playerCoin = GameManager.Instance.playerStats.coin;
-
-        if (playerCoin < item.price)
+        if (GameManager.Instance.playerStats.coin < item.price)
         {
+            TMP_Text priceText = slot.transform.Find("ItemPrice").GetComponent<TMP_Text>();
+            priceText.color = Color.red;
             Debug.Log("코인이 부족하여 구매할 수 없습니다!");
             return;
         }
 
         GameManager.Instance.playerStats.coin -= item.price;
+        Debug.Log($"[구매] {item.itemName} - 남은 코인: {GameManager.Instance.playerStats.coin}");
 
-        Debug.Log($"[구매] {item.itemName} - 코인 {item.price} 차감 후 남은 코인: {GameManager.Instance.playerStats.coin}");
+        ApplyItemEffect(item);
+        UpdateBuyButtonStates();
+        OnButtonExitClick();
+    }
 
+    void ApplyItemEffect(ItemStats item)
+    {
         // ====== 아이템 효과 적용 ======
         if (item == GameManager.Instance.itemStats1) // 최대체력 증가 + 회복
         {
-            GameManager.Instance.playerStats.maxHP += 5;
-            GameManager.Instance.playerStats.currentHP += 5;
+            GameManager.Instance.playerStats.maxHP += 160;
+            GameManager.Instance.playerStats.currentHP += 160;
         }
 
         else if (item == GameManager.Instance.itemStats2) // 총알 수 증가
@@ -183,7 +290,7 @@ public class ShopManager : MonoBehaviour
 
         else if (item == GameManager.Instance.itemStats5) // 공격력 증가
         {
-            GameManager.Instance.playerStats.attack *= 1.02f;
+            GameManager.Instance.playerStats.attack += 60;
         }
         else if (item == GameManager.Instance.itemStats6) // 공격 속도 증가
         {
@@ -214,7 +321,7 @@ public class ShopManager : MonoBehaviour
                     {
                         if (playerHeal != null)
                         {
-                            playerHeal.hpHealAmount += 1;
+                            playerHeal.hpHealAmount += 12;
                             Debug.Log("힐량 증가");
                         }
                     }
@@ -246,21 +353,7 @@ public class ShopManager : MonoBehaviour
                 }
             }
         }
-
-        // 모든 슬롯의 Buy 버튼 비활성화
-        foreach (GameObject s in itemSlots)
-        {
-            Button btn = s.transform.Find("BuyButton").GetComponent<Button>();
-            btn.interactable = false;
-        }
-
-
-        //UpdateRerollButtonState();
-        UpdateBuyButtonStates();
-
-        OnButtonExitClick();
     }
-
     List<ItemStats> GetRandomItems(int count)
     {
         List<ItemStats> copy = new List<ItemStats>(allItems);
@@ -275,34 +368,35 @@ public class ShopManager : MonoBehaviour
         return result;
     }
 
-    //void UpdateRerollButtonState()
-    //{
-    //    int coin = GameManager.Instance.playerStats.coin;
-    //    rerollButton.interactable = coin >= rerollPrice;
-    //}
-
     void UpdateBuyButtonStates()
     {
         int coin = GameManager.Instance.playerStats.coin;
 
         foreach (GameObject slot in itemSlots)
         {
+            TMP_Text priceText = slot.transform.Find("ItemPrice").GetComponent<TMP_Text>();
             Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-            TextMeshProUGUI priceText = slot.transform.Find("ItemPrice").GetComponent<TextMeshProUGUI>();
 
             if (int.TryParse(priceText.text, out int price))
             {
-                // 이미 비활성화된 버튼은 그대로 두기
-                if (buyBtn.interactable)
-                    buyBtn.interactable = coin >= price;
+                // 코인이 부족하면 버튼 비활성화, 충분하면 활성화
+                buyBtn.interactable = coin >= price;
+
+                // 버튼 색상도 함께 바꾸고 싶으면
+                TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
+                TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
+
+                Color targetColor = coin < price ? Color.red : Color.black;
+                nameText.color = targetColor;
+                priceText.color = targetColor;
+                descText.color = targetColor;
             }
         }
     }
 
+
     public void OnButtonExitClick()
     {
-        Debug.Log("상점 나감");
-
         if (shopPanel != null)
         {
             shopPanel.DOKill();

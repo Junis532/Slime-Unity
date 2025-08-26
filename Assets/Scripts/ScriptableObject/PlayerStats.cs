@@ -26,8 +26,8 @@ public class PlayerStats : ScriptableObject
         //size = new Vector3(1f, 1f, 1f);
         speed = 4.3f;
         coin = 0;
-        maxHP = 10;
+        maxHP = 600;
         currentHP = maxHP;
-        attack = 20;
+        attack = 200;
     }
 }
