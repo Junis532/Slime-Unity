@@ -15,4 +15,8 @@ public class WaveData : ScriptableObject
 
     [Header("상점 맵 여부")]
     public bool isShopMap = false;
+
+    [Header("이벤트 스테이지 여부")]
+    public bool isEventStageBuff;
+    public bool isEventStageDebuff;
 }

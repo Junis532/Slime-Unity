@@ -7,8 +7,8 @@ public class PlayerStats : ScriptableObject
     public int id;
     public int level;
     public int coin;
-    public int maxHP;
-    public int currentHP;
+    public float maxHP;
+    public float currentHP;
     public float speed;
     public float attack;
     public float magic;
@@ -29,5 +29,6 @@ public class PlayerStats : ScriptableObject
         maxHP = 600;
         currentHP = maxHP;
         attack = 200;
+        criticalChance = 10;
     }
 }

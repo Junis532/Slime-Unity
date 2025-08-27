@@ -30,6 +30,11 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats itemStats8;
     public ItemStats itemStats9;
     public ItemStats itemStats10;
+    public ItemStats buff1;
+    public ItemStats buff2;
+    public ItemStats buff3;
+    public ItemStats buff4;
+    public ItemStats buff5;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -52,11 +57,21 @@ public class GameManager : MonoSingleTone<GameManager>
     public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);
     public Vector3 fixedPosition = new Vector3(-100, 0, 0);
 
+    [Header("이벤트 버프용 UI")]
+    public GameObject eventBuffUI; // 씬에 배치된 이벤트 버프 UI 오브젝트 (CanvasGroup 있음)
+    public GameObject eventBuffUICanvas;
+    private bool isEventBuffUIVisible = false;
+
+    public GameObject eventDebuffUI; // 씬에 배치된 이벤트 디버프 UI 오브젝트 (CanvasGroup 있음)
+    private bool isEventDebuffUIVisible = false;
+
     private enum GameState
     {
         Lobby,
         Game,
         Shop,
+        EventBuff,
+        EventDebuff,
         Clear,
         End
     }
@@ -218,6 +233,85 @@ public class GameManager : MonoSingleTone<GameManager>
         //    }
     }
 
+    public void ChangeStateToEventBuff()
+    {
+        currentState = GameState.EventBuff;
+        Debug.Log("상태: EventBuff - 이벤트 버프 상태");
+        playerController.canMove = false;
+
+        if (eventBuffUI != null)
+        {
+            CanvasGroup cg = eventBuffUI.GetComponent<CanvasGroup>();
+            RectTransform rt = eventBuffUI.GetComponent<RectTransform>();
+
+            if (cg != null && rt != null)
+            {
+                // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
+                cg.alpha = 0f;
+                cg.interactable = false;
+                cg.blocksRaycasts = false;
+
+                // sortingOrder 최상단으로 설정
+                Canvas canvas = eventBuffUICanvas.GetComponent<Canvas>();
+                if (canvas != null)
+                    canvas.sortingOrder = 10;
+
+                // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
+                cg.DOFade(1f, 0.7f).OnComplete(() =>
+                {
+                    cg.interactable = true;
+                    cg.blocksRaycasts = true;
+                    isEventBuffUIVisible = true;
+                });
+
+                rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] 이벤트 버프 UI가 할당되지 않았습니다.");
+        }
+    }
+
+    public void ChangeStateToEventDebuff()
+    {
+        currentState = GameState.EventDebuff;
+        Debug.Log("상태: EventDebuff - 이벤트 디버프 상태");
+        playerController.canMove = false;
+        if (eventDebuffUI != null)
+        {
+            CanvasGroup cg = eventDebuffUI.GetComponent<CanvasGroup>();
+            RectTransform rt = eventDebuffUI.GetComponent<RectTransform>();
+
+            if (cg != null && rt != null)
+            {
+                // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
+                cg.alpha = 0f;
+                cg.interactable = false;
+                cg.blocksRaycasts = false;
+
+                // sortingOrder 최상단으로 설정
+                Canvas canvas = eventDebuffUI.GetComponent<Canvas>();
+                if (canvas != null)
+                    canvas.sortingOrder = 10;
+
+                // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
+                cg.DOFade(1f, 0.7f).OnComplete(() =>
+                {
+                    cg.interactable = true;
+                    cg.blocksRaycasts = true;
+                    isEventDebuffUIVisible = true;
+                });
+
+                rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] 이벤트 버프 UI가 할당되지 않았습니다.");
+        }
+    }
+
     public void ChangeStateToClear()
     {
         currentState = GameState.Clear;
@@ -242,6 +336,9 @@ public class GameManager : MonoSingleTone<GameManager>
     public bool IsIdle() => currentState == GameState.Lobby;
     public bool IsGame() => currentState == GameState.Game;
     public bool IsShop() => currentState == GameState.Shop;
+    public bool IsEventBuff() => currentState == GameState.EventBuff;
+
+    public bool IsEventDebuff() => currentState == GameState.EventDebuff;
     public bool IsClear() => currentState == GameState.Clear;
     public bool IsEnd() => currentState == GameState.End;
 }

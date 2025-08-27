@@ -107,6 +107,7 @@ public class WaveManager : MonoBehaviour
     public void StartNextWave()
     {
         StopSpawnLoop();
+
         if (currentWave >= waveDataList.Count)
         {
             GameManager.Instance.ChangeStateToClear();
@@ -123,6 +124,7 @@ public class WaveManager : MonoBehaviour
         hasSpawned = false;
 
         WaveData waveData = waveDataList[currentWave];
+
         if (waveData.mapPrefab != null)
         {
             currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
@@ -132,12 +134,33 @@ public class WaveManager : MonoBehaviour
 
         currentWave++;
         UpdateEnemyHP();
-        if (GameManager.Instance.shopManager != null)
-            //GameManager.Instance.shopManager.ResetRerollPrice();
 
+        if (GameManager.Instance.shopManager != null)
+        {
+            //GameManager.Instance.shopManager.ResetRerollPrice();
+        }
+
+        // 📌 이벤트 스테이지 여부 체크
+        if (waveData.isEventStageBuff)
+        {
+            Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 버프 이벤트 스테이지입니다.");
+            GameManager.Instance.ChangeStateToEventBuff();
+
+            return; // 이벤트 스테이지일 경우 적 스폰 루프는 돌지 않음
+        }
+        if (waveData.isEventStageDebuff)
+        {
+            Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 디버프 이벤트 스테이지입니다.");
+            GameManager.Instance.ChangeStateToEventDebuff();
+
+            return; // 이벤트 스테이지일 경우 적 스폰 루프는 돌지 않음
+        }
+
+        // 📌 일반 스테이지라면 Game 상태 전환
         GameManager.Instance.ChangeStateToGame();
         StartSpawnLoop();
     }
+
 
     IEnumerator BakeNavMeshDelayed(GameObject mapInstance)
     {

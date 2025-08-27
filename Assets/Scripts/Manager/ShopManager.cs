@@ -17,10 +17,6 @@ public class ShopManager : MonoBehaviour
     public Button rerollButton;
     public Button exitButton;
 
-    [Header("리롤 가격")]
-    public TextMeshProUGUI rerollPriceText;
-    public int rerollPrice = 1;
-
     [Header("상점 패널")]
     public RectTransform shopPanel;
 
@@ -31,9 +27,6 @@ public class ShopManager : MonoBehaviour
 
     private void Start()
     {
-        rerollPriceText.text = $"리롤 {rerollPrice}원";
-        rerollButton.onClick.AddListener(ShowItemChoices);
-        exitButton.onClick.AddListener(OnButtonExitClick);
 
         FirstRerollItems();
     }

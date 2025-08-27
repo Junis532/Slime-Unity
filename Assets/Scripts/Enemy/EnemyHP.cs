@@ -21,12 +21,13 @@ public class EnemyHP : MonoBehaviour
 
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
-    private float criticalChance = 10f;
+    private float criticalChance;
 
     void Start()
     {
         maxHP = GameManager.Instance.enemyStats.maxHP;
         currentHP = maxHP;
+        criticalChance = GameManager.Instance.playerStats.criticalChance;
 
         // 월드 캔버스에 HP 바 붙이기
         Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
