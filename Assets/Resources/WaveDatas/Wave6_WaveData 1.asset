@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0370b8350af9074ebad45cccee60eaf, type: 3}
+  m_Name: Wave6_WaveData 1
+  m_EditorClassIdentifier: 
+  MonsterLists:
+  - {fileID: 3169557852246675673, guid: d00147651278c5f4fb443baa5a2fb84b, type: 3}
+  spawnDelays:
+  - 0
+  mapPrefab: {fileID: 5430387196291379751, guid: 8eee3199b933b4848aeac3cdeea721d0, type: 3}
+  isShopMap: 0
+  isEventStageBuff: 0
+  isEventStageDebuff: 0

@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Cinemachine;
+using System.Data;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
@@ -35,6 +36,10 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats buff3;
     public ItemStats buff4;
     public ItemStats buff5;
+    public ItemStats debuff1;
+    public ItemStats debuff2;
+    public ItemStats debuff3;
+    public ItemStats debuff4;
     public Enemy enemy;
     public DashEnemy dashEnemy;
     public LongRangeEnemy longRangeEnemy;
@@ -63,7 +68,10 @@ public class GameManager : MonoSingleTone<GameManager>
     private bool isEventBuffUIVisible = false;
 
     public GameObject eventDebuffUI; // 씬에 배치된 이벤트 디버프 UI 오브젝트 (CanvasGroup 있음)
+    public GameObject eventDebuffUICanvas;
     private bool isEventDebuffUIVisible = false;
+
+    public GameObject dialogUI; // 씬에 배치된 대화 UI 오브젝트 (CanvasGroup 있음)
 
     private enum GameState
     {
@@ -291,7 +299,7 @@ public class GameManager : MonoSingleTone<GameManager>
                 cg.blocksRaycasts = false;
 
                 // sortingOrder 최상단으로 설정
-                Canvas canvas = eventDebuffUI.GetComponent<Canvas>();
+                Canvas canvas = eventDebuffUICanvas.GetComponent<Canvas>();
                 if (canvas != null)
                     canvas.sortingOrder = 10;
 

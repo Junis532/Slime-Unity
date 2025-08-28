@@ -364,6 +364,7 @@ public class ShopManager : MonoBehaviour
     void UpdateBuyButtonStates()
     {
         int coin = GameManager.Instance.playerStats.coin;
+        bool allDisabled = true; // 모든 버튼이 비활성인지 체크
 
         foreach (GameObject slot in itemSlots)
         {
@@ -373,19 +374,34 @@ public class ShopManager : MonoBehaviour
             if (int.TryParse(priceText.text, out int price))
             {
                 // 코인이 부족하면 버튼 비활성화, 충분하면 활성화
-                buyBtn.interactable = coin >= price;
+                bool canBuy = coin >= price;
+                buyBtn.interactable = canBuy;
 
-                // 버튼 색상도 함께 바꾸고 싶으면
                 TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
                 TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
 
-                Color targetColor = coin < price ? Color.red : Color.black;
+                Color targetColor = canBuy ? Color.black : Color.red;
                 nameText.color = targetColor;
                 priceText.color = targetColor;
                 descText.color = targetColor;
+
+                if (canBuy) allDisabled = false; // 하나라도 살 수 있으면 false
             }
         }
+
+        // 모든 아이템 구매 불가 시 1초 뒤 자동 종료
+        if (allDisabled)
+        {
+            StartCoroutine(AutoExitCoroutine());
+        }
     }
+
+    private IEnumerator AutoExitCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        OnButtonExitClick();
+    }
+
 
 
     public void OnButtonExitClick()

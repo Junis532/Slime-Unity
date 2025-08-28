@@ -19,13 +19,75 @@ public class BuffEvent : MonoBehaviour
     [Header("버프 UI 오브젝트")]
     public GameObject shopUI;
 
+    [Header("다이어로그")]
+    public Image dialogImage;
+    public TMP_Text dialogText;
+
     [Header("크리티컬 버프 개수")]
     public int criticalBuffCount = 0;
 
-    private ItemStats[] selectedItems = new ItemStats[3];
+    private ItemStats[] selectedItems = new ItemStats[2];
+
+    // 다이어로그 관련
+    private bool isDialogActive = false;
+    public string currentDialog = "힘을 얻을 기회가 왔습니다! 원하는 버프를 선택하세요.";
 
     private void Start()
     {
+        // 처음에는 아이템 슬롯 숨기기
+        foreach (GameObject slot in itemSlots)
+        {
+            slot.SetActive(false);
+        }
+
+        // 다이어로그 실행
+        StartCoroutine(ShowDialogCoroutine(currentDialog));
+    }
+
+    private void Update()
+    {
+        // 다이어로그 중에 클릭하면 → 종료
+        if (isDialogActive && Input.GetMouseButtonDown(0))
+        {
+            StartCoroutine(HideDialogAndShowItems());
+        }
+    }
+
+    // 다이어로그 한 글자씩 출력
+    private IEnumerator ShowDialogCoroutine(string text)
+    {
+        isDialogActive = true;
+        dialogImage.gameObject.SetActive(true);
+        dialogImage.color = new Color(1, 1, 1, 1);
+        dialogText.text = "";
+        dialogText.color = new Color(0, 0, 0, 1);
+
+        foreach (char c in text)
+        {
+            dialogText.text += c;
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    // 다이어로그 내려가며 사라진 후 → 아이템 슬롯 등장
+    private IEnumerator HideDialogAndShowItems()
+    {
+        isDialogActive = false;
+
+        dialogImage.rectTransform.DOAnchorPosY(-500f, 0.5f).SetEase(Ease.InBack);
+        dialogImage.DOFade(0f, 0.5f);
+        dialogText.DOFade(0f, 0.5f);
+
+        yield return new WaitForSeconds(0.6f);
+
+        dialogImage.gameObject.SetActive(false);
+        dialogText.gameObject.SetActive(false);
+
+        // 슬롯 활성화 후 아이템 등장
+        foreach (GameObject slot in itemSlots)
+        {
+            slot.SetActive(true);
+        }
 
         FirstRerollItems();
     }
@@ -139,10 +201,9 @@ public class BuffEvent : MonoBehaviour
             seq.Join(descText.DOFade(1f, 0.3f));
         }
 
-        // ★ 여기서 버튼 상태 업데이트
+        // 버튼 상태 업데이트
         UpdateBuyButtonStates();
     }
-
 
     private void OnSelectItem(int index)
     {
@@ -181,7 +242,6 @@ public class BuffEvent : MonoBehaviour
         });
     }
 
-    // 나머지 버튼 모두 비활성화
     private void DisableAllBuyButtons()
     {
         foreach (GameObject slot in itemSlots)
@@ -210,24 +270,22 @@ public class BuffEvent : MonoBehaviour
 
     void ApplyItemEffect(ItemStats item)
     {
-        // ====== 아이템 효과 적용 ======
         if (item == GameManager.Instance.buff1) // 크리티컬 확률 증가
         {
             GameManager.Instance.playerStats.criticalChance += 5;
             criticalBuffCount++;
         }
-
         else if (item == GameManager.Instance.buff2) // 최대 체력 증가 
         {
             GameManager.Instance.playerStats.maxHP += GameManager.Instance.playerStats.maxHP * 0.2f;
         }
-        else if (item == GameManager.Instance.buff3) // 공겨력 증가
+        else if (item == GameManager.Instance.buff3) // 공격력 증가
         {
             GameManager.Instance.playerStats.attack += GameManager.Instance.playerStats.attack * 0.05f;
         }
         else if (item == GameManager.Instance.buff4) // 공격 속도 증가
         {
-            GameObject gmObj = GameObject.Find("GameManager");
+            var gmObj = GameObject.Find("GameManager");
             if (gmObj != null)
             {
                 var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
@@ -237,10 +295,9 @@ public class BuffEvent : MonoBehaviour
                 }
             }
         }
-
         else if (item == GameManager.Instance.buff5) // 점프 데미지 증가
         {
-            GameObject plObj = GameObject.Find("Player");
+            var plObj = GameObject.Find("Player");
             if (plObj != null)
             {
                 var jumpPower = plObj.GetComponent<JoystickDirectionIndicator>();
@@ -251,6 +308,7 @@ public class BuffEvent : MonoBehaviour
             }
         }
     }
+
     List<ItemStats> GetRandomItems(int count)
     {
         List<ItemStats> copy = new List<ItemStats>(allItems);
@@ -270,16 +328,12 @@ public class BuffEvent : MonoBehaviour
         foreach (GameObject slot in itemSlots)
         {
             Button buyBtn = slot.transform.Find("BuyButton").GetComponent<Button>();
-
-            // 코인 체크 없이 항상 활성화 (또는 원하는 조건으로 조절)
             buyBtn.interactable = true;
 
-            // 가격 텍스트가 존재하면 삭제하거나 숨기기 권장
             TMP_Text priceText = slot.transform.Find("ItemPrice")?.GetComponent<TMP_Text>();
             if (priceText != null)
                 priceText.gameObject.SetActive(false);
 
-            // 이름, 설명 텍스트 색상 기본 유지
             TMP_Text nameText = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
             TMP_Text descText = slot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
             Color normalColor = Color.black;
@@ -287,9 +341,6 @@ public class BuffEvent : MonoBehaviour
             descText.color = normalColor;
         }
     }
-
-
-
 
     public void OnButtonExitClick()
     {
