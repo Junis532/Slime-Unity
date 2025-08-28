@@ -41,9 +41,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private bool hasUsedSkill = false;
     private bool prevBlockInputActive = false;
 
-    private AudioSource audioSource;
-    public AudioClip fireballSound;
-
     [Header("스킬 쿨타임 관련")]
     public TMP_Text waitTimerText;
     public Image CooltimeImange;
@@ -87,10 +84,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         if (joystickCanvasGroup != null) joystickCanvasGroup.alpha = 0f;
-
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
 
         currentDiceResult = 1;
         StartRollingLoop();

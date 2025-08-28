@@ -157,7 +157,6 @@ public class deBuffEvent : MonoBehaviour
             if (bulletSpawner != null)
                 bulletSpawner.bulletsPerShot += 2;
 
-            GameManager.Instance.playerStats.maxHP -= 20;
         }
         else if (item == GameManager.Instance.debuff2)
         {
@@ -169,6 +168,7 @@ public class deBuffEvent : MonoBehaviour
                 else
                     bulletSpawner.fireballDotMultiplier += 0.1f;
             }
+
         }
         else if (item == GameManager.Instance.debuff3)
         {
@@ -180,6 +180,7 @@ public class deBuffEvent : MonoBehaviour
                 else
                     playerHeal.hpHealAmount += 12;
             }
+
         }
         else if (item == GameManager.Instance.debuff4)
         {
@@ -196,6 +197,10 @@ public class deBuffEvent : MonoBehaviour
                 }
             }
         }
+
+        GameManager.Instance.playerStats.maxHP -= GameManager.Instance.playerStats.maxHP * 0.1f;
+        if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
+            GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
     }
 
     public void OnButtonExitClick()

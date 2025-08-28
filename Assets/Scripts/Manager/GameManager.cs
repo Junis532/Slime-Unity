@@ -71,8 +71,6 @@ public class GameManager : MonoSingleTone<GameManager>
     public GameObject eventDebuffUICanvas;
     private bool isEventDebuffUIVisible = false;
 
-    public GameObject dialogUI; // 씬에 배치된 대화 UI 오브젝트 (CanvasGroup 있음)
-
     private enum GameState
     {
         Lobby,
