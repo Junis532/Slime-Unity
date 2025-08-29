@@ -22,6 +22,7 @@ public class BuffEvent : MonoBehaviour
     [Header("다이어로그")]
     public Image dialogImage;
     public TMP_Text dialogText;
+    public List<string> dialogList;   // 다이어로그 여러 개 넣기
 
     [Header("크리티컬 버프 개수")]
     public int criticalBuffCount = 0;
@@ -30,7 +31,6 @@ public class BuffEvent : MonoBehaviour
 
     // 다이어로그 관련
     private bool isDialogActive = false;
-    public string currentDialog = "힘을 얻을 기회가 왔습니다! 원하는 버프를 선택하세요.";
 
     private void Start()
     {
@@ -40,8 +40,20 @@ public class BuffEvent : MonoBehaviour
             slot.SetActive(false);
         }
 
+        // 다이어로그 랜덤 선택
+        string chosenDialog;
+        if (dialogList != null && dialogList.Count > 0)
+        {
+            int randIndex = Random.Range(0, dialogList.Count);
+            chosenDialog = dialogList[randIndex];
+        }
+        else
+        {
+            chosenDialog = "힘을 얻을 기회가 왔습니다! 원하는 버프를 선택하세요.";
+        }
+
         // 다이어로그 실행
-        StartCoroutine(ShowDialogCoroutine(currentDialog));
+        StartCoroutine(ShowDialogCoroutine(chosenDialog));
     }
 
     private void Update()
