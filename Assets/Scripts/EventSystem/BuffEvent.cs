@@ -8,7 +8,10 @@ using UnityEngine.UI;
 public class BuffEvent : MonoBehaviour
 {
     [Header("버프 데이터")]
-    public List<ItemStats> allItems;
+    public List<ItemStats> allItems
+    {
+        get { return GameManager.Instance.buffs; }
+    }
 
     [Header("UI 슬롯 (2개)")]
     public List<GameObject> itemSlots;

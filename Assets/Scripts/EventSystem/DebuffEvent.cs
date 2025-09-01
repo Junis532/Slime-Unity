@@ -8,7 +8,10 @@ using UnityEngine.UI;
 public class deBuffEvent : MonoBehaviour
 {
     [Header("디버프 데이터")]
-    public List<ItemStats> allItems;
+    public List<ItemStats> allItems
+    {
+        get { return GameManager.Instance.debuffs; }
+    }
 
     [Header("UI 슬롯 (1개)")]
     public GameObject itemSlot;

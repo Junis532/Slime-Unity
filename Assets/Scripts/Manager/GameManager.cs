@@ -30,18 +30,13 @@ public class GameManager : MonoSingleTone<GameManager>
     public CinemachineCamera cineCamera;
 
     [Header("몬스터 관련")]
-    public Enemy enemy;
-    public DashEnemy dashEnemy;
-    public LongRangeEnemy longRangeEnemy;
-    public PotionEnemy potionEnemy;
     public EnemyStats enemyStats;
     public DashEnemyStats dashEnemyStats;
     public LongRangeEnemyStats longRangeEnemyStats;
     public PotionEnemyStats potionEnemyStats;
-    public EnemyHP enemyHP;
 
     [Header("패시브 관련")]
-    public List<ItemStats> allItemStats;
+    public List<ItemStats> shops;
     public List<ItemStats> buffs;
     public List<ItemStats> debuffs;
 
@@ -63,10 +58,10 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         Lobby,
         Game,
+        Clear,
         Shop,
         EventBuff,
         EventDebuff,
-        Clear,
         End
     }
 

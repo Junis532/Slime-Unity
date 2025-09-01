@@ -8,7 +8,10 @@ using UnityEngine.UI;
 public class ShopManager : MonoBehaviour
 {
     [Header("아이템 데이터")]
-    public List<ItemStats> allItems;
+    public List<ItemStats> allItems
+    {
+        get { return GameManager.Instance.shops; }
+    }
 
     [Header("UI 슬롯 (3개)")]
     public List<GameObject> itemSlots;
@@ -231,7 +234,7 @@ public class ShopManager : MonoBehaviour
 
     void ApplyItemEffect(ItemStats item)
     {
-        int index = GameManager.Instance.allItemStats.IndexOf(item);
+        int index = GameManager.Instance.shops.IndexOf(item);
         switch (index)
         {
             case 0: // itemStats1 효과
