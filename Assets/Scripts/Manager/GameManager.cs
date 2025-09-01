@@ -9,18 +9,37 @@ using System.Data;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
-    public CameraShake cameraShake;
-    public CinemachineCamera cineCamera;
+    [Header("Manager")]
+    public AudioManager audioManager;
+    public PoolManager poolManager;
+    public ShopManager shopManager;
+    public WaveManager waveManager;
+
+    [Header("플레이어 관련")]
     public PlayerAnimation playerAnimation;
     public PlayerController playerController;
     public PlayerDamaged playerDamaged;
     public PlayerDie playerDie;
     public PlayerStats playerStats;
+    public JoystickDirectionIndicator joystickDirectionIndicator;
+    public ShopEnter shopEnter;
+
+    [Header("카메라 관련")]
+    public CameraShake cameraShake;
+    public CinemachineCamera cineCamera;
+
+    [Header("몬스터 관련")]
+    public Enemy enemy;
+    public DashEnemy dashEnemy;
+    public LongRangeEnemy longRangeEnemy;
+    public PotionEnemy potionEnemy;
     public EnemyStats enemyStats;
     public DashEnemyStats dashEnemyStats;
     public LongRangeEnemyStats longRangeEnemyStats;
     public PotionEnemyStats potionEnemyStats;
-    public EnemySpawner enemySpawner;
+    public EnemyHP enemyHP;
+
+    [Header("패시브 관련")]
     public ItemStats itemStats1;
     public ItemStats itemStats2;
     public ItemStats itemStats3;
@@ -40,36 +59,19 @@ public class GameManager : MonoSingleTone<GameManager>
     public ItemStats debuff2;
     public ItemStats debuff3;
     public ItemStats debuff4;
-    public Enemy enemy;
-    public DashEnemy dashEnemy;
-    public LongRangeEnemy longRangeEnemy;
-    public PotionEnemy potionEnemy;
-    public Timer timer;
-    public AudioManager audioManager;
-    public PoolManager poolManager;
-    public ShopManager shopManager;
-    public WaveManager waveManager;
 
-    public ShopEnter shopEnter;
-    //public DialogManager dialogManager;
-    public EnemyHP enemyHP;
-    public DiceAnimation diceAnimation;
-    public JoystickDirectionIndicator joystickDirectionIndicator;
-    public ZacSkill zacSkill;
+    [Header("이벤트 버프 & 디버프 UI")]
+    public GameObject eventBuffUI;
+    public GameObject eventBuffUICanvas;
+    public GameObject eventDebuffUI;
+    public GameObject eventDebuffUICanvas;
 
+    [Header("기타 설정")]
     private bool isGameStarted = false;
-
+    private bool isEventBuffUIVisible = false;
+    private bool isEventDebuffUIVisible = false;
     public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);
     public Vector3 fixedPosition = new Vector3(-100, 0, 0);
-
-    [Header("이벤트 버프용 UI")]
-    public GameObject eventBuffUI; // 씬에 배치된 이벤트 버프 UI 오브젝트 (CanvasGroup 있음)
-    public GameObject eventBuffUICanvas;
-    private bool isEventBuffUIVisible = false;
-
-    public GameObject eventDebuffUI; // 씬에 배치된 이벤트 디버프 UI 오브젝트 (CanvasGroup 있음)
-    public GameObject eventDebuffUICanvas;
-    private bool isEventDebuffUIVisible = false;
 
     private enum GameState
     {
@@ -101,13 +103,6 @@ public class GameManager : MonoSingleTone<GameManager>
         }
 
         base.Awake();
-
-        if (timer == null)
-        {
-            timer = Object.FindFirstObjectByType<Timer>();
-            if (timer == null)
-                Debug.LogWarning("Timer 컴포넌트를 씬에서 찾지 못했습니다.");
-        }
     }
 
     private void Start()
@@ -116,7 +111,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (sceneName == "Lobby") // 로비 씬일 경우
         {
-            ChangeStateToIdle();
+            ChangeStateToLobby();
             return;
         }
         else if (sceneName == "InGame") // 게임 씬일 경우
@@ -155,20 +150,16 @@ public class GameManager : MonoSingleTone<GameManager>
 
         // 코인 풀로 반환
         PoolManager.Instance.ReturnToPool(coin);
-
-        // 예: 골드 추가 처리
-        // GameManager.Instance.playerStats.AddGold(1);
     }
 
-    private void AutoCollectItems()
+    private void AutoCollectItems() // 코인 및 아이템 자동 수집 처리 함수
     {
-        // 코인 자동 수집 처리
         GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
         foreach (GameObject coin in coins)
         {
             StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
         }
-        // zac 자동 수집 처리 (태그명에 맞게 변경)
+
         GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
         foreach (GameObject zac in zacs)
         {
@@ -179,7 +170,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
 
 
-    public void ChangeStateToIdle()
+    public void ChangeStateToLobby()
     {
         currentState = GameState.Lobby;
         Debug.Log("상태: Lobby - 게임 대기 중");
@@ -339,7 +330,7 @@ public class GameManager : MonoSingleTone<GameManager>
     }
 
 
-    public bool IsIdle() => currentState == GameState.Lobby;
+    public bool IsLobby() => currentState == GameState.Lobby;
     public bool IsGame() => currentState == GameState.Game;
     public bool IsShop() => currentState == GameState.Shop;
     public bool IsEventBuff() => currentState == GameState.EventBuff;

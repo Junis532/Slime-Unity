@@ -12,7 +12,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public VariableJoystick joystick;
     public CanvasGroup joystickCanvasGroup;
     public GameObject imageToHideWhenTouching;
-    public GameObject blockInputCanvas;
 
     [Header("범위 관련 프리팹 및 위치")]
     public List<GameObject> directionSpritePrefabs;
