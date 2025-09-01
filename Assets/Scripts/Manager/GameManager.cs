@@ -74,7 +74,7 @@ public class GameManager : MonoSingleTone<GameManager>
         QualitySettings.vSyncCount = 0;
 
         // 프레임 고정
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 120;
 
         // 중복 GameManager 방지
         if (Instance != null && Instance != this)
@@ -245,10 +245,6 @@ public class GameManager : MonoSingleTone<GameManager>
                 rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
             }
         }
-        else
-        {
-            Debug.LogWarning("[GameManager] 이벤트 버프 UI가 할당되지 않았습니다.");
-        }
     }
 
     public void ChangeStateToEventDebuff()
@@ -284,10 +280,6 @@ public class GameManager : MonoSingleTone<GameManager>
                 rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
             }
         }
-        else
-        {
-            Debug.LogWarning("[GameManager] 이벤트 버프 UI가 할당되지 않았습니다.");
-        }
     }
 
     public void ChangeStateToClear()
@@ -303,19 +295,16 @@ public class GameManager : MonoSingleTone<GameManager>
         AutoCollectItems();
     }
 
-
     public void ChangeStateToEnd()
     {
         currentState = GameState.End;
         Debug.Log("상태: End - 게임 오버");
     }
 
-
     public bool IsLobby() => currentState == GameState.Lobby;
     public bool IsGame() => currentState == GameState.Game;
     public bool IsShop() => currentState == GameState.Shop;
     public bool IsEventBuff() => currentState == GameState.EventBuff;
-
     public bool IsEventDebuff() => currentState == GameState.EventDebuff;
     public bool IsClear() => currentState == GameState.Clear;
     public bool IsEnd() => currentState == GameState.End;

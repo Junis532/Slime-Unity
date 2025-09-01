@@ -7625,16 +7625,11 @@ MonoBehaviour:
   shopEnter: {fileID: 1964837968}
   cameraShake: {fileID: 1577947831}
   cineCamera: {fileID: 1577947824}
-  enemy: {fileID: 0}
-  dashEnemy: {fileID: 0}
-  longRangeEnemy: {fileID: 0}
-  potionEnemy: {fileID: 0}
   enemyStats: {fileID: 11400000, guid: a074f201954ec784cb6c75eaa1aa95f8, type: 2}
   dashEnemyStats: {fileID: 11400000, guid: 61d87394e1d444d4db040d3ad2048b7d, type: 2}
   longRangeEnemyStats: {fileID: 11400000, guid: 58fd2f9b78594db42a45fcb865ceaf5e, type: 2}
   potionEnemyStats: {fileID: 11400000, guid: 262af9e6818399e4183bac0c156ce898, type: 2}
-  enemyHP: {fileID: 0}
-  allItemStats:
+  shops:
   - {fileID: 11400000, guid: 195fd2a0906dc734696b703a254046a8, type: 2}
   - {fileID: 11400000, guid: 7dddee111973b4b42889d1dcd2403714, type: 2}
   - {fileID: 11400000, guid: edd2781c83795934ea7808483d5a0916, type: 2}
@@ -7701,15 +7696,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 020c455a803d8ec42bdd81e5f163f1e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allItems:
-  - {fileID: 11400000, guid: 195fd2a0906dc734696b703a254046a8, type: 2}
-  - {fileID: 11400000, guid: 7dddee111973b4b42889d1dcd2403714, type: 2}
-  - {fileID: 11400000, guid: edd2781c83795934ea7808483d5a0916, type: 2}
-  - {fileID: 11400000, guid: 7cee4be7bac23e44ba628e4f4bbc2c0b, type: 2}
-  - {fileID: 11400000, guid: 22a400c3fa2d0ed42a17e39fd44e3580, type: 2}
-  - {fileID: 11400000, guid: 8d89ae8f10f29924b87f9b0c26e43ff8, type: 2}
-  - {fileID: 11400000, guid: aa6a25ba063bf4741b381fbac7c0b38a, type: 2}
-  - {fileID: 11400000, guid: 8beb16c754f0a9c48bbb4d7a39c0bfba, type: 2}
   itemSlots:
   - {fileID: 1775516859}
   - {fileID: 1483349284}
@@ -7811,12 +7797,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eeb795d39e78434d9038dfb0f6d65e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allItems:
-  - {fileID: 11400000, guid: feb43c890ca74084aa56cb9fdd0d3f2b, type: 2}
-  - {fileID: 11400000, guid: 70779021de311b544afffcf12e65dcc2, type: 2}
-  - {fileID: 11400000, guid: 8be83eddd563ce145b6041aa58806bc4, type: 2}
-  - {fileID: 11400000, guid: f601bd21d21a5c84582cf3d0856d3efc, type: 2}
-  - {fileID: 11400000, guid: 6a1e2814bccc6454a9fad70ef0d4eccf, type: 2}
   itemSlots:
   - {fileID: 1414181381}
   - {fileID: 864489435}
@@ -7848,11 +7828,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb28d0818034baf478447b5923e7efa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allItems:
-  - {fileID: 11400000, guid: f2fac12ad30ccae428a24f7b644d5f8e, type: 2}
-  - {fileID: 11400000, guid: 1efa42c009b85af47b6dc7ac8533f153, type: 2}
-  - {fileID: 11400000, guid: 10a844181809bee4baec8ca26049f668, type: 2}
-  - {fileID: 11400000, guid: bdd595c6cbc9275449ba8fbf2c036277, type: 2}
   itemSlot: {fileID: 33944379}
   shopPanel: {fileID: 2006722636}
   shopUI: {fileID: 989017927}
@@ -15776,7 +15751,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.014000177, z: 0}
-  m_LocalScale: {x: 1.0018189, y: 0.9617421, z: 1.2654501}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1.2654501}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1308465767}
