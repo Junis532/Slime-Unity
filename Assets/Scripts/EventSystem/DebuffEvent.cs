@@ -151,57 +151,64 @@ public class deBuffEvent : MonoBehaviour
 
     void ApplyItemEffect(ItemStats item)
     {
-        if (item == GameManager.Instance.debuff1)
-        {
-            var bulletSpawner = GameObject.Find("GameManager")?.GetComponent<BulletSpawner>();
-            if (bulletSpawner != null)
-                bulletSpawner.bulletsPerShot += 2;
+        int index = GameManager.Instance.debuffs.IndexOf(item);
 
-        }
-        else if (item == GameManager.Instance.debuff2)
-        {
-            var bulletSpawner = GameObject.Find("GameManager")?.GetComponent<BulletSpawner>();
-            if (bulletSpawner != null)
-            {
-                if (!bulletSpawner.useFireball)
-                    bulletSpawner.useFireball = true;
-                else
-                    bulletSpawner.fireballDotMultiplier += 0.1f;
-            }
+        // GameManager, BulletSpawner, Player 등 필요한 컴포넌트는 
+        // 한번만 미리 찾아 변수에 저장하여 재사용
+        GameObject gmObj = GameObject.Find("GameManager");
+        BulletSpawner bulletSpawner = gmObj?.GetComponent<BulletSpawner>();
+        GameObject playerObj = GameObject.Find("Player");
+        PlayerHeal playerHeal = playerObj?.GetComponent<PlayerHeal>();
+        JoystickDirectionIndicator jumpPower = playerObj?.GetComponent<JoystickDirectionIndicator>();
+        SlowSkill slowSkill = gmObj?.GetComponent<SlowSkill>();
 
-        }
-        else if (item == GameManager.Instance.debuff3)
+        switch (index)
         {
-            var playerHeal = GameObject.Find("Player")?.GetComponent<PlayerHeal>();
-            if (playerHeal != null)
-            {
-                if (!playerHeal.hpHeal)
-                    playerHeal.hpHeal = true;
-                else
-                    playerHeal.hpHealAmount += 12;
-            }
-
-        }
-        else if (item == GameManager.Instance.debuff4)
-        {
-            var bulletSpawner = GameObject.Find("GameManager")?.GetComponent<BulletSpawner>();
-            if (bulletSpawner != null)
-            {
-                if (!bulletSpawner.slowSkillActive)
-                    bulletSpawner.slowSkillActive = true;
-                else
+            case 0:
+                if (bulletSpawner != null)
+                    bulletSpawner.bulletsPerShot += 2;
+                break;
+            case 1:
+                if (bulletSpawner != null)
                 {
-                    var slowSkill = GameObject.Find("GameManager")?.GetComponent<SlowSkill>();
-                    if (slowSkill != null)
+                    if (!bulletSpawner.useFireball)
+                        bulletSpawner.useFireball = true;
+                    else
+                        bulletSpawner.fireballDotMultiplier += 0.1f;
+                }
+                break;
+            case 2:
+                if (playerHeal != null)
+                {
+                    if (!playerHeal.hpHeal)
+                        playerHeal.hpHeal = true;
+                    else
+                        playerHeal.hpHealAmount += 12;
+                }
+                break;
+            case 3:
+                if (bulletSpawner != null)
+                {
+                    if (!bulletSpawner.slowSkillActive)
+                        bulletSpawner.slowSkillActive = true;
+                    else if (slowSkill != null)
                         slowSkill.slowDuration += 0.5f;
                 }
-            }
+                break;
+            case 4:
+                if (jumpPower != null)
+                    jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
+                break;
+            default:
+                Debug.LogWarning("알 수 없는 디버프 인덱스");
+                break;
         }
 
         GameManager.Instance.playerStats.maxHP -= GameManager.Instance.playerStats.maxHP * 0.1f;
         if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
             GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
     }
+
 
     public void OnButtonExitClick()
     {

@@ -282,42 +282,48 @@ public class BuffEvent : MonoBehaviour
 
     void ApplyItemEffect(ItemStats item)
     {
-        if (item == GameManager.Instance.buff1) // 크리티컬 확률 증가
+        int index = GameManager.Instance.buffs.IndexOf(item);
+        switch (index)
         {
-            GameManager.Instance.playerStats.criticalChance += 5;
-            criticalBuffCount++;
-        }
-        else if (item == GameManager.Instance.buff2) // 최대 체력 증가 
-        {
-            GameManager.Instance.playerStats.maxHP += GameManager.Instance.playerStats.maxHP * 0.2f;
-        }
-        else if (item == GameManager.Instance.buff3) // 공격력 증가
-        {
-            GameManager.Instance.playerStats.attack += GameManager.Instance.playerStats.attack * 0.05f;
-        }
-        else if (item == GameManager.Instance.buff4) // 공격 속도 증가
-        {
-            var gmObj = GameObject.Find("GameManager");
-            if (gmObj != null)
-            {
-                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
-                if (bulletSpawner != null)
+            case 0:
+                GameManager.Instance.playerStats.criticalChance += 5;
+                criticalBuffCount++;
+                break;
+
+            case 1:
+                GameManager.Instance.playerStats.maxHP += GameManager.Instance.playerStats.maxHP * 0.2f;
+                break;
+
+            case 2:
+                GameManager.Instance.playerStats.attack += GameManager.Instance.playerStats.attack * 0.05f;
+                break;
+
+            case 3:
+                var gmObj = GameObject.Find("GameManager");
+                if (gmObj != null)
                 {
-                    bulletSpawner.attackSpeedMultiplier += 0.1f;
+                    var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
+                    if (bulletSpawner != null)
+                    {
+                        bulletSpawner.attackSpeedMultiplier += 0.1f;
+                    }
                 }
-            }
-        }
-        else if (item == GameManager.Instance.buff5) // 점프 데미지 증가
-        {
-            var plObj = GameObject.Find("Player");
-            if (plObj != null)
-            {
-                var jumpPower = plObj.GetComponent<JoystickDirectionIndicator>();
-                if (jumpPower != null)
+                break;
+
+            case 4:
+                var plObj = GameObject.Find("Player");
+                if (plObj != null)
                 {
-                    jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
+                    var jumpPower = plObj.GetComponent<JoystickDirectionIndicator>();
+                    if (jumpPower != null)
+                    {
+                        jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
+                    }
                 }
-            }
+                break;
+
+            default:
+                break;
         }
     }
 

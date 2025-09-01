@@ -44,7 +44,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public TMP_Text waitTimerText;
     public Image CooltimeImange;
     public int waitInterval = 10;
-    private bool isTweeningSlime = false;
 
     private Coroutine rollCoroutine;
 

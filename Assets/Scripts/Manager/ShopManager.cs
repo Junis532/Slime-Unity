@@ -231,80 +231,83 @@ public class ShopManager : MonoBehaviour
 
     void ApplyItemEffect(ItemStats item)
     {
-        // ====== 아이템 효과 적용 ======
-        if (item == GameManager.Instance.itemStats1) // 최대체력 증가 + 회복
+        int index = GameManager.Instance.allItemStats.IndexOf(item);
+        switch (index)
         {
-            GameManager.Instance.playerStats.maxHP += 160;
-            GameManager.Instance.playerStats.currentHP += 160;
-        }
+            case 0: // itemStats1 효과
+                GameManager.Instance.playerStats.maxHP += 160;
+                GameManager.Instance.playerStats.currentHP += 160;
+                break;
 
-        else if (item == GameManager.Instance.itemStats2) // 총알 수 증가
-        {
-            GameObject gmObj = GameObject.Find("GameManager");
-            if (gmObj != null)
-            {
-                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
-                if (bulletSpawner != null)
+            case 1: // itemStats2 효과 - 총알 수 증가
+            case 3: // itemStats4 효과 - 파이어볼 관련 (공통 bulletSpawner 사용)
+            case 4: // itemStats5 효과 - 공격 속도 증가
+            case 7: // itemStats8 효과 - 슬로우 스킬 관련
                 {
-                    bulletSpawner.bulletsPerShot += 2;
-                }
-            }
-        }
-        else if (item == GameManager.Instance.itemStats3) // 이동 속도 증가 + 최대 체력 감소
-        {
-            GameManager.Instance.playerStats.speed *= 1.05f;
-            GameManager.Instance.playerStats.maxHP -= 5;
-            if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
-            {
-                GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
-            }
-        }
-        else if (item == GameManager.Instance.itemStats4) // 파이어볼 활성화 또는 DOT 배율 증가
-        {
-            GameObject gmObj = GameObject.Find("GameManager");
-            if (gmObj != null)
-            {
-                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
-                if (bulletSpawner != null)
-                {
-                    if (!bulletSpawner.useFireball)
-                    {
-                        bulletSpawner.useFireball = true;
-                        Debug.Log("파이어볼 활성화");
-                    }
-                    else
-                    {
-                        bulletSpawner.fireballDotMultiplier += 0.1f;
-                        Debug.Log($"[Shop] 파이어볼 DOT 배율 증가: {bulletSpawner.fireballDotMultiplier}");
-                    }
-                }
-            }
-        }
+                    GameObject gmObj = GameObject.Find("GameManager");
+                    if (gmObj == null) break;
+                    var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
+                    if (bulletSpawner == null) break;
 
-        else if (item == GameManager.Instance.itemStats5) // 공격력 증가
-        {
-            GameManager.Instance.playerStats.attack += 60;
-        }
-        else if (item == GameManager.Instance.itemStats6) // 공격 속도 증가
-        {
-            GameObject gmObj = GameObject.Find("GameManager");
-            if (gmObj != null)
-            {
-                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
-                if (bulletSpawner != null)
-                {
-                    bulletSpawner.attackSpeedMultiplier += 0.1f;
+                    if (index == 1)
+                    {
+                        bulletSpawner.bulletsPerShot += 2;
+                    }
+                    else if (index == 3)
+                    {
+                        if (!bulletSpawner.useFireball)
+                        {
+                            bulletSpawner.useFireball = true;
+                            Debug.Log("파이어볼 활성화");
+                        }
+                        else
+                        {
+                            bulletSpawner.fireballDotMultiplier += 0.1f;
+                            Debug.Log($"[Shop] 파이어볼 DOT 배율 증가: {bulletSpawner.fireballDotMultiplier}");
+                        }
+                    }
+                    else if (index == 4)
+                    {
+                        bulletSpawner.attackSpeedMultiplier += 0.1f;
+                    }
+                    else if (index == 7)
+                    {
+                        if (!bulletSpawner.slowSkillActive)
+                        {
+                            bulletSpawner.slowSkillActive = true;
+                            Debug.Log("[Shop] BulletSpawner의 slowSkillActive 활성화");
+                        }
+                        else
+                        {
+                            var slowSkill = gmObj.GetComponent<SlowSkill>();
+                            if (slowSkill != null)
+                            {
+                                slowSkill.slowDuration += 0.5f;
+                                Debug.Log("[Shop] 슬로우 지속 시간 증가");
+                            }
+                        }
+                    }
                 }
-            }
-        }
-        else if (item == GameManager.Instance.itemStats7) // 피 회복 활성화
-        {
-            GameObject plObj = GameObject.Find("Player");
-            if (plObj != null)
-            {
-                var playerHeal = plObj.GetComponent<PlayerHeal>();
-                if (playerHeal != null)
+                break;
+
+            case 2: // itemStats3 효과
+                GameManager.Instance.playerStats.speed *= 1.05f;
+                GameManager.Instance.playerStats.maxHP -= 5;
+                if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
+                    GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
+                break;
+
+            case 5: // itemStats6 효과 - 공격력 증가
+                GameManager.Instance.playerStats.attack += 60;
+                break;
+
+            case 6: // itemStats7 효과 - 피 회복 활성화
                 {
+                    GameObject plObj = GameObject.Find("Player");
+                    if (plObj == null) break;
+                    var playerHeal = plObj.GetComponent<PlayerHeal>();
+                    if (playerHeal == null) break;
+
                     if (!playerHeal.hpHeal)
                     {
                         playerHeal.hpHeal = true;
@@ -312,41 +315,18 @@ public class ShopManager : MonoBehaviour
                     }
                     else
                     {
-                        if (playerHeal != null)
-                        {
-                            playerHeal.hpHealAmount += 12;
-                            Debug.Log("힐량 증가");
-                        }
+                        playerHeal.hpHealAmount += 12;
+                        Debug.Log("힐량 증가");
                     }
                 }
-            }
-        }
-        else if (item == GameManager.Instance.itemStats8) // 슬로우 화살 스킬 활성화
-        {
-            GameObject gmObj = GameObject.Find("GameManager");
-            if (gmObj != null)
-            {
-                var bulletSpawner = gmObj.GetComponent<BulletSpawner>();
-                if (bulletSpawner != null)
-                {
-                    if (!bulletSpawner.slowSkillActive)
-                    {
-                        bulletSpawner.slowSkillActive = true;
-                        Debug.Log("[Shop] BulletSpawner의 slowSkillActive 활성화");
-                    }
-                    else
-                    {
-                        var slowSkill = gmObj.GetComponent<SlowSkill>();
-                        if (slowSkill != null)
-                        {
-                            slowSkill.slowDuration += 0.5f;
-                            Debug.Log("[Shop] 슬로우 지속 시간 증가");
-                        }
-                    }
-                }
-            }
+                break;
+
+            default:
+                Debug.LogWarning("알 수 없는 아이템 효과 인덱스");
+                break;
         }
     }
+
     List<ItemStats> GetRandomItems(int count)
     {
         List<ItemStats> copy = new List<ItemStats>(allItems);

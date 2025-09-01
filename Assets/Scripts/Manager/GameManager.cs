@@ -1,11 +1,12 @@
 ﻿using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Unity.Cinemachine;
-using System.Data;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
@@ -40,25 +41,10 @@ public class GameManager : MonoSingleTone<GameManager>
     public EnemyHP enemyHP;
 
     [Header("패시브 관련")]
-    public ItemStats itemStats1;
-    public ItemStats itemStats2;
-    public ItemStats itemStats3;
-    public ItemStats itemStats4;
-    public ItemStats itemStats5;
-    public ItemStats itemStats6;
-    public ItemStats itemStats7;
-    public ItemStats itemStats8;
-    public ItemStats itemStats9;
-    public ItemStats itemStats10;
-    public ItemStats buff1;
-    public ItemStats buff2;
-    public ItemStats buff3;
-    public ItemStats buff4;
-    public ItemStats buff5;
-    public ItemStats debuff1;
-    public ItemStats debuff2;
-    public ItemStats debuff3;
-    public ItemStats debuff4;
+    public List<ItemStats> allItemStats;
+    public List<ItemStats> buffs;
+    public List<ItemStats> debuffs;
+
 
     [Header("이벤트 버프 & 디버프 UI")]
     public GameObject eventBuffUI;
