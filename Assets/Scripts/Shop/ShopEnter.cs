@@ -37,7 +37,6 @@ public class ShopEnter : MonoBehaviour
             hasTriggeredThisShop = true; // 첫 실행 이후 잠금
 
             Debug.Log("플레이어가 상점 영역에 진입함. 상점 상태로 변경합니다.");
-            //DialogManager.Instance.StartShopDialog();
 
             if (shopPanel != null)
             {
