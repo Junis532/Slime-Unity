@@ -32,7 +32,7 @@ public class PoolManager : MonoBehaviour
             for (int i = 0; i < pool.initialSize; i++)
             {
                 GameObject obj = Instantiate(pool.prefab);
-                obj.name = pool.prefabName;  // ★★★ 이름 강제 세팅
+                obj.name = pool.prefabName;  // ★★★ 이름 강제 세팅!
                 obj.SetActive(false);
                 obj.transform.SetParent(transform);
                 queue.Enqueue(obj);
