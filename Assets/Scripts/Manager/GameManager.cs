@@ -34,6 +34,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public DashEnemyStats dashEnemyStats;
     public LongRangeEnemyStats longRangeEnemyStats;
     public PotionEnemyStats potionEnemyStats;
+    public Boss1Stats boss1Stats;
 
     [Header("패시브 관련")]
     public List<ItemStats> shops;
@@ -54,7 +55,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);
     public Vector3 fixedPosition = new Vector3(-100, 0, 0);
 
-    private enum GameState
+    private enum GameState // 게임 상태 열거형
     {
         Lobby,
         Game,
@@ -65,19 +66,16 @@ public class GameManager : MonoSingleTone<GameManager>
         End
     }
 
-    private GameState currentState = GameState.Lobby;
-    public string CurrentState => currentState.ToString();
+    private GameState currentState = GameState.Lobby; // 초기 상태는 Lobby
+    public string CurrentState => currentState.ToString(); // 현재 상태를 문자열로 반환
 
     protected new void Awake()
     {
-        // VSync 비활성화 (모니터 주사율 영향 제거)
-        QualitySettings.vSyncCount = 0;
+        QualitySettings.vSyncCount = 0; // VSync 비활성화 (모니터 주사율 영향 제거)
 
-        // 프레임 고정
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 120; // 프레임 고정
 
-        // 중복 GameManager 방지
-        if (Instance != null && Instance != this)
+        if (Instance != null && Instance != this) // 중복 GameManager 방지
         {
             Destroy(gameObject);
             return;
@@ -88,7 +86,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
     private void Start()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
+        string sceneName = SceneManager.GetActiveScene().name; // 현재 씬 이름 가져오기
 
         if (sceneName == "Lobby") // 로비 씬일 경우
         {
@@ -105,10 +103,11 @@ public class GameManager : MonoSingleTone<GameManager>
         dashEnemyStats.ResetStats();
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
+        boss1Stats.ResetStats();
 
     }
 
-    private IEnumerator MoveCoinToPlayer(GameObject coin, float duration)
+    private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
     {
         float elapsed = 0f;
         Transform coinTransform = coin.transform;
@@ -126,10 +125,8 @@ public class GameManager : MonoSingleTone<GameManager>
             yield return null;
         }
 
-        // 마지막에 확실히 플레이어 위치로 이동
         coinTransform.position = GameManager.Instance.playerController.transform.position;
 
-        // 코인 풀로 반환
         PoolManager.Instance.ReturnToPool(coin);
     }
 
@@ -174,9 +171,9 @@ public class GameManager : MonoSingleTone<GameManager>
 
         if (!isGameStarted)
         {
-            isGameStarted = true;
-            // 첫 웨이브 시작 시 NavMesh 베이크
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            isGameStarted = true; 
+
+            GameObject player = GameObject.FindGameObjectWithTag("Player"); // 플레이어 위치 초기화
             if (player != null)
             {
                 player.transform.position = new Vector3(-9, 0, 0);

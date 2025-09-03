@@ -394,13 +394,19 @@ public class JoystickDirectionIndicator : MonoBehaviour
             }
             AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
             DealSlimeJumpDamage(targetPos);
-            isUsingSkill = false;
 
             // --- 착지 표시 제거 ---
             if (landingIndicatorInstance != null) Destroy(landingIndicatorInstance);
+
+            StartCoroutine(EndSkillAfterDelay(1f));
         });
     }
 
+    private IEnumerator EndSkillAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isUsingSkill = false;
+    }
 
     private string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
 

@@ -4378,7 +4378,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -6938,149 +6938,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2782475202230326303, guid: f5828c73669960f4ba6e7459f989d162, type: 3}
   m_PrefabInstance: {fileID: 1866293907155401161}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &816469258
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 816469261}
-  - component: {fileID: 816469260}
-  - component: {fileID: 816469259}
-  - component: {fileID: 816469262}
-  m_Layer: 0
-  m_Name: FireBoss
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &816469259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 816469258}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8e49f0e60d1804428fccb4f600f84fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0
-  originalSpeed: 3.4
-  smoothTime: 0.1
-  skillInterval: 3
-  dropTime: 0.5
-  stopDuration: 3
-  dashPreviewPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
-  previewDistanceFromEnemy: 0
-  previewBackOffset: 0
-  potionPrefab: {fileID: 6950589694986560093, guid: d6ca1447baef0da4b81dbe7158aba161, type: 3}
-  potionLifetime: 2
-  fireballPrefab: {fileID: 4385281220721116477, guid: 84af8a0af8c53f14e8690d677e746cbb, type: 3}
-  numberOfFireballs: 36
-  fireballWarningPrefab: {fileID: 8072637158615232695, guid: a1eeda15a1aae7542a2f0bc1ab7212e5, type: 3}
-  warningDuration: 1
-  fireballSpawnRadius: 1.5
---- !u!212 &816469260
-SpriteRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 816469258}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 3
-  m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1.1111112}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
---- !u!4 &816469261
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 816469258}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &816469262
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 816469258}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 650d0e86f40a25f48993789be0bd1ae0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  idleSprites:
-  - {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -791905833, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: 1684076649, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: 1883720508, guid: 57a1443e67528144aa07582927559650, type: 3}
-  moveSprites:
-  - {fileID: -2088749509, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1836318166, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -198311514, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1997520891, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1017442464, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -2066638598, guid: 57a1443e67528144aa07582927559650, type: 3}
-  frameRate: 0.1
-  currentState: 0
 --- !u!1 &822675239
 GameObject:
   m_ObjectHideFlags: 0
@@ -7629,6 +7486,7 @@ MonoBehaviour:
   dashEnemyStats: {fileID: 11400000, guid: 61d87394e1d444d4db040d3ad2048b7d, type: 2}
   longRangeEnemyStats: {fileID: 11400000, guid: 58fd2f9b78594db42a45fcb865ceaf5e, type: 2}
   potionEnemyStats: {fileID: 11400000, guid: 262af9e6818399e4183bac0c156ce898, type: 2}
+  boss1Stats: {fileID: 11400000, guid: a49d5c17ea6c1ad4bbe52c0959632f9e, type: 2}
   shops:
   - {fileID: 11400000, guid: 195fd2a0906dc734696b703a254046a8, type: 2}
   - {fileID: 11400000, guid: 7dddee111973b4b42889d1dcd2403714, type: 2}
@@ -7758,10 +7616,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   fireballPrefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
-  useFireball: 0
+  useFireball: 1
   fireballDotMultiplier: 0.5
   slowSkillActive: 0
-  spawnInterval: 0.8
+  spawnInterval: 0.75
   attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 0
   stopDelay: 0.15
@@ -12825,6 +12683,9 @@ MonoBehaviour:
     initialSize: 1
   - prefabName: EnemyPrefab_05
     prefab: {fileID: 3169557852246675673, guid: d00147651278c5f4fb443baa5a2fb84b, type: 3}
+    initialSize: 1
+  - prefabName: EnemyPrefab_06
+    prefab: {fileID: 481738235982116049, guid: 34fadc99a527eec45a8f84ed39486eb8, type: 3}
     initialSize: 1
   - prefabName: HitEffect
     prefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
@@ -19640,6 +19501,67 @@ PrefabInstance:
       addedObject: {fileID: 1661952283}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f5828c73669960f4ba6e7459f989d162, type: 3}
+--- !u!1001 &2120441994947077673
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3775493325575688674, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_Name
+      value: FireBoss
+      objectReference: {fileID: 0}
+    - target: {fileID: 3775493325575688674, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7908509216895618500, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 48e1f3f8ddec75e43b6eb9b3987379dc, type: 3}
 --- !u!1001 &6565495735566056647
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19791,9 +19713,17 @@ PrefabInstance:
       propertyPath: deathCanvasGroup
       value: 
       objectReference: {fileID: 2112220141}
+    - target: {fileID: 3847869701561210273, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.033
+      objectReference: {fileID: 0}
     - target: {fileID: 7565043655989499910, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 7726123640860835530, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: hpHealAmount
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.x
@@ -19967,7 +19897,7 @@ SceneRoots:
   - {fileID: 1902382842}
   - {fileID: 7828529753584086151}
   - {fileID: 1866293907155401161}
-  - {fileID: 816469261}
+  - {fileID: 2120441994947077673}
   - {fileID: 836308968}
   - {fileID: 2088267038}
   - {fileID: 2067792174}

@@ -25,7 +25,7 @@ public class BuffEvent : MonoBehaviour
     [Header("다이어로그")]
     public Image dialogImage;
     public TMP_Text dialogText;
-    public List<string> dialogList;   // 다이어로그 여러 개 넣기
+    public List<string> dialogList;
 
     [Header("크리티컬 버프 개수")]
     public int criticalBuffCount = 0;
@@ -298,7 +298,7 @@ public class BuffEvent : MonoBehaviour
                 break;
 
             case 2:
-                GameManager.Instance.playerStats.attack += GameManager.Instance.playerStats.attack * 0.05f;
+                GameManager.Instance.playerStats.attack += GameManager.Instance.playerStats.attack * 0.25f;
                 break;
 
             case 3:

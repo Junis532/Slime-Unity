@@ -108,7 +108,6 @@ public class FireballAI : MonoBehaviour
             AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
             moveSpeed = 0f;
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            // 투사체가 장애물 위치에서 바로 삭제되도록
             DestroySelf();
             return;
         }
@@ -119,29 +118,14 @@ public class FireballAI : MonoBehaviour
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
             {
-                // DOT 적용 후 삭제
-                StartCoroutine(ApplyDotDamageAndDestroy(hp));
+                // DOT만 적용 (Fireball은 계속 날아감)
+                StartCoroutine(ApplyDotDamage(hp));
             }
-
-            if (myCollider != null)
-                myCollider.enabled = false;
-
-            if (moveCoroutine != null)
-                StopCoroutine(moveCoroutine);
-
-            // 자식 오브젝트 모두 비활성화
-            foreach (Transform child in transform)
-                child.gameObject.SetActive(false);
-
-            // 스프라이트 투명 처리
-            SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            if (sr != null)
-                sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
         }
     }
 
-
-    IEnumerator ApplyDotDamageAndDestroy(EnemyHP hp)
+    // 파이어볼은 삭제하지 않고 DOT만 부여
+    IEnumerator ApplyDotDamage(EnemyHP hp)
     {
         float elapsed = 0f;
         if (hp == null) yield break;
@@ -154,16 +138,14 @@ public class FireballAI : MonoBehaviour
         {
             yield return new WaitForSeconds(interval);
 
-            // 적이 null이거나 비활성화, 혹은 체력이 0 이하이면 즉시 종료
             if (hp == null || !hp.gameObject.activeInHierarchy || hp.currentHP <= 0)
                 break;
 
             hp.FireballTakeDamage(damagePerTick);
             elapsed += interval;
         }
-
-        DestroySelf(); // DOT 끝나거나 적이 죽으면 Fireball 삭제
     }
+
 
 
     void DestroySelf()

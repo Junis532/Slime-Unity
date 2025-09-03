@@ -1,30 +1,62 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class LongRangeEnemyBullet : MonoBehaviour
 {
-    // ÀÌ°É true·Î ÇÏ¸é Obstacle ÅÂ±×¿¡ ´êÀ¸¸é ÃÑ¾ËÀÌ »ç¶óÁü
     public bool destroyOnObstacle = false;
+    public bool ignorePlayerWhenUsingSkill = true;
+
+    private Collider2D myCollider;
+    private Collider2D playerCollider;
+
+    void Awake()
+    {
+        myCollider = GetComponent<Collider2D>();
+
+        // ğŸ”¹ Player íƒœê·¸ë¡œ ì°¾ì•„ì„œ Collider ê°€ì ¸ì˜¤ê¸°
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            playerCollider = playerObj.GetComponent<Collider2D>();
+        }
+    }
+
+    void Update()
+    {
+        if (ignorePlayerWhenUsingSkill && GameManager.Instance.joystickDirectionIndicator != null && playerCollider != null)
+        {
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Physics2D.IgnoreCollision(myCollider, playerCollider, true);
+            }
+            else
+            {
+                Physics2D.IgnoreCollision(myCollider, playerCollider, false);
+            }
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            // µ¥¹ÌÁö ÁÖ±â
-            GameManager.Instance.playerStats.currentHP -= GameManager.Instance.longRangeEnemyStats.attack;
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö ÀÌÆåÆ® Àç»ı
+            if (ignorePlayerWhenUsingSkill &&
+                GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                return; // ì¶©ëŒ ë¬´ì‹œ
+            }
 
-            // Ã¼·ÂÀÌ 0 ÀÌÇÏÀÌ¸é Á×À½ Ã³¸®
+            GameManager.Instance.playerStats.currentHP -= GameManager.Instance.longRangeEnemyStats.attack;
+            GameManager.Instance.playerDamaged.PlayDamageEffect();
+
             if (GameManager.Instance.playerStats.currentHP <= 0)
             {
                 GameManager.Instance.playerStats.currentHP = 0;
-                //GameManager.Instance.PlayerDie?.Invoke(); // ÇÔ¼ö°¡ ÀÖ´Ù¸é È£Ãâ
             }
 
             Destroy(gameObject);
         }
         else if (destroyOnObstacle && collision.CompareTag("Obstacle"))
         {
-            // Obstacle ÅÂ±×¿¡ ´ê¾ÒÀ» ¶§ ÃÑ¾Ë »èÁ¦
             Destroy(gameObject);
         }
     }
