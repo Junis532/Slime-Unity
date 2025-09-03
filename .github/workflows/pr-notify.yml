@@ -1,0 +1,29 @@
+name: Notify Discord on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Get commit message
+        id: commit
+        run: |
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"username\": \"아리스\",
+              \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1412750990238814280/thumb_991469724_8c321a73_AIwLeP.png\",
+              \"content\": \"용사 아리스 보고합니다! \\n📢 **$GITHUB_ACTOR** 가 [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY)에 모험담을 올렸습니다!\\n메시지: $COMMIT_MESSAGE\"
+            }" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
