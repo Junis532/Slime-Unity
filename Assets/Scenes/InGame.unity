@@ -7580,6 +7580,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0963fbe35c18a4848b68e889c959d26a, type: 2}
   - {fileID: 11400000, guid: 0be1b848ac88d3b46a75ea5b9a6c6d50, type: 2}
   - {fileID: 11400000, guid: 5ab450a9f50da7c47b1f6f2d28098881, type: 2}
+  - {fileID: 11400000, guid: a5322468278758d49aa8ea70e16aff50, type: 2}
+  - {fileID: 11400000, guid: cec27637067e4904f822cfdd63755a26, type: 2}
+  - {fileID: 11400000, guid: d66217a410b52bc46bbc0d970dff99f2, type: 2}
+  - {fileID: 11400000, guid: abfaa9003fe4b35489c273c373ada82a, type: 2}
+  - {fileID: 11400000, guid: 90caa9146a971b74a969e478c15af303, type: 2}
   playerTransform: {fileID: 273251364}
   spawnInterval: 5
   warningEffectPrefab: {fileID: 222272227696880193, guid: 9a92aabc40526404e9993141f9973ac5, type: 3}
@@ -12669,6 +12674,9 @@ MonoBehaviour:
   - prefabName: EnemyHP
     prefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
     initialSize: 300
+  - prefabName: HitEffect
+    prefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+    initialSize: 100
   - prefabName: EnemyPrefab_01
     prefab: {fileID: 667012960139048804, guid: 2dca1f8498546a843bfb49880c547331, type: 3}
     initialSize: 1
@@ -12687,9 +12695,18 @@ MonoBehaviour:
   - prefabName: EnemyPrefab_06
     prefab: {fileID: 481738235982116049, guid: 34fadc99a527eec45a8f84ed39486eb8, type: 3}
     initialSize: 1
-  - prefabName: HitEffect
-    prefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
-    initialSize: 100
+  - prefabName: EnemyPrefab_07
+    prefab: {fileID: 2019617565517813634, guid: f1fe507ebd1166e47bc334a05188d2b7, type: 3}
+    initialSize: 1
+  - prefabName: EnemyPrefab_08
+    prefab: {fileID: 8144040701380008561, guid: f4776642f9ef219448067aa2808824fe, type: 3}
+    initialSize: 1
+  - prefabName: EnemyPrefab_09
+    prefab: {fileID: 7013659802764171836, guid: 366627053d4bce14f966df222a4d5034, type: 3}
+    initialSize: 1
+  - prefabName: EnemyPrefab_10
+    prefab: {fileID: 8549492503342944778, guid: 8b1b9718c771d504fbfeb9e48f257b5f, type: 3}
+    initialSize: 1
 --- !u!4 &1673252425
 Transform:
   m_ObjectHideFlags: 0

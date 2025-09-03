@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
 
 public class TurretEnemy : EnemyBase
@@ -7,8 +7,8 @@ public class TurretEnemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    public float fireRange = 5f;             // ¹ß»ç ¹üÀ§
-    public float fireCooldown = 1.5f;        // ¹ß»ç Äğ´Ù¿î
+    public float fireRange = 5f;             // ë°œì‚¬ ë²”ìœ„
+    public float fireCooldown = 1.5f;        // ë°œì‚¬ ì¿¨ë‹¤ìš´
     private float lastFireTime;
 
     public GameObject bulletPrefab;
@@ -17,7 +17,7 @@ public class TurretEnemy : EnemyBase
 
     private LineRenderer lineRenderer;
 
-    private bool isPreparingToFire = false; // ¹ß»ç ÁØºñÁß »óÅÂ
+    private bool isPreparingToFire = false; // ë°œì‚¬ ì¤€ë¹„ì¤‘ ìƒíƒœ
 
     void Start()
     {
@@ -27,7 +27,7 @@ public class TurretEnemy : EnemyBase
         originalSpeed = GameManager.Instance.longRangeEnemyStats.speed;
         speed = originalSpeed;
 
-        // LineRenderer ¼¼ÆÃ
+        // LineRenderer ì„¸íŒ…
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
@@ -37,6 +37,11 @@ public class TurretEnemy : EnemyBase
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.startColor = Color.red;
         lineRenderer.endColor = Color.red;
+
+        // ğŸ”½ ì—¬ê¸° ì¶”ê°€
+        lineRenderer.sortingOrder = 7;             // order 7ë¡œ ì„¤ì •
+        lineRenderer.sortingLayerName = "Default"; // í•„ìš”ì‹œ ì •ë ¬ ë ˆì´ì–´ ì§€ì •
+
     }
 
     void Update()
@@ -52,7 +57,7 @@ public class TurretEnemy : EnemyBase
 
         Vector2 toPlayer = player.transform.position - transform.position;
 
-        // ÁÂ¿ì ¹İÀü
+        // ì¢Œìš° ë°˜ì „
         if (toPlayer.x != 0)
         {
             Vector3 scale = transform.localScale;
@@ -60,14 +65,14 @@ public class TurretEnemy : EnemyBase
             transform.localScale = scale;
         }
 
-        // ¹ß»ç ÁØºñ ÁßÀÌµç ¾Æ´Ïµç ¼±Àº °è¼Ó º¸¿©ÁØ´Ù
+        // ë°œì‚¬ ì¤€ë¹„ ì¤‘ì´ë“  ì•„ë‹ˆë“  ì„ ì€ ê³„ì† ë³´ì—¬ì¤€ë‹¤
         if (!lineRenderer.enabled)
             lineRenderer.enabled = true;
 
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, player.transform.position);
 
-        // ¹ß»ç ÄğÅ¸ÀÓ Ã¼Å©
+        // ë°œì‚¬ ì¿¨íƒ€ì„ ì²´í¬
         if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot());
@@ -81,18 +86,18 @@ public class TurretEnemy : EnemyBase
     {
         isPreparingToFire = true;
 
-        float duration = 1f; // ÁØºñ ½Ã°£
+        float duration = 1f; // ì¤€ë¹„ ì‹œê°„
         float timer = 0f;
 
-        // ¿ø·¡ ¼± ±½±â/»ö ÀúÀå
+        // ì›ë˜ ì„  êµµê¸°/ìƒ‰ ì €ì¥
         float startWidth = 0.05f;
         Color startColor = Color.red;
 
-        // ÁØºñ µ¿¾È ¼± °¡´Ã¾îÁö°í Åõ¸íÇØÁü
+        // ì¤€ë¹„ ë™ì•ˆ ì„  ê°€ëŠ˜ì–´ì§€ê³  íˆ¬ëª…í•´ì§
         while (timer < duration)
         {
             timer += Time.deltaTime;
-            float t = timer / duration; // 0 ¡æ 1
+            float t = timer / duration; // 0 â†’ 1
 
             float width = Mathf.Lerp(startWidth, 0f, t);
             lineRenderer.startWidth = width;
@@ -105,10 +110,10 @@ public class TurretEnemy : EnemyBase
             yield return null;
         }
 
-        // ¹ß»ç Á÷Àü ¼± ¼û±â±â
+        // ë°œì‚¬ ì§ì „ ì„  ìˆ¨ê¸°ê¸°
         lineRenderer.enabled = false;
 
-        // ¹ß»ç ¹æÇâ °è»ê
+        // ë°œì‚¬ ë°©í–¥ ê³„ì‚°
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -117,12 +122,12 @@ public class TurretEnemy : EnemyBase
             lastFireTime = Time.time;
         }
 
-        // ¹ß»ç ÈÄ Àá½Ã ´ë±â
+        // ë°œì‚¬ í›„ ì ì‹œ ëŒ€ê¸°
         yield return new WaitForSeconds(0.3f);
 
         if (isLive)
         {
-            // ¼± ±½±â/»ö»ó º¹±¸
+            // ì„  êµµê¸°/ìƒ‰ìƒ ë³µêµ¬
             lineRenderer.startWidth = startWidth;
             lineRenderer.endWidth = startWidth;
             lineRenderer.startColor = startColor;
