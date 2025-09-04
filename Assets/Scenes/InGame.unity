@@ -4523,9 +4523,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.08974359
     y: 0
-    width: 1
+    width: 0.82051283
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -12698,13 +12698,13 @@ MonoBehaviour:
     prefab: {fileID: 8144040701380008561, guid: f4776642f9ef219448067aa2808824fe, type: 3}
     initialSize: 1
   - prefabName: EnemyPrefab_09
-    prefab: {fileID: 7013659802764171836, guid: 366627053d4bce14f966df222a4d5034, type: 3}
-    initialSize: 1
-  - prefabName: BossTest
-    prefab: {fileID: 3794470274760846031, guid: 22c4d767077fd224980b6d87af7f833b, type: 3}
+    prefab: {fileID: 8879987666439926324, guid: b49f072ef83ed3b4ba6e166b7ab316aa, type: 3}
     initialSize: 1
   - prefabName: EnemyPrefab_10
     prefab: {fileID: 8549492503342944778, guid: 8b1b9718c771d504fbfeb9e48f257b5f, type: 3}
+    initialSize: 1
+  - prefabName: BossTest
+    prefab: {fileID: 3794470274760846031, guid: 22c4d767077fd224980b6d87af7f833b, type: 3}
     initialSize: 1
 --- !u!4 &1673252425
 Transform:
@@ -19652,6 +19652,10 @@ PrefabInstance:
       propertyPath: CooltimeImange
       value: 
       objectReference: {fileID: 885820772}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: slimeJumpDamage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: joystickCanvasGroup
       value: 
