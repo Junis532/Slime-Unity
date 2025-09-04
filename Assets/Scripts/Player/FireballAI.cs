@@ -121,7 +121,14 @@ public class FireballAI : MonoBehaviour
                 // DOT만 적용 (Fireball은 계속 날아감)
                 StartCoroutine(ApplyDotDamage(hp));
             }
+
+            Boss1HP bossHP = other.GetComponent<Boss1HP>();
+            if (bossHP != null)
+            {
+                StartCoroutine(ApplyDotDamageToBoss(bossHP));
+            }
         }
+
     }
 
     // 파이어볼은 삭제하지 않고 DOT만 부여
@@ -146,7 +153,27 @@ public class FireballAI : MonoBehaviour
         }
     }
 
+    // Boss1용 DOT
+    IEnumerator ApplyDotDamageToBoss(Boss1HP bossHP)
+    {
+        float elapsed = 0f;
+        if (bossHP == null) yield break;
 
+        // 첫 도트 즉시 적용
+        bossHP.FireballTakeDamage(damagePerTick);
+        elapsed += interval;
+
+        while (elapsed < duration)
+        {
+            yield return new WaitForSeconds(interval);
+
+            if (bossHP == null || !bossHP.gameObject.activeInHierarchy || bossHP.currentHP <= 0)
+                break;
+
+            bossHP.FireballTakeDamage(damagePerTick);
+            elapsed += interval;
+        }
+    }
 
     void DestroySelf()
     {

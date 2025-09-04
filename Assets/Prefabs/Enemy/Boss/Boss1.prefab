@@ -13,9 +13,12 @@ GameObject:
   - component: {fileID: 4629182187077551106}
   - component: {fileID: 6032643613741974610}
   - component: {fileID: 3806851225337796425}
+  - component: {fileID: 8123858425724989127}
+  - component: {fileID: 4121127087576710826}
+  - component: {fileID: 5264202417886166955}
   m_Layer: 0
-  m_Name: FireBoss
-  m_TagString: Untagged
+  m_Name: Boss1
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -78,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -106,13 +109,29 @@ MonoBehaviour:
   originalSpeed: 3.4
   skillInterval: 3
   dashPreviewPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
-  potionPrefab: {fileID: 6950589694986560093, guid: d6ca1447baef0da4b81dbe7158aba161, type: 3}
-  potionLifetime: 2
   fireballPrefab: {fileID: 5550792999026934341, guid: 7836a18ff439c1d41bd62c1748e95007, type: 3}
   numberOfFireballs: 36
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: a1eeda15a1aae7542a2f0bc1ab7212e5, type: 3}
   warningDuration: 2
   fireballSpawnRadius: 1.5
+  warningCirclePrefabs:
+  - {fileID: 8383914500574686974, guid: da1039c61b944174e924c7a9e20df858, type: 3}
+  - {fileID: 3755227015551435017, guid: 5030094ace3aeea49965b8ef4329912e, type: 3}
+  - {fileID: 2328355388354309022, guid: f8e0ca9ed0554e94982cb6dada75691c, type: 3}
+  damageCirclePrefabs:
+  - {fileID: 4340096184476124004, guid: 979109a4131514d498b33b62a79ca5f6, type: 3}
+  - {fileID: 5866302296878328692, guid: 5b0384c159c6d65419a69a54afd500a0, type: 3}
+  - {fileID: 5690298352692937285, guid: 5ba72477db802854fa7f56d8ed0949b6, type: 3}
+  circleScales:
+  - 12
+  - 10
+  - 8
+  skillCenterOffset: {x: 0, y: 0, z: 0}
+  warningDelay: 1
+  swordPrefab: {fileID: 347653659148658381, guid: 6411b994de10d14439b1fe9cc88e5c2e, type: 3}
+  swordSpawnDistance: 1.7
+  swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
+  swordRangeDistance: 2.6
 --- !u!114 &6032643613741974610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,3 +180,84 @@ NavMeshAgent:
   m_BaseOffset: 0.5555556
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!70 &8123858425724989127
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3775493325575688674}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.00087475777, y: 0}
+  m_Size: {x: 0.7848284, y: 1.1111112}
+  m_Direction: 0
+--- !u!50 &4121127087576710826
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3775493325575688674}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!114 &5264202417886166955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3775493325575688674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 925f16236fec7ab48a6355c2af71b02e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hpBarPrefab: {fileID: 4645806125883571126, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
+  currentHP: 0
+  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}

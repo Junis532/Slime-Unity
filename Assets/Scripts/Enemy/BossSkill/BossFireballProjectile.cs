@@ -34,6 +34,13 @@ public class BossFireballProjectile : MonoBehaviour
 
         if (collision.CompareTag("Player"))
         {
+
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Debug.Log("스킬 사용 중이라 몬스터 데미지 무시");
+                return;
+            }
+
             int damage = GameManager.Instance.boss1Stats.attack;
             GameManager.Instance.playerStats.currentHP -= damage;
             GameManager.Instance.playerDamaged.PlayDamageEffect(); // 플레이어 데미지 이펙트 재생

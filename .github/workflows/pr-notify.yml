@@ -1,29 +1,88 @@
-name: Notify Discord on Push
+name: Discord Notify Rotating Push
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      # 0. 레포지토리 체크아웃
+      - name: Checkout repository
+        if: github.event_name == 'push'
         uses: actions/checkout@v3
 
-      - name: Get commit message
-        id: commit
+      # 1. 최근 커밋 메시지 가져오기 (한 줄만)
+      - name: Get Latest Commit Message
+        if: github.event_name == 'push'
         run: |
           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
-      - name: Send Discord Notification
+      # 2. 캐릭터 선택
+      - name: Select Character and Dialogue
+        if: github.event_name == 'push'
+        run: |
+          LAST_CHAR=${GITHUB_SHA: -1}
+          INDEX=$((16#$LAST_CHAR % 4))
+
+          if [[ $INDEX -eq 0 ]]; then
+            CHAR_NAME="아리스"
+            CHAR_AVATAR="https://media.discordapp.net/attachments/1412750974996709476/1413094260030570506/DGjRhhNYP4vH0Jfmq73WQIHi6pnGztZZCfG3KylOX81ERhl-6MO1aRbPGQR28WEgaTqqohGUy3DKsJEtXLFb7w.png?format=webp&quality=lossless"
+            CHAR_TITLE="팜파카팜! 아리스는 새로운 모험담을 발견했습니다!"
+          elif [[ $INDEX -eq 1 ]]; then
+            CHAR_NAME="모모이"
+            CHAR_AVATAR="https://media.discordapp.net/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png?format=webp&quality=lossless"
+            CHAR_TITLE="우와아아아앗 새로운 코드잖아!?"
+          elif [[ $INDEX -eq 2 ]]; then
+            CHAR_NAME="미도리"
+            CHAR_AVATAR="https://media.discordapp.net/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png?format=webp&quality=lossless"
+            CHAR_TITLE="새로운 코드를 불러오기 합니다."
+          else
+            CHAR_NAME="유즈"
+            CHAR_AVATAR="https://media.discordapp.net/attachments/1412750974996709476/1413095170093875211/1756978522.png?format=webp&quality=lossless"
+            CHAR_TITLE="저...! 그...새로운 코드가...있는데요..."
+          fi
+
+          CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
+
+          echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
+          echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
+          echo "CHAR_TITLE=$CHAR_TITLE" >> $GITHUB_ENV
+          echo "CHAR_DESC=$CHAR_DESC" >> $GITHUB_ENV
+
+      # 3. Push 알림
+      - name: Notify Push
+        if: github.event_name == 'push'
         run: |
           curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{
-              \"username\": \"아리스\",
-              \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1412750990238814280/thumb_991469724_8c321a73_AIwLeP.png\",
-              \"content\": \"용사 아리스 보고합니다! \\n📢 **$GITHUB_ACTOR** 가 [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY)에 모험담을 올렸습니다!\\n메시지: $COMMIT_MESSAGE\"
-            }" \
-            ${{ secrets.DISCORD_WEBHOOK_URL }}
+          -X POST \
+          -d "{
+                \"username\": \"$CHAR_NAME\",
+                \"avatar_url\": \"$CHAR_AVATAR\",
+                \"embeds\": [ {
+                  \"title\": \"$CHAR_TITLE\",
+                  \"description\": \"$CHAR_DESC\",
+                  \"color\": 5814783
+                } ]
+              }" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      # 4. Pull Request 알림 (고정 캐릭터)
+      - name: Notify Pull Request
+        if: github.event_name == 'pull_request'
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+                \"username\": \"미도리\",
+                \"avatar_url\": \"https://media.discordapp.net/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png?format=webp&quality=lossless\",
+                \"embeds\": [ {
+                  \"title\": \"새로운 코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
+                  \"description\": \"Opened/updated by ${{ github.actor }}\",
+                  \"color\": 16776960
+                } ]
+              }" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
