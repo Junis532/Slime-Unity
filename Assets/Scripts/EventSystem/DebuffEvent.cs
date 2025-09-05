@@ -248,7 +248,7 @@ public class deBuffEvent : MonoBehaviour
 
         // 2. UI 초기화
         dialogImage.gameObject.SetActive(true);
-        dialogImage.rectTransform.anchoredPosition = new Vector2(39f, 13f); // 적절히 조정
+        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -223f); // 적절히 조정
         dialogImage.color = new Color(1, 1, 1, 1);
 
         shopNPC.gameObject.SetActive(true);
