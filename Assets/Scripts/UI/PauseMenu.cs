@@ -22,6 +22,7 @@ public class PauseMenu : MonoBehaviour
         if (leaveButton != null)
         {
             leaveButton.onClick.AddListener(OnLeaveClicked);
+            leaveButton.onClick.AddListener(ToggleUI);
         }
     }
 

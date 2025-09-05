@@ -116,6 +116,7 @@ public class WaveManager : MonoBehaviour
 
         if (currentMapInstance != null)
         {
+            StopAllCoroutines(); // ← 이전 맵 관련 코루틴 중단
             Destroy(currentMapInstance);
             currentMapInstance = null;
         }
@@ -144,7 +145,7 @@ public class WaveManager : MonoBehaviour
         {
             Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 버프 이벤트 스테이지입니다.");
             GameManager.Instance.ChangeStateToEventBuff();
-            SpawnPortal();
+            // 🔥 여기서 SpawnPortal() 제거
             return;
         }
 
@@ -152,7 +153,7 @@ public class WaveManager : MonoBehaviour
         {
             Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 디버프 이벤트 스테이지입니다.");
             GameManager.Instance.ChangeStateToEventDebuff();
-            SpawnPortal();
+            // 🔥 여기서 SpawnPortal() 제거
             return;
         }
 
@@ -164,6 +165,14 @@ public class WaveManager : MonoBehaviour
     IEnumerator BakeNavMeshDelayed(GameObject mapInstance)
     {
         yield return null;
+
+        // 오브젝트가 이미 Destroy 되었는지 체크
+        if (mapInstance == null)
+        {
+            Debug.LogWarning("[WaveManager] NavMeshSurface 베이크 시도했지만 mapInstance가 이미 Destroy됨");
+            yield break;
+        }
+
         NavMeshSurface surface = mapInstance.GetComponentInChildren<NavMeshSurface>();
         if (surface != null)
         {
@@ -175,6 +184,7 @@ public class WaveManager : MonoBehaviour
             Debug.LogWarning("[WaveManager] NavMeshSurface를 찾을 수 없습니다.");
         }
     }
+
 
     bool IsEnemyTag(string tag)
     {

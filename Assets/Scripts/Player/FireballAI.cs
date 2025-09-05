@@ -131,26 +131,26 @@ public class FireballAI : MonoBehaviour
 
     }
 
-    // 파이어볼은 삭제하지 않고 DOT만 부여
     IEnumerator ApplyDotDamage(EnemyHP hp)
     {
         float elapsed = 0f;
         if (hp == null) yield break;
 
-        // 첫 도트 즉시 적용
-        hp.FireballTakeDamage(damagePerTick);
+        hp.FireballTakeDamage(damagePerTick); // 첫 즉시 데미지
         elapsed += interval;
 
         while (elapsed < duration)
         {
             yield return new WaitForSeconds(interval);
-
             if (hp == null || !hp.gameObject.activeInHierarchy || hp.currentHP <= 0)
                 break;
 
             hp.FireballTakeDamage(damagePerTick);
             elapsed += interval;
         }
+
+        // DOT 끝나면 제거 (이동 중지)
+        DestroySelf();
     }
 
     // Boss1용 DOT

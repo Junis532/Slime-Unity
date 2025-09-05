@@ -221,17 +221,64 @@ public class deBuffEvent : MonoBehaviour
             CanvasGroup canvasGroup = shopPanel.GetComponent<CanvasGroup>();
             if (canvasGroup != null)
                 canvasGroup.DOFade(0f, 0.7f);
-
             shopPanel.DOAnchorPosY(1500f, 0.7f);
-
             if (shopUI != null)
             {
                 Canvas canvas = shopUI.GetComponent<Canvas>();
                 if (canvas != null)
                     canvas.sortingOrder = -1;
             }
-
             GameManager.Instance.playerController.canMove = true;
         }
+
+        // WaveManager에서 몬스터 스폰 재개
+        WaveManager wm = FindFirstObjectByType<WaveManager>();
+        if (wm != null)
+        {
+            GameManager.Instance.ChangeStateToGame();
+            wm.StartSpawnLoop();
+        }
     }
+
+    public void OpenPanel()
+    {
+        // 1. 내부 상태 초기화
+        isDialogActive = false;
+        selectedItem = null;
+
+        // 2. UI 초기화
+        dialogImage.gameObject.SetActive(true);
+        dialogImage.rectTransform.anchoredPosition = new Vector2(39f, 13f); // 적절히 조정
+        dialogImage.color = new Color(1, 1, 1, 1);
+
+        shopNPC.gameObject.SetActive(true);
+        shopNPC.rectTransform.anchoredPosition = new Vector2(0f, 0f);
+        shopNPC.color = new Color(1, 1, 1, 1);
+
+        dialogText.gameObject.SetActive(true);
+        dialogText.text = "";
+        dialogText.color = new Color(0, 0, 0, 1);
+
+        itemSlot.SetActive(false);
+
+        if (shopPanel != null)
+        {
+            shopPanel.DOKill();
+            shopPanel.anchoredPosition = new Vector2(0f, 0f);
+            CanvasGroup cg = shopPanel.GetComponent<CanvasGroup>();
+            if (cg != null)
+                cg.alpha = 1f;
+        }
+        if (shopUI != null)
+        {
+            Canvas canvas = shopUI.GetComponent<Canvas>();
+            if (canvas != null)
+                canvas.sortingOrder = 100; // UI가 다른 것들에 가려지지 않도록
+        }
+
+        // 3. 다이어로그 새로 시작
+        StopAllCoroutines();
+        StartCoroutine(ShowDialogCoroutine(currentDialog));
+    }
+
 }

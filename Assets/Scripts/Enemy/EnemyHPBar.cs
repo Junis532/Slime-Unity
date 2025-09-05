@@ -5,7 +5,7 @@ public class EnemyHPBar : MonoBehaviour
 {
     public Slider hpSlider;
     private Transform target; // 따라갈 대상(적)
-    private Vector3 offset = new Vector3(0, 0.5f, 0); // HP바 위치 오프셋
+    private Vector3 offset = new Vector3(0, 0.6f, 0); // HP바 위치 오프셋
 
     public void Init(Transform target, float maxHP)
     {

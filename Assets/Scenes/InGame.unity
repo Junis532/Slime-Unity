@@ -7157,7 +7157,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 39, y: 13.3}
+  m_AnchoredPosition: {x: 39, y: 13}
   m_SizeDelta: {x: 1255.0367, y: 312.7612}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &829329330
@@ -7503,6 +7503,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1efa42c009b85af47b6dc7ac8533f153, type: 2}
   - {fileID: 11400000, guid: 10a844181809bee4baec8ca26049f668, type: 2}
   - {fileID: 11400000, guid: bdd595c6cbc9275449ba8fbf2c036277, type: 2}
+  buffEvent: {fileID: 846765411}
+  debuffEvent: {fileID: 846765412}
   eventBuffUI: {fileID: 631943295}
   eventBuffUICanvas: {fileID: 373165623}
   eventDebuffUI: {fileID: 2006722635}
@@ -7581,6 +7583,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d66217a410b52bc46bbc0d970dff99f2, type: 2}
   - {fileID: 11400000, guid: abfaa9003fe4b35489c273c373ada82a, type: 2}
   - {fileID: 11400000, guid: 90caa9146a971b74a969e478c15af303, type: 2}
+  - {fileID: 11400000, guid: ac881e5fb3124a548a990052923a04a5, type: 2}
   playerTransform: {fileID: 273251364}
   spawnInterval: 5
   warningEffectPrefab: {fileID: 222272227696880193, guid: 9a92aabc40526404e9993141f9973ac5, type: 3}
@@ -7617,7 +7620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 513307099530048132, guid: 14ab7ae7ab089ea46a72de861157b9b2, type: 3}
   fireballPrefab: {fileID: 4569160523590299005, guid: 1c5ae1326c2af9b478c2e6e706cce077, type: 3}
-  useFireball: 1
+  useFireball: 0
   fireballDotMultiplier: 0.5
   slowSkillActive: 0
   spawnInterval: 0.75
@@ -12673,6 +12676,9 @@ MonoBehaviour:
   - prefabName: HitEffect
     prefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
     initialSize: 100
+  - prefabName: BossTest
+    prefab: {fileID: 3794470274760846031, guid: 22c4d767077fd224980b6d87af7f833b, type: 3}
+    initialSize: 1
   - prefabName: EnemyPrefab_01
     prefab: {fileID: 667012960139048804, guid: 2dca1f8498546a843bfb49880c547331, type: 3}
     initialSize: 1
@@ -12703,8 +12709,8 @@ MonoBehaviour:
   - prefabName: EnemyPrefab_10
     prefab: {fileID: 8549492503342944778, guid: 8b1b9718c771d504fbfeb9e48f257b5f, type: 3}
     initialSize: 1
-  - prefabName: BossTest
-    prefab: {fileID: 3794470274760846031, guid: 22c4d767077fd224980b6d87af7f833b, type: 3}
+  - prefabName: EnemyPrefab_11
+    prefab: {fileID: 4746192029804329393, guid: a17970f7c6a03854e943dd54be200af9, type: 3}
     initialSize: 1
 --- !u!4 &1673252425
 Transform:

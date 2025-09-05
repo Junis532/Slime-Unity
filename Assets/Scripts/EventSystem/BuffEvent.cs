@@ -1,4 +1,5 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,43 +8,43 @@ using UnityEngine.UI;
 
 public class BuffEvent : MonoBehaviour
 {
-    [Header("¹öÇÁ µ¥ÀÌÅÍ")]
+    [Header("ë²„í”„ ë°ì´í„°")]
     public List<ItemStats> allItems
     {
         get { return GameManager.Instance.buffs; }
     }
 
-    [Header("UI ½½·Ô (2°³)")]
+    [Header("UI ìŠ¬ë¡¯ (2ê°œ)")]
     public List<GameObject> itemSlots;
 
-    [Header("¹öÇÁ ÆĞ³Î")]
+    [Header("ë²„í”„ íŒ¨ë„")]
     public RectTransform shopPanel;
 
-    [Header("¹öÇÁ UI ¿ÀºêÁ§Æ®")]
+    [Header("ë²„í”„ UI ì˜¤ë¸Œì íŠ¸")]
     public GameObject shopUI;
 
-    [Header("´ÙÀÌ¾î·Î±×")]
+    [Header("ë‹¤ì´ì–´ë¡œê·¸")]
     public Image dialogImage;
     public TMP_Text dialogText;
     public List<string> dialogList;
 
-    [Header("Å©¸®Æ¼ÄÃ ¹öÇÁ °³¼ö")]
+    [Header("í¬ë¦¬í‹°ì»¬ ë²„í”„ ê°œìˆ˜")]
     public int criticalBuffCount = 0;
 
     private ItemStats[] selectedItems = new ItemStats[2];
 
-    // ´ÙÀÌ¾î·Î±× °ü·Ã
+    // ë‹¤ì´ì–´ë¡œê·¸ ê´€ë ¨
     private bool isDialogActive = false;
 
     private void Start()
     {
-        // Ã³À½¿¡´Â ¾ÆÀÌÅÛ ½½·Ô ¼û±â±â
+        // ì²˜ìŒì—ëŠ” ì•„ì´í…œ ìŠ¬ë¡¯ ìˆ¨ê¸°ê¸°
         foreach (GameObject slot in itemSlots)
         {
             slot.SetActive(false);
         }
 
-        // ´ÙÀÌ¾î·Î±× ·£´ı ¼±ÅÃ
+        // ë‹¤ì´ì–´ë¡œê·¸ ëœë¤ ì„ íƒ
         string chosenDialog;
         if (dialogList != null && dialogList.Count > 0)
         {
@@ -52,23 +53,23 @@ public class BuffEvent : MonoBehaviour
         }
         else
         {
-            chosenDialog = "ÈûÀ» ¾òÀ» ±âÈ¸°¡ ¿Ô½À´Ï´Ù! ¿øÇÏ´Â ¹öÇÁ¸¦ ¼±ÅÃÇÏ¼¼¿ä.";
+            chosenDialog = "í˜ì„ ì–»ì„ ê¸°íšŒê°€ ì™”ìŠµë‹ˆë‹¤! ì›í•˜ëŠ” ë²„í”„ë¥¼ ì„ íƒí•˜ì„¸ìš”.";
         }
 
-        // ´ÙÀÌ¾î·Î±× ½ÇÇà
+        // ë‹¤ì´ì–´ë¡œê·¸ ì‹¤í–‰
         StartCoroutine(ShowDialogCoroutine(chosenDialog));
     }
 
     private void Update()
     {
-        // ´ÙÀÌ¾î·Î±× Áß¿¡ Å¬¸¯ÇÏ¸é ¡æ Á¾·á
+        // ë‹¤ì´ì–´ë¡œê·¸ ì¤‘ì— í´ë¦­í•˜ë©´ â†’ ì¢…ë£Œ
         if (isDialogActive && Input.GetMouseButtonDown(0))
         {
             StartCoroutine(HideDialogAndShowItems());
         }
     }
 
-    // ´ÙÀÌ¾î·Î±× ÇÑ ±ÛÀÚ¾¿ Ãâ·Â
+    // ë‹¤ì´ì–´ë¡œê·¸ í•œ ê¸€ìì”© ì¶œë ¥
     private IEnumerator ShowDialogCoroutine(string text)
     {
         isDialogActive = true;
@@ -84,7 +85,7 @@ public class BuffEvent : MonoBehaviour
         }
     }
 
-    // ´ÙÀÌ¾î·Î±× ³»·Á°¡¸ç »ç¶óÁø ÈÄ ¡æ ¾ÆÀÌÅÛ ½½·Ô µîÀå
+    // ë‹¤ì´ì–´ë¡œê·¸ ë‚´ë ¤ê°€ë©° ì‚¬ë¼ì§„ í›„ â†’ ì•„ì´í…œ ìŠ¬ë¡¯ ë“±ì¥
     private IEnumerator HideDialogAndShowItems()
     {
         isDialogActive = false;
@@ -98,7 +99,7 @@ public class BuffEvent : MonoBehaviour
         dialogImage.gameObject.SetActive(false);
         dialogText.gameObject.SetActive(false);
 
-        // ½½·Ô È°¼ºÈ­ ÈÄ ¾ÆÀÌÅÛ µîÀå
+        // ìŠ¬ë¡¯ í™œì„±í™” í›„ ì•„ì´í…œ ë“±ì¥
         foreach (GameObject slot in itemSlots)
         {
             slot.SetActive(true);
@@ -125,7 +126,7 @@ public class BuffEvent : MonoBehaviour
             descText.text = item.description;
             icon.sprite = item.icon;
 
-            // Ã³À½¿£ Åõ¸í
+            // ì²˜ìŒì—” íˆ¬ëª…
             icon.transform.localScale = Vector3.zero;
             SetAlpha(icon, 0f);
             SetAlpha(nameText, 0f);
@@ -143,7 +144,7 @@ public class BuffEvent : MonoBehaviour
     {
         if (allItems.Count < itemSlots.Count)
         {
-            Debug.LogWarning("allItems¿¡ ÃæºĞÇÑ ¾ÆÀÌÅÛÀÌ ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("allItemsì— ì¶©ë¶„í•œ ì•„ì´í…œì´ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -156,7 +157,7 @@ public class BuffEvent : MonoBehaviour
         float duration = 1f;
         float timer = 0f;
 
-        // ½½·Ô ¾ÆÀÌÄÜ ·£´ı È¸Àü È¿°ú
+        // ìŠ¬ë¡¯ ì•„ì´ì½˜ ëœë¤ íšŒì „ íš¨ê³¼
         while (timer < duration)
         {
             for (int i = 0; i < itemSlots.Count; i++)
@@ -172,7 +173,7 @@ public class BuffEvent : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        // ÃÖÁ¾ ¾ÆÀÌÅÛ ¼±ÅÃ
+        // ìµœì¢… ì•„ì´í…œ ì„ íƒ
         List<ItemStats> tempList = new List<ItemStats>(allItems);
         for (int i = 0; i < itemSlots.Count; i++)
         {
@@ -193,7 +194,7 @@ public class BuffEvent : MonoBehaviour
             nameText.text = selectedItems[i].itemName;
             descText.text = selectedItems[i].description;
 
-            // Ã³À½¿£ Åõ¸í
+            // ì²˜ìŒì—” íˆ¬ëª…
             SetAlpha(nameText, 0f);
             SetAlpha(descText, 0f);
 
@@ -216,7 +217,7 @@ public class BuffEvent : MonoBehaviour
             seq.Join(descText.DOFade(1f, 0.3f));
         }
 
-        // ¹öÆ° »óÅÂ ¾÷µ¥ÀÌÆ®
+        // ë²„íŠ¼ ìƒíƒœ ì—…ë°ì´íŠ¸
         UpdateBuyButtonStates();
     }
 
@@ -225,7 +226,7 @@ public class BuffEvent : MonoBehaviour
         GameObject slot = itemSlots[index];
         ItemStats chosenItem = selectedItems[index];
 
-        // ¼±ÅÃ ½Ã ³ª¸ÓÁö ¹öÆ° ¸ğµÎ ºñÈ°¼ºÈ­
+        // ì„ íƒ ì‹œ ë‚˜ë¨¸ì§€ ë²„íŠ¼ ëª¨ë‘ ë¹„í™œì„±í™”
         DisableAllBuyButtons();
 
         Transform iconT = slot.transform.Find("ItemIcon");
@@ -276,7 +277,7 @@ public class BuffEvent : MonoBehaviour
 
     void BuyItem(ItemStats item, GameObject slot)
     {
-        Debug.Log($"[¼±ÅÃ] {item.itemName}");
+        Debug.Log($"[ì„ íƒ] {item.itemName}");
 
         ApplyItemEffect(item);
         UpdateBuyButtonStates();
@@ -294,7 +295,9 @@ public class BuffEvent : MonoBehaviour
                 break;
 
             case 1:
-                GameManager.Instance.playerStats.maxHP += GameManager.Instance.playerStats.maxHP * 0.2f;
+                float maxHPGet = GameManager.Instance.playerStats.maxHP * 0.2f;
+                GameManager.Instance.playerStats.maxHP += maxHPGet;
+                GameManager.Instance.playerStats.currentHP += maxHPGet;
                 break;
 
             case 2:
@@ -384,5 +387,57 @@ public class BuffEvent : MonoBehaviour
             }
             GameManager.Instance.playerController.canMove = true;
         }
+
+        // ğŸ”¥ ë²„í”„ ì„ íƒ ì°½ ë‹«ìœ¼ë©´ WaveManagerì—ì„œ ëª¹ ìŠ¤í° ì‹œì‘
+        WaveManager wm = FindFirstObjectByType<WaveManager>();
+        if (wm != null)
+        {
+            GameManager.Instance.ChangeStateToGame();
+            wm.StartSpawnLoop();
+        }
     }
+
+    public void OpenPanel()
+    {
+        // 1. ë‚´ë¶€ ìƒíƒœ ì´ˆê¸°í™”
+        isDialogActive = false;
+        for (int i = 0; i < selectedItems.Length; i++) selectedItems[i] = null;
+
+        // 2. UI ì´ˆê¸°í™”
+        dialogImage.gameObject.SetActive(true);
+        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -275f);
+        dialogImage.color = new Color(1, 1, 1, 1);
+
+        dialogText.gameObject.SetActive(true);
+        dialogText.text = "";
+        dialogText.color = new Color(0, 0, 0, 1);
+
+        foreach (var slot in itemSlots) slot.SetActive(false);
+
+        if (shopPanel != null)
+        {
+            shopPanel.DOKill();
+            shopPanel.anchoredPosition = new Vector2(0f, 0f);
+            CanvasGroup cg = shopPanel.GetComponent<CanvasGroup>();
+            if (cg != null)
+                cg.alpha = 1f;
+        }
+        if (shopUI != null)
+        {
+            Canvas canvas = shopUI.GetComponent<Canvas>();
+            if (canvas != null)
+                canvas.sortingOrder = 100; // í•„ìš”ì‹œ UIê°€ ë’¤ì— ê°€ë ¤ì§€ì§€ ì•Šë„ë¡
+        }
+
+        // 3. ë‹¤ì´ì–´ë¡œê·¸ ëœë¤ ì„ íƒ
+        string chosenDialog = (dialogList != null && dialogList.Count > 0)
+                                ? dialogList[Random.Range(0, dialogList.Count)]
+                                : "í˜ì„ ì–»ì„ ê¸°íšŒê°€ ì™”ìŠµë‹ˆë‹¤! ì›í•˜ëŠ” ë²„í”„ë¥¼ ì„ íƒí•˜ì„¸ìš”.";
+
+        // 4. ì½”ë£¨í‹´ ì¬ì‹œì‘
+        StopAllCoroutines();
+        StartCoroutine(ShowDialogCoroutine(chosenDialog));
+    }
+
+
 }

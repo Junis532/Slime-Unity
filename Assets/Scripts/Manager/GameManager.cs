@@ -43,6 +43,8 @@ public class GameManager : MonoSingleTone<GameManager>
 
 
     [Header("이벤트 버프 & 디버프 UI")]
+    public BuffEvent buffEvent;
+    public deBuffEvent debuffEvent;
     public GameObject eventBuffUI;
     public GameObject eventBuffUICanvas;
     public GameObject eventDebuffUI;
@@ -212,8 +214,7 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.EventBuff;
         Debug.Log("상태: EventBuff - 이벤트 버프 상태");
-        playerController.canMove = false;
-
+        buffEvent.OpenPanel();
         if (eventBuffUI != null)
         {
             CanvasGroup cg = eventBuffUI.GetComponent<CanvasGroup>();
@@ -248,7 +249,7 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.EventDebuff;
         Debug.Log("상태: EventDebuff - 이벤트 디버프 상태");
-        playerController.canMove = false;
+        debuffEvent.OpenPanel();
         if (eventDebuffUI != null)
         {
             CanvasGroup cg = eventDebuffUI.GetComponent<CanvasGroup>();

@@ -3848,9 +3848,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.055555556
+    x: 0.08974359
     y: 0
-    width: 0.8888889
+    width: 0.82051283
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -4593,7 +4593,6 @@ MonoBehaviour:
   joystick: {fileID: 0}
   joystickCanvasGroup: {fileID: 0}
   imageToHideWhenTouching: {fileID: 0}
-  blockInputCanvas: {fileID: 0}
   directionSpritePrefabs:
   - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
   - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
@@ -4632,9 +4631,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 0
-  fireballSound: {fileID: 0}
-  lightningSound: {fileID: 0}
-  windWallSound: {fileID: 0}
   waitTimerText: {fileID: 0}
   CooltimeImange: {fileID: 0}
   waitInterval: 10
@@ -4652,6 +4648,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpFillImage: {fileID: 0}
   hpText: {fileID: 0}
+--- !u!114 &464397819 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8816511963348474582, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+  m_PrefabInstance: {fileID: 464397809}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464397810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e4fc2bd8432a948b791f570854d414, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &472908976
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5822,43 +5829,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b2e482a63af3d43b6044d02c0759cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraShake: {fileID: 0}
-  playerController: {fileID: 0}
-  playerDamaged: {fileID: 0}
-  playerDie: {fileID: 0}
-  playerStats: {fileID: 11400000, guid: 0365ba13a9443ef439cc30e6f3181af9, type: 2}
-  enemyStats: {fileID: 0}
-  dashEnemyStats: {fileID: 0}
-  longRangeEnemyStats: {fileID: 0}
-  potionEnemyStats: {fileID: 0}
-  enemySpawner: {fileID: 0}
-  itemStats1: {fileID: 0}
-  itemStats2: {fileID: 0}
-  itemStats3: {fileID: 0}
-  itemStats4: {fileID: 0}
-  itemStats5: {fileID: 0}
-  itemStats6: {fileID: 0}
-  itemStats7: {fileID: 0}
-  itemStats8: {fileID: 0}
-  itemStats9: {fileID: 0}
-  itemStats10: {fileID: 0}
-  enemy: {fileID: 0}
-  dashEnemy: {fileID: 0}
-  longRangeEnemy: {fileID: 0}
-  potionEnemy: {fileID: 0}
-  timer: {fileID: 0}
   audioManager: {fileID: 0}
   poolManager: {fileID: 0}
   shopManager: {fileID: 0}
   waveManager: {fileID: 0}
-  dialogManager: {fileID: 0}
-  enemyHP: {fileID: 0}
-  diceAnimation: {fileID: 0}
+  playerAnimation: {fileID: 0}
+  playerController: {fileID: 464397819}
+  playerDamaged: {fileID: 0}
+  playerDie: {fileID: 0}
+  playerStats: {fileID: 11400000, guid: 0365ba13a9443ef439cc30e6f3181af9, type: 2}
   joystickDirectionIndicator: {fileID: 0}
-  zacSkill: {fileID: 0}
-  shopUI: {fileID: 0}
-  shopPanel: {fileID: 0}
-  gameTime: 0
+  shopEnter: {fileID: 0}
+  cameraShake: {fileID: 0}
+  cineCamera: {fileID: 0}
+  enemyStats: {fileID: 0}
+  dashEnemyStats: {fileID: 0}
+  longRangeEnemyStats: {fileID: 0}
+  potionEnemyStats: {fileID: 0}
+  boss1Stats: {fileID: 0}
+  shops: []
+  buffs: []
+  debuffs: []
+  eventBuffUI: {fileID: 0}
+  eventBuffUICanvas: {fileID: 0}
+  eventDebuffUI: {fileID: 0}
+  eventDebuffUICanvas: {fileID: 0}
+  gPositionDamping: {x: 0.5, y: 1000000, z: 0.5}
+  fixedPosition: {x: -100, y: 0, z: 0}
 --- !u!4 &630532414
 Transform:
   m_ObjectHideFlags: 0
