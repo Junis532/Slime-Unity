@@ -228,8 +228,8 @@ public class deBuffEvent : MonoBehaviour
                 if (canvas != null)
                     canvas.sortingOrder = -1;
             }
-            GameManager.Instance.playerController.canMove = true;
-        }
+            //GameManager.Instance.playerController.canMove = true
+;        }
 
         // WaveManager에서 몬스터 스폰 재개
         WaveManager wm = FindFirstObjectByType<WaveManager>();

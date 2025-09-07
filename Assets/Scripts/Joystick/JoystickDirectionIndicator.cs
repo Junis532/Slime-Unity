@@ -412,6 +412,10 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     void DealSlimeJumpDamage(Vector3 position)
     {
+        float knockbackDistance = 1f;   // 밀려나는 거리
+        float knockbackTime = 0.2f;     // 밀려나는 시간
+        float knockbackJumpPower = 0f; // 위로 살짝 튀는 높이 (원하면 0)
+
         foreach (string tag in enemyTags)
         {
             GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
@@ -420,16 +424,25 @@ public class JoystickDirectionIndicator : MonoBehaviour
                 float dist = Vector3.Distance(position, enemy.transform.position);
                 if (dist <= slimeJumpRadius)
                 {
+                    // 1. 데미지 부여
                     EnemyHP enemyhp = enemy.GetComponent<EnemyHP>();
                     if (enemyhp != null)
                     {
                         enemyhp.SkillTakeDamage((int)slimeJumpDamage);
                     }
+
+                    // 2. Dotween으로 부드럽게 밀려남 (위로 살짝 점프 효과)
+                    Vector3 dir = (enemy.transform.position - position).normalized;
+                    Vector3 knockbackPos = enemy.transform.position + dir * knockbackDistance;
+
+                    // Dotween: enemy.transform이 knockbackPos로 점프 처럼 이동
+                    enemy.transform.DOKill(); // 기존 트윈 중단
+                    enemy.transform.DOJump(knockbackPos, knockbackJumpPower, 1, knockbackTime)
+                        .SetEase(Ease.OutQuad);
                 }
             }
         }
     }
-
 
 
     void DrawArc(Vector3 from, Vector3 to, float arcHeight = 2f, int segmentCount = 30)

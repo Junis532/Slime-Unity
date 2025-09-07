@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class Boss1SkillDamage : MonoBehaviour
@@ -6,22 +6,19 @@ public class Boss1SkillDamage : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+
+
         if (collision.CompareTag("Player"))
         {
-
             if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                Debug.Log("½ºÅ³ »ç¿ë ÁßÀÌ¶ó ¸ó½ºÅÍ µ¥¹ÌÁö ¹«½Ã");
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
                 return;
             }
 
-            GameManager.Instance.playerStats.currentHP -= 100;
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö ÀÌÆåÆ® Àç»ı
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-            }
+            // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ì„
+            int damage = GameManager.Instance.enemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 }

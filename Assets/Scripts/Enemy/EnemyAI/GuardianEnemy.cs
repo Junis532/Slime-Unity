@@ -130,15 +130,8 @@ public class GuardianEnemy : EnemyBase
             if (player == null) yield break;
             yield return new WaitForSeconds(1f);
 
-            var playerStats = GameManager.Instance.playerStats;
-            playerStats.currentHP -= 1;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (playerStats.currentHP <= 0)
-            {
-                playerStats.currentHP = 0;
-                // 사망 처리
-            }
+            int damage = GameManager.Instance.enemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 }

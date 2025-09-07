@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class PotionEnemyDamage : MonoBehaviour
@@ -6,15 +6,19 @@ public class PotionEnemyDamage : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+
+
         if (collision.CompareTag("Player"))
         {
-            GameManager.Instance.playerStats.currentHP -= 1;
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö ÀÌÆåÆ® Àç»ý
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                GameManager.Instance.playerStats.currentHP = 0;
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
+                return;
             }
+
+            // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ìž„
+            int damage = GameManager.Instance.potionEnemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 }

@@ -73,15 +73,10 @@ public class Enemy : EnemyBase
                 return;
             }
 
+            // ✅ 이제는 PlayerDamaged 쪽에 위임
             int damage = GameManager.Instance.enemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // 죽음 처리
-            }
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
+
 }

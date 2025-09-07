@@ -1,10 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 public class PlayerDamaged : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
+    private bool isInvincible = false;  // âœ… ë¬´ì  ìƒíƒœ
 
     void Start()
     {
@@ -13,18 +15,54 @@ public class PlayerDamaged : MonoBehaviour
             originalColor = spriteRenderer.color;
     }
 
-    public void PlayDamageEffect()
+    // âœ… ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ëŠ” ë©”ì„œë“œ
+    public void TakeDamage(int damage)
+    {
+        if (isInvincible)
+        {
+            Debug.Log("ë¬´ì  ìƒíƒœë¼ ë°ë¯¸ì§€ ë¬´ì‹œ");
+            return;
+        }
+
+        // âœ… ë°ë¯¸ì§€ ë“¤ì–´ì˜¨ ìˆœê°„ ë°”ë¡œ ë¬´ì  ON
+        isInvincible = true;
+        StartCoroutine(InvincibleRoutine());
+
+        // HP ê°ì†Œ
+        GameManager.Instance.playerStats.currentHP -= damage;
+
+        // í”¼ê²© íš¨ê³¼ ì‹¤í–‰
+        PlayDamageEffect();
+
+        // ì²´ë ¥ì´ 0 ì´í•˜ì¼ ë•Œ ì²˜ë¦¬
+        if (GameManager.Instance.playerStats.currentHP <= 0)
+        {
+            GameManager.Instance.playerStats.currentHP = 0;
+            Debug.Log("í”Œë ˆì´ì–´ ì‚¬ë§!");
+            // TODO: GameManager.Instance.GameOver(); ë“±ìœ¼ë¡œ ì—°ê²°
+        }
+    }
+
+    private IEnumerator InvincibleRoutine()
+    {
+        yield return new WaitForSeconds(1f); // âœ… ë¬´ì  ìœ ì§€
+        isInvincible = false;
+    }
+
+
+    private void PlayDamageEffect()
     {
         if (spriteRenderer == null) return;
 
-        spriteRenderer.DOKill();  // ÀÌÀü ¾Ö´Ï¸ŞÀÌ¼Ç Á¤¸®
+        StartCoroutine(InvincibleRoutine()); // âœ… ë¬´ì  ì‹œì‘
+
+        spriteRenderer.DOKill();
 
         AudioManager.Instance.PlaySFX(AudioManager.Instance.hitSound);
 
-        spriteRenderer.color = Color.red;  // »¡°£»öÀ¸·Î º¯°æ
-        spriteRenderer.DOColor(originalColor, 0.5f);  // ¿ø·¡ »öÀ¸·Î µ¹¾Æ°¨
+        spriteRenderer.color = Color.red;
+        spriteRenderer.DOColor(originalColor, 0.5f);
 
-        // Áøµ¿ Ãß°¡ (¸ğ¹ÙÀÏ ±â±â¿¡¼­¸¸ ÀÛµ¿)
         Handheld.Vibrate();
 
         GameObject playerObj = GameObject.FindWithTag("Player");
@@ -36,5 +74,9 @@ public class PlayerDamaged : MonoBehaviour
                 zacSkill.SpawnPieces();
             }
         }
+    }
+    public bool IsInvincible()
+    {
+        return isInvincible;
     }
 }

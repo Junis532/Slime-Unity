@@ -221,16 +221,19 @@ public class NavLongRangeDashEnemy : EnemyBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isLive) return;
+
 
         if (collision.CompareTag("Player"))
         {
-            int damage = GameManager.Instance.dashEnemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Debug.Log("스킬 사용 중이라 몬스터 데미지 무시");
+                return;
+            }
 
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-                GameManager.Instance.playerStats.currentHP = 0;
+            // ✅ 이제는 PlayerDamaged 쪽에 위임
+            int damage = GameManager.Instance.dashEnemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 

@@ -214,6 +214,7 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.EventBuff;
         Debug.Log("상태: EventBuff - 이벤트 버프 상태");
+        playerController.canMove= false;
         buffEvent.OpenPanel();
         if (eventBuffUI != null)
         {
@@ -249,6 +250,7 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         currentState = GameState.EventDebuff;
         Debug.Log("상태: EventDebuff - 이벤트 디버프 상태");
+        playerController.canMove = false;
         debuffEvent.OpenPanel();
         if (eventDebuffUI != null)
         {

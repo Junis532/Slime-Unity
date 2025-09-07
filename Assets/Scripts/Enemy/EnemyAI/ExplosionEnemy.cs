@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,9 +23,9 @@ public class ExplosionEnemy : EnemyBase
         originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
 
-        // NavMeshAgent ¼³Á¤
+        // NavMeshAgent ì„¤ì •
         agent.updateRotation = false;
-        agent.updateUpAxis = false; // 2D¿ë
+        agent.updateUpAxis = false; // 2Dìš©
         agent.speed = speed;
     }
 
@@ -38,17 +38,17 @@ public class ExplosionEnemy : EnemyBase
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
 
-        // ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸® È®ÀÎ ÈÄ Æø¹ß
+        // í”Œë ˆì´ì–´ì™€ì˜ ê±°ë¦¬ í™•ì¸ í›„ í­ë°œ
         if (distanceToPlayer <= explosionRange)
         {
             Explode(transform.position);
             return;
         }
 
-        // ÇÃ·¹ÀÌ¾î ÂÑ¾Æ°¨
+        // í”Œë ˆì´ì–´ ì«“ì•„ê°
         agent.SetDestination(player.transform.position);
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç Ã³¸®
+        // ì• ë‹ˆë©”ì´ì…˜ ì²˜ë¦¬
         Vector2 dir = agent.velocity;
         if (dir.magnitude > 0.1f)
         {
@@ -75,17 +75,9 @@ public class ExplosionEnemy : EnemyBase
             Destroy(effect, 0.3f);
         }
 
+        // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ì„
         int damage = GameManager.Instance.enemyStats.attack;
-        GameManager.Instance.playerStats.currentHP -= damage;
-
-        if (GameManager.Instance.playerDamaged != null)
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-        if (GameManager.Instance.playerStats.currentHP <= 0)
-        {
-            GameManager.Instance.playerStats.currentHP = 0;
-            // ÇÃ·¹ÀÌ¾î Á×À½ Ã³¸®
-        }
+        GameManager.Instance.playerDamaged.TakeDamage(damage);
 
         Destroy(gameObject);
     }

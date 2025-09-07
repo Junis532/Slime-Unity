@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 
@@ -13,8 +13,8 @@ public class ExplosionDronEnemy : EnemyBase
     private Vector2 currentDirection;
 
     public float smoothTime = 0.1f;
-    public float explosionRange = 1.5f; // Æø¹ß ¹üÀ§
-    public GameObject explosionEffectPrefab; // Æø¹ß ÀÌÆåÆ®
+    public float explosionRange = 1.5f; // í­ë°œ ë²”ìœ„
+    public GameObject explosionEffectPrefab; // í­ë°œ ì´í™íŠ¸
 
     void Start()
     {
@@ -46,7 +46,7 @@ public class ExplosionDronEnemy : EnemyBase
         Vector2 nextVec = currentDirection * speed * Time.deltaTime;
         transform.Translate(nextVec);
 
-        // ¹æÇâ ¹İÀü ¹× ¾Ö´Ï¸ŞÀÌ¼Ç Ã³¸®
+        // ë°©í–¥ ë°˜ì „ ë° ì• ë‹ˆë©”ì´ì…˜ ì²˜ë¦¬
         if (currentDirection.magnitude > 0.01f)
         {
             Vector3 scale = transform.localScale;
@@ -66,23 +66,16 @@ public class ExplosionDronEnemy : EnemyBase
         if (!isLive) return;
         isLive = false;
 
-        // Æø¹ß ÀÌÆåÆ® »ı¼º ¹× 0.3ÃÊ ÈÄ Á¦°Å
+        // í­ë°œ ì´í™íŠ¸ ìƒì„± ë° 0.3ì´ˆ í›„ ì œê±°
         if (explosionEffectPrefab != null)
         {
             GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
             Destroy(effect, 0.3f);
         }
 
-        // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö
+        // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ì„
         int damage = GameManager.Instance.enemyStats.attack;
-        GameManager.Instance.playerStats.currentHP -= damage;
-        GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-        if (GameManager.Instance.playerStats.currentHP <= 0)
-        {
-            GameManager.Instance.playerStats.currentHP = 0;
-            // ÇÃ·¹ÀÌ¾î Á×À½ Ã³¸® °¡´É
-        }
+        GameManager.Instance.playerDamaged.TakeDamage(damage);
 
         Destroy(gameObject);
     }
@@ -90,7 +83,7 @@ public class ExplosionDronEnemy : EnemyBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // ÇÃ·¹ÀÌ¾î¿Í Ãæµ¹ÇØµµ ¹Ù·Î Æø¹ßÇÒ ¼ö ÀÖÀ½ (¿É¼Ç)
+        // í”Œë ˆì´ì–´ì™€ ì¶©ëŒí•´ë„ ë°”ë¡œ í­ë°œí•  ìˆ˜ ìˆìŒ (ì˜µì…˜)
         if (!isLive) return;
 
         if (collision.CompareTag("Player"))

@@ -90,22 +90,21 @@ public class RoundEnemy : EnemyBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isLive) return;
+
 
         if (collision.CompareTag("Player"))
         {
-            int damage = GameManager.Instance.enemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // 플레이어 사망 처리
+                Debug.Log("스킬 사용 중이라 몬스터 데미지 무시");
+                return;
             }
+
+            // ✅ 이제는 PlayerDamaged 쪽에 위임
+            int damage = GameManager.Instance.enemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
-
     private void OnDestroy()
     {
         isLive = false;

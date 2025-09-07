@@ -45,13 +45,9 @@ public class LongRangeEnemyBullet : MonoBehaviour
                 return; // 충돌 무시
             }
 
-            GameManager.Instance.playerStats.currentHP -= GameManager.Instance.longRangeEnemyStats.attack;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-            }
+            // ✅ 이제는 PlayerDamaged 쪽에 위임
+            int damage = GameManager.Instance.longRangeEnemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
 
             Destroy(gameObject);
         }
@@ -60,4 +56,5 @@ public class LongRangeEnemyBullet : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
 }

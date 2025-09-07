@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
 
 public class StrangeEnemy : EnemyBase
@@ -13,11 +13,11 @@ public class StrangeEnemy : EnemyBase
 
     public float smoothTime = 0.1f;
 
-    [Header("È¸ÇÇ °ü·Ã")]
+    [Header("íšŒí”¼ ê´€ë ¨")]
     public float avoidanceRange = 2f;
     public LayerMask obstacleMask;
 
-    [Header("ÀÌ»óÇÑ ¿òÁ÷ÀÓ")]
+    [Header("ì´ìƒí•œ ì›€ì§ì„")]
     public float weirdnessInterval = 1.5f;
     public float weirdnessStrength = 1.2f;
     private Vector2 weirdnessOffset = Vector2.zero;
@@ -35,7 +35,7 @@ public class StrangeEnemy : EnemyBase
 
     void UpdateWeirdnessOffset()
     {
-        // -1 ~ 1 »çÀÌÀÇ ·£´ı º¤ÅÍ »ı¼º
+        // -1 ~ 1 ì‚¬ì´ì˜ ëœë¤ ë²¡í„° ìƒì„±
         weirdnessOffset = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized * weirdnessStrength;
     }
 
@@ -49,7 +49,7 @@ public class StrangeEnemy : EnemyBase
         Vector2 currentPos = transform.position;
         Vector2 dirToPlayer = ((Vector2)player.transform.position - currentPos).normalized;
 
-        // Àå¾Ö¹° È¸ÇÇ
+        // ì¥ì• ë¬¼ íšŒí”¼
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToPlayer, avoidanceRange, obstacleMask);
         Vector2 avoidanceVector = Vector2.zero;
 
@@ -62,7 +62,7 @@ public class StrangeEnemy : EnemyBase
             Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        // ¢º ÀÌ»óÇÑ ¹æÇâ Ãß°¡
+        // â–¶ ì´ìƒí•œ ë°©í–¥ ì¶”ê°€
         Vector2 finalDir = (dirToPlayer + avoidanceVector + weirdnessOffset).normalized;
 
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
@@ -85,25 +85,19 @@ public class StrangeEnemy : EnemyBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isLive) return;
+
 
         if (collision.CompareTag("Player"))
         {
             if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                Debug.Log("½ºÅ³ »ç¿ë ÁßÀÌ¶ó ¸ó½ºÅÍ µ¥¹ÌÁö ¹«½Ã");
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
                 return;
             }
 
+            // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ì„
             int damage = GameManager.Instance.enemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // Á×À½ Ã³¸®
-            }
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 

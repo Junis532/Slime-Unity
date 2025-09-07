@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SquareEnemy : EnemyBase
 {
@@ -7,7 +7,7 @@ public class SquareEnemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    [Header("°æ·Î ¼³Á¤")]
+    [Header("ê²½ë¡œ ì„¤ì •")]
     public Vector2 pathCenter = Vector2.zero;
     public float pathWidth = 20f;
     public float pathHeight = 12f;
@@ -20,7 +20,7 @@ public class SquareEnemy : EnemyBase
 
     public float smoothTime = 0.1f;
 
-    [Header("È¸ÇÇ °ü·Ã")]
+    [Header("íšŒí”¼ ê´€ë ¨")]
     public float avoidanceRange = 2f;
     public LayerMask obstacleMask;
 
@@ -59,7 +59,7 @@ public class SquareEnemy : EnemyBase
         Vector2 target = waypoints[currentWaypointIndex];
         Vector2 dirToTarget = (target - currentPos).normalized;
 
-        // Àå¾Ö¹° È¸ÇÇ °Ë»ç
+        // ìž¥ì• ë¬¼ íšŒí”¼ ê²€ì‚¬
         RaycastHit2D hit = Physics2D.Raycast(currentPos, dirToTarget, avoidanceRange, obstacleMask);
 
         Vector2 avoidanceVector = Vector2.zero;
@@ -71,7 +71,7 @@ public class SquareEnemy : EnemyBase
             Debug.DrawRay(currentPos, sideStep * 2, Color.green);
         }
 
-        // ÃÖÁ¾ ¹æÇâ
+        // ìµœì¢… ë°©í–¥
         Vector2 finalDir = (dirToTarget + avoidanceVector).normalized;
         currentDirection = Vector2.SmoothDamp(currentDirection, finalDir, ref currentVelocity, smoothTime);
         Vector2 moveVec = currentDirection * speed * Time.deltaTime;
@@ -82,7 +82,7 @@ public class SquareEnemy : EnemyBase
             currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
         }
 
-        // ¹æÇâ ¹ÝÀü
+        // ë°©í–¥ ë°˜ì „
         if (currentDirection.x != 0)
         {
             Vector3 scale = transform.localScale;
@@ -90,7 +90,7 @@ public class SquareEnemy : EnemyBase
             transform.localScale = scale;
         }
 
-        // ¾Ö´Ï¸ÞÀÌ¼Ç Ã³¸®
+        // ì• ë‹ˆë©”ì´ì…˜ ì²˜ë¦¬
         if (currentDirection.magnitude > 0.01f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
@@ -103,19 +103,19 @@ public class SquareEnemy : EnemyBase
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isLive) return;
+
 
         if (collision.CompareTag("Player"))
         {
-            int damage = GameManager.Instance.enemyStats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect();
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // ÇÃ·¹ÀÌ¾î »ç¸Á Ã³¸®
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
+                return;
             }
+
+            // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ìž„
+            int damage = GameManager.Instance.enemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 
@@ -129,7 +129,7 @@ public class SquareEnemy : EnemyBase
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, avoidanceRange);
 
-        // »ç°¢Çü °æ·Î Ç¥½Ã
+        // ì‚¬ê°í˜• ê²½ë¡œ í‘œì‹œ
         Vector2 p1 = pathCenter + new Vector2(-pathWidth / 2f, pathHeight / 2f);
         Vector2 p2 = pathCenter + new Vector2(pathWidth / 2f, pathHeight / 2f);
         Vector2 p3 = pathCenter + new Vector2(pathWidth / 2f, -pathHeight / 2f);

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class BossFireballProjectile : MonoBehaviour
 {
@@ -12,11 +12,11 @@ public class BossFireballProjectile : MonoBehaviour
     {
         direction = dir.normalized;
 
-        // ½ºÇÁ¶óÀÌÆ®°¡ ÀÌµ¿ ¹æÇâÀ» ¹Ù¶óº¸µµ·Ï È¸Àü (90µµ ¿ÀÇÁ¼Â)
+        // ìŠ¤í”„ë¼ì´íŠ¸ê°€ ì´ë™ ë°©í–¥ì„ ë°”ë¼ë³´ë„ë¡ íšŒì „ (90ë„ ì˜¤í”„ì…‹)
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-        // µ¥¹ÌÁö °è»ê
+        // ë°ë¯¸ì§€ ê³„ì‚°
         //damage = Mathf.FloorToInt(GameManager.Instance.boss1Stats.attack * 2.5f);
 
         Destroy(gameObject, lifeTime);
@@ -34,22 +34,15 @@ public class BossFireballProjectile : MonoBehaviour
 
         if (collision.CompareTag("Player"))
         {
-
             if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
             {
-                Debug.Log("½ºÅ³ »ç¿ë ÁßÀÌ¶ó ¸ó½ºÅÍ µ¥¹ÌÁö ¹«½Ã");
+                Debug.Log("ìŠ¤í‚¬ ì‚¬ìš© ì¤‘ì´ë¼ ëª¬ìŠ¤í„° ë°ë¯¸ì§€ ë¬´ì‹œ");
                 return;
             }
 
+            // âœ… ì´ì œëŠ” PlayerDamaged ìª½ì— ìœ„ì„
             int damage = GameManager.Instance.boss1Stats.attack;
-            GameManager.Instance.playerStats.currentHP -= damage;
-            GameManager.Instance.playerDamaged.PlayDamageEffect(); // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö ÀÌÆåÆ® Àç»ı
-
-            if (GameManager.Instance.playerStats.currentHP <= 0)
-            {
-                GameManager.Instance.playerStats.currentHP = 0;
-                // Á×À½ Ã³¸® ÇÔ¼ö È£Ãâ °¡´É
-            }
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
 }
