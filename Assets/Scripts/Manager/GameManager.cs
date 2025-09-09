@@ -95,10 +95,10 @@ public class GameManager : MonoSingleTone<GameManager>
             ChangeStateToLobby();
             return;
         }
-        else if (sceneName == "InGame") // 게임 씬일 경우
-        {
-            ChangeStateToGame();
-        }
+        //else if (sceneName == "InGame") // 게임 씬일 경우
+        //{
+        //    ChangeStateToGame();
+        //}
 
         playerStats.ResetStats();
         enemyStats.ResetStats();
@@ -239,6 +239,7 @@ public class GameManager : MonoSingleTone<GameManager>
                     cg.interactable = true;
                     cg.blocksRaycasts = true;
                     isEventBuffUIVisible = true;
+                         playerController.canMove= false;
                 });
 
                 rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
@@ -293,6 +294,12 @@ public class GameManager : MonoSingleTone<GameManager>
 
         // 코인 자동 수집
         AutoCollectItems();
+
+        GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
+        foreach (GameObject skill in skills)
+        {
+            Destroy(skill);
+        }
     }
 
     public void ChangeStateToEnd()

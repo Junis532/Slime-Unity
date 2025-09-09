@@ -45,6 +45,11 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public Image CooltimeImange;
     public int waitInterval = 10;
 
+    [Header("넉백 관련")]
+    public float knockbackDistance = 1f;   // 밀려나는 거리
+    public float knockbackTime = 0.2f;     // 밀려나는 시간
+    public float knockbackJumpPower = 0f; // 위로 살짝 튀는 높이 (원하면 0)
+
     private Coroutine rollCoroutine;
 
     public static bool isRolling = false;
@@ -412,9 +417,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     void DealSlimeJumpDamage(Vector3 position)
     {
-        float knockbackDistance = 1f;   // 밀려나는 거리
-        float knockbackTime = 0.2f;     // 밀려나는 시간
-        float knockbackJumpPower = 0f; // 위로 살짝 튀는 높이 (원하면 0)
 
         foreach (string tag in enemyTags)
         {

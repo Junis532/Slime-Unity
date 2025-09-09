@@ -248,18 +248,21 @@ public class FireBoss : EnemyBase
             rangeInstance = Instantiate(swordRangePrefab, rangePos, Quaternion.identity);
         }
 
-        // ── 1. 순간이동 (NavMesh 안전 보정) ──
+        // ── 1. 대쉬 (NavMesh 안전 보정) ──
         Vector2 offset = Random.insideUnitCircle.normalized * 2f;
-        Vector3 teleportPos = player.transform.position + (Vector3)offset;
+        Vector3 dashTarget = player.transform.position + (Vector3)offset;
 
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(teleportPos, out hit, 2f, NavMesh.AllAreas))
-            teleportPos = hit.position;
+        if (NavMesh.SamplePosition(dashTarget, out hit, 2f, NavMesh.AllAreas))
+            dashTarget = hit.position;
         else
-            teleportPos = transform.position; // 유효 위치 없으면 제자리
+            dashTarget = transform.position; // 유효 위치 없으면 제자리
 
-        agent.Warp(teleportPos);
-        yield return new WaitForSeconds(0.3f);
+        float dashTime = 0.3f;
+        transform.DOMove(dashTarget, dashTime).SetEase(Ease.OutQuad);
+
+        // 대쉬가 완료될 때까지 기다립니다.
+        yield return new WaitForSeconds(dashTime);
 
         // ── 2. 범위 프리팹 초 회전 표시 ──
         float elapsed = 0f;
@@ -295,11 +298,12 @@ public class FireBoss : EnemyBase
         yield return new WaitForSeconds(0.5f);
 
         // ── 4. 돌진 (NavMesh 안전 보정) ──
-        Vector3 dashTarget = player.transform.position;
+        // 이 부분은 이미 돌진으로 구현되어 있어 변경하지 않습니다.
+        dashTarget = player.transform.position;
         if (NavMesh.SamplePosition(dashTarget, out hit, 2f, NavMesh.AllAreas))
             dashTarget = hit.position;
 
-        float dashTime = 0.4f;
+        dashTime = 0.4f;
         transform.DOMove(dashTarget, dashTime).SetEase(Ease.OutQuad);
         yield return new WaitForSeconds(dashTime * 0.5f);
 

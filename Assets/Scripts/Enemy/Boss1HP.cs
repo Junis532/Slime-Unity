@@ -1,12 +1,13 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class Boss1HP : MonoBehaviour
 {
     [Header("체력 관련")]
-    public GameObject hpBarPrefab;
-    private EnemyHPBar hpBar;
+    public GameObject hpBarPrefab; // 이 프리팹은 더 이상 사용하지 않지만, 인스펙터 오류 방지를 위해 남겨둠.
+    private Image hpBarFill;
     public float currentHP;
     private float maxHP;
 
@@ -22,6 +23,7 @@ public class Boss1HP : MonoBehaviour
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
+    private bool isDead = false;
 
     void Start()
     {
@@ -29,32 +31,44 @@ public class Boss1HP : MonoBehaviour
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        // 월드 캔버스에 HP 바 붙이기
-        Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-        GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(
-            hpBarPrefab.name, Vector3.zero, Quaternion.identity);
-        hpBarObj.transform.SetParent(worldCanvas.transform, false);
+        // ✅ 1. 계층 구조(Hierarchy)에서 "BossHPBarUI" 오브젝트를 찾습니다.
+        GameObject bossHpBarUI = GameObject.Find("BossHP");
+        if (bossHpBarUI == null)
+        {
+            Debug.LogError("Hierarchy에서 'BossHPBarUI' 오브젝트를 찾을 수 없습니다. 해당 오브젝트를 미리 배치해주세요!");
+            return;
+        }
 
-        hpBar = hpBarObj.GetComponent<EnemyHPBar>();
-        hpBar.Init(transform, maxHP);
-        hpBarObj.SetActive(false);
+        // ✅ 2. 찾은 오브젝트에서 HP를 채우는 Image 컴포넌트를 가져옵니다.
+        // HPFilled는 여러분의 UI 계층 구조에 따라 수정해야 할 수도 있습니다.
+        hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
+        if (hpBarFill == null)
+        {
+            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다. UI 계층 구조를 확인하세요.");
+            return;
+        }
+
+        // HP 바 오브젝트를 활성화
+        bossHpBarUI.SetActive(true);
+
+        // 초기 HP 바 업데이트
+        UpdateHPBar();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
-            Debug.LogWarning("SpriteRenderer를 찾지 못했습니다.");
+        bulletSpawner = FindFirstObjectByType<BulletSpawner>();
 
-        bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
-
-        // 플레이어 찾기 (없을 경우 null)
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
             playerTransform = playerObj.transform;
         }
-        else
+    }
+
+    private void UpdateHPBar()
+    {
+        if (hpBarFill != null)
         {
-            Debug.LogWarning("플레이어를 찾지 못했습니다. playerTransform이 null 상태입니다.");
-            playerTransform = null;
+            hpBarFill.fillAmount = currentHP / maxHP;
         }
     }
 
@@ -62,9 +76,7 @@ public class Boss1HP : MonoBehaviour
     {
         Vector3 knockbackDir = Vector3.zero;
         if (playerTransform != null)
-        {
             knockbackDir = (transform.position - playerTransform.position).normalized;
-        }
 
         float knockbackDistance = 0.3f;
         float knockbackDuration = 0.1f;
@@ -74,14 +86,26 @@ public class Boss1HP : MonoBehaviour
             ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
             : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
 
+        ApplyDamage(damage, isCritical);
+
+        if (playerTransform != null)
+        {
+            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
+                     .SetEase(Ease.OutQuad);
+        }
+    }
+
+    public void FireballTakeDamage(int damage) => ApplyDamage(damage, false);
+    public void SkillTakeDamage(int damage) => ApplyDamage(damage, false);
+
+    private void ApplyDamage(int damage, bool isCritical)
+    {
+        if (isDead) return;
+
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
-        if (hpBar != null)
-        {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
-        }
+        UpdateHPBar();
 
         if (!bulletSpawner.slowSkillActive)
         {
@@ -101,50 +125,6 @@ public class Boss1HP : MonoBehaviour
             ShowDamageText(damage);
         }
 
-        // 플레이어가 있을 때만 넉백
-        if (playerTransform != null)
-        {
-            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
-                     .SetEase(Ease.OutQuad);
-        }
-
-        if (currentHP <= 0)
-            Die();
-    }
-
-    public void FireballTakeDamage(int damage)
-    {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-        if (hpBar != null)
-        {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
-        }
-
-        PlayDamageEffect();
-        ShowDamageText(damage);
-
-        if (currentHP <= 0)
-            Die();
-    }
-
-    public void SkillTakeDamage(int damage)
-    {
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-        if (hpBar != null)
-        {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
-        }
-
-        PlayDamageEffect();
-        ShowDamageText(damage);
-
         if (currentHP <= 0)
             Die();
     }
@@ -152,128 +132,70 @@ public class Boss1HP : MonoBehaviour
     private void PlayHitEffect()
     {
         if (hitEffectPrefab == null) return;
-
-        Vector3 spawnPosition = transform.position;
-        GameObject effectObj = PoolManager.Instance.SpawnFromPool(
-            hitEffectPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
-
+        GameObject effectObj = PoolManager.Instance.SpawnFromPool(hitEffectPrefab.name, transform.position, Quaternion.identity);
         if (effectObj == null) return;
-
-        DOVirtual.DelayedCall(0.3f, () =>
-        {
-            PoolManager.Instance.ReturnToPool(effectObj);
-        });
+        DOVirtual.DelayedCall(0.3f, () => PoolManager.Instance.ReturnToPool(effectObj));
     }
 
     private void ShowDamageText(int damage)
     {
-        if (damageTextPrefab == null) return;
-
-        // ✅ 데미지가 0 이하일 경우 텍스트 띄우지 않음
-        if (damage <= 0) return;
-
-        Vector3 spawnPosition = transform.position;
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            damageTextPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
+        if (damageTextPrefab == null || damage <= 0) return;
+        GameObject textObj = PoolManager.Instance.SpawnFromPool(damageTextPrefab.name, transform.position, Quaternion.identity);
         if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null)
-            text.text = damage.ToString();
+        if (text != null) text.text = damage.ToString();
 
         Transform t = textObj.transform;
-        t.position = spawnPosition;
-        t.localScale = Vector3.one;
-        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() =>
-        {
-            t.DOScale(1f, 0.3f);
-        });
-
-        DOVirtual.DelayedCall(0.6f, () =>
-        {
-            PoolManager.Instance.ReturnToPool(textObj);
-        });
+        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
+        DOVirtual.DelayedCall(0.6f, () => PoolManager.Instance.ReturnToPool(textObj));
     }
-
 
     private void ShowCDamageText(int damage)
     {
         if (cDamageTextPrefab == null) return;
-
-        Vector3 spawnPosition = transform.position;
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            cDamageTextPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
-
+        GameObject textObj = PoolManager.Instance.SpawnFromPool(cDamageTextPrefab.name, transform.position, Quaternion.identity);
         if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null)
-            text.text = damage.ToString();
+        if (text != null) text.text = damage.ToString();
 
         Transform t = textObj.transform;
-        t.position = spawnPosition;
-        t.localScale = Vector3.one;
-        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() =>
-        {
-            t.DOScale(1f, 0.3f);
-        });
-
-        DOVirtual.DelayedCall(0.6f, () =>
-        {
-            PoolManager.Instance.ReturnToPool(textObj);
-        });
+        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
+        DOVirtual.DelayedCall(0.6f, () => PoolManager.Instance.ReturnToPool(textObj));
     }
 
     private void PlayDamageEffect()
     {
         if (spriteRenderer == null) return;
-
-        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
-        {
-            spriteRenderer.DOColor(Color.white, 0.1f);
-        });
+        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() => spriteRenderer.DOColor(Color.white, 0.1f));
     }
-
-    private bool isDead = false; // 적이 죽었는지 상태
 
     private void Die()
     {
-        if (isDead) return; // 이미 죽었으면 아무것도 하지 않음
-        isDead = true;       // 죽음 상태로 변경
+        if (isDead) return;
+        isDead = true;
 
-        if (hpBar != null)
-            PoolManager.Instance.ReturnToPool(hpBar.gameObject);
-        GameManager.Instance.cameraShake.GenerateImpulse();
-
-        // ✅ 플레이어 HP 회복
-        PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();
-        int healAmount = playerHeal.hpHealAmount; // PlayerHeal 스크립트에서 설정
-        if (playerHeal != null && playerHeal.hpHeal)
+        // ✅ 보스가 죽으면 HP 바를 비활성화합니다. (파괴하지 않음)
+        GameObject bossHpBarUI = GameObject.Find("BossHPBarUI");
+        if (bossHpBarUI != null)
         {
-            GameManager.Instance.playerStats.currentHP += healAmount;
-            GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
-                GameManager.Instance.playerStats.currentHP,
-                0,
-                GameManager.Instance.playerStats.maxHP
-            );
+            bossHpBarUI.SetActive(false);
         }
 
+        GameManager.Instance.cameraShake.GenerateImpulse();
+
+        PlayerHeal playerHeal = FindFirstObjectByType<PlayerHeal>();
+        if (playerHeal != null && playerHeal.hpHeal)
+        {
+            GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
+            GameManager.Instance.playerStats.currentHP =
+                Mathf.Clamp(GameManager.Instance.playerStats.currentHP, 0, GameManager.Instance.playerStats.maxHP);
+        }
 
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
-        if (enemiesDie != null)
-            enemiesDie.Die();
+        if (enemiesDie != null) enemiesDie.Die();
     }
-
-
 }

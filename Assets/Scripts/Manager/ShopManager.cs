@@ -16,10 +16,6 @@ public class ShopManager : MonoBehaviour
     [Header("UI 슬롯 (3개)")]
     public List<GameObject> itemSlots;
 
-    [Header("버튼")]
-    public Button rerollButton;
-    public Button exitButton;
-
     [Header("상점 패널")]
     public RectTransform shopPanel;
 

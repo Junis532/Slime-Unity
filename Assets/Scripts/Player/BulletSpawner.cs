@@ -206,6 +206,16 @@ public class BulletSpawner : MonoBehaviour
                 bulletPrefabToUse.name, spawnPos, Quaternion.identity
             );
 
+            if (bullet != null)
+            {
+                BulletAI bulletAI = bullet.GetComponent<BulletAI>();
+                if (bulletAI != null)
+                {
+                    bulletAI.ResetBullet(); // 👈 This is the crucial line.
+                    bulletAI.InitializeBullet(spawnPos, angle, isCenter);
+                }
+            }
+
             if (isFireballThisShot)
             {
                 FireballAI fireballAI = bullet.GetComponent<FireballAI>();

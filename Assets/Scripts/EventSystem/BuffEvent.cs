@@ -385,7 +385,6 @@ public class BuffEvent : MonoBehaviour
                     canvas.sortingOrder = -1;
                 }
             }
-            //GameManager.Instance.playerController.canMove = true;
         }
 
         // 🔥 버프 선택 창 닫으면 WaveManager에서 몹 스폰 시작

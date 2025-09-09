@@ -232,6 +232,19 @@ public class BulletAI : MonoBehaviour
 
     public bool followEnemy = true;
 
+    // 🎯 새롭게 추가된 초기화 함수
+    public void ResetBullet()
+    {
+        isDestroying = false;
+        // 다른 상태 변수가 있다면 여기서 초기화합니다.
+        // 예를 들어, Coroutine이 아직 실행 중이라면 중지시킬 수 있습니다.
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
+        }
+    }
+
     public void InitializeBullet(Vector3 startPosition, float startAngle, bool follow = true)
     {
         transform.position = startPosition;
@@ -239,6 +252,9 @@ public class BulletAI : MonoBehaviour
         followEnemy = follow;
 
         if (myCollider != null) myCollider.enabled = true;
+
+        // Ensure the previous coroutine is stopped before starting a new one.
+        if (moveCoroutine != null) StopCoroutine(moveCoroutine);
 
         if (followEnemy)
             SwitchToEnemy(); // 적 추적
@@ -274,7 +290,7 @@ public class BulletAI : MonoBehaviour
         if (target != null)
         {
             fixedDirection = (target.position - transform.position).normalized;
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound);
+            // AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowSound); // This should be in BulletSpawner
             moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else
@@ -324,13 +340,9 @@ public class BulletAI : MonoBehaviour
 
         if (other.CompareTag("Obstacle"))
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
-            // 이동 중단
+            // AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall); // Should be a dedicated sound manager call
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
 
-            // 🔹 현재 위치, 회전 그대로 유지 (화살이 벽에 꽂힌 상태처럼 보임)
-
-            // 🔹 1초 뒤 제거
             Invoke(nameof(DestroySelf), 1f);
             return;
         }
@@ -354,7 +366,6 @@ public class BulletAI : MonoBehaviour
             DestroySelf();
         }
     }
-
 
     void DestroySelf()
     {

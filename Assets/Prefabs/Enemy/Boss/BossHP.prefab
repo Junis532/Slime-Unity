@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7482690892878523520}
   - component: {fileID: 2119144551345062205}
   m_Layer: 5
-  m_Name: PlayerHP
+  m_Name: HPBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 7007400256903975639}
   - component: {fileID: 1560910170774297981}
   m_Layer: 5
-  m_Name: anything bar
+  m_Name: HPFilled
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -211,7 +211,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &2367970253495006847
 MonoBehaviour:
