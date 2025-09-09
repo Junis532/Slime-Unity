@@ -1,0 +1,57 @@
+name: Discord → GitHub (Polling Sync)
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # 매시 정각(UTC) = 한국 시간 매시 +9분
+  workflow_dispatch: {}    # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discord-poll
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Run poller
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          CHANNEL_IDS: ${{ vars.DISCORD_CHANNEL_IDS }}
+          SAVE_ROOT: Assets/Sprites/discord
+          STATE_FILE: .sync/discord_state.json
+          MAX_LOOKBACK: "500"
+          RECENT_WINDOW: "80"
+          ALLOW_EXT: "png,jpg,jpeg,gif,webp,psd,clip,bmp,tiff,svg"
+          ENABLE_HASH: "0"
+          POST_CONFIRM: "1"
+          POST_CHANNEL_ID: ""   # 특정 채널로만 알림 보내려면 ID 입력
+          POST_MESSAGE_TEMPLATE: "이미지 너무 쌓아뒀잖아요 선생님! ({count}개)\n{files}"
+        run: |
+          python .github/scripts/sync_discord_assets.py
+          echo "Poll done."
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "discord-sync-bot"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore(assets): discord polling sync"
+            git push
+          fi
