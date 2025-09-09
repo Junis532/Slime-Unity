@@ -18,6 +18,10 @@ public class FireballAI : MonoBehaviour
     public float interval = 1f;
     private int damagePerTick;
 
+    [Header("이펙트 설정")]
+    public GameObject fireEffectPrefab;
+
+
     void Awake()
     {
         myCollider = GetComponent<Collider2D>();
@@ -103,14 +107,14 @@ public class FireballAI : MonoBehaviour
     {
         if (isDestroying) return;
 
-        if (other.CompareTag("Obstacle"))
-        {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
-            moveSpeed = 0f;
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-            DestroySelf();
-            return;
-        }
+        //if (other.CompareTag("Obstacle"))
+        //{
+        //    AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall);
+        //    moveSpeed = 0f;
+        //    if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+        //    DestroySelf();
+        //    return;
+        //}
 
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
@@ -118,7 +122,7 @@ public class FireballAI : MonoBehaviour
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null)
             {
-                // DOT만 적용 (Fireball은 계속 날아감)
+                // 여러 적에게 DOT 가능
                 StartCoroutine(ApplyDotDamage(hp));
             }
 
@@ -128,7 +132,6 @@ public class FireballAI : MonoBehaviour
                 StartCoroutine(ApplyDotDamageToBoss(bossHP));
             }
         }
-
     }
 
     IEnumerator ApplyDotDamage(EnemyHP hp)
@@ -136,7 +139,14 @@ public class FireballAI : MonoBehaviour
         float elapsed = 0f;
         if (hp == null) yield break;
 
-        hp.FireballTakeDamage(damagePerTick); // 첫 즉시 데미지
+        // 🔥 이펙트 생성 및 적에 붙이기
+        GameObject fireFx = null;
+        if (fireEffectPrefab != null && hp != null)
+        {
+            fireFx = Instantiate(fireEffectPrefab, hp.transform.position, Quaternion.identity, hp.transform);
+        }
+
+        hp.FireballTakeDamage(damagePerTick); // 첫 데미지
         elapsed += interval;
 
         while (elapsed < duration)
@@ -149,15 +159,27 @@ public class FireballAI : MonoBehaviour
             elapsed += interval;
         }
 
-        // DOT 끝나면 제거 (이동 중지)
-        DestroySelf();
+        // DOT 끝 → 이펙트 제거
+        if (fireFx != null)
+        {
+            Destroy(fireFx);
+        }
     }
+
+
 
     // Boss1용 DOT
     IEnumerator ApplyDotDamageToBoss(Boss1HP bossHP)
     {
         float elapsed = 0f;
         if (bossHP == null) yield break;
+
+        // 🔥 이펙트 생성 및 적에 붙이기
+        GameObject fireFx = null;
+        if (fireEffectPrefab != null && bossHP != null)
+        {
+            fireFx = Instantiate(fireEffectPrefab, bossHP.transform.position, Quaternion.identity, bossHP.transform);
+        }
 
         // 첫 도트 즉시 적용
         bossHP.FireballTakeDamage(damagePerTick);

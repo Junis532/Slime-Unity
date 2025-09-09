@@ -19,6 +19,10 @@ public class EnemyHP : MonoBehaviour
     [Header("이펙트 프리팹")]
     public GameObject hitEffectPrefab;
 
+    [Header("도트 데미지 이펙트 프리팹")]
+    public GameObject dotEffectPrefab;
+    private GameObject activeDotEffect;
+
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
