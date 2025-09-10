@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,70 +7,72 @@ using UnityEngine.UI;
 
 public class deBuffEvent : MonoBehaviour
 {
-    [Header("µğ¹öÇÁ µ¥ÀÌÅÍ")]
+    [Header("ë””ë²„í”„ ë°ì´í„°")]
     public List<ItemStats> allItems
     {
         get { return GameManager.Instance.debuffs; }
     }
 
-    [Header("UI ½½·Ô (1°³)")]
+    [Header("UI ìŠ¬ë¡¯ (1ê°œ)")]
     public GameObject itemSlot;
 
-    [Header("¹öÇÁ ÆĞ³Î")]
+    [Header("ë²„í”„ íŒ¨ë„")]
     public RectTransform shopPanel;
 
-    [Header("¹öÇÁ UI ¿ÀºêÁ§Æ®")]
+    [Header("ë²„í”„ UI ì˜¤ë¸Œì íŠ¸")]
     public GameObject shopUI;
 
-    [Header("°ÅÀı ¹öÆ°")]
+    [Header("ê±°ì ˆ ë²„íŠ¼")]
     public Button declineButton;
 
-    [Header("´ÙÀÌ¾î·Î±×")]
+    [Header("ë‹¤ì´ì–´ë¡œê·¸")]
     public Image dialogImage;
     public Image shopNPC;
     public TMP_Text dialogText;
-    public string currentDialog = "´ë°¡¸¦ Ä¡·¯¾ß ÇÕ´Ï´Ù... µğ¹öÇÁ¸¦ ¼±ÅÃÇÏ°Å³ª °ÅÀıÇÏ¼¼¿ä.";
+    public string currentDialog = "ëŒ€ê°€ë¥¼ ì¹˜ëŸ¬ì•¼ í•©ë‹ˆë‹¤... ë””ë²„í”„ë¥¼ ì„ íƒí•˜ê±°ë‚˜ ê±°ì ˆí•˜ì„¸ìš”.";
 
     private ItemStats selectedItem;
     private bool isDialogActive = false;
 
     private void Start()
     {
-        // ½½·Ô ¸ÕÀú ¼û±â±â
+        // ìŠ¬ë¡¯ ë¨¼ì € ìˆ¨ê¸°ê¸°
         itemSlot.SetActive(false);
 
-        // ´ÙÀÌ¾î·Î±× ½ÇÇà
+        // ë‹¤ì´ì–´ë¡œê·¸ ì‹¤í–‰
         StartCoroutine(ShowDialogCoroutine(currentDialog));
     }
 
     private void Update()
     {
-        // ´ÙÀÌ¾î·Î±× Áß¿¡ Å¬¸¯ÇÏ¸é ¡æ Á¾·á ÈÄ ½½·Ô µîÀå
+        // ë‹¤ì´ì–´ë¡œê·¸ ì¤‘ì— í´ë¦­í•˜ë©´ â†’ ì¢…ë£Œ í›„ ìŠ¬ë¡¯ ë“±ì¥
         if (isDialogActive && Input.GetMouseButtonDown(0))
         {
             StartCoroutine(HideDialogAndShowItem());
         }
     }
 
-    // ´ÙÀÌ¾î·Î±× ÇÑ ±ÛÀÚ¾¿ Ãâ·Â
     private IEnumerator ShowDialogCoroutine(string text)
     {
         isDialogActive = true;
         dialogImage.gameObject.SetActive(true);
         dialogImage.color = new Color(1, 1, 1, 1);
-        shopNPC.gameObject.SetActive(true);
-        shopNPC.color = new Color(1, 1, 1, 1);
         dialogText.text = "";
         dialogText.color = new Color(0, 0, 0, 1);
 
+        dialogText.isRightToLeftText = false; // ğŸ”¥ LTR ê³ ì •
+
+        var sb = new System.Text.StringBuilder();
+
         foreach (char c in text)
         {
-            dialogText.text += c;
+            sb.Append(c);
+            dialogText.text = sb.ToString();
             yield return new WaitForSeconds(0.05f);
         }
     }
 
-    // ´ÙÀÌ¾î·Î±× ³»·Á°¡¸ç »ç¶óÁø ÈÄ ¡æ ¾ÆÀÌÅÛ ½½·Ô µîÀå
+    // ë‹¤ì´ì–´ë¡œê·¸ ë‚´ë ¤ê°€ë©° ì‚¬ë¼ì§„ í›„ â†’ ì•„ì´í…œ ìŠ¬ë¡¯ ë“±ì¥
     private IEnumerator HideDialogAndShowItem()
     {
         isDialogActive = false;
@@ -87,18 +89,18 @@ public class deBuffEvent : MonoBehaviour
         shopNPC.gameObject.SetActive(false);
         dialogText.gameObject.SetActive(false);
 
-        // ½½·Ô È°¼ºÈ­ ÈÄ ¾ÆÀÌÅÛ µîÀå
+        // ìŠ¬ë¡¯ í™œì„±í™” í›„ ì•„ì´í…œ ë“±ì¥
         itemSlot.SetActive(true);
         FirstRerollItem();
     }
 
     public void FirstRerollItem()
     {
-        // ·£´ı ¾ÆÀÌÅÛ 1°³ ¼±ÅÃ
+        // ëœë¤ ì•„ì´í…œ 1ê°œ ì„ íƒ
         int rand = Random.Range(0, allItems.Count);
         selectedItem = allItems[rand];
 
-        // ½½·Ô UI ¾÷µ¥ÀÌÆ®
+        // ìŠ¬ë¡¯ UI ì—…ë°ì´íŠ¸
         TMP_Text nameText = itemSlot.transform.Find("ItemName").GetComponent<TMP_Text>();
         TMP_Text descText = itemSlot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
         Image icon = itemSlot.transform.Find("ItemIcon").GetComponent<Image>();
@@ -108,11 +110,11 @@ public class deBuffEvent : MonoBehaviour
         descText.text = selectedItem.description;
         icon.sprite = selectedItem.icon;
 
-        // BuyButton Å¬¸¯ ½Ã ¾ÆÀÌÅÛ ±¸¸Å Ã³¸®
+        // BuyButton í´ë¦­ ì‹œ ì•„ì´í…œ êµ¬ë§¤ ì²˜ë¦¬
         buyBtn.onClick.RemoveAllListeners();
         buyBtn.onClick.AddListener(() => OnAccept());
 
-        // Ã³À½¿£ Åõ¸íÇÏ°Ô ¸¸µé°í ¾Ö´Ï¸ŞÀÌ¼Ç µîÀå
+        // ì²˜ìŒì—” íˆ¬ëª…í•˜ê²Œ ë§Œë“¤ê³  ì• ë‹ˆë©”ì´ì…˜ ë“±ì¥
         icon.transform.localScale = Vector3.zero;
         SetAlpha(icon, 0f);
         SetAlpha(nameText, 0f);
@@ -124,24 +126,24 @@ public class deBuffEvent : MonoBehaviour
         seq.Join(nameText.DOFade(1f, 0.3f));
         seq.Join(descText.DOFade(1f, 0.3f));
 
-        // °ÅÀı ¹öÆ° ¿¬°á
+        // ê±°ì ˆ ë²„íŠ¼ ì—°ê²°
         declineButton.onClick.RemoveAllListeners();
         declineButton.onClick.AddListener(OnDecline);
 
-        // ÆĞ³Î È°¼ºÈ­
+        // íŒ¨ë„ í™œì„±í™”
         gameObject.SetActive(true);
     }
 
     private void OnAccept()
     {
-        Debug.Log($"[¼ö¶ô] {selectedItem.itemName}");
+        Debug.Log($"[ìˆ˜ë½] {selectedItem.itemName}");
         ApplyItemEffect(selectedItem);
         OnButtonExitClick();
     }
 
     private void OnDecline()
     {
-        Debug.Log("[°ÅÀı] ¾ÆÀÌÅÛ ¼±ÅÃ ¾øÀÌ Á¾·á");
+        Debug.Log("[ê±°ì ˆ] ì•„ì´í…œ ì„ íƒ ì—†ì´ ì¢…ë£Œ");
         OnButtonExitClick();
     }
 
@@ -156,8 +158,8 @@ public class deBuffEvent : MonoBehaviour
     {
         int index = GameManager.Instance.debuffs.IndexOf(item);
 
-        // GameManager, BulletSpawner, Player µî ÇÊ¿äÇÑ ÄÄÆ÷³ÍÆ®´Â 
-        // ÇÑ¹ø¸¸ ¹Ì¸® Ã£¾Æ º¯¼ö¿¡ ÀúÀåÇÏ¿© Àç»ç¿ë
+        // GameManager, BulletSpawner, Player ë“± í•„ìš”í•œ ì»´í¬ë„ŒíŠ¸ëŠ” 
+        // í•œë²ˆë§Œ ë¯¸ë¦¬ ì°¾ì•„ ë³€ìˆ˜ì— ì €ì¥í•˜ì—¬ ì¬ì‚¬ìš©
         GameObject gmObj = GameObject.Find("GameManager");
         BulletSpawner bulletSpawner = gmObj?.GetComponent<BulletSpawner>();
         GameObject playerObj = GameObject.Find("Player");
@@ -198,12 +200,12 @@ public class deBuffEvent : MonoBehaviour
                         slowSkill.slowDuration += 0.5f;
                 }
                 break;
-            case 4:
-                if (jumpPower != null)
-                    jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
-                break;
+            //case 4:
+            //    if (jumpPower != null)
+            //        jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
+            //    break;
             default:
-                Debug.LogWarning("¾Ë ¼ö ¾ø´Â µğ¹öÇÁ ÀÎµ¦½º");
+                Debug.LogWarning("ì•Œ ìˆ˜ ì—†ëŠ” ë””ë²„í”„ ì¸ë±ìŠ¤");
                 break;
         }
 
@@ -230,7 +232,7 @@ public class deBuffEvent : MonoBehaviour
             }
 ;        }
 
-        // WaveManager¿¡¼­ ¸ó½ºÅÍ ½ºÆù Àç°³
+        // WaveManagerì—ì„œ ëª¬ìŠ¤í„° ìŠ¤í° ì¬ê°œ
         WaveManager wm = FindFirstObjectByType<WaveManager>();
         if (wm != null)
         {
@@ -241,13 +243,13 @@ public class deBuffEvent : MonoBehaviour
 
     public void OpenPanel()
     {
-        // 1. ³»ºÎ »óÅÂ ÃÊ±âÈ­
+        // 1. ë‚´ë¶€ ìƒíƒœ ì´ˆê¸°í™”
         isDialogActive = false;
         selectedItem = null;
 
-        // 2. UI ÃÊ±âÈ­
+        // 2. UI ì´ˆê¸°í™”
         dialogImage.gameObject.SetActive(true);
-        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -223f); // ÀûÀıÈ÷ Á¶Á¤
+        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -223f); // ì ì ˆíˆ ì¡°ì •
         dialogImage.color = new Color(1, 1, 1, 1);
 
         shopNPC.gameObject.SetActive(true);
@@ -272,10 +274,10 @@ public class deBuffEvent : MonoBehaviour
         {
             Canvas canvas = shopUI.GetComponent<Canvas>();
             if (canvas != null)
-                canvas.sortingOrder = 100; // UI°¡ ´Ù¸¥ °Íµé¿¡ °¡·ÁÁöÁö ¾Êµµ·Ï
+                canvas.sortingOrder = 100; // UIê°€ ë‹¤ë¥¸ ê²ƒë“¤ì— ê°€ë ¤ì§€ì§€ ì•Šë„ë¡
         }
 
-        // 3. ´ÙÀÌ¾î·Î±× »õ·Î ½ÃÀÛ
+        // 3. ë‹¤ì´ì–´ë¡œê·¸ ìƒˆë¡œ ì‹œì‘
         StopAllCoroutines();
         StartCoroutine(ShowDialogCoroutine(currentDialog));
     }

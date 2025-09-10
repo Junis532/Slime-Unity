@@ -506,6 +506,7 @@ GameObject:
   - component: {fileID: 37500854}
   - component: {fileID: 37500853}
   - component: {fileID: 37500856}
+  - component: {fileID: 37500857}
   m_Layer: 5
   m_Name: SkillButton
   m_TagString: Untagged
@@ -583,7 +584,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionIndicator: {fileID: 1919898566}
-  joystickCanvasGroup: {fileID: 880318244}
+--- !u!114 &37500857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37500851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 37500853}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &51668067
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2079,7 +2123,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &250421094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2155,9 +2199,9 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 37500852}
   - {fileID: 885820771}
   - {fileID: 1213060429}
+  - {fileID: 37500852}
   - {fileID: 129433693}
   - {fileID: 985239024}
   m_Father: {fileID: 2088267038}
@@ -4327,7 +4371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ComponentVersion: 1
-  m_AssetsPPU: 20
+  m_AssetsPPU: 22
   m_RefResolutionX: 320
   m_RefResolutionY: 180
   m_CropFrame: 0
@@ -7142,7 +7186,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 70779021de311b544afffcf12e65dcc2, type: 2}
   - {fileID: 11400000, guid: 8be83eddd563ce145b6041aa58806bc4, type: 2}
   - {fileID: 11400000, guid: f601bd21d21a5c84582cf3d0856d3efc, type: 2}
-  - {fileID: 11400000, guid: 6a1e2814bccc6454a9fad70ef0d4eccf, type: 2}
   debuffs:
   - {fileID: 11400000, guid: f2fac12ad30ccae428a24f7b644d5f8e, type: 2}
   - {fileID: 11400000, guid: 1efa42c009b85af47b6dc7ac8533f153, type: 2}
@@ -11791,7 +11834,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackerSettings:
     BindingMode: 4
-    PositionDamping: {x: 0.5, y: 1000000, z: 0.5}
+    PositionDamping: {x: 0.5, y: 0.5, z: 0.5}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
@@ -12640,6 +12683,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skill Joystick
       objectReference: {fileID: 0}
+    - target: {fileID: 3881087803549984437, guid: ec536a7718376554185e4a856d5ae230, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3881087803815115470, guid: ec536a7718376554185e4a856d5ae230, type: 3}
       propertyPath: m_Color.a
       value: 0.39215687
@@ -12675,6 +12722,10 @@ PrefabInstance:
     - target: {fileID: 3881087804030458062, guid: ec536a7718376554185e4a856d5ae230, type: 3}
       propertyPath: m_SizeDelta.y
       value: 99
+      objectReference: {fileID: 0}
+    - target: {fileID: 3881087804030458063, guid: ec536a7718376554185e4a856d5ae230, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -19040,6 +19091,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 129433694}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: dashDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: moveJoystick
+      value: 
+      objectReference: {fileID: 985239026}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: CooltimeImage
+      value: 
+      objectReference: {fileID: 885820772}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitTimerText
       value: 
       objectReference: {fileID: 1213060430}
@@ -19048,8 +19111,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 885820772}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: slimeJumpButton
+      value: 
+      objectReference: {fileID: 37500857}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: slimeJumpDamage
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 1919898616}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: enemyLayer.m_Bits
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: knockbackDistance
@@ -19060,9 +19135,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 880318244}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: obstacleLayer.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: imageToHideWhenTouching
       value: 
       objectReference: {fileID: 37500851}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: 'distancesFromPlayer.Array.data[0]'
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2574320177181981338, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: deathPanel
       value: 

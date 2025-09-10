@@ -78,12 +78,18 @@ public class BuffEvent : MonoBehaviour
         dialogText.text = "";
         dialogText.color = new Color(0, 0, 0, 1);
 
+        dialogText.isRightToLeftText = false; // 🔥 LTR 고정
+
+        var sb = new System.Text.StringBuilder();
+
         foreach (char c in text)
         {
-            dialogText.text += c;
+            sb.Append(c);
+            dialogText.text = sb.ToString();
             yield return new WaitForSeconds(0.05f);
         }
     }
+
 
     // 다이어로그 내려가며 사라진 후 → 아이템 슬롯 등장
     private IEnumerator HideDialogAndShowItems()
@@ -316,17 +322,17 @@ public class BuffEvent : MonoBehaviour
                 }
                 break;
 
-            case 4:
-                var plObj = GameObject.Find("Player");
-                if (plObj != null)
-                {
-                    var jumpPower = plObj.GetComponent<JoystickDirectionIndicator>();
-                    if (jumpPower != null)
-                    {
-                        jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
-                    }
-                }
-                break;
+            //case 4:
+            //    var plObj = GameObject.Find("Player");
+            //    if (plObj != null)
+            //    {
+            //        var jumpPower = plObj.GetComponent<JoystickDirectionIndicator>();
+            //        if (jumpPower != null)
+            //        {
+            //            jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
+            //        }
+            //    }
+            //    break;
 
             default:
                 break;

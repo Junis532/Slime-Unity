@@ -183,14 +183,14 @@ public class GameManager : MonoSingleTone<GameManager>
             }
         }
 
-        if (cineCamera != null)
-        {
-            var followComponent = cineCamera.GetComponent<CinemachineFollow>();
-            if (followComponent != null)
-            {
-                followComponent.TrackerSettings.PositionDamping = gPositionDamping;
-            }
-        }
+        //if (cineCamera != null)
+        //{
+        //    var followComponent = cineCamera.GetComponent<CinemachineFollow>();
+        //    if (followComponent != null)
+        //    {
+        //        followComponent.TrackerSettings.PositionDamping = gPositionDamping;
+        //    }
+        //}
     }
 
 
