@@ -163,6 +163,9 @@ public class BuffEvent : MonoBehaviour
         float duration = 1f;
         float timer = 0f;
 
+        // 🔥 버튼 전부 비활성화 (클릭 방지)
+        DisableAllBuyButtons();
+
         // 슬롯 아이콘 랜덤 회전 효과
         while (timer < duration)
         {
@@ -223,9 +226,10 @@ public class BuffEvent : MonoBehaviour
             seq.Join(descText.DOFade(1f, 0.3f));
         }
 
-        // 버튼 상태 업데이트
-        UpdateBuyButtonStates();
+        // 🔥 최종 아이템 등장 후 버튼 활성화
+        seq.OnComplete(() => UpdateBuyButtonStates());
     }
+
 
     private void OnSelectItem(int index)
     {

@@ -60,7 +60,7 @@ public class deBuffEvent : MonoBehaviour
         dialogText.text = "";
         dialogText.color = new Color(0, 0, 0, 1);
 
-        dialogText.isRightToLeftText = false; // 🔥 LTR 고정
+        dialogText.isRightToLeftText = false;
 
         var sb = new System.Text.StringBuilder();
 
@@ -92,53 +92,97 @@ public class deBuffEvent : MonoBehaviour
         // 슬롯 활성화 후 아이템 등장
         itemSlot.SetActive(true);
         FirstRerollItem();
+        StartCoroutine(RollItemCoroutine());
     }
 
     public void FirstRerollItem()
     {
-        // 랜덤 아이템 1개 선택
-        int rand = Random.Range(0, allItems.Count);
-        selectedItem = allItems[rand];
-
-        // 슬롯 UI 업데이트
+        // 슬롯 UI 초기화
         TMP_Text nameText = itemSlot.transform.Find("ItemName").GetComponent<TMP_Text>();
         TMP_Text descText = itemSlot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
         Image icon = itemSlot.transform.Find("ItemIcon").GetComponent<Image>();
         Button buyBtn = itemSlot.transform.Find("BuyButton").GetComponent<Button>();
 
-        nameText.text = selectedItem.itemName;
-        descText.text = selectedItem.description;
-        icon.sprite = selectedItem.icon;
-
-        // BuyButton 클릭 시 아이템 구매 처리
-        buyBtn.onClick.RemoveAllListeners();
-        buyBtn.onClick.AddListener(() => OnAccept());
-
-        // 처음엔 투명하게 만들고 애니메이션 등장
-        icon.transform.localScale = Vector3.zero;
+        // 처음에는 투명하게 만듦
         SetAlpha(icon, 0f);
         SetAlpha(nameText, 0f);
         SetAlpha(descText, 0f);
 
+        // 버튼 비활성화 (애니메이션 중 클릭 방지)
+        buyBtn.interactable = false;
+        declineButton.interactable = false;
+        buyBtn.onClick.RemoveAllListeners();
+        declineButton.onClick.RemoveAllListeners();
+
+        // 패널 활성화
+        gameObject.SetActive(true);
+    }
+
+    private IEnumerator RollItemCoroutine()
+    {
+        float duration = 1f;
+        float timer = 0f;
+        Image icon = itemSlot.transform.Find("ItemIcon").GetComponent<Image>();
+
+        while (timer < duration)
+        {
+            int rand = Random.Range(0, allItems.Count);
+            icon.sprite = allItems[rand].icon;
+            icon.transform.localScale = Vector3.one;
+            SetAlpha(icon, 1f);
+
+            timer += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        // 최종 아이템 선택
+        int finalRand = Random.Range(0, allItems.Count);
+        selectedItem = allItems[finalRand];
+
+        TMP_Text nameText = itemSlot.transform.Find("ItemName").GetComponent<TMP_Text>();
+        TMP_Text descText = itemSlot.transform.Find("ItemDescription").GetComponent<TMP_Text>();
+        Button buyBtn = itemSlot.transform.Find("BuyButton").GetComponent<Button>();
+
+        // 최종 아이템 정보로 업데이트
+        icon.sprite = selectedItem.icon;
+        icon.transform.localScale = Vector3.zero;
+        SetAlpha(icon, 0f);
+        nameText.text = selectedItem.itemName;
+        descText.text = selectedItem.description;
+        SetAlpha(nameText, 0f);
+        SetAlpha(descText, 0f);
+
+        // 최종 애니메이션 시작
         Sequence seq = DOTween.Sequence();
         seq.Append(icon.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
         seq.Join(icon.DOFade(1f, 0.3f));
         seq.Join(nameText.DOFade(1f, 0.3f));
         seq.Join(descText.DOFade(1f, 0.3f));
 
-        // 거절 버튼 연결
-        declineButton.onClick.RemoveAllListeners();
-        declineButton.onClick.AddListener(OnDecline);
-
-        // 패널 활성화
-        gameObject.SetActive(true);
+        // 애니메이션 완료 후 버튼 활성화 및 리스너 연결
+        seq.OnComplete(() => {
+            buyBtn.interactable = true;
+            declineButton.interactable = true;
+            buyBtn.onClick.AddListener(() => OnAccept());
+            declineButton.onClick.AddListener(OnDecline);
+        });
     }
 
     private void OnAccept()
     {
         Debug.Log($"[수락] {selectedItem.itemName}");
-        ApplyItemEffect(selectedItem);
-        OnButtonExitClick();
+
+        // 🔥 아이콘 커졌다 돌아오는 애니메이션 추가
+        Transform iconT = itemSlot.transform.Find("ItemIcon");
+        Sequence seq = DOTween.Sequence();
+        seq.Append(iconT.DOScale(1.3f, 0.2f).SetEase(Ease.OutBounce));
+        seq.Append(iconT.DOScale(1f, 0.2f).SetDelay(0.3f));
+
+        seq.OnComplete(() =>
+        {
+            ApplyItemEffect(selectedItem);
+            OnButtonExitClick();
+        });
     }
 
     private void OnDecline()
@@ -157,9 +201,6 @@ public class deBuffEvent : MonoBehaviour
     void ApplyItemEffect(ItemStats item)
     {
         int index = GameManager.Instance.debuffs.IndexOf(item);
-
-        // GameManager, BulletSpawner, Player 등 필요한 컴포넌트는 
-        // 한번만 미리 찾아 변수에 저장하여 재사용
         GameObject gmObj = GameObject.Find("GameManager");
         BulletSpawner bulletSpawner = gmObj?.GetComponent<BulletSpawner>();
         GameObject playerObj = GameObject.Find("Player");
@@ -200,10 +241,6 @@ public class deBuffEvent : MonoBehaviour
                         slowSkill.slowDuration += 0.5f;
                 }
                 break;
-            //case 4:
-            //    if (jumpPower != null)
-            //        jumpPower.slimeJumpDamage += jumpPower.slimeJumpDamage * 0.1f;
-            //    break;
             default:
                 Debug.LogWarning("알 수 없는 디버프 인덱스");
                 break;
@@ -213,7 +250,6 @@ public class deBuffEvent : MonoBehaviour
         if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
             GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;
     }
-
 
     public void OnButtonExitClick()
     {
@@ -230,9 +266,8 @@ public class deBuffEvent : MonoBehaviour
                 if (canvas != null)
                     canvas.sortingOrder = -1;
             }
-;        }
+        }
 
-        // WaveManager에서 몬스터 스폰 재개
         WaveManager wm = FindFirstObjectByType<WaveManager>();
         if (wm != null)
         {
@@ -243,13 +278,11 @@ public class deBuffEvent : MonoBehaviour
 
     public void OpenPanel()
     {
-        // 1. 내부 상태 초기화
         isDialogActive = false;
         selectedItem = null;
 
-        // 2. UI 초기화
         dialogImage.gameObject.SetActive(true);
-        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -223f); // 적절히 조정
+        dialogImage.rectTransform.anchoredPosition = new Vector2(0f, -223f);
         dialogImage.color = new Color(1, 1, 1, 1);
 
         shopNPC.gameObject.SetActive(true);
@@ -274,12 +307,10 @@ public class deBuffEvent : MonoBehaviour
         {
             Canvas canvas = shopUI.GetComponent<Canvas>();
             if (canvas != null)
-                canvas.sortingOrder = 100; // UI가 다른 것들에 가려지지 않도록
+                canvas.sortingOrder = 100;
         }
 
-        // 3. 다이어로그 새로 시작
         StopAllCoroutines();
         StartCoroutine(ShowDialogCoroutine(currentDialog));
     }
-
 }
