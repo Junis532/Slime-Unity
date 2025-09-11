@@ -39,7 +39,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Coroutine rollCoroutine;
     private Vector3 originalScale;
 
-    public const float DashingDistance = 4f;
+    public float DashingDistance = 3f;
 
     // 외부에서 참조 가능
     public bool IsUsingSkill => isSkillActive;
