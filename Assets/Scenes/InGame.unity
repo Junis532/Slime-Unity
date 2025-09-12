@@ -4296,7 +4296,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 4.090909
+  orthographic size: 4.799812
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -19236,6 +19236,14 @@ PrefabInstance:
       propertyPath: joystick
       value: 
       objectReference: {fileID: 985239026}
+    - target: {fileID: 9113864679142819728, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_fontSize
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9113864679142819728, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

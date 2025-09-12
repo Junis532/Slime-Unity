@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
@@ -10,20 +10,21 @@ public class LongRangeEnemy : EnemyBase
     private EnemyAnimation enemyAnimation;
     private NavMeshAgent agent;
 
-    [Header("·£´ı ÀÌµ¿ °ü·Ã")]
-    public float moveDuration = 3f;  // ÀÌµ¿ ½Ã°£
+    [Header("ëœë¤ ì´ë™ ê´€ë ¨")]
+    public float moveDuration = 3f;  // ì´ë™ ì‹œê°„
     private float moveTimer = 0f;
     private Vector3 randomDestination;
+    private bool hasMovedOnce = false; // âœ… ì²« ì´ë™ ì—¬ë¶€ ì²´í¬
 
-    [Header("¹ß»ç °ü·Ã")]
-    public float fireCooldown = 2f;  // ½î´Â ÁÖ±â
+    [Header("ë°œì‚¬ ê´€ë ¨")]
+    public float fireCooldown = 2f;  // ì˜ëŠ” ì£¼ê¸°
     private float lastFireTime;
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
     private bool isPreparingToFire = false;
 
-    [Header("¶óÀÎ·»´õ·¯")]
+    [Header("ë¼ì¸ë Œë”ëŸ¬")]
     private LineRenderer lineRenderer;
 
     void Start()
@@ -41,7 +42,7 @@ public class LongRangeEnemy : EnemyBase
 
         PickRandomDestination();
 
-        // ¶óÀÎ·»´õ·¯ ¼¼ÆÃ
+        // ë¼ì¸ë Œë”ëŸ¬ ì„¸íŒ…
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
@@ -63,7 +64,7 @@ public class LongRangeEnemy : EnemyBase
             return;
         }
 
-        // ÁÂ¿ì ¹İÀü
+        // ì¢Œìš° ë°˜ì „
         Vector2 toPlayer = (Vector2)player.transform.position - (Vector2)transform.position;
         if (toPlayer.x != 0)
         {
@@ -72,44 +73,60 @@ public class LongRangeEnemy : EnemyBase
             transform.localScale = scale;
         }
 
-        // ¹ß»ç ÄğÅ¸ÀÓ Ã¼Å©
+        // âœ… ì²« ì´ë™ì€ ë¬´ì¡°ê±´ ì‹¤í–‰, ë°œì‚¬ ê¸ˆì§€
+        if (!hasMovedOnce)
+        {
+            MoveRandomly();
+            return;
+        }
+
+        // âœ… ì²« ì´ë™ì´ ëë‚¬ë‹¤ë©´ -> ì¿¨íƒ€ì„ ê¸°ë°˜ ë°œì‚¬ + ì´ë™
         if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot(player));
         }
-        else if (!isPreparingToFire) // ¹ß»ç ÁØºñÁßÀÌ ¾Æ´Ò ¶§¸¸ ÀÌµ¿
+        else if (!isPreparingToFire)
         {
-            moveTimer += Time.deltaTime;
-            if (moveTimer >= moveDuration || Vector3.Distance(transform.position, randomDestination) < 0.5f)
-            {
-                PickRandomDestination();
-                moveTimer = 0f;
-            }
-            agent.SetDestination(randomDestination);
-
-            if (agent.velocity.magnitude > 0.1f)
-                enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-            else
-                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            MoveRandomly();
         }
+    }
+
+    private void MoveRandomly()
+    {
+        moveTimer += Time.deltaTime;
+        if (moveTimer >= moveDuration || Vector3.Distance(transform.position, randomDestination) < 0.5f)
+        {
+            PickRandomDestination();
+            moveTimer = 0f;
+
+            // âœ… ì²« ì´ë™ ì™„ë£Œ ì²˜ë¦¬
+            if (!hasMovedOnce)
+                hasMovedOnce = true;
+        }
+        agent.SetDestination(randomDestination);
+
+        if (agent.velocity.magnitude > 0.1f)
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+        else
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
     }
 
     private IEnumerator PrepareAndShoot(GameObject player)
     {
         isPreparingToFire = true;
 
-        // ÀÌµ¿ ¸ØÃã
+        // ì´ë™ ë©ˆì¶¤
         agent.SetDestination(transform.position);
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
 
-        // ¿ø·¡ ¼± ±½±â/»ö ÀúÀå
+        // ì›ë˜ ì„  êµµê¸°/ìƒ‰ ì €ì¥
         float startWidth = 0.05f;
         Color startColor = Color.red;
 
-        // Á¶ÁØ¼± ÄÑ±â
+        // ì¡°ì¤€ì„  ì¼œê¸°
         lineRenderer.enabled = true;
 
-        float duration = 1f; // ÁØºñ ½Ã°£
+        float duration = 1f; // ì¤€ë¹„ ì‹œê°„
         float timer = 0f;
 
         while (timer < duration)
@@ -121,7 +138,7 @@ public class LongRangeEnemy : EnemyBase
                 lineRenderer.SetPosition(1, player.transform.position);
             }
 
-            // ±½±â, ¾ËÆÄ Á¡Á¡ ÁÙÀÌ±â
+            // êµµê¸°, ì•ŒíŒŒ ì ì  ì¤„ì´ê¸°
             float t = timer / duration;
             float width = Mathf.Lerp(startWidth, 0f, t);
             lineRenderer.startWidth = width;
@@ -134,7 +151,7 @@ public class LongRangeEnemy : EnemyBase
             yield return null;
         }
 
-        // ¹ß»ç
+        // ë°œì‚¬
         lineRenderer.enabled = false;
         if (player != null)
         {
@@ -143,7 +160,7 @@ public class LongRangeEnemy : EnemyBase
             lastFireTime = Time.time;
         }
 
-        // ±½±â/»ö º¹¿ø (´ÙÀ½ ¹ß»ç ´ëºñ)
+        // êµµê¸°/ìƒ‰ ë³µì› (ë‹¤ìŒ ë°œì‚¬ ëŒ€ë¹„)
         lineRenderer.startWidth = startWidth;
         lineRenderer.endWidth = startWidth;
         lineRenderer.startColor = startColor;
