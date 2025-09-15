@@ -53,7 +53,7 @@ public class GameNextWavePortal : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        GameManager.Instance.waveManager.StartNextWave();
+        //GameManager.Instance.waveManager.StartNextWave();
 
         yield return loadingImage.DOFade(0f, fadeDuration);
 

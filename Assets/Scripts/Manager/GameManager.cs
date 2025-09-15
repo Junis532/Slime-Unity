@@ -43,8 +43,8 @@ public class GameManager : MonoSingleTone<GameManager>
 
 
     [Header("이벤트 버프 & 디버프 UI")]
-    public BuffEvent buffEvent;
-    public deBuffEvent debuffEvent;
+    //public BuffEvent buffEvent;
+    //public deBuffEvent debuffEvent;
     public GameObject eventBuffUI;
     public GameObject eventBuffUICanvas;
     public GameObject eventDebuffUI;
@@ -169,7 +169,7 @@ public class GameManager : MonoSingleTone<GameManager>
 
         joystickDirectionIndicator.StartRollingLoop();
 
-        waveManager.StartSpawnLoop();
+        //waveManager.StartSpawnLoop();
 
         if (!isGameStarted)
         {
@@ -178,7 +178,7 @@ public class GameManager : MonoSingleTone<GameManager>
             GameObject player = GameObject.FindGameObjectWithTag("Player"); // 플레이어 위치 초기화
             if (player != null)
             {
-                player.transform.position = new Vector3(-9, 0, 0);
+                //player.transform.position = new Vector3(-9, 0, 0);
                 playerController.canMove = true;
             }
         }
@@ -210,85 +210,85 @@ public class GameManager : MonoSingleTone<GameManager>
         //    }
     }
 
-    public void ChangeStateToEventBuff()
-    {
-        currentState = GameState.EventBuff;
-        Debug.Log("상태: EventBuff - 이벤트 버프 상태");
-        playerController.canMove= false;
-        buffEvent.OpenPanel();
-        if (eventBuffUI != null)
-        {
-            CanvasGroup cg = eventBuffUI.GetComponent<CanvasGroup>();
-            RectTransform rt = eventBuffUI.GetComponent<RectTransform>();
+    //public void ChangeStateToEventBuff()
+    //{
+    //    currentState = GameState.EventBuff;
+    //    Debug.Log("상태: EventBuff - 이벤트 버프 상태");
+    //    playerController.canMove= false;
+    //    buffEvent.OpenPanel();
+    //    if (eventBuffUI != null)
+    //    {
+    //        CanvasGroup cg = eventBuffUI.GetComponent<CanvasGroup>();
+    //        RectTransform rt = eventBuffUI.GetComponent<RectTransform>();
 
-            if (cg != null && rt != null)
-            {
-                // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
-                cg.alpha = 0f;
-                cg.interactable = false;
-                cg.blocksRaycasts = false;
+    //        if (cg != null && rt != null)
+    //        {
+    //            // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
+    //            cg.alpha = 0f;
+    //            cg.interactable = false;
+    //            cg.blocksRaycasts = false;
 
-                // sortingOrder 최상단으로 설정
-                Canvas canvas = eventBuffUICanvas.GetComponent<Canvas>();
-                if (canvas != null)
-                    canvas.sortingOrder = 10;
+    //            // sortingOrder 최상단으로 설정
+    //            Canvas canvas = eventBuffUICanvas.GetComponent<Canvas>();
+    //            if (canvas != null)
+    //                canvas.sortingOrder = 10;
 
-                // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
-                cg.DOFade(1f, 0.7f).OnComplete(() =>
-                {
-                    cg.interactable = true;
-                    cg.blocksRaycasts = true;
-                    isEventBuffUIVisible = true;
-                         playerController.canMove= false;
-                });
+    //            // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
+    //            cg.DOFade(1f, 0.7f).OnComplete(() =>
+    //            {
+    //                cg.interactable = true;
+    //                cg.blocksRaycasts = true;
+    //                isEventBuffUIVisible = true;
+    //                     playerController.canMove= false;
+    //            });
 
-                rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
-            }
-        }
-    }
+    //            rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
+    //        }
+    //    }
+    //}
 
-    public void ChangeStateToEventDebuff()
-    {
-        currentState = GameState.EventDebuff;
-        Debug.Log("상태: EventDebuff - 이벤트 디버프 상태");
-        playerController.canMove = false;
-        debuffEvent.OpenPanel();
-        if (eventDebuffUI != null)
-        {
-            CanvasGroup cg = eventDebuffUI.GetComponent<CanvasGroup>();
-            RectTransform rt = eventDebuffUI.GetComponent<RectTransform>();
+    //public void ChangeStateToEventDebuff()
+    //{
+    //    currentState = GameState.EventDebuff;
+    //    Debug.Log("상태: EventDebuff - 이벤트 디버프 상태");
+    //    playerController.canMove = false;
+    //    debuffEvent.OpenPanel();
+    //    if (eventDebuffUI != null)
+    //    {
+    //        CanvasGroup cg = eventDebuffUI.GetComponent<CanvasGroup>();
+    //        RectTransform rt = eventDebuffUI.GetComponent<RectTransform>();
 
-            if (cg != null && rt != null)
-            {
-                // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
-                cg.alpha = 0f;
-                cg.interactable = false;
-                cg.blocksRaycasts = false;
+    //        if (cg != null && rt != null)
+    //        {
+    //            // UI를 처음에는 안 보이게, 인터랙션 막고, 위치를 위로 이동시킴
+    //            cg.alpha = 0f;
+    //            cg.interactable = false;
+    //            cg.blocksRaycasts = false;
 
-                // sortingOrder 최상단으로 설정
-                Canvas canvas = eventDebuffUICanvas.GetComponent<Canvas>();
-                if (canvas != null)
-                    canvas.sortingOrder = 10;
+    //            // sortingOrder 최상단으로 설정
+    //            Canvas canvas = eventDebuffUICanvas.GetComponent<Canvas>();
+    //            if (canvas != null)
+    //                canvas.sortingOrder = 10;
 
-                // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
-                cg.DOFade(1f, 0.7f).OnComplete(() =>
-                {
-                    cg.interactable = true;
-                    cg.blocksRaycasts = true;
-                    isEventDebuffUIVisible = true;
-                });
+    //            // 페이드 인과 아래 방향(원래 위치)으로 이동 애니메이션 실행
+    //            cg.DOFade(1f, 0.7f).OnComplete(() =>
+    //            {
+    //                cg.interactable = true;
+    //                cg.blocksRaycasts = true;
+    //                isEventDebuffUIVisible = true;
+    //            });
 
-                rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
-            }
-        }
-    }
+    //            rt.DOAnchorPosY(0, 0.7f).SetEase(Ease.OutCubic);
+    //        }
+    //    }
+    //}
 
     public void ChangeStateToClear()
     {
         currentState = GameState.Clear;
         Debug.Log("상태: Clear - 웨이브 클리어");
 
-        waveManager.StopSpawnLoop();
+        //waveManager.StopSpawnLoop();
 
         isGameStarted = false;
 

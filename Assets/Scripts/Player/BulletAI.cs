@@ -131,6 +131,15 @@ public class BulletAI : MonoBehaviour
             return;
         }
 
+        //if (other.CompareTag("Obstacle"))
+        //{
+        //    // AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall); // Should be a dedicated sound manager call
+        //    if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+
+        //    Invoke(nameof(DestroySelf), 1f);
+        //    return;
+        //}
+
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {

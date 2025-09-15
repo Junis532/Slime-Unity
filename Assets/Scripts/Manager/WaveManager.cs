@@ -1,323 +1,170 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
-using TMPro;
-using DG.Tweening;
-using NavMeshPlus.Components;
+
+[System.Serializable]
+public class RoomData
+{
+    public string roomName;
+    public GameObject roomPrefab;        // 방 프리팹
+    public Collider2D roomCollider;      // 방 Collider
+    public List<GameObject> enemyPrefabs; // 적 리스트
+    public List<DoorController> doors;    // 문 리스트
+
+    [HideInInspector]
+    public bool activated = false;       // 이미 활성화 여부
+}
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("WaveData 리스트 (1 웨이브 = 1 WaveData)")]
-    public List<WaveData> waveDataList;
+    [Header("모든 방 데이터")]
+    public List<RoomData> rooms;
 
-    [Header("웨이브 스폰 설정")]
+    [Header("플레이어")]
     public Transform playerTransform;
-    public float spawnInterval = 5f;
+
+    [Header("카메라")]
+    public CinemachineCamera cineCamera;
+    public float cameraMoveDuration = 0.5f;
+
+    [Header("경고 이펙트")]
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
-    public int currentWave = 1;
-    private Coroutine spawnCoroutine;
 
-    [Header("맵 관련")]
-    private GameObject currentMapInstance;
-    private BoxCollider2D mapBoundary;
-
-    [Header("포탈")]
-    public GameObject portalPrefab;
-    public GameObject shopPortalPrefab;
-    public Vector2 portalPosition = new Vector2(8f, 0f);
-    private bool portalSpawned = false;
-    private bool hasSpawned = false;
-
-    void Start()
-    {
-        ResetWave();
-        StartNextWave(); // 첫 웨이브 시작
-    }
+    private RoomData currentRoom;
+    private bool cleared = false;
+    private bool isSpawning = false;
 
     void Update()
     {
-        if (!portalSpawned && GameManager.Instance.CurrentState == "Clear")
+        if (!isSpawning)
         {
-            portalSpawned = true;
-            StartCoroutine(ShakeAndSpawnPortal());
-        }
-
-        // ✅ 적이 모두 죽었고 아직 Clear 상태가 아니라면
-        if (hasSpawned && GameManager.Instance.CurrentState == "Game")
-        {
-            if (AreAllEnemiesDead())
+            RoomData room = GetPlayerRoom();
+            if (room != null && !room.activated)
             {
-                GameManager.Instance.ChangeStateToClear();
-                Debug.Log("[WaveManager] 모든 적 처치 -> 상태 Clear로 전환");
+                room.activated = true;
+                currentRoom = room;
+                StartCoroutine(StartRoom(room));
             }
         }
     }
 
-    IEnumerator ShakeAndSpawnPortal()
+    RoomData GetPlayerRoom()
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.portalSpawnSound);
+        if (playerTransform == null) return null;
 
-        if (GameManager.Instance.cameraShake != null)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(playerTransform.position, 0.1f);
+        foreach (var hit in hits)
         {
-            for (int i = 0; i < 7; i++)
+            foreach (var room in rooms)
             {
-                GameManager.Instance.cameraShake.GenerateImpulse();
-                yield return new WaitForSeconds(0.1f);
+                if (hit == room.roomCollider)
+                    return room;
             }
-            SpawnPortal();
         }
+
+        return null;
     }
 
-    bool AreAllEnemiesDead()
+    IEnumerator StartRoom(RoomData room)
     {
-        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject[] dashEnemies = GameObject.FindGameObjectsWithTag("DashEnemy");
-        GameObject[] longRangeEnemies = GameObject.FindGameObjectsWithTag("LongRangeEnemy");
-        GameObject[] potionEnemies = GameObject.FindGameObjectsWithTag("PotionEnemy");
+        isSpawning = true;
+        cleared = false;
 
-        int totalEnemies = allEnemies.Length + dashEnemies.Length + longRangeEnemies.Length + potionEnemies.Length;
-        return totalEnemies == 0;
-    }
+        // 카메라 Confiner 적용 & 방 중앙으로 이동
+        ApplyCameraConfiner(room);
 
-    void SpawnPortal()
-    {
-        Vector2 portalPos = portalPosition;
-        WaveData currentWaveData = (currentWave - 1 >= 0 && currentWave - 1 < waveDataList.Count)
-            ? waveDataList[currentWave - 1] : null;
+        // 방 문 닫기
+        CloseDoors(room);
 
-        if (currentWaveData != null && currentWaveData.isShopMap)
+        yield return new WaitForSeconds(0.5f);
+
+        // 적 스폰 (방 중심 좌표)
+        Vector3 spawnPosition = room.roomPrefab.transform.position;
+
+        foreach (var prefab in room.enemyPrefabs)
         {
-            if (shopPortalPrefab != null)
-                Instantiate(shopPortalPrefab, portalPos, Quaternion.identity);
-        }
-        else
-        {
-            if (portalPrefab != null)
-                Instantiate(portalPrefab, portalPos, Quaternion.identity);
-        }
-    }
-
-    public void ResetWave()
-    {
-        currentWave = 0;
-        hasSpawned = false;
-    }
-
-    public void StartNextWave()
-    {
-        StopSpawnLoop();
-
-        if (currentWave >= waveDataList.Count)
-        {
-            GameManager.Instance.ChangeStateToClear();
-            return;
-        }
-
-        if (currentMapInstance != null)
-        {
-            StopAllCoroutines(); // ← 이전 맵 관련 코루틴 중단
-            Destroy(currentMapInstance);
-            currentMapInstance = null;
-        }
-
-        portalSpawned = false;
-        hasSpawned = false;
-
-        WaveData waveData = waveDataList[currentWave];
-
-        if (waveData.mapPrefab != null)
-        {
-            currentMapInstance = Instantiate(waveData.mapPrefab, Vector3.zero, Quaternion.identity);
-            mapBoundary = currentMapInstance.GetComponentInChildren<BoxCollider2D>();
-            StartCoroutine(BakeNavMeshDelayed(currentMapInstance));
-        }
-
-        currentWave++;
-        UpdateEnemyHP();
-
-        if (GameManager.Instance.shopManager != null)
-        {
-            //GameManager.Instance.shopManager.ResetRerollPrice();
-        }
-
-        if (waveData.isEventStageBuff)
-        {
-            Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 버프 이벤트 스테이지입니다.");
-            GameManager.Instance.ChangeStateToEventBuff();
-            // 🔥 여기서 SpawnPortal() 제거
-            return;
-        }
-
-        if (waveData.isEventStageDebuff)
-        {
-            Debug.Log($"[WaveManager] {currentWave - 1} 웨이브는 디버프 이벤트 스테이지입니다.");
-            GameManager.Instance.ChangeStateToEventDebuff();
-            // 🔥 여기서 SpawnPortal() 제거
-            return;
-        }
-
-        GameManager.Instance.ChangeStateToGame();
-        StartSpawnLoop();
-    }
-
-
-    IEnumerator BakeNavMeshDelayed(GameObject mapInstance)
-    {
-        yield return null;
-
-        // 오브젝트가 이미 Destroy 되었는지 체크
-        if (mapInstance == null)
-        {
-            Debug.LogWarning("[WaveManager] NavMeshSurface 베이크 시도했지만 mapInstance가 이미 Destroy됨");
-            yield break;
-        }
-
-        NavMeshSurface surface = mapInstance.GetComponentInChildren<NavMeshSurface>();
-        if (surface != null)
-        {
-            surface.BuildNavMesh();
-            Debug.Log($"[WaveManager] {currentWave} 웨이브 NavMesh 베이크 완료");
-        }
-        else
-        {
-            Debug.LogWarning("[WaveManager] NavMeshSurface를 찾을 수 없습니다.");
-        }
-    }
-
-
-    bool IsEnemyTag(string tag)
-    {
-        return tag == "Enemy" || tag == "DashEnemy" || tag == "LongRangeEnemy" || tag == "PotionEnemy";
-    }
-
-    /// <summary>
-    /// 개별 경고 이펙트 표시
-    /// </summary>
-    void ShowWarningEffect(Vector2 pos)
-    {
-        if (warningEffectPrefab == null) return;
-
-        GameObject warning = GameManager.Instance.poolManager.SpawnFromPool(
-            warningEffectPrefab.name, pos, Quaternion.identity);
-
-        if (warning != null)
-        {
-            SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.color = new Color(1, 0, 0, 0);
-                sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
-            }
-            StartCoroutine(ReturnWarningToPool(warning, warningDuration));
-        }
-    }
-
-    IEnumerator SpawnWithWarning()
-    {
-        if (GameManager.Instance != null && GameManager.Instance.IsShop())
-            yield break;
-
-        WaveData currentWaveData = waveDataList[currentWave - 1];
-        if (currentWaveData == null || currentWaveData.MonsterLists.Count == 0)
-            yield break;
-
-        int spawnCount = currentWaveData.MonsterLists.Count;
-
-        for (int i = 0; i < spawnCount; i++)
-        {
-            if (GameManager.Instance != null && GameManager.Instance.IsShop())
-                yield break;
-
-            float delay = 0f;
-            if (i < currentWaveData.spawnDelays.Count)
-                delay = currentWaveData.spawnDelays[i];
-            if (delay > 0f)
-                yield return new WaitForSeconds(delay);
-
-            GameObject prefab = currentWaveData.MonsterLists[i];
-            Vector2 spawnPos = Vector2.zero; // 필요 시 랜덤 위치 가능
-
-            // 임시 오브젝트 생성 (비활성 상태)
-            GameObject tempObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+            // 임시 오브젝트 생성 (비활성)
+            GameObject tempObj = Instantiate(prefab, spawnPosition, Quaternion.identity);
             tempObj.SetActive(false);
 
-            // 자식 중 적 태그를 가진 오브젝트 위치마다 경고 표시
-            var allTransforms = tempObj.GetComponentsInChildren<Transform>();
-            foreach (var t in allTransforms)
+            // 자식만 경고 표시 (자식의 자식 제외)
+            foreach (Transform child in tempObj.transform)
             {
-                if (t == tempObj.transform) continue;
-                if (IsEnemyTag(t.gameObject.tag))
-                {
-                    ShowWarningEffect(t.position);
-                }
+                ShowWarningEffect(child.position);
             }
 
             // 경고 시간 대기
             yield return new WaitForSeconds(warningDuration);
 
             // 실제 스폰
-            GameManager.Instance.poolManager.SpawnFromPool(prefab.name, spawnPos, Quaternion.identity);
-            Destroy(tempObj);
-
-            Debug.Log($"[WaveManager] {currentWave} 웨이브 몬스터 스폰 완료: {i + 1}/{spawnCount}");
+            tempObj.SetActive(true);
         }
 
-        hasSpawned = true;
+        // 모든 적이 죽었는지 확인
+        while (!cleared)
+        {
+            yield return new WaitForSeconds(1f);
+
+            int totalEnemies = 0;
+            totalEnemies += GameObject.FindGameObjectsWithTag("Enemy").Length;
+            totalEnemies += GameObject.FindGameObjectsWithTag("DashEnemy").Length;
+            totalEnemies += GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length;
+            totalEnemies += GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
+
+            if (totalEnemies == 0)
+            {
+                cleared = true;
+                OpenDoors(room);
+                Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
+            }
+        }
+
+        isSpawning = false;
     }
 
-
-    IEnumerator ReturnWarningToPool(GameObject warning, float duration)
+    void ShowWarningEffect(Vector3 pos)
     {
-        yield return new WaitForSeconds(duration);
+        if (warningEffectPrefab == null) return;
+
+        GameObject warning = Instantiate(warningEffectPrefab, pos, Quaternion.identity);
         SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
         if (sr != null)
-            sr.DOKill();
-        GameManager.Instance.poolManager.ReturnToPool(warning);
-    }
-
-    void UpdateEnemyHP()
-    {
-        // 📌 웨이브 1에서는 HP 고정
-        if (currentWave <= 1) return;
-
-        float waveFactorEnemy = 0.07f + (currentWave / 30000f);
-        float waveFactorLongRange = 0.068f + (currentWave / 30000f);
-
-        GameManager.Instance.enemyStats.maxHP = ApplyHPScale(GameManager.Instance.enemyStats.maxHP, waveFactorEnemy);
-        GameManager.Instance.dashEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.dashEnemyStats.maxHP, waveFactorEnemy);
-        GameManager.Instance.longRangeEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.longRangeEnemyStats.maxHP, waveFactorLongRange);
-        GameManager.Instance.potionEnemyStats.maxHP = ApplyHPScale(GameManager.Instance.potionEnemyStats.maxHP, waveFactorLongRange);
-    }
-
-
-    int ApplyHPScale(int baseHP, float factor)
-    {
-        int newHP = Mathf.FloorToInt(baseHP + baseHP * factor);
-        return newHP;
-    }
-
-    IEnumerator SpawnerLoopRoutine()
-    {
-        yield return new WaitForSeconds(1f);
-        if (hasSpawned || (GameManager.Instance != null && GameManager.Instance.IsShop()))
-            yield break;
-
-        yield return StartCoroutine(SpawnWithWarning());
-    }
-
-    public void StartSpawnLoop()
-    {
-        if (spawnCoroutine == null)
-            spawnCoroutine = StartCoroutine(SpawnerLoopRoutine());
-    }
-
-    public void StopSpawnLoop()
-    {
-        if (spawnCoroutine != null)
         {
-            StopCoroutine(spawnCoroutine);
-            spawnCoroutine = null;
+            sr.color = new Color(1, 0, 0, 0);
+            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
         }
+
+        Destroy(warning, warningDuration);
+    }
+
+    void CloseDoors(RoomData room)
+    {
+        foreach (var door in room.doors)
+            door.CloseDoor();
+    }
+
+    void OpenDoors(RoomData room)
+    {
+        foreach (var door in room.doors)
+            door.OpenDoor();
+    }
+
+    void ApplyCameraConfiner(RoomData room)
+    {
+        if (cineCamera == null || room.roomCollider == null) return;
+
+        var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
+        if (confiner != null && confiner.BoundingShape2D != room.roomCollider)
+        {
+            confiner.BoundingShape2D = room.roomCollider;
+            confiner.InvalidateBoundingShapeCache();
+        }
+
+        // 카메라를 방 중앙으로 DOTween 이동
+        Vector3 center = room.roomCollider.bounds.center;
+        cineCamera.transform.DOMove(new Vector3(center.x, center.y, cineCamera.transform.position.z), cameraMoveDuration);
     }
 }
