@@ -58,6 +58,15 @@ public class JoystickDirectionIndicator : MonoBehaviour
         StartRollingLoop();
     }
 
+    private void Update()
+    {
+        // 스페이스 키 입력 체크
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            UseSkillButton();
+        }
+    }
+
     /// <summary>
     /// 버튼 클릭 → 스킬 발동 시도
     /// </summary>

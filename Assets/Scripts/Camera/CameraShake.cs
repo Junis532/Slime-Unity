@@ -23,14 +23,6 @@ public class CameraShake : MonoBehaviour
             noise = virtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Noise) as CinemachineBasicMultiChannelPerlin;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            GenerateImpulse();
-        }
-    }
-
     public void GenerateImpulse()
     {
         impulseSource.GenerateImpulse();

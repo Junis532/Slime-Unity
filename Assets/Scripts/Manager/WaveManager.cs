@@ -36,20 +36,27 @@ public class WaveManager : MonoBehaviour
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
-
     void Update()
     {
         if (!isSpawning)
         {
             RoomData room = GetPlayerRoom();
-            if (room != null && !room.activated)
+            if (room != null)
             {
-                room.activated = true;
-                currentRoom = room;
-                StartCoroutine(StartRoom(room));
+                // 카메라 이동은 항상 수행
+                ApplyCameraConfiner(room);
+
+                // 아직 활성화되지 않은 방만 적 스폰
+                if (!room.activated)
+                {
+                    room.activated = true;
+                    currentRoom = room;
+                    StartCoroutine(StartRoom(room));
+                }
             }
         }
     }
+
 
     RoomData GetPlayerRoom()
     {

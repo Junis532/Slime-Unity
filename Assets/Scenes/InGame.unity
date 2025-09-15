@@ -8871,9 +8871,10 @@ GameObject:
   - component: {fileID: 1122233420}
   - component: {fileID: 1122233419}
   - component: {fileID: 1122233418}
+  - component: {fileID: 1122233422}
   m_Layer: 0
   m_Name: Door
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9006,6 +9007,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1122233422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122233417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9809bf1345abc5648af68b3a82653f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1129892169
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10468,6 +10485,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2915961477670460921, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.768
+      objectReference: {fileID: 0}
     - target: {fileID: 3905550376314750322, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
       propertyPath: m_Name
       value: Map_01
@@ -10571,6 +10592,7 @@ PrefabInstance:
     - {fileID: 3322429187554100083, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
     - {fileID: 1812749384991426814, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
     - {fileID: 224000760209987330, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
+    - {fileID: 5620194526497885891, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3905550376314750322, guid: bd6e4a2a5c5cedb41a167695e235c0d1, type: 3}
@@ -20045,8 +20067,8 @@ SceneRoots:
   - {fileID: 7828529753584086151}
   - {fileID: 1866293907155401161}
   - {fileID: 2088267038}
-  - {fileID: 2067792174}
+  - {fileID: 2128332711}
+  - {fileID: 1122233421}
   - {fileID: 1281315580}
   - {fileID: 468653970}
-  - {fileID: 1122233421}
-  - {fileID: 2128332711}
+  - {fileID: 2067792174}
