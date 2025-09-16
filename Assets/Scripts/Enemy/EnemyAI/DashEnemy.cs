@@ -10,7 +10,6 @@ public class DashEnemy : EnemyBase
 
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
-
     private NavMeshAgent agent;
 
     public float dashSpeed = 20f;
@@ -39,7 +38,9 @@ public class DashEnemy : EnemyBase
     [Header("대시 후 정지 관련")]
     private bool isCooldownStopped = false;
     private float cooldownStopTimer = 0f;
-    public float cooldownStopDuration = 3f;
+    private float currentCooldownStopDuration = 1f; // 기본 1초
+    public float baseCooldownStopDuration = 1f;     // 기본 정지 시간
+    public float wallHitExtraDuration = 2f;         // 벽 충돌 시 추가 시간
 
     void Start()
     {
@@ -65,19 +66,19 @@ public class DashEnemy : EnemyBase
     {
         if (!isLive) return;
 
-        // 쿨다운 정지 처리
+        // 쿨다운 정지 상태 처리
         if (isCooldownStopped)
         {
             cooldownStopTimer += Time.deltaTime;
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
             if (dashPreviewInstance != null) dashPreviewInstance.SetActive(false);
 
-            if (cooldownStopTimer >= cooldownStopDuration)
+            if (cooldownStopTimer >= currentCooldownStopDuration)
             {
                 isCooldownStopped = false;
                 cooldownStopTimer = 0f;
                 dashTimer = 0f;
-                agent.enabled = true;
+                agent.enabled = true; // 다시 이동 가능
             }
             return;
         }
@@ -97,7 +98,7 @@ public class DashEnemy : EnemyBase
 
             if (dashTimeElapsed >= dashDuration)
             {
-                EndDash();
+                EndDash(false); // 일반 대시 종료
             }
             return;
         }
@@ -150,7 +151,7 @@ public class DashEnemy : EnemyBase
             }
         }
 
-        // 대시 타이머
+        // 대시 타이머 증가
         dashTimer += Time.deltaTime;
         if (dashTimer >= dashCooldown)
         {
@@ -166,10 +167,10 @@ public class DashEnemy : EnemyBase
         Vector2 moveVec = dashDirection * dashSpeed * Time.deltaTime;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dashDirection, moveVec.magnitude, wallLayerMask);
 
-        if (hit.collider != null)
+        if (hit.collider != null) // 벽 충돌
         {
             transform.position = hit.point - dashDirection.normalized * 0.01f;
-            EndDash();
+            EndDash(true); // 벽에 부딪힌 종료 → 추가 정지 시간
         }
         else
         {
@@ -177,20 +178,21 @@ public class DashEnemy : EnemyBase
         }
     }
 
-    private void EndDash()
+    /// <param name="hitWall">true면 벽 충돌, false면 일반 종료</param>
+    private void EndDash(bool hitWall)
     {
         isDashing = false;
         dashTimeElapsed = 0f;
 
-        // 대시 후 쿨다운 정지
+        // 벽 충돌이면 추가 시간 적용
+        currentCooldownStopDuration = baseCooldownStopDuration + (hitWall ? wallHitExtraDuration : 0f);
+
         isCooldownStopped = true;
         cooldownStopTimer = 0f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-
-
         if (collision.CompareTag("Player"))
         {
             if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
@@ -199,7 +201,6 @@ public class DashEnemy : EnemyBase
                 return;
             }
 
-            // ✅ 이제는 PlayerDamaged 쪽에 위임
             int damage = GameManager.Instance.dashEnemyStats.attack;
             GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
