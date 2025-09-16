@@ -15,7 +15,11 @@ public class RoomData
 
     [HideInInspector]
     public bool activated = false;       // 이미 활성화 여부
+
+    [Header("카메라 Follow 설정")]
+    public bool CameraFollow = true;     // 이 방에서 카메라 Follow 여부
 }
+
 
 public class WaveManager : MonoBehaviour
 {
@@ -170,8 +174,21 @@ public class WaveManager : MonoBehaviour
             confiner.InvalidateBoundingShapeCache();
         }
 
-        // 카메라를 방 중앙으로 DOTween 이동
-        Vector3 center = room.roomCollider.bounds.center;
-        cineCamera.transform.DOMove(new Vector3(center.x, center.y, cineCamera.transform.position.z), cameraMoveDuration);
+        if (room.CameraFollow)
+        {
+            // Follow 켜기: 플레이어 위치만 따라가고, 방 중앙 이동 무시
+            cineCamera.Follow = playerTransform;
+        }
+        else
+        {
+            // Follow 끄기
+            cineCamera.Follow = null;
+
+            // Follow가 꺼진 경우만 DOTween으로 방 중앙으로 이동
+            Vector3 center = room.roomCollider.bounds.center;
+            cineCamera.transform.DOMove(new Vector3(center.x, center.y, cineCamera.transform.position.z), cameraMoveDuration);
+        }
     }
+
+
 }
