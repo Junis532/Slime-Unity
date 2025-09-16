@@ -1,7 +1,7 @@
 ﻿using DG.Tweening;
 using UnityEngine;
 
-public class TurretEnemy : EnemyBase
+public class TurretEnemy_PlayerTracking : EnemyBase
 {
     private bool isLive = true;
     private SpriteRenderer spriter;

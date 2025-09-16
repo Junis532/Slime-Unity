@@ -6,8 +6,8 @@ public class EnemiesDie : MonoBehaviour
     private bool isLive = true;
     private GroupController groupController;
 
-    [Header("죽을 때 드랍할 코인")]
-    public GameObject coinPrefab;
+    //[Header("죽을 때 드랍할 코인")]
+    //public GameObject coinPrefab;
 
     [Header("죽을 때 포션")]
     public GameObject potionPrefab; // 풀에 등록 필요
@@ -23,10 +23,10 @@ public class EnemiesDie : MonoBehaviour
         if (!isLive) return;
         isLive = false;
 
-        if (coinPrefab != null)
-        {
-            PoolManager.Instance.SpawnFromPool(coinPrefab.name, transform.position, Quaternion.identity);
-        }
+        //if (coinPrefab != null)
+        //{
+        //    PoolManager.Instance.SpawnFromPool(coinPrefab.name, transform.position, Quaternion.identity);
+        //}
 
         if (potionPrefab != null)
         {
