@@ -24,11 +24,11 @@ public class PlayerStats : ScriptableObject
     public void ResetStats()
     {
         //size = new Vector3(1f, 1f, 1f);
-        speed = 4.3f;
+        speed = 4.7f;
         coin = 0;
         maxHP = 600;
         currentHP = maxHP;
-        attack = 200;
+        attack = 150;
         criticalChance = 10;
     }
 }
