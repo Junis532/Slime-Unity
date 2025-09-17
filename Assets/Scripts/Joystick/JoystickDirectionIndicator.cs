@@ -108,24 +108,34 @@ public class JoystickDirectionIndicator : MonoBehaviour
             dashDistance = hit.distance - 0.1f; // 약간 앞에서 멈추게
         }
 
-
         Vector3 targetPos = transform.position + dashDirection * dashDistance;
-
         float dashDuration = 0.3f * (dashDistance / DashingDistance); // 거리 비례
-        transform.DOMove(targetPos, dashDuration)
-            .SetEase(Ease.OutQuad)
-            .OnComplete(() =>
+
+        // 🔥 이동 & 찌부 효과 동시에
+        Sequence seq = DOTween.Sequence();
+
+        // 이동
+        seq.Append(transform.DOMove(targetPos, dashDuration).SetEase(Ease.OutQuad));
+
+        // 대쉬 시작 시 찌부 효과
+        seq.Join(transform.DOScale(
+            new Vector3(originalScale.x * 1.4f, originalScale.y * 0.6f, originalScale.z),
+            dashDuration * 0.4f).SetEase(Ease.OutQuad));
+
+        // 끝날 때 원래 크기로 복귀
+        seq.Append(transform.DOScale(originalScale, dashDuration * 0.6f).SetEase(Ease.OutBack));
+
+        seq.OnComplete(() =>
+        {
+            if (slimeJumpLandEffectPrefab != null)
             {
-                transform.localScale = originalScale;
-                if (slimeJumpLandEffectPrefab != null)
-                {
-                    GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
-                    Destroy(effect, 0.3f);
-                }
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
-                DealSlimeJumpDamage(targetPos);
-                StartCoroutine(EndSkillAfterDelay(0.5f));
-            });
+                GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
+                Destroy(effect, 0.3f);
+            }
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
+            DealSlimeJumpDamage(targetPos);
+            StartCoroutine(EndSkillAfterDelay(0.5f));
+        });
     }
 
     private IEnumerator EndSkillAfterDelay(float delay)
