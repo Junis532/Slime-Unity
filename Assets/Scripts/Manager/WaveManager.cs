@@ -8,18 +8,22 @@ using UnityEngine;
 public class RoomData
 {
     public string roomName;
-    public GameObject roomPrefab;        // 방 프리팹
-    public Collider2D roomCollider;      // 방 Collider
-    public List<GameObject> enemyPrefabs; // 적 리스트
-    public List<DoorController> doors;    // 문 리스트
+    public GameObject roomPrefab;
+
+    [Header("Room 판정용 Collider")]
+    public Collider2D roomCollider;
+
+    [Header("Camera Confiner Collider")]
+    public Collider2D cameraCollider;
+
+    public List<GameObject> enemyPrefabs;
 
     [HideInInspector]
-    public bool activated = false;       // 이미 활성화 여부
+    public bool activated = false;
 
     [Header("카메라 Follow 설정")]
-    public bool CameraFollow = true;     // 이 방에서 카메라 Follow 여부
+    public bool CameraFollow = true;
 }
-
 
 public class WaveManager : MonoBehaviour
 {
@@ -37,9 +41,23 @@ public class WaveManager : MonoBehaviour
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
 
+    [Header("문 프리팹 부모 (한 번만 넣기)")]
+    public GameObject doorParentPrefab;
+
+    private List<DoorController> allDoors = new List<DoorController>();
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
+
+    void Start()
+    {
+        // ✅ 부모 프리팹에서 모든 문 자동 수집
+        if (doorParentPrefab != null)
+        {
+            allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
+        }
+    }
+
     void Update()
     {
         if (!isSpawning)
@@ -47,10 +65,8 @@ public class WaveManager : MonoBehaviour
             RoomData room = GetPlayerRoom();
             if (room != null)
             {
-                // 카메라 이동은 항상 수행
                 ApplyCameraConfiner(room);
 
-                // 아직 활성화되지 않은 방만 적 스폰
                 if (!room.activated)
                 {
                     room.activated = true;
@@ -60,7 +76,6 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
-
 
     RoomData GetPlayerRoom()
     {
@@ -75,7 +90,6 @@ public class WaveManager : MonoBehaviour
                     return room;
             }
         }
-
         return null;
     }
 
@@ -84,37 +98,25 @@ public class WaveManager : MonoBehaviour
         isSpawning = true;
         cleared = false;
 
-        // 카메라 Confiner 적용 & 방 중앙으로 이동
         ApplyCameraConfiner(room);
-
-        // 방 문 닫기
-        CloseDoors(room);
+        CloseDoors(); // ✅ 모든 문 닫기
 
         yield return new WaitForSeconds(0.5f);
 
-        // 적 스폰 (방 중심 좌표)
-        Vector3 spawnPosition = room.roomPrefab.transform.position;
-
         foreach (var prefab in room.enemyPrefabs)
         {
-            // 임시 오브젝트 생성 (비활성)
-            GameObject tempObj = Instantiate(prefab, spawnPosition, Quaternion.identity);
+            GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
             tempObj.SetActive(false);
 
-            // 자식만 경고 표시 (자식의 자식 제외)
             foreach (Transform child in tempObj.transform)
             {
                 ShowWarningEffect(child.position);
             }
 
-            // 경고 시간 대기
             yield return new WaitForSeconds(warningDuration);
-
-            // 실제 스폰
             tempObj.SetActive(true);
         }
 
-        // 모든 적이 죽었는지 확인
         while (!cleared)
         {
             yield return new WaitForSeconds(1f);
@@ -128,7 +130,7 @@ public class WaveManager : MonoBehaviour
             if (totalEnemies == 0)
             {
                 cleared = true;
-                OpenDoors(room);
+                OpenDoors(); // ✅ 모든 문 열기
                 Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
             }
         }
@@ -151,44 +153,38 @@ public class WaveManager : MonoBehaviour
         Destroy(warning, warningDuration);
     }
 
-    void CloseDoors(RoomData room)
+    void CloseDoors()
     {
-        foreach (var door in room.doors)
+        foreach (var door in allDoors)
             door.CloseDoor();
     }
 
-    void OpenDoors(RoomData room)
+    void OpenDoors()
     {
-        foreach (var door in room.doors)
+        foreach (var door in allDoors)
             door.OpenDoor();
     }
 
     void ApplyCameraConfiner(RoomData room)
     {
-        if (cineCamera == null || room.roomCollider == null) return;
+        if (cineCamera == null || room.cameraCollider == null) return;
 
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
-        if (confiner != null && confiner.BoundingShape2D != room.roomCollider)
+        if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
         {
-            confiner.BoundingShape2D = room.roomCollider;
+            confiner.BoundingShape2D = room.cameraCollider;
             confiner.InvalidateBoundingShapeCache();
         }
 
         if (room.CameraFollow)
         {
-            // Follow 켜기: 플레이어 위치만 따라가고, 방 중앙 이동 무시
             cineCamera.Follow = playerTransform;
         }
         else
         {
-            // Follow 끄기
             cineCamera.Follow = null;
-
-            // Follow가 꺼진 경우만 DOTween으로 방 중앙으로 이동
-            Vector3 center = room.roomCollider.bounds.center;
+            Vector3 center = room.cameraCollider.bounds.center;
             cineCamera.transform.DOMove(new Vector3(center.x, center.y, cineCamera.transform.position.z), cameraMoveDuration);
         }
     }
-
-
 }

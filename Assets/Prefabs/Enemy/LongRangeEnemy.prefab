@@ -123,7 +123,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 6.885714, y: -4.5714283, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2627033385652851752}
@@ -243,6 +243,7 @@ MonoBehaviour:
   - {fileID: 2078964560, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: -971271808, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: 86454189, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
+  attackSprites: []
   frameRate: 0.15
   currentState: 0
 --- !u!50 &2575544821683126937
@@ -321,7 +322,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
   potionDropChance: 0.1
 --- !u!195 &3227472443388158194

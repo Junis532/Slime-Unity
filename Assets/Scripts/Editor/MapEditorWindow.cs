@@ -80,8 +80,8 @@ public class MapEditorWindow : EditorWindow
         int prevWidth = gridWidth;
         int prevHeight = gridHeight;
 
-        gridWidth = EditorGUILayout.IntSlider("가로", gridWidth, 5, 50);
-        gridHeight = EditorGUILayout.IntSlider("세로", gridHeight, 5, 50);
+        gridWidth = EditorGUILayout.IntSlider("가로", gridWidth, 1, 50);
+        gridHeight = EditorGUILayout.IntSlider("세로", gridHeight, 1, 50);
 
         if (prevWidth != gridWidth || prevHeight != gridHeight)
         {
