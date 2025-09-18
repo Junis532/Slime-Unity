@@ -332,10 +332,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.08974359
+    x: 0.22275642
     y: 0
-    width: 0.82051283
-    height: 1
+    width: 0.20512821
+    height: 0.3715278
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -420,9 +420,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_Size.x
+      value: 0.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_Size.y
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -2608148150171090258, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -438,6 +446,10 @@ PrefabInstance:
     - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_SortingOrder
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3752687193092183090, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5888740913974979812, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Radius
@@ -546,79 +558,79 @@ PrefabInstance:
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[0]'
       value: 
-      objectReference: {fileID: 3512476903684756836, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -2608148150171090258, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[1]'
       value: 
-      objectReference: {fileID: -6015076115631128014, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -153715958974763465, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[2]'
       value: 
-      objectReference: {fileID: -3126225356833462703, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -5775948089846743681, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[3]'
       value: 
-      objectReference: {fileID: 4757211523733148363, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: 2637243261683320999, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[4]'
       value: 
-      objectReference: {fileID: 4169622859758817906, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: 8793535222743239334, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[5]'
       value: 
-      objectReference: {fileID: -1130083785902081503, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -6808242574116259016, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[6]'
       value: 
-      objectReference: {fileID: 4096342191472955793, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: 8271501738210087887, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[7]'
       value: 
-      objectReference: {fileID: 5847738791911658271, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: -2759530383560342535, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'idleSprites.Array.data[8]'
       value: 
-      objectReference: {fileID: -3080028064676090369, guid: 0b251b8bc05f6c746ad0ecf838de2911, type: 3}
+      objectReference: {fileID: 7219470521134044050, guid: d54bc59943df9784a8d32b8ecdfd4c4f, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[0]'
       value: 
-      objectReference: {fileID: -9095196822728518287, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: 8792432185145641336, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[1]'
       value: 
-      objectReference: {fileID: 2270236354037247264, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -4057255455349774950, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[2]'
       value: 
-      objectReference: {fileID: 7751722143754526998, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -5825175320717511138, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[3]'
       value: 
-      objectReference: {fileID: -243147324809725674, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -5576832320780851217, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[4]'
       value: 
-      objectReference: {fileID: -4882477217233123295, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -6667187714540397544, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[5]'
       value: 
-      objectReference: {fileID: 31893863579762109, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: 7661752724262660612, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[6]'
       value: 
-      objectReference: {fileID: -8022918409455177333, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -3032393595285280181, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[7]'
       value: 
-      objectReference: {fileID: -3233113612691947321, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -7076051637959772536, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[8]'
       value: 
-      objectReference: {fileID: -204673466843399005, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -1673889373007223636, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[9]'
       value: 
-      objectReference: {fileID: 1921087515718519626, guid: 6f96dabdc286ba247a1357048325e222, type: 3}
+      objectReference: {fileID: -6194320128911903003, guid: 55d9a2d34cbc2134fba9726762111711, type: 3}
     - target: {fileID: 8846341094312032618, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: 'moveSprites.Array.data[10]'
       value: 
@@ -760,41 +772,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d702d46179dd7c468ef9b10e6062bc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joystick: {fileID: 0}
-  joystickCanvasGroup: {fileID: 0}
-  imageToHideWhenTouching: {fileID: 0}
-  directionSpritePrefabs:
-  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 7cc11f935bceb8847b0b3610c9c0509c, type: 3}
-  - {fileID: 4984258308688839241, guid: dfbe4219574dc0540a0e31a9cc9a3891, type: 3}
-  - {fileID: 8175657448841414413, guid: c7a5508d6fa61204892ae0eaca68853d, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  - {fileID: 4984258308688839241, guid: 0af5ecc1d34e2b048bf28c8a9a01dcfc, type: 3}
-  distancesFromPlayer:
-  - 3.5
-  - 3
-  - 3
-  - 0
-  - 4
-  - 0
-  - 3
-  spriteBackOffsets:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  skillAngleOffsets:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
+  playerController: {fileID: 0}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
   slimeJumpLandEffectPrefab: {fileID: 0}
   slimeJumpDamage: 30
   slimeJumpRadius: 5
@@ -802,11 +783,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   waitTimerText: {fileID: 0}
-  CooltimeImange: {fileID: 0}
+  CooltimeImage: {fileID: 0}
   waitInterval: 10
   knockbackDistance: 1
   knockbackTime: 0.2
   knockbackJumpPower: 0
+  slimeJumpButton: {fileID: 0}
+  DashingDistance: 3
 --- !u!114 &464397818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -977,8 +960,6 @@ MonoBehaviour:
   shops: []
   buffs: []
   debuffs: []
-  buffEvent: {fileID: 0}
-  debuffEvent: {fileID: 0}
   eventBuffUI: {fileID: 0}
   eventBuffUICanvas: {fileID: 0}
   eventDebuffUI: {fileID: 0}
