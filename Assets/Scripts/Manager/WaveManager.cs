@@ -130,7 +130,16 @@ public class WaveManager : MonoBehaviour
             if (totalEnemies == 0)
             {
                 cleared = true;
-                OpenDoors(); // ✅ 모든 문 열기
+                if (GameManager.Instance.cameraShake != null)
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        GameManager.Instance.cameraShake.GenerateImpulse();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                    OpenDoors();
+                }
+             
                 Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
             }
         }
@@ -178,13 +187,15 @@ public class WaveManager : MonoBehaviour
 
         if (room.CameraFollow)
         {
+            // 🚫 Follow 끄지 말고 그대로 둔다
             cineCamera.Follow = playerTransform;
         }
         else
         {
             cineCamera.Follow = null;
             Vector3 center = room.cameraCollider.bounds.center;
-            cineCamera.transform.DOMove(new Vector3(center.x, center.y, cineCamera.transform.position.z), cameraMoveDuration);
+            cineCamera.transform.position = new Vector3(center.x, center.y, cineCamera.transform.position.z);
         }
     }
+
 }
