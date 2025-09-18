@@ -44,18 +44,24 @@ public class WaveManager : MonoBehaviour
     [Header("문 프리팹 부모 (한 번만 넣기)")]
     public GameObject doorParentPrefab;
 
+    [Header("문 애니메이션 프리팹 부모 (한 번만 넣기)")]
+    public GameObject doorAnimationParentPrefab;
+
     private List<DoorController> allDoors = new List<DoorController>();
+    private List<DoorAnimation> allDoorAnimations = new List<DoorAnimation>();
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
 
     void Start()
     {
-        // ✅ 부모 프리팹에서 모든 문 자동 수집
+        // 문 수집
         if (doorParentPrefab != null)
-        {
             allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
-        }
+
+        // 문 애니메이션 수집
+        if (doorAnimationParentPrefab != null)
+            allDoorAnimations.AddRange(doorAnimationParentPrefab.GetComponentsInChildren<DoorAnimation>(true));
     }
 
     void Update()
@@ -93,13 +99,18 @@ public class WaveManager : MonoBehaviour
         return null;
     }
 
+    private bool isFirstRoom = true; // 첫 방 여부
+
     IEnumerator StartRoom(RoomData room)
     {
         isSpawning = true;
         cleared = false;
 
         ApplyCameraConfiner(room);
-        CloseDoors(); // ✅ 모든 문 닫기
+
+        // 첫 방이 아닐 때만 문 닫기
+        if (!isFirstRoom)
+            CloseDoors();
 
         yield return new WaitForSeconds(0.5f);
 
@@ -109,9 +120,7 @@ public class WaveManager : MonoBehaviour
             tempObj.SetActive(false);
 
             foreach (Transform child in tempObj.transform)
-            {
                 ShowWarningEffect(child.position);
-            }
 
             yield return new WaitForSeconds(warningDuration);
             tempObj.SetActive(true);
@@ -130,6 +139,7 @@ public class WaveManager : MonoBehaviour
             if (totalEnemies == 0)
             {
                 cleared = true;
+
                 if (GameManager.Instance.cameraShake != null)
                 {
                     for (int i = 0; i < 7; i++)
@@ -139,13 +149,18 @@ public class WaveManager : MonoBehaviour
                     }
                     OpenDoors();
                 }
-             
+
                 Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
             }
         }
 
         isSpawning = false;
+
+        // 첫 방 처리 완료
+        if (isFirstRoom)
+            isFirstRoom = false;
     }
+
 
     void ShowWarningEffect(Vector3 pos)
     {
@@ -165,13 +180,33 @@ public class WaveManager : MonoBehaviour
     void CloseDoors()
     {
         foreach (var door in allDoors)
+        {
             door.CloseDoor();
+
+            if (door.TryGetComponent<Collider2D>(out var col))
+                col.isTrigger = false;
+        }
+
+        foreach (var anim in allDoorAnimations)
+        {
+            anim.PlayAnimation(DoorAnimation.DoorState.Closed);
+        }
     }
 
     void OpenDoors()
     {
         foreach (var door in allDoors)
+        {
             door.OpenDoor();
+
+            if (door.TryGetComponent<Collider2D>(out var col))
+                col.isTrigger = true;
+        }
+
+        foreach (var anim in allDoorAnimations)
+        {
+            anim.PlayAnimation(DoorAnimation.DoorState.Open);
+        }
     }
 
     void ApplyCameraConfiner(RoomData room)
@@ -187,7 +222,6 @@ public class WaveManager : MonoBehaviour
 
         if (room.CameraFollow)
         {
-            // 🚫 Follow 끄지 말고 그대로 둔다
             cineCamera.Follow = playerTransform;
         }
         else
@@ -197,5 +231,4 @@ public class WaveManager : MonoBehaviour
             cineCamera.transform.position = new Vector3(center.x, center.y, cineCamera.transform.position.z);
         }
     }
-
 }
