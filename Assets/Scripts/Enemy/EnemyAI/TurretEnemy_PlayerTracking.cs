@@ -32,14 +32,14 @@ public class TurretEnemy_PlayerTracking : EnemyBase
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
 
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.startColor = Color.red;
         lineRenderer.endColor = Color.red;
 
         // 🔽 여기 추가
-        lineRenderer.sortingOrder = 7;             // order 7로 설정
+        lineRenderer.sortingOrder = 2;             // order 7로 설정
         lineRenderer.sortingLayerName = "Default"; // 필요시 정렬 레이어 지정
 
     }
@@ -90,7 +90,7 @@ public class TurretEnemy_PlayerTracking : EnemyBase
         float timer = 0f;
 
         // 원래 선 굵기/색 저장
-        float startWidth = 0.05f;
+        float startWidth = 0.1f;
         Color startColor = Color.red;
 
         // 준비 동안 선 가늘어지고 투명해짐

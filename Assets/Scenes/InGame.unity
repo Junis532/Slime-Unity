@@ -38303,8 +38303,8 @@ MonoBehaviour:
   slowSkillActive: 0
   spawnInterval: 0.75
   attackSpeedMultiplier: 1
-  arrowDistanceFromPlayer: 0
-  stopDelay: 0
+  arrowDistanceFromPlayer: 1
+  stopDelay: 0.1
   bulletsPerShot: 1
   spreadAngle: 20
   targetMarkerPrefab: {fileID: 5449532905997063942, guid: 4b37bf068a319aa43b900b30474eaab9, type: 3}
@@ -44132,7 +44132,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1213060429
 RectTransform:
   m_ObjectHideFlags: 0
@@ -62563,7 +62563,7 @@ PrefabInstance:
       objectReference: {fileID: 985239026}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: waitInterval
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: CooltimeImage

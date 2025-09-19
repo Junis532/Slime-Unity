@@ -258,10 +258,6 @@ MonoBehaviour:
   - {fileID: -3079685290255376333, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
   - {fileID: 815294380564538996, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
   - {fileID: -3318282245358676436, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  attackSprites:
-  - {fileID: -7480563813629158612, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: 310945703500488608, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: -547333417143165485, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
   frameRate: 0.15
   currentState: 0
 --- !u!50 &4309892111239111779
@@ -359,7 +355,7 @@ MonoBehaviour:
   fireRange: 50
   fireCooldown: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
-  bulletSpeed: 5
+  bulletSpeed: 10
   bulletLifetime: 7
 --- !u!1 &3613910191475756443
 GameObject:

@@ -13,8 +13,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public LayerMask obstacleLayer; // Inspector에서 Obstacle 레이어 지정
 
 
-    [Header("스킬 이펙트")]
-    public GameObject slimeJumpLandEffectPrefab;
+    //[Header("스킬 이펙트")]
+    //public GameObject slimeJumpLandEffectPrefab;
 
     [Header("슬라임 점프 설정")]
     public float slimeJumpDamage = 1000f;
@@ -22,7 +22,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public LayerMask enemyLayer;
 
     [Header("쿨타임 관련")]
-    public TMP_Text waitTimerText;
+    //public TMP_Text waitTimerText;
     public Image CooltimeImage;
     public int waitInterval = 10;
 
@@ -47,7 +47,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private void Start()
     {
         originalScale = transform.localScale;
-        waitTimerText.text = "";
+        //waitTimerText.text = "";
         if (CooltimeImage != null)
             CooltimeImage.fillAmount = 0f;
 
@@ -82,8 +82,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
             slimeJumpButton.transform.SetSiblingIndex(1); // 버튼 order 1
         if (CooltimeImage != null)
             CooltimeImage.transform.SetSiblingIndex(2);   // 쿨타임 이미지 order 2
-        if (waitTimerText != null)
-            waitTimerText.transform.SetSiblingIndex(2);   // 쿨타임 텍스트 order 2
+        //if (waitTimerText != null)
+        //    waitTimerText.transform.SetSiblingIndex(2);   // 쿨타임 텍스트 order 2
 
         OnSkillUsed();
     }
@@ -127,13 +127,13 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
         seq.OnComplete(() =>
         {
-            if (slimeJumpLandEffectPrefab != null)
-            {
-                GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
-                Destroy(effect, 0.3f);
-            }
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
-            DealSlimeJumpDamage(targetPos);
+            //if (slimeJumpLandEffectPrefab != null)
+            //{
+            //    GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
+            //    Destroy(effect, 0.3f);
+            //}
+            //AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
+            //DealSlimeJumpDamage(targetPos);
             StartCoroutine(EndSkillAfterDelay(0.5f));
         });
     }
@@ -176,8 +176,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
             float waitTime = waitInterval;
             while (waitTime > 0f)
             {
-                if (waitTimerText != null)
-                    waitTimerText.text = $"{Mathf.CeilToInt(waitTime)}";
+                //if (waitTimerText != null)
+                //    waitTimerText.text = $"{Mathf.CeilToInt(waitTime)}";
                 waitTime -= Time.deltaTime;
                 if (CooltimeImage != null)
                     CooltimeImage.fillAmount = waitTime / waitInterval;
@@ -190,8 +190,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
             if (slimeJumpButton != null)
                 slimeJumpButton.transform.SetSiblingIndex(3);
 
-            if (waitTimerText != null)
-                waitTimerText.text = "";
+            //if (waitTimerText != null)
+            //    waitTimerText.text = "";
         }
     }
 
@@ -207,8 +207,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
         {
             StopCoroutine(rollCoroutine);
             rollCoroutine = null;
-            if (waitTimerText != null)
-                waitTimerText.text = "";
+            //if (waitTimerText != null)
+            //    waitTimerText.text = "";
         }
     }
 

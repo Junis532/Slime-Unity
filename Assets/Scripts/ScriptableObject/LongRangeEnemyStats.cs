@@ -17,7 +17,7 @@ public class LongRangeEnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 2.5f;
+        speed = 4f;
         maxHP = 1000;
         currentHP = maxHP;
         attack = 100;

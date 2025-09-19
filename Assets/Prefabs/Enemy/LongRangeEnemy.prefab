@@ -202,7 +202,7 @@ MonoBehaviour:
   moveDuration: 3
   fireCooldown: 4
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
-  bulletSpeed: 5
+  bulletSpeed: 10
   bulletLifetime: 3
 --- !u!114 &3014388244898049942
 MonoBehaviour:
@@ -243,7 +243,6 @@ MonoBehaviour:
   - {fileID: 2078964560, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: -971271808, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: 86454189, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
-  attackSprites: []
   frameRate: 0.15
   currentState: 0
 --- !u!50 &2575544821683126937

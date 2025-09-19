@@ -46,8 +46,8 @@ public class LongRangeEnemy : EnemyBase
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.startColor = Color.red;
         lineRenderer.endColor = Color.red;
@@ -120,7 +120,7 @@ public class LongRangeEnemy : EnemyBase
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
 
         // 원래 선 굵기/색 저장
-        float startWidth = 0.05f;
+        float startWidth = 0.1f;
         Color startColor = Color.red;
 
         // 조준선 켜기

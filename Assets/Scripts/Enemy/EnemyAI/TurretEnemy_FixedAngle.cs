@@ -35,12 +35,12 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
 
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.startColor = Color.red;
         lineRenderer.endColor = Color.red;
-        lineRenderer.sortingOrder = 7;
+        lineRenderer.sortingOrder = 2;
         lineRenderer.sortingLayerName = "Default";
     }
 
@@ -71,7 +71,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
         float duration = 1f;
         float timer = 0f;
 
-        float startWidth = 0.05f;
+        float startWidth = 0.1f;
         Color startColor = Color.red;
 
         while (timer < duration)
