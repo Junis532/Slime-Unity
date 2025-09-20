@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using DG.Tweening;
 using System.Collections;
 
@@ -10,11 +9,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public PlayerController playerController;  // Inspector에서 연결
 
     [Header("장애물 레이어")]
-    public LayerMask obstacleLayer; // Inspector에서 Obstacle 레이어 지정
-
-
-    //[Header("스킬 이펙트")]
-    //public GameObject slimeJumpLandEffectPrefab;
+    public LayerMask obstacleLayer;
 
     [Header("슬라임 점프 설정")]
     public float slimeJumpDamage = 1000f;
@@ -22,7 +17,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public LayerMask enemyLayer;
 
     [Header("쿨타임 관련")]
-    //public TMP_Text waitTimerText;
     public Image CooltimeImage;
     public int waitInterval = 10;
 
@@ -32,26 +26,30 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public float knockbackJumpPower = 0f;
 
     [Header("스킬 버튼")]
-    public Button slimeJumpButton; // Inspector에서 드래그 가능
+    public Button slimeJumpButton;
+
+    [Header("잔상 효과")]
+    public GameObject afterImagePrefab;
+    public float afterImageSpawnInterval = 0.05f;
+    public float afterImageFadeDuration = 0.3f;
+    public float afterImageLifeTime = 0.5f;
+
+    [Header("대쉬 설정")]
+    public float DashingDistance = 3f;
 
     private bool hasUsedSkill = false;
     private bool isSkillActive = false;
     private Coroutine rollCoroutine;
+    private Coroutine afterImageCoroutine;
     private Vector3 originalScale;
 
-    public float DashingDistance = 3f;
-
-    // 외부에서 참조 가능
     public bool IsUsingSkill => isSkillActive;
 
     private void Start()
     {
         originalScale = transform.localScale;
-        //waitTimerText.text = "";
-        if (CooltimeImage != null)
-            CooltimeImage.fillAmount = 0f;
+        if (CooltimeImage != null) CooltimeImage.fillAmount = 0f;
 
-        // 버튼 이벤트 연결
         if (slimeJumpButton != null)
             slimeJumpButton.onClick.AddListener(UseSkillButton);
 
@@ -60,16 +58,10 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     private void Update()
     {
-        // 스페이스 키 입력 체크
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             UseSkillButton();
-        }
     }
 
-    /// <summary>
-    /// 버튼 클릭 → 스킬 발동 시도
-    /// </summary>
     public void UseSkillButton()
     {
         if (hasUsedSkill || isSkillActive) return;
@@ -77,13 +69,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
         UseSlimeJump();
         hasUsedSkill = true;
 
-        // 스킬 사용 시 버튼/쿨타임 UI 순서 변경
-        if (slimeJumpButton != null)
-            slimeJumpButton.transform.SetSiblingIndex(1); // 버튼 order 1
-        if (CooltimeImage != null)
-            CooltimeImage.transform.SetSiblingIndex(2);   // 쿨타임 이미지 order 2
-        //if (waitTimerText != null)
-        //    waitTimerText.transform.SetSiblingIndex(2);   // 쿨타임 텍스트 order 2
+        if (slimeJumpButton != null) slimeJumpButton.transform.SetSiblingIndex(1);
+        if (CooltimeImage != null) CooltimeImage.transform.SetSiblingIndex(2);
 
         OnSkillUsed();
     }
@@ -96,44 +83,55 @@ public class JoystickDirectionIndicator : MonoBehaviour
         transform.DOKill();
         AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
 
+        // 방향 결정
         Vector3 dashDirection = Vector3.right;
         if (playerController != null && playerController.inputVec.magnitude > 0.05f)
             dashDirection = new Vector3(playerController.inputVec.x, playerController.inputVec.y, 0f).normalized;
 
-        // 장애물 체크 (Raycast 사용)
-        float dashDistance = DashingDistance;
+        // 예상 목표 위치
+        Vector3 targetPos = transform.position + dashDirection * DashingDistance;
+
+        // ---------------------------
+        // 1️⃣ 장애물 체크
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dashDirection, DashingDistance, obstacleLayer);
         if (hit.collider != null)
         {
-            dashDistance = hit.distance - 0.1f; // 약간 앞에서 멈추게
+            Vector3 closestPoint = hit.collider.ClosestPoint(transform.position);
+            targetPos = closestPoint - dashDirection * 0.1f;
         }
 
-        Vector3 targetPos = transform.position + dashDirection * dashDistance;
-        float dashDuration = 0.3f * (dashDistance / DashingDistance); // 거리 비례
+        // ---------------------------
+        // 2️⃣ Room 안으로 제한
+        RoomData currentRoom = GameManager.Instance.waveManager.GetPlayerRoom();
+        if (currentRoom != null && currentRoom.roomCollider != null)
+        {
+            if (!currentRoom.roomCollider.OverlapPoint(targetPos))
+            {
+                Vector3 closestPointInRoom = currentRoom.roomCollider.ClosestPoint(targetPos);
+                targetPos = closestPointInRoom;
+            }
+        }
 
-        // 🔥 이동 & 찌부 효과 동시에
+        float dashDistance = Vector3.Distance(transform.position, targetPos);
+        float dashDuration = 0.3f * (dashDistance / DashingDistance);
+
+        // ---------------------------
+        // DOTween Sequence
         Sequence seq = DOTween.Sequence();
-
-        // 이동
         seq.Append(transform.DOMove(targetPos, dashDuration).SetEase(Ease.OutQuad));
-
-        // 대쉬 시작 시 찌부 효과
-        seq.Join(transform.DOScale(
-            new Vector3(originalScale.x * 1.4f, originalScale.y * 0.6f, originalScale.z),
-            dashDuration * 0.4f).SetEase(Ease.OutQuad));
-
-        // 끝날 때 원래 크기로 복귀
+        seq.Join(transform.DOScale(new Vector3(originalScale.x * 1.4f, originalScale.y * 0.6f, originalScale.z), dashDuration * 0.4f).SetEase(Ease.OutQuad));
         seq.Append(transform.DOScale(originalScale, dashDuration * 0.6f).SetEase(Ease.OutBack));
+
+        if (afterImageCoroutine != null) StopCoroutine(afterImageCoroutine);
+        afterImageCoroutine = StartCoroutine(SpawnAfterImages());
 
         seq.OnComplete(() =>
         {
-            //if (slimeJumpLandEffectPrefab != null)
-            //{
-            //    GameObject effect = Instantiate(slimeJumpLandEffectPrefab, targetPos, Quaternion.identity);
-            //    Destroy(effect, 0.3f);
-            //}
-            //AudioManager.Instance.PlaySFX(AudioManager.Instance.land);
-            //DealSlimeJumpDamage(targetPos);
+            if (afterImageCoroutine != null)
+            {
+                StopCoroutine(afterImageCoroutine);
+                afterImageCoroutine = null;
+            }
             StartCoroutine(EndSkillAfterDelay(0.5f));
         });
     }
@@ -169,6 +167,9 @@ public class JoystickDirectionIndicator : MonoBehaviour
         }
     }
 
+    // ==========================
+    // 쿨타임 루프
+    // ==========================
     IEnumerator RollingLoopRoutine()
     {
         while (hasUsedSkill)
@@ -176,22 +177,14 @@ public class JoystickDirectionIndicator : MonoBehaviour
             float waitTime = waitInterval;
             while (waitTime > 0f)
             {
-                //if (waitTimerText != null)
-                //    waitTimerText.text = $"{Mathf.CeilToInt(waitTime)}";
                 waitTime -= Time.deltaTime;
-                if (CooltimeImage != null)
-                    CooltimeImage.fillAmount = waitTime / waitInterval;
+                if (CooltimeImage != null) CooltimeImage.fillAmount = waitTime / waitInterval;
                 yield return null;
             }
-
             hasUsedSkill = false;
 
-            // 쿨타임 종료 → 버튼 order 다시 3으로
             if (slimeJumpButton != null)
                 slimeJumpButton.transform.SetSiblingIndex(3);
-
-            //if (waitTimerText != null)
-            //    waitTimerText.text = "";
         }
     }
 
@@ -207,8 +200,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
         {
             StopCoroutine(rollCoroutine);
             rollCoroutine = null;
-            //if (waitTimerText != null)
-            //    waitTimerText.text = "";
         }
     }
 
@@ -220,5 +211,45 @@ public class JoystickDirectionIndicator : MonoBehaviour
             rollCoroutine = null;
         }
         rollCoroutine = StartCoroutine(RollingLoopRoutine());
+    }
+
+    // ==========================
+    // 잔상 관련
+    // ==========================
+    private IEnumerator SpawnAfterImages()
+    {
+        while (isSkillActive)
+        {
+            CreateAfterImage();
+            yield return new WaitForSeconds(afterImageSpawnInterval);
+        }
+    }
+
+    private void CreateAfterImage()
+    {
+        if (afterImagePrefab == null) return;
+
+        GameObject afterImage = Instantiate(afterImagePrefab, transform.position, transform.rotation);
+        afterImage.transform.parent = null;
+
+        Collider2D col = afterImage.GetComponent<Collider2D>();
+        if (col != null) Destroy(col);
+        Rigidbody2D rb = afterImage.GetComponent<Rigidbody2D>();
+        if (rb != null) Destroy(rb);
+
+        foreach (Transform child in afterImage.transform)
+            child.gameObject.SetActive(false);
+
+        SpriteRenderer playerSR = GetComponent<SpriteRenderer>();
+        SpriteRenderer sr = afterImage.GetComponent<SpriteRenderer>();
+        if (playerSR != null && sr != null)
+        {
+            sr.sprite = playerSR.sprite;
+            sr.flipX = playerSR.flipX;
+            sr.color = playerSR.color;
+        }
+
+        sr.DOFade(0f, afterImageFadeDuration).SetDelay(afterImageLifeTime - afterImageFadeDuration)
+            .OnComplete(() => Destroy(afterImage));
     }
 }

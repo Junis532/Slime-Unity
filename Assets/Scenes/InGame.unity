@@ -38182,7 +38182,7 @@ MonoBehaviour:
     cameraCollider: {fileID: 1645277954}
     enemyPrefabs: []
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 1
     roomPrefab: {fileID: 1261372383}
     roomCollider: {fileID: 930166415}
@@ -38190,7 +38190,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 922229329936480252, guid: 329039f7dffa8564ab3863e2a539b381, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 2
     roomPrefab: {fileID: 1261372382}
     roomCollider: {fileID: 930166414}
@@ -38198,7 +38198,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 1997927765901622069, guid: 91439d66945bbe9439aa0dd4f388cca3, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 3
     roomPrefab: {fileID: 1261372381}
     roomCollider: {fileID: 930166413}
@@ -38206,7 +38206,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 4790525264538819685, guid: bf2029bf13dfb314fb9efc4cfb877077, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 4
     roomPrefab: {fileID: 1261372380}
     roomCollider: {fileID: 930166412}
@@ -38214,7 +38214,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 522986107706022813, guid: 0068dac87d58f264695b003021e5e414, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 5
     roomPrefab: {fileID: 1261372379}
     roomCollider: {fileID: 930166411}
@@ -38222,7 +38222,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 7655795897272470420, guid: 0aec640c3f07ee64d83a7c0c11656c49, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 6
     roomPrefab: {fileID: 1447632570}
     roomCollider: {fileID: 930166410}
@@ -38230,7 +38230,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 6114960511145247840, guid: 462f23ab36012214b910782e2a663731, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 7
     roomPrefab: {fileID: 2034071397}
     roomCollider: {fileID: 930166409}
@@ -38238,7 +38238,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 23589319936911068, guid: cbd45587eb1cae04bbd463f7ebda4e9a, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 8
     roomPrefab: {fileID: 1315033952}
     roomCollider: {fileID: 930166406}
@@ -38246,7 +38246,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 4558951046880304673, guid: c383f17e3077e7a479ca6dbc8b4cae04, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 9
     roomPrefab: {fileID: 1422044147}
     roomCollider: {fileID: 930166407}
@@ -38254,7 +38254,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 7691836935134718888, guid: cb1e95675a98df2478aa2e7f87906c19, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   - roomName: 10
     roomPrefab: {fileID: 1730508840}
     roomCollider: {fileID: 930166408}
@@ -38262,7 +38262,7 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 6914002225116607254, guid: d3192f6cb4f7a6f4798a96436982c96d, type: 3}
     activated: 0
-    CameraFollow: 1
+    CameraFollow: 0
   playerTransform: {fileID: 273251364}
   cineCamera: {fileID: 1577947824}
   cameraMoveDuration: 0.5
@@ -38304,7 +38304,7 @@ MonoBehaviour:
   spawnInterval: 0.75
   attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 1
-  stopDelay: 0.1
+  stopDelay: 0.05
   bulletsPerShot: 1
   spreadAngle: 20
   targetMarkerPrefab: {fileID: 5449532905997063942, guid: 4b37bf068a319aa43b900b30474eaab9, type: 3}
@@ -62624,6 +62624,14 @@ PrefabInstance:
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: obstacleLayer.m_Bits
       value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: afterImageFadeDuration
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: afterImageSpawnInterval
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: imageToHideWhenTouching

@@ -70,7 +70,7 @@ public class EnemyHP : MonoBehaviour
             knockbackDir = (transform.position - playerTransform.position).normalized;
         }
 
-        float knockbackDistance = 0.3f;
+        float knockbackDistance = 0.1f;
         float knockbackDuration = 0.1f;
 
         bool isCritical = Random.Range(0f, 100f) < criticalChance;

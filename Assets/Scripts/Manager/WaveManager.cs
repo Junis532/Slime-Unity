@@ -83,7 +83,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    RoomData GetPlayerRoom()
+    public RoomData GetPlayerRoom()
     {
         if (playerTransform == null) return null;
 
@@ -220,6 +220,28 @@ public class WaveManager : MonoBehaviour
             confiner.InvalidateBoundingShapeCache();
         }
 
+        Camera cam = Camera.main;
+        if (cam == null || !cam.orthographic) return;
+
+        Bounds bounds = room.cameraCollider.bounds;
+
+        float targetRatio = bounds.size.x / bounds.size.y;
+        float screenRatio = (float)Screen.width / Screen.height;
+
+        float orthoSize;
+        if (screenRatio >= targetRatio)
+        {
+            // 화면이 더 넓으면 Y 기준
+            orthoSize = bounds.size.y / 2f;
+        }
+        else
+        {
+            // 화면이 더 좁으면 X 기준
+            orthoSize = bounds.size.x / 2f / screenRatio;
+        }
+
+        cam.orthographicSize = orthoSize;
+
         if (room.CameraFollow)
         {
             cineCamera.Follow = playerTransform;
@@ -227,8 +249,10 @@ public class WaveManager : MonoBehaviour
         else
         {
             cineCamera.Follow = null;
-            Vector3 center = room.cameraCollider.bounds.center;
-            cineCamera.transform.position = new Vector3(center.x, center.y, cineCamera.transform.position.z);
+            Vector3 center = bounds.center;
+            cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
+            cineCamera.transform.position = cam.transform.position;
         }
     }
+
 }
