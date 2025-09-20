@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.U2D;
 
 [System.Serializable]
 public class RoomData
@@ -208,11 +209,11 @@ public class WaveManager : MonoBehaviour
             anim.PlayAnimation(DoorAnimation.DoorState.Open);
         }
     }
-
     void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null || room.cameraCollider == null) return;
 
+        // Confiner 설정
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
         if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
         {
@@ -225,22 +226,34 @@ public class WaveManager : MonoBehaviour
 
         Bounds bounds = room.cameraCollider.bounds;
 
-        float targetRatio = bounds.size.x / bounds.size.y;
         float screenRatio = (float)Screen.width / Screen.height;
+        float boundsRatio = bounds.size.x / bounds.size.y;
 
         float orthoSize;
-        if (screenRatio >= targetRatio)
+
+        if (screenRatio >= boundsRatio)
         {
-            // 화면이 더 넓으면 Y 기준
+            // 화면이 더 넓으면 높이에 맞춤
             orthoSize = bounds.size.y / 2f;
         }
         else
         {
-            // 화면이 더 좁으면 X 기준
-            orthoSize = bounds.size.x / 2f / screenRatio;
+            // 화면이 더 좁으면 가로에 맞춰 orthographicSize 계산
+            orthoSize = (bounds.size.x / 2f) / screenRatio;
         }
 
+        orthoSize *= 1.0f; // 필요하면 약간 여유를 줄 수 있음 (1.0f = 딱 맞춤)
+
         cam.orthographicSize = orthoSize;
+
+        // CinemachineCamera Lens 적용
+        var vCam = cineCamera.GetComponent<CinemachineCamera>();
+        if (vCam != null)
+        {
+            vCam.Lens.OrthographicSize = orthoSize;
+        }
+
+        Vector3 center = bounds.center;
 
         if (room.CameraFollow)
         {
@@ -249,7 +262,7 @@ public class WaveManager : MonoBehaviour
         else
         {
             cineCamera.Follow = null;
-            Vector3 center = bounds.center;
+            // 카메라 위치를 Bounds 중심에 맞춤
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
         }

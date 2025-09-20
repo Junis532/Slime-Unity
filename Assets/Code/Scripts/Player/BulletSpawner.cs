@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using UnityEngine;
 
 public class BulletSpawner : MonoBehaviour
 {
@@ -177,16 +178,36 @@ public class BulletSpawner : MonoBehaviour
     {
         if (centerTarget == null) return;
 
+        // 🔥 플레이어 강한 찌부 효과
+        if (playerController != null)
+        {
+            Transform player = playerController.transform;
+
+            player.DOKill(); // 기존 트윈 정리
+            Sequence seq = DOTween.Sequence();
+
+            // 1) 강하게 찌부
+            seq.Append(player.DOScale(
+                new Vector3(4.3f * 1.4f, 4.3f * 0.6f, player.localScale.z),
+                0.08f
+            ).SetEase(Ease.OutQuad));
+
+            // 2) 크기를 (4.3, 4.3)으로 복귀
+            seq.Append(player.DOScale(
+                new Vector3(4.3f, 4.3f, player.localScale.z),
+                0.18f
+            ).SetEase(Ease.OutBack));
+        }
+
+
         fireCount++;
         bool isFireballShot = (fireCount % 7 == 0) && (fireballPrefab != null) && useFireball;
 
         Vector3 dirToTarget = (centerTarget.position - playerController.transform.position).normalized;
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
 
-        // 플레이어 Flip 처리
+        // 플레이어 방향 반전
         FlipPlayer(dirToTarget);
-
-        //SpawnBowEffect(dirToTarget);
 
         int count = Mathf.Max(1, bulletsPerShot);
         float totalSpread = spreadAngle * (count - 1);
@@ -211,7 +232,7 @@ public class BulletSpawner : MonoBehaviour
                 BulletAI bulletAI = bullet.GetComponent<BulletAI>();
                 if (bulletAI != null)
                 {
-                    bulletAI.ResetBullet(); // 👈 This is the crucial line.
+                    bulletAI.ResetBullet();
                     bulletAI.InitializeBullet(spawnPos, angle, isCenter);
                 }
             }
@@ -232,6 +253,7 @@ public class BulletSpawner : MonoBehaviour
             }
         }
     }
+
 
     private void FlipPlayer(Vector3 dir)
     {
