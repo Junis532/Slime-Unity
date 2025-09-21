@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 
 public class JoystickDirectionIndicator : MonoBehaviour
 {
@@ -33,6 +34,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public float afterImageSpawnInterval = 0.05f;
     public float afterImageFadeDuration = 0.3f;
     public float afterImageLifeTime = 0.5f;
+    public int maxAfterImageCount = 10;   // 🔥 잔상 최대 개수
+    private List<GameObject> afterImages = new List<GameObject>();
 
     [Header("대쉬 설정")]
     public float DashingDistance = 3f;
@@ -42,6 +45,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Coroutine rollCoroutine;
     private Coroutine afterImageCoroutine;
     private Vector3 originalScale;
+
+    private Vector3 lastDashDirection = Vector3.right; // 마지막 이동 방향 저장
 
     public bool IsUsingSkill => isSkillActive;
 
@@ -86,7 +91,14 @@ public class JoystickDirectionIndicator : MonoBehaviour
         // 방향 결정
         Vector3 dashDirection = Vector3.right;
         if (playerController != null && playerController.inputVec.magnitude > 0.05f)
+        {
             dashDirection = new Vector3(playerController.inputVec.x, playerController.inputVec.y, 0f).normalized;
+            lastDashDirection = dashDirection; // 마지막 이동 방향 저장
+        }
+        else
+        {
+            dashDirection = lastDashDirection; // 이동이 없으면 마지막 방향 사용
+        }
 
         // 예상 목표 위치
         Vector3 targetPos = transform.position + dashDirection * DashingDistance;
@@ -227,29 +239,56 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     private void CreateAfterImage()
     {
-        if (afterImagePrefab == null) return;
+        // 빈 오브젝트 생성
+        GameObject afterImage = new GameObject("AfterImage");
+        afterImage.transform.position = transform.position;
+        afterImage.transform.rotation = transform.rotation;
+        afterImage.transform.localScale = transform.localScale; // ✅ 플레이어 크기와 동일하게 설정
 
-        GameObject afterImage = Instantiate(afterImagePrefab, transform.position, transform.rotation);
-        afterImage.transform.parent = null;
+        // SpriteRenderer 추가
+        SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
 
-        Collider2D col = afterImage.GetComponent<Collider2D>();
-        if (col != null) Destroy(col);
-        Rigidbody2D rb = afterImage.GetComponent<Rigidbody2D>();
-        if (rb != null) Destroy(rb);
-
-        foreach (Transform child in afterImage.transform)
-            child.gameObject.SetActive(false);
-
+        // 플레이어 스프라이트 복사
         SpriteRenderer playerSR = GetComponent<SpriteRenderer>();
-        SpriteRenderer sr = afterImage.GetComponent<SpriteRenderer>();
-        if (playerSR != null && sr != null)
+        if (playerSR != null)
         {
             sr.sprite = playerSR.sprite;
             sr.flipX = playerSR.flipX;
             sr.color = playerSR.color;
+            sr.sortingLayerID = playerSR.sortingLayerID;
+            sr.sortingOrder = playerSR.sortingOrder - 1; // 플레이어보다 뒤에 표시
         }
 
-        sr.DOFade(0f, afterImageFadeDuration).SetDelay(afterImageLifeTime - afterImageFadeDuration)
-            .OnComplete(() => Destroy(afterImage));
+        // 리스트에 추가
+        afterImages.Add(afterImage);
+
+        // 🔥 최대 개수 초과 시 가장 오래된 잔상 제거
+        if (afterImages.Count > maxAfterImageCount)
+        {
+            GameObject oldest = afterImages[0];
+            afterImages.RemoveAt(0);
+
+            if (oldest != null)
+            {
+                SpriteRenderer osr = oldest.GetComponent<SpriteRenderer>();
+                if (osr != null)
+                {
+                    osr.DOFade(0f, afterImageFadeDuration).OnComplete(() => Destroy(oldest));
+                }
+                else
+                {
+                    Destroy(oldest);
+                }
+            }
+        }
+
+        // 🔥 자동 제거 (시간 지나면 페이드 아웃)
+        sr.DOFade(0f, afterImageFadeDuration)
+          .SetDelay(afterImageLifeTime - afterImageFadeDuration)
+          .OnComplete(() =>
+          {
+              afterImages.Remove(afterImage);
+              Destroy(afterImage);
+          });
     }
 }

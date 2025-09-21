@@ -62579,7 +62579,7 @@ PrefabInstance:
       objectReference: {fileID: 885820772}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: DashingDistance
-      value: 3
+      value: 3.3
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: slimeJumpButton
@@ -62612,6 +62612,10 @@ PrefabInstance:
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: afterImageInterval
       value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
+      propertyPath: maxAfterImageCount
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 977684244640882011, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: dashDurationDefault
