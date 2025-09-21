@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class JoystickDirectionIndicator : MonoBehaviour
 {
     [Header("플레이어")]
-    public PlayerController playerController;  // Inspector에서 연결
+    public PlayerController playerController; // Inspector에서 연결
 
     [Header("장애물 레이어")]
     public LayerMask obstacleLayer;
@@ -34,7 +34,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     public float afterImageSpawnInterval = 0.05f;
     public float afterImageFadeDuration = 0.3f;
     public float afterImageLifeTime = 0.5f;
-    public int maxAfterImageCount = 10;   // 🔥 잔상 최대 개수
+    public int maxAfterImageCount = 10; // 🔥 잔상 최대 개수
     private List<GameObject> afterImages = new List<GameObject>();
 
     [Header("대쉬 설정")]
@@ -45,7 +45,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Coroutine rollCoroutine;
     private Coroutine afterImageCoroutine;
     private Vector3 originalScale;
-
     private Vector3 lastDashDirection = Vector3.right; // 마지막 이동 방향 저장
 
     public bool IsUsingSkill => isSkillActive;
@@ -54,10 +53,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     {
         originalScale = transform.localScale;
         if (CooltimeImage != null) CooltimeImage.fillAmount = 0f;
-
-        if (slimeJumpButton != null)
-            slimeJumpButton.onClick.AddListener(UseSkillButton);
-
+        if (slimeJumpButton != null) slimeJumpButton.onClick.AddListener(UseSkillButton);
         StartRollingLoop();
     }
 
@@ -239,30 +235,30 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     private void CreateAfterImage()
     {
-        // 빈 오브젝트 생성
         GameObject afterImage = new GameObject("AfterImage");
         afterImage.transform.position = transform.position;
         afterImage.transform.rotation = transform.rotation;
-        afterImage.transform.localScale = transform.localScale; // ✅ 플레이어 크기와 동일하게 설정
+        afterImage.transform.localScale = transform.localScale;
 
-        // SpriteRenderer 추가
         SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
 
-        // 플레이어 스프라이트 복사
         SpriteRenderer playerSR = GetComponent<SpriteRenderer>();
         if (playerSR != null)
         {
             sr.sprite = playerSR.sprite;
             sr.flipX = playerSR.flipX;
-            sr.color = playerSR.color;
+
+            // 플레이어 색상을 가져오되, 알파를 낮춰서 투명하게
+            Color c = playerSR.color;
+            c.a = 0.5f;  // 50% 투명
+            sr.color = c;
+
             sr.sortingLayerID = playerSR.sortingLayerID;
             sr.sortingOrder = playerSR.sortingOrder - 1; // 플레이어보다 뒤에 표시
         }
 
-        // 리스트에 추가
         afterImages.Add(afterImage);
 
-        // 🔥 최대 개수 초과 시 가장 오래된 잔상 제거
         if (afterImages.Count > maxAfterImageCount)
         {
             GameObject oldest = afterImages[0];
@@ -272,17 +268,11 @@ public class JoystickDirectionIndicator : MonoBehaviour
             {
                 SpriteRenderer osr = oldest.GetComponent<SpriteRenderer>();
                 if (osr != null)
-                {
                     osr.DOFade(0f, afterImageFadeDuration).OnComplete(() => Destroy(oldest));
-                }
-                else
-                {
-                    Destroy(oldest);
-                }
+                else Destroy(oldest);
             }
         }
 
-        // 🔥 자동 제거 (시간 지나면 페이드 아웃)
         sr.DOFade(0f, afterImageFadeDuration)
           .SetDelay(afterImageLifeTime - afterImageFadeDuration)
           .OnComplete(() =>
