@@ -115,53 +115,56 @@ public class WaveManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        // enemyPrefabs를 순서대로 소환
         foreach (var prefab in room.enemyPrefabs)
         {
             GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
             tempObj.SetActive(false);
 
+            // 경고 이펙트
             foreach (Transform child in tempObj.transform)
                 ShowWarningEffect(child.position);
 
             yield return new WaitForSeconds(warningDuration);
+
             tempObj.SetActive(true);
-        }
 
-        while (!cleared)
-        {
-            yield return new WaitForSeconds(1f);
-
-            int totalEnemies = 0;
-            totalEnemies += GameObject.FindGameObjectsWithTag("Enemy").Length;
-            totalEnemies += GameObject.FindGameObjectsWithTag("DashEnemy").Length;
-            totalEnemies += GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length;
-            totalEnemies += GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
-
-            if (totalEnemies == 0)
+            // 지금 소환한 적이 다 죽을 때까지 대기
+            while (true)
             {
-                cleared = true;
+                int enemiesLeft = 0;
+                enemiesLeft += GameObject.FindGameObjectsWithTag("Enemy").Length;
+                enemiesLeft += GameObject.FindGameObjectsWithTag("DashEnemy").Length;
+                enemiesLeft += GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length;
+                enemiesLeft += GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
 
-                if (GameManager.Instance.cameraShake != null)
-                {
-                    for (int i = 0; i < 7; i++)
-                    {
-                        GameManager.Instance.cameraShake.GenerateImpulse();
-                        yield return new WaitForSeconds(0.1f);
-                    }
-                    OpenDoors();
-                }
+                if (enemiesLeft == 0)
+                    break;
 
-                Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
+                yield return new WaitForSeconds(0.5f);
             }
         }
 
+        // 모든 적 처치 완료
+        cleared = true;
+
+        if (GameManager.Instance.cameraShake != null)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                GameManager.Instance.cameraShake.GenerateImpulse();
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        OpenDoors();
+        Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
+
         isSpawning = false;
 
-        // 첫 방 처리 완료
         if (isFirstRoom)
             isFirstRoom = false;
     }
-
 
     void ShowWarningEffect(Vector3 pos)
     {
