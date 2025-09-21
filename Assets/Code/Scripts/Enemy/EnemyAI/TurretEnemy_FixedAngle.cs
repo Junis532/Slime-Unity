@@ -6,11 +6,15 @@ public class TurretEnemy_FixedAngle : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    [Header("발사 설정")]
+    [Header("발사 범위 / 라인 표시")]
     public float fireRange = 5f;
-    public float fireCooldown = 1.5f;
+
+    [Header("발사 간격 (순환)")]
+    public float[] fireIntervals = { 1f, 3f, 2f }; // 각 탄마다 발사 대기 시간
+    private int fireIndex = 0;
     private float lastFireTime;
 
+    [Header("탄환 설정")]
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
@@ -48,6 +52,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (!isLive) return;
 
+        // 현재 고정 각도 → 방향 벡터 변환
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
@@ -56,7 +61,10 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
 
-        if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
+        // 현재 발사 대기 시간
+        float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
+
+        if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot(dir));
         }
@@ -68,12 +76,13 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         isPreparingToFire = true;
 
-        float duration = 1f;
+        float duration = 1f; // 발사 준비 시간
         float timer = 0f;
 
         float startWidth = 0.1f;
         Color startColor = Color.red;
 
+        // 준비 동안 라인 가늘어지고 투명해짐
         while (timer < duration)
         {
             timer += Time.deltaTime;
@@ -92,8 +101,12 @@ public class TurretEnemy_FixedAngle : EnemyBase
 
         lineRenderer.enabled = false;
 
+        // 발사
         Shoot(dir);
         lastFireTime = Time.time;
+
+        // 다음 쿨다운으로 이동
+        fireIndex = (fireIndex + 1) % fireIntervals.Length;
 
         yield return new WaitForSeconds(0.3f);
 

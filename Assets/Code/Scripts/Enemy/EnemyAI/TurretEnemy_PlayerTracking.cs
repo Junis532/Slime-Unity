@@ -7,8 +7,9 @@ public class TurretEnemy_PlayerTracking : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    public float fireRange = 5f;             // 발사 범위
-    public float fireCooldown = 1.5f;        // 발사 쿨다운
+    [Header("발사 쿨다운 설정 (순환)")]
+    public float[] fireIntervals = { 1f, 3f, 2f }; // 첫, 두, 세 번째 발사 간격
+    private int fireIndex = 0; // 현재 어떤 쿨다운을 쓸지 가리키는 인덱스
     private float lastFireTime;
 
     public GameObject bulletPrefab;
@@ -38,10 +39,8 @@ public class TurretEnemy_PlayerTracking : EnemyBase
         lineRenderer.startColor = Color.red;
         lineRenderer.endColor = Color.red;
 
-        // 🔽 여기 추가
-        lineRenderer.sortingOrder = 2;             // order 7로 설정
-        lineRenderer.sortingLayerName = "Default"; // 필요시 정렬 레이어 지정
-
+        lineRenderer.sortingOrder = 2;
+        lineRenderer.sortingLayerName = "Default";
     }
 
     void Update()
@@ -72,15 +71,16 @@ public class TurretEnemy_PlayerTracking : EnemyBase
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, player.transform.position);
 
-        // 발사 쿨타임 체크
-        if (Time.time - lastFireTime >= fireCooldown && !isPreparingToFire)
+        // 현재 사용할 쿨다운
+        float currentCooldown = fireIntervals[fireIndex];
+
+        if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot());
         }
 
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
     }
-
 
     private System.Collections.IEnumerator PrepareAndShoot()
     {
@@ -119,6 +119,10 @@ public class TurretEnemy_PlayerTracking : EnemyBase
         {
             Vector2 dir = (player.transform.position - transform.position).normalized;
             Shoot(dir);
+
+            // 현재 인덱스 사용 후 다음 쿨다운으로 이동
+            fireIndex = (fireIndex + 1) % fireIntervals.Length;
+
             lastFireTime = Time.time;
         }
 
@@ -138,7 +142,6 @@ public class TurretEnemy_PlayerTracking : EnemyBase
 
         isPreparingToFire = false;
     }
-
 
     void Shoot(Vector2 dir)
     {
