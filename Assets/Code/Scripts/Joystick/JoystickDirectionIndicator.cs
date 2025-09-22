@@ -61,6 +61,12 @@ public class JoystickDirectionIndicator : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
             UseSkillButton();
+
+        // 이동 중일 때마다 마지막 방향 갱신
+        if (playerController != null && playerController.inputVec.magnitude > 0.05f)
+        {
+            lastDashDirection = new Vector3(playerController.inputVec.x, playerController.inputVec.y, 0f).normalized;
+        }
     }
 
     public void UseSkillButton()
