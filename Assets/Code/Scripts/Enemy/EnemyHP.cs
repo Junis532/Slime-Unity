@@ -23,6 +23,12 @@ public class EnemyHP : MonoBehaviour
     public GameObject dotEffectPrefab;
     private GameObject activeDotEffect;
 
+    [Header("넉백 옵션")]
+    public bool useKnockback = true;   // ✅ Inspector에서 켜고 끌 수 있음
+    public float knockbackDistance = 0.1f;
+    public float knockbackDuration = 0.1f;
+
+
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
@@ -70,9 +76,6 @@ public class EnemyHP : MonoBehaviour
             knockbackDir = (transform.position - playerTransform.position).normalized;
         }
 
-        float knockbackDistance = 0.1f;
-        float knockbackDuration = 0.1f;
-
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
         int damage = isCritical
             ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
@@ -105,8 +108,8 @@ public class EnemyHP : MonoBehaviour
             ShowDamageText(damage);
         }
 
-        // 플레이어가 있을 때만 넉백
-        if (playerTransform != null)
+        // ✅ 넉백 옵션 적용
+        if (useKnockback && playerTransform != null)
         {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
