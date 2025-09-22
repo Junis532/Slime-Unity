@@ -30,12 +30,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6498873864370506469}
-  - {fileID: 850974567146680909}
-  - {fileID: 3767432074704722594}
-  - {fileID: 5277916798467717763}
+  - {fileID: 870297547596390748}
+  - {fileID: 4391219450317083296}
+  - {fileID: 4693179095536012242}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2220188682261315460
+--- !u!1001 &1806820903574318229
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -45,15 +45,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.4500003
+      value: -0.44450188
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 27.01
+      value: 27.001177
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.001588109
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalRotation.w
@@ -105,19 +105,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4157940147317243271, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_Name
-      value: TurretEnemy_FixedAngle (1)
+      value: TurretEnemy_FixedAngle (4)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
---- !u!4 &850974567146680909 stripped
+--- !u!4 &870297547596390748 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
-  m_PrefabInstance: {fileID: 2220188682261315460}
+  m_PrefabInstance: {fileID: 1806820903574318229}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &2398288337323186027
+--- !u!1001 &3021998744637005673
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -127,15 +127,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.55999947
+      value: 0.585
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 27.01
+      value: 26.995842
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.001588109
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalRotation.w
@@ -174,6 +174,10 @@ PrefabInstance:
       value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: firstFireDelay
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: 'fireIntervals.Array.data[0]'
       value: 3
       objectReference: {fileID: 0}
@@ -187,17 +191,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4157940147317243271, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_Name
-      value: TurretEnemy_FixedAngle (2)
+      value: TurretEnemy_FixedAngle (5)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
---- !u!4 &3767432074704722594 stripped
+--- !u!4 &4391219450317083296 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
-  m_PrefabInstance: {fileID: 2398288337323186027}
+  m_PrefabInstance: {fileID: 3021998744637005673}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5706155642410207020
 PrefabInstance:
@@ -256,6 +260,10 @@ PrefabInstance:
       value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: firstFireDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: 'fireIntervals.Array.data[1]'
       value: 5
       objectReference: {fileID: 0}
@@ -277,7 +285,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
   m_PrefabInstance: {fileID: 5706155642410207020}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &6646776859999631178
+--- !u!1001 &6062250329806390811
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -287,15 +295,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5900002
+      value: 1.5988417
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 27.01
+      value: 27.011847
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.001588109
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalRotation.w
@@ -334,6 +342,10 @@ PrefabInstance:
       value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: firstFireDelay
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: 'fireIntervals.Array.data[0]'
       value: 4
       objectReference: {fileID: 0}
@@ -347,15 +359,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4157940147317243271, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_Name
-      value: TurretEnemy_FixedAngle (3)
+      value: TurretEnemy_FixedAngle (6)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
---- !u!4 &5277916798467717763 stripped
+--- !u!4 &4693179095536012242 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
-  m_PrefabInstance: {fileID: 6646776859999631178}
+  m_PrefabInstance: {fileID: 6062250329806390811}
   m_PrefabAsset: {fileID: 0}

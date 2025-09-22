@@ -14,6 +14,9 @@ public class TurretEnemy_FixedAngle : EnemyBase
     private int fireIndex = 0;
     private float lastFireTime;
 
+    [Header("첫 발사 딜레이")]
+    public float firstFireDelay = 2f; // 첫 발사는 2초 뒤 실행
+
     [Header("탄환 설정")]
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
@@ -46,6 +49,9 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.endColor = Color.red;
         lineRenderer.sortingOrder = 2;
         lineRenderer.sortingLayerName = "Default";
+
+        // 시작 시 첫 발사 시간 = 현재 시간 + firstFireDelay
+        lastFireTime = Time.time - fireIntervals[0] + firstFireDelay;
     }
 
     void Update()
@@ -64,6 +70,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
         // 현재 발사 대기 시간
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
 
+        // 첫 발사 딜레이 포함한 발사 조건
         if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot(dir));
