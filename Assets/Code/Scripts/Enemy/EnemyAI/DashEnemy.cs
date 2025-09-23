@@ -1,238 +1,139 @@
 ﻿using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
 public class DashEnemy : EnemyBase
 {
     private bool isLive = true;
-
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
-    private NavMeshAgent agent;
+    private GameObject player;
 
-    public float dashSpeed = 20f;
-    public float dashCooldown = 3f;
-    public float pauseBeforeDash = 0.3f;
-    public float dashDuration = 0.3f;
+    [Header("대시 관련")]
+    public float dashSpeed = 25f;          // 돌진 속도
+    public float dashDuration = 0.25f;     // 돌진 유지 시간
+    public float waitAfterDash = 1.0f;     // 돌진 후 대기 시간
 
-    private float dashTimer = 0f;
-    private float dashTimeElapsed = 0f;
-    private float pauseTimer = 0f;
-
-    private bool isPreparingToDash = false;
     private bool isDashing = false;
     private Vector2 dashDirection;
 
-    [Header("대시 프리뷰 스프라이트")]
-    public GameObject dashPreviewPrefab;
-    public float previewDistanceFromEnemy = 0f;
-    public float previewBackOffset = 0f;
+    [Header("잔상 관련")]
+    public GameObject afterImagePrefab;
+    public float afterImageSpawnInterval = 0.05f;
+    public float afterImageFadeDuration = 0.3f;
+    public float afterImageLifeTime = 0.5f;
+    public int maxAfterImageCount = 10;
 
-    private GameObject dashPreviewInstance;
+    private Coroutine afterImageCoroutine;
+    private readonly List<GameObject> afterImages = new();
 
-    [Header("벽 레이어 마스크")]
-    public LayerMask wallLayerMask;
-
-    [Header("대시 후 정지 관련")]
-    private bool isCooldownStopped = false;
-    private float cooldownStopTimer = 0f;
-    private float currentCooldownStopDuration = 1f; // 기본 1초
-    public float baseCooldownStopDuration = 1f;     // 기본 정지 시간
-    public float wallHitExtraDuration = 2f;         // 벽 충돌 시 추가 시간
-
-    void Start()
+    private void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
-        agent = GetComponent<NavMeshAgent>();
+        player = GameObject.FindWithTag("Player");
 
-        originalSpeed = GameManager.Instance.dashEnemyStats.speed;
-        speed = originalSpeed;
-
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
-        agent.speed = speed;
-
-        if (dashPreviewPrefab != null)
-        {
-            dashPreviewInstance = Instantiate(dashPreviewPrefab, transform.position, Quaternion.identity);
-            dashPreviewInstance.SetActive(false);
-        }
+        if (player != null)
+            StartCoroutine(DashLoop());
     }
 
-    void Update()
+    /// <summary>
+    /// 대기 → 돌진 → 대기 → 반복
+    /// </summary>
+    private IEnumerator DashLoop()
     {
-        if (!isLive) return;
-
-        // 쿨다운 정지 상태 처리
-        if (isCooldownStopped)
+        while (isLive)
         {
-            cooldownStopTimer += Time.deltaTime;
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            if (dashPreviewInstance != null) dashPreviewInstance.SetActive(false);
+            // 1️⃣ 돌진 전 대기
+            yield return new WaitForSeconds(waitAfterDash);
 
-            if (cooldownStopTimer >= currentCooldownStopDuration)
+            // 2️⃣ 플레이어 방향 계산
+            if (player != null)
             {
-                isCooldownStopped = false;
-                cooldownStopTimer = 0f;
-                dashTimer = 0f;
-                agent.enabled = true; // 다시 이동 가능
-            }
-            return;
-        }
-
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
-
-        Vector2 toPlayer = (player.transform.position - transform.position).normalized;
-
-        if (isDashing)
-        {
-            DashMove();
-            dashTimeElapsed += Time.deltaTime;
-
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-            FlipSprite(dashDirection.x);
-
-            if (dashTimeElapsed >= dashDuration)
-            {
-                EndDash(false); // 일반 대시 종료
-            }
-            return;
-        }
-
-        if (isPreparingToDash)
-        {
-            pauseTimer += Time.deltaTime;
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-
-            if (dashPreviewInstance != null)
-            {
-                dashPreviewInstance.SetActive(true);
-                Vector3 dir = new Vector3(dashDirection.x, dashDirection.y, 0f).normalized;
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
-                dashPreviewInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-
-                Vector3 basePos = transform.position + dir * previewDistanceFromEnemy;
-                Vector3 offset = -dashPreviewInstance.transform.up * previewBackOffset;
-                dashPreviewInstance.transform.position = basePos + offset;
+                dashDirection = (player.transform.position - transform.position).normalized;
+                FlipSprite(dashDirection.x);
             }
 
-            if (pauseTimer >= pauseBeforeDash)
+            // 3️⃣ 돌진 시작
+            isDashing = true;
+            //enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+
+            if (afterImageCoroutine != null)
+                StopCoroutine(afterImageCoroutine);
+            afterImageCoroutine = StartCoroutine(SpawnAfterImages());
+
+            float elapsed = 0f;
+            while (elapsed < dashDuration)
             {
-                isPreparingToDash = false;
-                isDashing = true;
-                pauseTimer = 0f;
-
-                if (dashPreviewInstance != null)
-                    dashPreviewInstance.SetActive(false);
-
-                agent.enabled = false; // NavMeshAgent 비활성화
+                transform.Translate(dashDirection * dashSpeed * Time.deltaTime, Space.World);
+                elapsed += Time.deltaTime;
+                yield return null;
             }
-            return;
-        }
 
-        // 일반 NavMesh 이동
-        if (agent.enabled)
-        {
-            agent.SetDestination(player.transform.position);
-
-            Vector2 dir = agent.velocity;
-            if (dir.magnitude > 0.1f)
+            // 4️⃣ 돌진 종료
+            isDashing = false;
+            if (afterImageCoroutine != null)
             {
-                enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-                FlipSprite(dir.x);
+                StopCoroutine(afterImageCoroutine);
+                afterImageCoroutine = null;
             }
-            else
-            {
-                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-            }
-        }
-
-        // 대시 타이머 증가
-        dashTimer += Time.deltaTime;
-        if (dashTimer >= dashCooldown)
-        {
-            isPreparingToDash = true;
-            pauseTimer = 0f;
-            dashDirection = toPlayer;
-            return;
         }
     }
 
-    private void DashMove()
-    {
-        Vector2 moveVec = dashDirection * dashSpeed * Time.deltaTime;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dashDirection, moveVec.magnitude, wallLayerMask);
 
-        if (hit.collider != null) // 벽 충돌
-        {
-            transform.position = hit.point - dashDirection.normalized * 0.01f;
-            EndDash(true); // 벽에 부딪힌 종료 → 추가 정지 시간
-        }
-        else
-        {
-            transform.Translate(moveVec);
-        }
-    }
-
-    /// <param name="hitWall">true면 벽 충돌, false면 일반 종료</param>
-    private void EndDash(bool hitWall)
-    {
-        isDashing = false;
-        dashTimeElapsed = 0f;
-
-        // 벽 충돌이면 추가 시간 적용
-        currentCooldownStopDuration = baseCooldownStopDuration + (hitWall ? wallHitExtraDuration : 0f);
-
-        isCooldownStopped = true;
-        cooldownStopTimer = 0f;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
-            {
-                Debug.Log("스킬 사용 중이라 몬스터 데미지 무시");
-                return;
-            }
-
-            int damage = GameManager.Instance.dashEnemyStats.attack;
-            GameManager.Instance.playerDamaged.TakeDamage(damage);
-        }
-    }
-
-    public void Knockback(Vector2 force)
-    {
-        if (isPreparingToDash)
-        {
-            Debug.Log("대시 준비 중이라 넉백 무시");
-            return;
-        }
-
-        transform.position += (Vector3)force;
-    }
-
-    private void FlipSprite(float directionX)
+    private void FlipSprite(float dirX)
     {
         Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * (directionX < 0 ? -1 : 1);
+        scale.x = Mathf.Abs(scale.x) * (dirX < 0 ? -1 : 1);
         transform.localScale = scale;
     }
 
-    void OnDisable()
+    // ────────── 잔상 관련 ──────────
+    private IEnumerator SpawnAfterImages()
     {
-        if (dashPreviewInstance != null)
-            dashPreviewInstance.SetActive(false);
+        while (isDashing)
+        {
+            CreateAfterImage();
+            yield return new WaitForSeconds(afterImageSpawnInterval);
+        }
     }
 
-    void OnDestroy()
+    private void CreateAfterImage()
     {
-        if (dashPreviewInstance != null)
-            Destroy(dashPreviewInstance);
+        GameObject afterImage = new GameObject("AfterImage");
+        afterImage.transform.position = transform.position;
+        afterImage.transform.rotation = transform.rotation;
+        afterImage.transform.localScale = transform.localScale;
+
+        SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
+        SpriteRenderer enemySR = GetComponent<SpriteRenderer>();
+
+        if (enemySR != null)
+        {
+            sr.sprite = enemySR.sprite;
+            sr.flipX = enemySR.flipX;
+            Color c = enemySR.color;
+            c.a = 0.5f; // 반투명
+            sr.color = c;
+
+            sr.sortingLayerID = enemySR.sortingLayerID;
+            sr.sortingOrder = enemySR.sortingOrder - 1;
+        }
+
+        afterImages.Add(afterImage);
+        if (afterImages.Count > maxAfterImageCount)
+        {
+            Destroy(afterImages[0]);
+            afterImages.RemoveAt(0);
+        }
+
+        sr.DOFade(0f, afterImageFadeDuration)
+          .SetDelay(afterImageLifeTime - afterImageFadeDuration)
+          .OnComplete(() =>
+          {
+              afterImages.Remove(afterImage);
+              Destroy(afterImage);
+          });
     }
 }

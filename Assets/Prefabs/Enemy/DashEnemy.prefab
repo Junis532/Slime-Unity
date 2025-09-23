@@ -272,19 +272,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9a801a71cf2ee94e85eef61e4842c3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
+  originalSpeed: 0
   dashSpeed: 9
-  dashCooldown: 3
-  pauseBeforeDash: 0.3
   dashDuration: 0.5
-  dashPreviewPrefab: {fileID: 5286278096825507868, guid: 83dbeff95386f914380685b0b379f719, type: 3}
-  previewDistanceFromEnemy: 2.5
-  previewBackOffset: 0
-  wallLayerMask:
-    serializedVersion: 2
-    m_Bits: 40
-  cooldownStopDuration: 3
+  waitAfterDash: 1
+  afterImagePrefab: {fileID: 5045083376037120503}
+  afterImageSpawnInterval: 0.05
+  afterImageFadeDuration: 0.3
+  afterImageLifeTime: 0.5
+  maxAfterImageCount: 10
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,7 +295,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+  dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
+  useKnockback: 0
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &5809478642170743082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -398,7 +402,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  potionPrefab: {fileID: 0}
+  potionDropChance: 0.1
 --- !u!195 &954115967608437427
 NavMeshAgent:
   m_ObjectHideFlags: 0
