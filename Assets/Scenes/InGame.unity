@@ -41958,9 +41958,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: -0.18750001
-    width: 0
-    height: 0.37500003
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -45265,6 +45265,7 @@ MonoBehaviour:
   dashEnemyStats: {fileID: 11400000, guid: 61d87394e1d444d4db040d3ad2048b7d, type: 2}
   longRangeEnemyStats: {fileID: 11400000, guid: 58fd2f9b78594db42a45fcb865ceaf5e, type: 2}
   potionEnemyStats: {fileID: 11400000, guid: 262af9e6818399e4183bac0c156ce898, type: 2}
+  tankerEnemyStats: {fileID: 11400000, guid: 6f83d7d40646ae6448b77cbc0d6af9d3, type: 2}
   boss1Stats: {fileID: 11400000, guid: a49d5c17ea6c1ad4bbe52c0959632f9e, type: 2}
   middleBoss1Stats: {fileID: 11400000, guid: a9b705ea0cffdb4449bab858564f4dd5, type: 2}
   shops:
@@ -45357,7 +45358,7 @@ MonoBehaviour:
     roomCollider: {fileID: 930166416}
     cameraCollider: {fileID: 1645277954}
     enemyPrefabs:
-    - {fileID: 5045083376037120503, guid: 2c9fef6bc4f9d004b9ad63a1f3992951, type: 3}
+    - {fileID: 989741138225912565, guid: d1126f2721bbe4443a54088daefc634b, type: 3}
     activated: 0
     CameraFollow: 0
   - roomName: 1
