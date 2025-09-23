@@ -6,7 +6,6 @@ using TMPro;
 public class MiddleBoss1HP : MonoBehaviour
 {
     [Header("체력 관련")]
-    public GameObject hpBarPrefab; // 인스펙터 오류 방지를 위해 남겨둠
     private Image hpBarFill;
     public float currentHP;
     private float maxHP;
@@ -21,7 +20,7 @@ public class MiddleBoss1HP : MonoBehaviour
     public GameObject hitEffectPrefab;
 
     [Header("넉백 설정")]
-    public bool enableKnockback = true; // 넉백 ON/OFF
+    public bool enableKnockback = true;
 
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
@@ -37,14 +36,14 @@ public class MiddleBoss1HP : MonoBehaviour
         GameObject bossHpBarUI = GameObject.Find("BossHP");
         if (bossHpBarUI == null)
         {
-            Debug.LogError("Hierarchy에서 'BossHP' 오브젝트를 찾을 수 없습니다. 해당 오브젝트를 미리 배치해주세요!");
+            Debug.LogError("Hierarchy에서 'BossHP' 오브젝트를 찾을 수 없습니다!");
             return;
         }
 
         hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
         if (hpBarFill == null)
         {
-            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다. UI 계층 구조를 확인하세요.");
+            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
             return;
         }
 
@@ -64,9 +63,7 @@ public class MiddleBoss1HP : MonoBehaviour
     private void UpdateHPBar()
     {
         if (hpBarFill != null)
-        {
             hpBarFill.fillAmount = currentHP / maxHP;
-        }
     }
 
     public void TakeDamage()
@@ -171,6 +168,13 @@ public class MiddleBoss1HP : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        // 🔥 보스 패턴 스크립트 정리
+        MiddleBoss middleBoss = GetComponent<MiddleBoss>();
+        if (middleBoss != null)
+        {
+            middleBoss.SetDead();
+        }
 
         GameObject bossHpBarUI = GameObject.Find("BossHPBarUI");
         if (bossHpBarUI != null)
