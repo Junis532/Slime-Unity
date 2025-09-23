@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 public class MiddleBoss : MonoBehaviour
 {
@@ -66,7 +65,7 @@ public class MiddleBoss : MonoBehaviour
         if (skillTimer >= skillInterval)
         {
             skillTimer = 0f;
-            currentSkillIndex = Random.Range(1, 2); // 필요 시 0,1,2로 확장
+            currentSkillIndex = Random.Range(1, 2); // 0,1,2 중 랜덤 선택
             UseRandomSkill();
         }
     }
@@ -120,7 +119,7 @@ public class MiddleBoss : MonoBehaviour
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // ────────── 스킬 2: 좌우 레이저 + X/Y 탄막 반복 ──────────
+    // ────────── 스킬 2: 레이저 + X/Y 탄막 반복 ──────────
     private IEnumerator SkillLaserPattern()
     {
         if (mapCollider == null)
@@ -131,79 +130,78 @@ public class MiddleBoss : MonoBehaviour
         }
 
         Bounds bounds = mapCollider.bounds;
-        Vector3 leftPos = new Vector3(bounds.min.x, transform.position.y, 0f);
-        Vector3 rightPos = new Vector3(bounds.max.x, transform.position.y, 0f);
 
         // 레이저 생성
         GameObject leftLaser = new GameObject("LeftLaser");
         LineRenderer leftLR = leftLaser.AddComponent<LineRenderer>();
         SetupLaser(leftLR, Color.red);
-        leftLR.SetPosition(0, leftPos + Vector3.up * bounds.extents.y);
-        leftLR.SetPosition(1, leftPos - Vector3.up * bounds.extents.y);
-
         GameObject rightLaser = new GameObject("RightLaser");
         LineRenderer rightLR = rightLaser.AddComponent<LineRenderer>();
         SetupLaser(rightLR, Color.red);
-        rightLR.SetPosition(0, rightPos + Vector3.up * bounds.extents.y);
-        rightLR.SetPosition(1, rightPos - Vector3.up * bounds.extents.y);
 
         activeSkillObjects.Add(leftLaser);
         activeSkillObjects.Add(rightLaser);
 
-        float moveDistance = 5f;
-        float moveDuration = 0.5f;
-        float checkInterval = 0.05f;
+        float minDistance = bounds.extents.x * 0.3f;
+        float maxDistance = bounds.extents.x;
+        float pulseSpeed = 7f; // 넓어졌다 줄어드는 속도
+        float laserElapsed = 0f;
+        float laserActiveDuration = 8f;
 
-        Vector3 leftStart0 = leftLR.GetPosition(0);
-        Vector3 leftStart1 = leftLR.GetPosition(1);
-        Vector3 rightStart0 = rightLR.GetPosition(0);
-        Vector3 rightStart1 = rightLR.GetPosition(1);
+        string[] patternSequence = { "X", "Y", "X", "Y", "X", "Y" };
+        int patternIndex = 0;
+        float fireInterval = 0.5f;
+        float fireTimer = 0f;
 
-        // 🔹 레이저 이동: 한 번만
-        float elapsedMove = 0f;
-        while (elapsedMove < moveDuration)
+        while (laserElapsed < laserActiveDuration)
         {
-            float t = elapsedMove / moveDuration;
-            leftLR.SetPosition(0, leftStart0 + Vector3.right * moveDistance * t);
-            leftLR.SetPosition(1, leftStart1 + Vector3.right * moveDistance * t);
-            rightLR.SetPosition(0, rightStart0 - Vector3.right * moveDistance * t);
-            rightLR.SetPosition(1, rightStart1 - Vector3.right * moveDistance * t);
+            laserElapsed += Time.deltaTime;
+            fireTimer += Time.deltaTime;
 
+            // 레이저 좌표 PingPong 계산 (부드럽게 좌우 이동)
+            float offset = Mathf.PingPong(Time.time * pulseSpeed, maxDistance - minDistance) + minDistance;
+            leftLR.SetPosition(0, new Vector3(transform.position.x - offset, transform.position.y + bounds.extents.y, 0));
+            leftLR.SetPosition(1, new Vector3(transform.position.x - offset, transform.position.y - bounds.extents.y, 0));
+            rightLR.SetPosition(0, new Vector3(transform.position.x + offset, transform.position.y + bounds.extents.y, 0));
+            rightLR.SetPosition(1, new Vector3(transform.position.x + offset, transform.position.y - bounds.extents.y, 0));
+
+            // 레이저 데미지 체크
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
 
-            elapsedMove += checkInterval;
-            yield return new WaitForSeconds(checkInterval);
-        }
-
-        // 이동 후 누적 좌표로 고정
-        leftStart0 += Vector3.right * moveDistance;
-        leftStart1 += Vector3.right * moveDistance;
-        rightStart0 -= Vector3.right * moveDistance;
-        rightStart1 -= Vector3.right * moveDistance;
-
-        string[] patternSequence = { "X", "Y", "X", "Y", "X", "Y" }; // X: 대각선, Y: 십자
-
-        foreach (string pattern in patternSequence)
-        {
             // 탄막 발사
-            if (pattern == "X") StartCoroutine(FireXPattern(0f));
-            else
+            if (fireTimer >= fireInterval)
             {
-                Vector2[] crossDirs = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
-                foreach (Vector2 dir in crossDirs)
+                string pattern = patternSequence[patternIndex % patternSequence.Length];
+                if (pattern == "X")
                 {
-                    GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                    Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-                    if (rb != null) rb.linearVelocity = dir.normalized * bulletSpeed;
-                    activeSkillObjects.Add(bullet);
+                    Vector2[] diagDirs = { new Vector2(1,1).normalized, new Vector2(-1,1).normalized,
+                                           new Vector2(1,-1).normalized, new Vector2(-1,-1).normalized };
+                    foreach (Vector2 dir in diagDirs)
+                    {
+                        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+                        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+                        if (rb != null) rb.linearVelocity = dir * bulletSpeed;
+                        activeSkillObjects.Add(bullet);
+                    }
                 }
+                else // "Y"
+                {
+                    Vector2[] crossDirs = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
+                    foreach (Vector2 dir in crossDirs)
+                    {
+                        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+                        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+                        if (rb != null) rb.linearVelocity = dir * bulletSpeed;
+                        activeSkillObjects.Add(bullet);
+                    }
+                }
+                patternIndex++;
+                fireTimer = 0f;
             }
 
-            yield return new WaitForSeconds(0.5f); // 반복 간 간격
+            yield return null; // 프레임마다 갱신
         }
-
-        yield return new WaitForSeconds(1f);
 
         Destroy(leftLaser);
         Destroy(rightLaser);
@@ -229,27 +227,9 @@ public class MiddleBoss : MonoBehaviour
         foreach (RaycastHit2D hit in hits)
         {
             if (hit.collider.CompareTag("Player"))
+            {
                 GameManager.Instance.playerDamaged.TakeDamage(laserDamage);
-        }
-    }
-
-    private IEnumerator FireXPattern(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        Vector2[] diagDirs = {
-            new Vector2(1, 1).normalized,
-            new Vector2(-1, 1).normalized,
-            new Vector2(1, -1).normalized,
-            new Vector2(-1, -1).normalized
-        };
-
-        foreach (Vector2 dir in diagDirs)
-        {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = dir * bulletSpeed;
-            activeSkillObjects.Add(bullet);
+            }
         }
     }
 
