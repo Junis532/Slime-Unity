@@ -65,7 +65,7 @@ public class MiddleBoss : MonoBehaviour
         if (skillTimer >= skillInterval)
         {
             skillTimer = 0f;
-            currentSkillIndex = Random.Range(1, 2); // 0,1,2 중 랜덤 선택
+            currentSkillIndex = Random.Range(0, 3); // 0,1,2 중 랜덤 선택
             UseRandomSkill();
         }
     }
@@ -223,15 +223,26 @@ public class MiddleBoss : MonoBehaviour
 
     private void CheckLaserHit(LineRenderer lr)
     {
-        RaycastHit2D[] hits = Physics2D.LinecastAll(lr.GetPosition(0), lr.GetPosition(1), LayerMask.GetMask("Player"));
+        RaycastHit2D[] hits = Physics2D.LinecastAll(
+            lr.GetPosition(0),
+            lr.GetPosition(1),
+            LayerMask.GetMask("Player")
+        );
+
         foreach (RaycastHit2D hit in hits)
         {
             if (hit.collider.CompareTag("Player"))
             {
+                // ✅ 플레이어가 대쉬(슬라임 점프) 중이면 데미지 무시
+                JoystickDirectionIndicator indicator = hit.collider.GetComponent<JoystickDirectionIndicator>();
+                if (indicator != null && indicator.IsUsingSkill)
+                    continue;
+
                 GameManager.Instance.playerDamaged.TakeDamage(laserDamage);
             }
         }
     }
+
 
     // ────────── 스킬 3: 검 휘두르기 ──────────
     private IEnumerator SkillSwordPattern()
