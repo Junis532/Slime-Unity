@@ -87,7 +87,7 @@ public class NavPotionDashEnemy : EnemyBase
             dashTimeElapsed += Time.deltaTime;
 
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-            FlipSprite(dashDirection.x);
+             FlipSprite(dashDirection.x);
 
             if (dashTimeElapsed >= dashDuration)
                 EndDash();

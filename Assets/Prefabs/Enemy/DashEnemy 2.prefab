@@ -97,8 +97,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: DashEnemy
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 7671382765192215879, guid: 2c9fef6bc4f9d004b9ad63a1f3992951, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -128,9 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7043b54658552de47b03346a33da0a4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
-  smoothTime: 0.1
+  originalSpeed: 0
   dashSpeed: 20
   dashCooldown: 3
   pauseBeforeDash: 0.3
@@ -138,6 +136,13 @@ MonoBehaviour:
   dashPreviewPrefab: {fileID: 8072637158615232695, guid: 1280ff5abdfc57c418f23e939ac3fada, type: 3}
   previewDistanceFromEnemy: 0
   previewBackOffset: 0
+  potionWarningPrefab: {fileID: 0}
+  potionDamagePrefab: {fileID: 0}
+  potionWarningOffset: 0
+  potionWarningDuration: 1
+  potionLifetime: 2
+  potionSpreadRadius: 1
+  numberOfPotionsToSpawn: 6
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8

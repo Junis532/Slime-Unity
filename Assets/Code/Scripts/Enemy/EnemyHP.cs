@@ -209,7 +209,6 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
-
     private void ShowCDamageText(int damage)
     {
         if (cDamageTextPrefab == null) return;

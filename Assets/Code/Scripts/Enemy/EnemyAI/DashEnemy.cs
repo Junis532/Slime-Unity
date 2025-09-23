@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DashEnemy : EnemyBase
 {
@@ -9,6 +10,7 @@ public class DashEnemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
     private GameObject player;
+    NavMeshAgent navMesh;
 
     [Header("대시 관련")]
     public float dashSpeed = 25f;          // 돌진 속도
@@ -30,9 +32,14 @@ public class DashEnemy : EnemyBase
 
     private void Start()
     {
+        navMesh = GetComponent<NavMeshAgent>();
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
         player = GameObject.FindWithTag("Player");
+
+        navMesh.updateRotation = false;
+        navMesh.updateUpAxis = false;
+        navMesh.speed = speed;
 
         if (player != null)
             StartCoroutine(DashLoop());
@@ -43,8 +50,10 @@ public class DashEnemy : EnemyBase
     /// </summary>
     private IEnumerator DashLoop()
     {
+        transform.rotation = Quaternion.Euler(0, 0, 0);
         while (isLive)
         {
+            Debug.Log(transform.rotation);
             // 1️⃣ 돌진 전 대기
             yield return new WaitForSeconds(waitAfterDash);
 
@@ -57,7 +66,7 @@ public class DashEnemy : EnemyBase
 
             // 3️⃣ 돌진 시작
             isDashing = true;
-            //enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
 
             if (afterImageCoroutine != null)
                 StopCoroutine(afterImageCoroutine);
