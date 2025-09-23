@@ -30,6 +30,11 @@ public class MiddleBoss : MonoBehaviour
     public int laserDamage = 100;
     public Material laserMaterial;
 
+    // ────────── 패턴 3: 검 ──────────
+    [Header("검 휘두르기 패턴 설정")]
+    public float swordRotateSpeed = 360f;
+    public float swordStartAngle = 180f;
+
     // 🔥 생성된 오브젝트 추적 리스트
     private List<GameObject> activeSkillObjects = new List<GameObject>();
 
@@ -46,27 +51,22 @@ public class MiddleBoss : MonoBehaviour
             {
                 mapCollider = roomObj.GetComponent<BoxCollider2D>();
                 if (mapCollider == null)
-                {
                     Debug.LogWarning("RC 00 안에 BoxCollider2D가 없습니다!");
-                }
             }
             else
-            {
                 Debug.LogWarning("RC 00 오브젝트를 찾을 수 없습니다!");
-            }
         }
     }
 
     void Update()
     {
-        if (!isLive) return;
-        if (isSkillPlaying) return;
+        if (!isLive || isSkillPlaying) return;
 
         skillTimer += Time.deltaTime;
         if (skillTimer >= skillInterval)
         {
             skillTimer = 0f;
-            currentSkillIndex = Random.Range(0, 3);
+            currentSkillIndex = Random.Range(1, 2); // 필요 시 0,1,2로 확장
             UseRandomSkill();
         }
     }
@@ -95,7 +95,6 @@ public class MiddleBoss : MonoBehaviour
         float fireInterval = 0.5f;
         float elapsed = 0f;
         float currentAngleOffset = 0f;
-        float rotateOffsetPerWave = bulletAngle;
 
         while (elapsed < duration)
         {
@@ -110,18 +109,18 @@ public class MiddleBoss : MonoBehaviour
                 Rigidbody2D rb = go.GetComponent<Rigidbody2D>();
                 if (rb) rb.linearVelocity = dir * bulletSpeed;
 
-                activeSkillObjects.Add(go); // 추적 리스트에 등록
+                activeSkillObjects.Add(go);
             }
 
-            currentAngleOffset += rotateOffsetPerWave;
-            yield return new WaitForSeconds(fireInterval);
+            currentAngleOffset += bulletAngle;
             elapsed += fireInterval;
+            yield return new WaitForSeconds(fireInterval);
         }
 
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // ────────── 스킬 2: 좌우 레이저 ──────────
+    // ────────── 스킬 2: 좌우 레이저 + X/Y 탄막 반복 ──────────
     private IEnumerator SkillLaserPattern()
     {
         if (mapCollider == null)
@@ -152,8 +151,7 @@ public class MiddleBoss : MonoBehaviour
         activeSkillObjects.Add(rightLaser);
 
         float moveDistance = 5f;
-        float moveDuration = 1f;
-        float elapsed = 0f;
+        float moveDuration = 0.5f;
         float checkInterval = 0.05f;
 
         Vector3 leftStart0 = leftLR.GetPosition(0);
@@ -161,36 +159,51 @@ public class MiddleBoss : MonoBehaviour
         Vector3 rightStart0 = rightLR.GetPosition(0);
         Vector3 rightStart1 = rightLR.GetPosition(1);
 
-        // 십자탄 발사
-        Vector2[] crossDirs = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
-        foreach (Vector2 dir in crossDirs)
+        // 🔹 레이저 이동: 한 번만
+        float elapsedMove = 0f;
+        while (elapsedMove < moveDuration)
         {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = dir.normalized * bulletSpeed;
-            activeSkillObjects.Add(bullet);
-        }
-
-        // 🔥 1초 후 X자탄 발사
-        StartCoroutine(FireXPattern(1f));
-
-        while (elapsed < moveDuration)
-        {
-            float t = elapsed / moveDuration;
+            float t = elapsedMove / moveDuration;
             leftLR.SetPosition(0, leftStart0 + Vector3.right * moveDistance * t);
             leftLR.SetPosition(1, leftStart1 + Vector3.right * moveDistance * t);
             rightLR.SetPosition(0, rightStart0 - Vector3.right * moveDistance * t);
             rightLR.SetPosition(1, rightStart1 - Vector3.right * moveDistance * t);
 
-            // 플레이어 충돌 체크
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
 
-            elapsed += checkInterval;
+            elapsedMove += checkInterval;
             yield return new WaitForSeconds(checkInterval);
         }
 
-        yield return new WaitForSeconds(3f);
+        // 이동 후 누적 좌표로 고정
+        leftStart0 += Vector3.right * moveDistance;
+        leftStart1 += Vector3.right * moveDistance;
+        rightStart0 -= Vector3.right * moveDistance;
+        rightStart1 -= Vector3.right * moveDistance;
+
+        string[] patternSequence = { "X", "Y", "X", "Y", "X", "Y" }; // X: 대각선, Y: 십자
+
+        foreach (string pattern in patternSequence)
+        {
+            // 탄막 발사
+            if (pattern == "X") StartCoroutine(FireXPattern(0f));
+            else
+            {
+                Vector2[] crossDirs = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
+                foreach (Vector2 dir in crossDirs)
+                {
+                    GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+                    Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+                    if (rb != null) rb.linearVelocity = dir.normalized * bulletSpeed;
+                    activeSkillObjects.Add(bullet);
+                }
+            }
+
+            yield return new WaitForSeconds(0.5f); // 반복 간 간격
+        }
+
+        yield return new WaitForSeconds(1f);
 
         Destroy(leftLaser);
         Destroy(rightLaser);
@@ -220,7 +233,6 @@ public class MiddleBoss : MonoBehaviour
         }
     }
 
-    // 🔥 X자 탄막 코루틴
     private IEnumerator FireXPattern(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -242,9 +254,6 @@ public class MiddleBoss : MonoBehaviour
     }
 
     // ────────── 스킬 3: 검 휘두르기 ──────────
-    [Header("검 휘두르기 패턴 설정")]
-    public float swordRotateSpeed = 360f;
-    public float swordStartAngle = 180f;
     private IEnumerator SkillSwordPattern()
     {
         if (mapCollider == null)
