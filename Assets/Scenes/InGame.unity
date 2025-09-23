@@ -43190,9 +43190,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.073148146
-    width: 0.85982907
-    height: 0.5
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -46624,7 +46624,7 @@ MonoBehaviour:
     roomCollider: {fileID: 1221208990}
     cameraCollider: {fileID: 1708970783}
     enemyPrefabs:
-    - {fileID: 1891843195945042988, guid: e85d99e46dfd5704f950290d512dd321, type: 3}
+    - {fileID: 3821179147201722768, guid: df5658d7d8b99ef4abf44438e3d0e0b2, type: 3}
     activated: 0
     CameraFollow: 0
   - roomName: 5
