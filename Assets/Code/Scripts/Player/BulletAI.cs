@@ -147,6 +147,8 @@ public class BulletAI : MonoBehaviour
             if (hp != null) hp.TakeDamage();
             Boss1HP bossHP = other.GetComponent<Boss1HP>();
             if (bossHP != null) bossHP.TakeDamage();
+            MiddleBoss1HP middleBossHP = other.GetComponent<MiddleBoss1HP>();
+            if (middleBossHP != null) middleBossHP.TakeDamage();
 
             if (bulletSpawner != null && bulletSpawner.slowSkillActive)
             {

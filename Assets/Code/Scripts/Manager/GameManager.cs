@@ -35,6 +35,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public LongRangeEnemyStats longRangeEnemyStats;
     public PotionEnemyStats potionEnemyStats;
     public Boss1Stats boss1Stats;
+    public MiddleBoss1Stats middleBoss1Stats;
 
     [Header("패시브 관련")]
     public List<ItemStats> shops;
@@ -106,6 +107,7 @@ public class GameManager : MonoSingleTone<GameManager>
         longRangeEnemyStats.ResetStats();
         potionEnemyStats.ResetStats();
         boss1Stats.ResetStats();
+        middleBoss1Stats.ResetStats();
 
     }
 

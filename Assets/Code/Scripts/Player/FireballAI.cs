@@ -131,6 +131,12 @@ public class FireballAI : MonoBehaviour
             {
                 StartCoroutine(ApplyDotDamageToBoss(bossHP));
             }
+
+            MiddleBoss1HP middleBossHP = other.GetComponent<MiddleBoss1HP>();
+            if (middleBossHP != null)
+            {
+                StartCoroutine(ApplyDotDamageToMiddeBoss(middleBossHP));
+            }
         }
     }
 
@@ -193,6 +199,35 @@ public class FireballAI : MonoBehaviour
                 break;
 
             bossHP.FireballTakeDamage(damagePerTick);
+            elapsed += interval;
+
+        }
+    }
+
+    IEnumerator ApplyDotDamageToMiddeBoss(MiddleBoss1HP middleBossHP)
+    {
+        float elapsed = 0f;
+        if (middleBossHP == null) yield break;
+
+        // 🔥 이펙트 생성 및 적에 붙이기
+        GameObject fireFx = null;
+        if (fireEffectPrefab != null && middleBossHP != null)
+        {
+            fireFx = Instantiate(fireEffectPrefab, middleBossHP.transform.position, Quaternion.identity, middleBossHP.transform);
+        }
+
+        // 첫 도트 즉시 적용
+        middleBossHP.FireballTakeDamage(damagePerTick);
+        elapsed += interval;
+
+        while (elapsed < duration)
+        {
+            yield return new WaitForSeconds(interval);
+
+            if (middleBossHP == null || !middleBossHP.gameObject.activeInHierarchy || middleBossHP.currentHP <= 0)
+                break;
+
+            middleBossHP.FireballTakeDamage(damagePerTick);
             elapsed += interval;
         }
     }

@@ -1,0 +1,705 @@
+fileFormatVersion: 2
+guid: 54c6193ebfdd3bd44b896036de2f15ca
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 9117399327735853585
+    second: exhaust_01_spritesheet_0
+  - first:
+      213: -8135436571051403768
+    second: exhaust_01_spritesheet_1
+  - first:
+      213: -6009547721241932703
+    second: exhaust_01_spritesheet_2
+  - first:
+      213: -4306422377958245098
+    second: exhaust_01_spritesheet_3
+  - first:
+      213: -5599571343054695845
+    second: exhaust_01_spritesheet_4
+  - first:
+      213: 8977086100830866788
+    second: exhaust_01_spritesheet_5
+  - first:
+      213: -5850386415331481444
+    second: exhaust_01_spritesheet_6
+  - first:
+      213: 988185552912683116
+    second: exhaust_01_spritesheet_7
+  - first:
+      213: 4114250248210089021
+    second: exhaust_01_spritesheet_8
+  - first:
+      213: 8545597457828018150
+    second: exhaust_01_spritesheet_9
+  - first:
+      213: 4167038723292495143
+    second: exhaust_01_spritesheet_10
+  - first:
+      213: -864830964535926253
+    second: exhaust_01_spritesheet_11
+  - first:
+      213: 7327759245145837562
+    second: exhaust_01_spritesheet_12
+  - first:
+      213: -3046561220844519298
+    second: exhaust_01_spritesheet_13
+  - first:
+      213: 4208997069991994379
+    second: exhaust_01_spritesheet_14
+  - first:
+      213: -7497219959326738618
+    second: exhaust_01_spritesheet_15
+  - first:
+      213: -6344994536934664847
+    second: exhaust_01_spritesheet_16
+  - first:
+      213: 2932330251903508370
+    second: exhaust_01_spritesheet_17
+  - first:
+      213: 223101921987890629
+    second: exhaust_01_spritesheet_18
+  - first:
+      213: 1176482364159297834
+    second: exhaust_01_spritesheet_19
+  - first:
+      213: -8701863537064611532
+    second: exhaust_01_spritesheet_20
+  - first:
+      213: 8228850917597182764
+    second: exhaust_01_spritesheet_21
+  - first:
+      213: -8054017572427480755
+    second: exhaust_01_spritesheet_22
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_0
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 373
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 112b41de162878e70800000000000000
+      internalID: 9117399327735853585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_1
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 347
+        width: 16
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80652c1ca8f191f80800000000000000
+      internalID: -8135436571051403768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_2
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 356
+        width: 26
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16ccd9eff2cc99ca0800000000000000
+      internalID: -6009547721241932703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_3
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 289
+        width: 30
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61d7105e9a38c34c0800000000000000
+      internalID: -4306422377958245098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_4
+      rect:
+        serializedVersion: 2
+        x: 560
+        y: 335
+        width: 26
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5294c208835a42b0800000000000000
+      internalID: -5599571343054695845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_5
+      rect:
+        serializedVersion: 2
+        x: 690
+        y: 302
+        width: 24
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46dce1efe34059c70800000000000000
+      internalID: 8977086100830866788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_6
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 322
+        width: 9
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c98656b4d804fcea0800000000000000
+      internalID: -5850386415331481444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_7
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 308
+        width: 7
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c609885568db6bd00800000000000000
+      internalID: 988185552912683116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_8
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 173
+        width: 13
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3400a17dc0c81930800000000000000
+      internalID: 4114250248210089021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_9
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 165
+        width: 13
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e7f1538c9f089670800000000000000
+      internalID: 8545597457828018150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_10
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 153
+        width: 13
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72d752314ab44d930800000000000000
+      internalID: 4167038723292495143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_11
+      rect:
+        serializedVersion: 2
+        x: 442
+        y: 167
+        width: 12
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 312e310e1d08ff3f0800000000000000
+      internalID: -864830964535926253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_12
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 14
+        width: 12
+        height: 239
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aff8086953e61b560800000000000000
+      internalID: 7327759245145837562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_13
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 183
+        width: 14
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e70051506b078b5d0800000000000000
+      internalID: -3046561220844519298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_14
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 147
+        width: 9
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b046881f88c596a30800000000000000
+      internalID: 4208997069991994379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_15
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 160
+        width: 13
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6477c514b2684f790800000000000000
+      internalID: -7497219959326738618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_16
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 35
+        width: 12
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 175173cf51d02f7a0800000000000000
+      internalID: -6344994536934664847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_17
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 77
+        width: 10
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29f17d4f3dab1b820800000000000000
+      internalID: 2932330251903508370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_18
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 17
+        width: 9
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cd8bc8140e981300800000000000000
+      internalID: 223101921987890629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_19
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 76
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a290a381a74b35010800000000000000
+      internalID: 1176482364159297834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_20
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 86
+        width: 10
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 431f65da735cc3780800000000000000
+      internalID: -8701863537064611532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_21
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 45
+        width: 6
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2bf60daf40c23270800000000000000
+      internalID: 8228850917597182764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: exhaust_01_spritesheet_22
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 32
+        width: 9
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d41c4bc90b16a3090800000000000000
+      internalID: -8054017572427480755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
