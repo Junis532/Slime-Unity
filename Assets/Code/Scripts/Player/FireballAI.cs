@@ -125,6 +125,12 @@ public class FireballAI : MonoBehaviour
                 // 여러 적에게 DOT 가능
                 StartCoroutine(ApplyDotDamage(hp));
             }
+            TankerEnemyHP thp = other.GetComponent<TankerEnemyHP>();
+            if (thp != null)
+            {
+         
+                StartCoroutine(ApplyDotDamage(hp));
+            }
 
             Boss1HP bossHP = other.GetComponent<Boss1HP>();
             if (bossHP != null)

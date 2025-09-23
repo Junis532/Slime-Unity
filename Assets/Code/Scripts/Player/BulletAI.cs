@@ -145,6 +145,8 @@ public class BulletAI : MonoBehaviour
         {
             EnemyHP hp = other.GetComponent<EnemyHP>();
             if (hp != null) hp.TakeDamage();
+            TankerEnemyHP thp = other.GetComponent<TankerEnemyHP>();
+            if (thp != null) thp.TakeDamage();
             Boss1HP bossHP = other.GetComponent<Boss1HP>();
             if (bossHP != null) bossHP.TakeDamage();
             MiddleBoss1HP middleBossHP = other.GetComponent<MiddleBoss1HP>();
