@@ -127,7 +127,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
         }
 
         float dashDistance = Vector3.Distance(transform.position, targetPos);
-        float dashDuration = 0.3f * (dashDistance / DashingDistance);
+        float dashDuration = 0.2f * (dashDistance / DashingDistance);
 
         // ---------------------------
         // DOTween Sequence

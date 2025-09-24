@@ -55,6 +55,10 @@ public class LongRangeEnemyBullet : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        else if (destroyOnObstacle && collision.CompareTag("LaserNot"))
+        {
+            Destroy(gameObject);
+        }
     }
 
 }

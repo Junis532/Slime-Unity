@@ -21,15 +21,23 @@ public class Enemy : EnemyBase
         originalSpeed = GameManager.Instance.enemyStats.speed;
         speed = originalSpeed;
 
-        // NavMeshAgent 설정
         agent.updateRotation = false;
-        agent.updateUpAxis = false; // 2D일 경우 필수
+        agent.updateUpAxis = false; // 2D용
         agent.speed = speed;
     }
 
     void Update()
     {
         if (!isLive) return;
+
+        // ✅ 이동 가능 여부 체크
+        if (!CanMove)
+        {
+            if (agent.hasPath)
+                agent.ResetPath();   // 이동 경로 초기화
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
@@ -57,9 +65,8 @@ public class Enemy : EnemyBase
     {
         speed = newSpeed;
         if (agent != null)
-            agent.speed = newSpeed; // ✅ 실질 이동속도에 반영
+            agent.speed = newSpeed;
     }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -73,10 +80,8 @@ public class Enemy : EnemyBase
                 return;
             }
 
-            // ✅ 이제는 PlayerDamaged 쪽에 위임
             int damage = GameManager.Instance.enemyStats.attack;
             GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
     }
-
 }

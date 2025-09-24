@@ -130,6 +130,20 @@ public class BulletAI : MonoBehaviour
             Invoke(nameof(DestroySelf), 0.1f); // 화살은 바로 풀로 반환
             return;
         }
+        if (other.CompareTag("LaserNot"))
+        {
+            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+
+            // ✅ 충돌 위치에 이펙트 생성
+            if (hitEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                Destroy(effect, 0.3f); // 0.3초 후 삭제
+            }
+
+            Invoke(nameof(DestroySelf), 0.1f); // 화살은 바로 풀로 반환
+            return;
+        }
 
         //if (other.CompareTag("Obstacle"))
         //{

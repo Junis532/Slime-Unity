@@ -2,13 +2,25 @@
 
 public class EnemyBase : MonoBehaviour
 {
-    public float speed;
-    public float originalSpeed;
+    [Header("이동 속도")]
+    public float speed = 3f;
+    public float originalSpeed = 3f;
 
-    // 기본 SetSpeed는 변수만 바꿈. 실제 속도 변경은 서브클래스에서 구현
+    [Header("스폰 딜레이")]
+    public float spawnDelay = 0.4f;
+
+    protected bool canMove = true;
+
+    // 외부에서 제어 가능
+    public bool CanMove
+    {
+        get { return canMove; }
+        set { canMove = value; }
+    }
+
     public virtual void SetSpeed(float newSpeed)
     {
         speed = newSpeed;
-        // 여기서는 실제 이동속도 갱신 없음(서브클래스에서 처리)
+        originalSpeed = newSpeed;
     }
 }

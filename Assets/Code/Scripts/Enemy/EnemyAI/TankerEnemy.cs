@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.AI; // NavMeshAgent
-using DG.Tweening;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class TankerEnemy : EnemyBase
@@ -21,15 +20,23 @@ public class TankerEnemy : EnemyBase
         originalSpeed = GameManager.Instance.tankerEnemyStats.speed;
         speed = originalSpeed;
 
-        // NavMeshAgent 설정
         agent.updateRotation = false;
-        agent.updateUpAxis = false; // 2D일 경우 필수
+        agent.updateUpAxis = false; // 2D용
         agent.speed = speed;
     }
 
     void Update()
     {
         if (!isLive) return;
+
+        // ✅ 이동 가능 여부 체크
+        if (!CanMove)
+        {
+            if (agent.hasPath)
+                agent.ResetPath();
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
@@ -57,11 +64,10 @@ public class TankerEnemy : EnemyBase
     {
         speed = newSpeed;
         if (agent != null)
-            agent.speed = newSpeed; // ✅ 실질 이동속도에 반영
+            agent.speed = newSpeed;
     }
 
-
-    private void OnTriggerEnter2D(Collider2D collision)
+private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive) return;
 

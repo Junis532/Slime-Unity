@@ -138,9 +138,9 @@ GameObject:
   - component: {fileID: 4309892111239111779}
   - component: {fileID: 5138593776206699716}
   - component: {fileID: 2765103744664436448}
-  - component: {fileID: 1962100736200316134}
+  - component: {fileID: -4245280282409445577}
   m_Layer: 0
-  m_Name: TurretEnemy_PlayerTracking
+  m_Name: TurretEnemy3_PlayerTracking 1
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
   potionDropChance: 0.1
---- !u!114 &1962100736200316134
+--- !u!114 &-4245280282409445577
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -350,7 +350,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3138796063724582110}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d489e94b66f6df44bc98833b1027595, type: 3}
+  m_Script: {fileID: 11500000, guid: 482caca78e726304f92cae5fb1b07f8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
@@ -364,7 +364,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   bulletSpeed: 10
   bulletLifetime: 7
-  showLineRenderer: 0
+  showLineRenderer: 1
+  spreadAngle: 15
 --- !u!1 &3613910191475756443
 GameObject:
   m_ObjectHideFlags: 0

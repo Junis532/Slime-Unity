@@ -10,12 +10,12 @@ public class DashEnemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
     private GameObject player;
-    NavMeshAgent navMesh;
+    private NavMeshAgent navMesh;
 
     [Header("대시 관련")]
     public float dashSpeed = 25f;          // 돌진 속도
     public float dashDuration = 0.25f;     // 돌진 유지 시간
-    public float waitAfterDash = 1.0f;     // 돌진 후 대기 시간
+    public float waitAfterDash = 1.0f;     // 돌진 전/후 대기 시간
 
     private bool isDashing = false;
     private Vector2 dashDirection;
@@ -47,15 +47,23 @@ public class DashEnemy : EnemyBase
 
     /// <summary>
     /// 대기 → 돌진 → 대기 → 반복
+    /// CanMove 체크 포함
     /// </summary>
     private IEnumerator DashLoop()
     {
         transform.rotation = Quaternion.Euler(0, 0, 0);
+
         while (isLive)
         {
-            Debug.Log(transform.rotation);
             // 1️⃣ 돌진 전 대기
             yield return new WaitForSeconds(waitAfterDash);
+
+            // ✅ CanMove 체크
+            if (!CanMove)
+            {
+                enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+                continue; // 이동 불가면 이번 루프 건너뜀
+            }
 
             // 2️⃣ 플레이어 방향 계산
             if (player != null)
@@ -75,6 +83,19 @@ public class DashEnemy : EnemyBase
             float elapsed = 0f;
             while (elapsed < dashDuration)
             {
+                // ✅ 돌진 중 CanMove 체크
+                if (!CanMove)
+                {
+                    isDashing = false;
+                    if (afterImageCoroutine != null)
+                    {
+                        StopCoroutine(afterImageCoroutine);
+                        afterImageCoroutine = null;
+                    }
+                    enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+                    break; // 대시 중단
+                }
+
                 transform.Translate(dashDirection * dashSpeed * Time.deltaTime, Space.World);
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -89,7 +110,6 @@ public class DashEnemy : EnemyBase
             }
         }
     }
-
 
     private void FlipSprite(float dirX)
     {

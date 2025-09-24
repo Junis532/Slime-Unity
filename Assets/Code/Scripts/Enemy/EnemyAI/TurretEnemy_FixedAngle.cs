@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class TurretEnemy_FixedAngle : EnemyBase
@@ -10,18 +11,20 @@ public class TurretEnemy_FixedAngle : EnemyBase
     public float fireRange = 5f;
 
     [Header("발사 간격 (순환)")]
-    public float[] fireIntervals = { 1f, 3f, 2f }; // 각 탄마다 발사 대기 시간
+    public float[] fireIntervals = { 1f, 3f, 2f };
     private int fireIndex = 0;
     private float lastFireTime;
 
     [Header("첫 발사 딜레이")]
-    public float firstFireDelay = 2f; // 첫 발사는 2초 뒤 실행
+    public float firstFireDelay = 2f;
 
     [Header("탄환 설정")]
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
 
+    [Header("LineRenderer 설정")]
+    public bool showLineRenderer = true; // 여기서 켜고 끔
     private LineRenderer lineRenderer;
     private bool isPreparingToFire = false;
 
@@ -40,7 +43,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
         // LineRenderer 세팅
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
-        lineRenderer.enabled = false;
+        lineRenderer.enabled = showLineRenderer;
 
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
@@ -50,7 +53,6 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.sortingOrder = 2;
         lineRenderer.sortingLayerName = "Default";
 
-        // 시작 시 첫 발사 시간 = 현재 시간 + firstFireDelay
         lastFireTime = Time.time - fireIntervals[0] + firstFireDelay;
     }
 
@@ -58,19 +60,21 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (!isLive) return;
 
-        // 현재 고정 각도 → 방향 벡터 변환
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
-        // 라인 표시
-        if (!lineRenderer.enabled) lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
+        // LineRenderer 켜기/끄기 체크
+        if (lineRenderer != null)
+            lineRenderer.enabled = showLineRenderer;
 
-        // 현재 발사 대기 시간
+        if (showLineRenderer && lineRenderer.enabled)
+        {
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
+        }
+
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
 
-        // 첫 발사 딜레이 포함한 발사 조건
         if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             StartCoroutine(PrepareAndShoot(dir));
@@ -84,47 +88,29 @@ public class TurretEnemy_FixedAngle : EnemyBase
         isPreparingToFire = true;
 
         float duration = 1f; // 발사 준비 시간
-        float timer = 0f;
 
-        float startWidth = 0.1f;
-        Color startColor = Color.red;
-
-        // 준비 동안 라인 가늘어지고 투명해짐
-        while (timer < duration)
+        // 본체 색이 흰색 → 빨강으로 변함
+        if (spriter != null)
         {
-            timer += Time.deltaTime;
-            float t = timer / duration;
-
-            float width = Mathf.Lerp(startWidth, 0f, t);
-            lineRenderer.startWidth = width;
-            lineRenderer.endWidth = width;
-
-            Color fadeColor = Color.Lerp(startColor, new Color(startColor.r, startColor.g, startColor.b, 0f), t);
-            lineRenderer.startColor = fadeColor;
-            lineRenderer.endColor = fadeColor;
-
-            yield return null;
+            spriter.DOColor(Color.red, duration);
         }
 
-        lineRenderer.enabled = false;
+        // 발사 준비 대기
+        yield return new WaitForSeconds(duration);
 
         // 발사
         Shoot(dir);
         lastFireTime = Time.time;
-
-        // 다음 쿨다운으로 이동
         fireIndex = (fireIndex + 1) % fireIntervals.Length;
 
-        yield return new WaitForSeconds(0.3f);
-
-        if (isLive)
+        // 발사 후 본체 색 다시 흰색으로 복귀
+        if (spriter != null)
         {
-            lineRenderer.startWidth = startWidth;
-            lineRenderer.endWidth = startWidth;
-            lineRenderer.startColor = startColor;
-            lineRenderer.endColor = startColor;
-            lineRenderer.enabled = true;
+            spriter.DOColor(Color.white, 0.2f); // 0.2초 동안 자연스럽게
         }
+
+        // 발사 후 잠시 대기
+        yield return new WaitForSeconds(0.3f);
 
         isPreparingToFire = false;
     }

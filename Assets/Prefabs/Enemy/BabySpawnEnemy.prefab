@@ -299,7 +299,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+  dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
+  useKnockback: 0
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &604493552971069622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,7 +407,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  potionPrefab: {fileID: 510499459271775873, guid: 543f0e43233495543ba0b50a764b38fc, type: 3}
+  potionDropChance: 0.1
 --- !u!114 &8850763643025424571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -413,9 +421,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c4f1b0bfdda45649a37ddbfba387f30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
-  spawnPrefab: {fileID: 4452142985382545897, guid: ab1ce8a9724693e4c992667cf057d272, type: 3}
+  originalSpeed: 0
+  spawnDelay: 3
+  spawnPrefab: {fileID: 989741138225912565, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
   spawnInterval: 2
 --- !u!1 &6107727227558523550
 GameObject:

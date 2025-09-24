@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.U2D;
+using UnityEngine.AI;
 
 [System.Serializable]
 public class RoomData
@@ -48,19 +48,22 @@ public class WaveManager : MonoBehaviour
     [Header("문 애니메이션 프리팹 부모 (한 번만 넣기)")]
     public GameObject doorAnimationParentPrefab;
 
+    public float spawnStop = 0f;
+
     private List<DoorController> allDoors = new List<DoorController>();
     private List<DoorAnimation> allDoorAnimations = new List<DoorAnimation>();
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
 
+    private bool isFirstRoom = true; // 첫 방 여부
+
+
     void Start()
     {
-        // 문 수집
         if (doorParentPrefab != null)
             allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
 
-        // 문 애니메이션 수집
         if (doorAnimationParentPrefab != null)
             allDoorAnimations.AddRange(doorAnimationParentPrefab.GetComponentsInChildren<DoorAnimation>(true));
     }
@@ -100,8 +103,6 @@ public class WaveManager : MonoBehaviour
         return null;
     }
 
-    private bool isFirstRoom = true; // 첫 방 여부
-
     IEnumerator StartRoom(RoomData room)
     {
         isSpawning = true;
@@ -109,13 +110,11 @@ public class WaveManager : MonoBehaviour
 
         ApplyCameraConfiner(room);
 
-        // 첫 방이 아닐 때만 문 닫기
         if (!isFirstRoom)
             CloseDoors();
 
         yield return new WaitForSeconds(0.5f);
 
-        // enemyPrefabs를 순서대로 소환
         foreach (var prefab in room.enemyPrefabs)
         {
             GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
@@ -128,6 +127,19 @@ public class WaveManager : MonoBehaviour
             yield return new WaitForSeconds(warningDuration);
 
             tempObj.SetActive(true);
+
+            // EnemyBase 계열이면 스폰 후 0.4초 멈춤 적용
+            EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
+            if (enemyBase != null)
+            {
+                enemyBase.CanMove = false;           // 이동 막기
+                yield return new WaitForSeconds(spawnStop);
+                enemyBase.CanMove = true;            // 이동 허용
+            }
+            else
+            {
+                yield return new WaitForSeconds(spawnStop);
+            }
 
             // 지금 소환한 적이 다 죽을 때까지 대기
             while (true)
@@ -145,7 +157,6 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // 모든 적 처치 완료
         cleared = true;
 
         if (GameManager.Instance.cameraShake != null)
@@ -212,11 +223,11 @@ public class WaveManager : MonoBehaviour
             anim.PlayAnimation(DoorAnimation.DoorState.Open);
         }
     }
+
     void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null || room.cameraCollider == null) return;
 
-        // Confiner 설정
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
         if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
         {
@@ -228,47 +239,32 @@ public class WaveManager : MonoBehaviour
         if (cam == null || !cam.orthographic) return;
 
         Bounds bounds = room.cameraCollider.bounds;
-
         float screenRatio = (float)Screen.width / Screen.height;
         float boundsRatio = bounds.size.x / bounds.size.y;
 
         float orthoSize;
-
         if (screenRatio >= boundsRatio)
-        {
-            // 화면이 더 넓으면 높이에 맞춤
             orthoSize = bounds.size.y / 2f;
-        }
         else
-        {
-            // 화면이 더 좁으면 가로에 맞춰 orthographicSize 계산
             orthoSize = (bounds.size.x / 2f) / screenRatio;
-        }
 
-        orthoSize *= 1.0f; // 필요하면 약간 여유를 줄 수 있음 (1.0f = 딱 맞춤)
+        orthoSize *= 1.0f;
 
         cam.orthographicSize = orthoSize;
 
-        // CinemachineCamera Lens 적용
         var vCam = cineCamera.GetComponent<CinemachineCamera>();
         if (vCam != null)
-        {
             vCam.Lens.OrthographicSize = orthoSize;
-        }
 
         Vector3 center = bounds.center;
 
         if (room.CameraFollow)
-        {
             cineCamera.Follow = playerTransform;
-        }
         else
         {
             cineCamera.Follow = null;
-            // 카메라 위치를 Bounds 중심에 맞춤
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
         }
     }
-
 }
