@@ -283,6 +283,11 @@ MonoBehaviour:
   afterImageFadeDuration: 0.3
   afterImageLifeTime: 0.5
   maxAfterImageCount: 10
+  AIEnabled: 1
+  useAngleMove: 0
+  moveAngle: 0
+  obstacleTag: Obstacle
+  angleMoveSpeed: 5
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  potionPrefab: {fileID: 0}
+  potionPrefab: {fileID: 510499459271775873, guid: 543f0e43233495543ba0b50a764b38fc, type: 3}
   potionDropChance: 0.1
 --- !u!195 &954115967608437427
 NavMeshAgent:

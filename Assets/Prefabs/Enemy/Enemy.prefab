@@ -110,6 +110,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   originalSpeed: 0
+  spawnDelay: 0.4
+  AIEnabled: 1
+  useAngleMove: 0
+  moveAngle: 0
+  obstacleTag: Obstacle
+  angleMoveSpeed: 5
 --- !u!114 &3818131844207129269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,6 +134,9 @@ MonoBehaviour:
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
+  useKnockback: 1
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &9034176444359971680
 MonoBehaviour:
   m_ObjectHideFlags: 0

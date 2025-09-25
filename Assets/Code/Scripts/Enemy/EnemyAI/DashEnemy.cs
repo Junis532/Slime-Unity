@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class DashEnemy : EnemyBase
 {
     private bool isLive = true;
@@ -13,12 +14,11 @@ public class DashEnemy : EnemyBase
     private NavMeshAgent navMesh;
 
     [Header("대시 관련")]
-    public float dashSpeed = 25f;          // 돌진 속도
-    public float dashDuration = 0.25f;     // 돌진 유지 시간
-    public float waitAfterDash = 1.0f;     // 돌진 전/후 대기 시간
+    public float dashSpeed = 25f;
+    public float dashDuration = 0.25f;
+    public float waitAfterDash = 1.0f;
 
     private bool isDashing = false;
-    private Vector2 dashDirection;
 
     [Header("잔상 관련")]
     public GameObject afterImagePrefab;
@@ -29,6 +29,14 @@ public class DashEnemy : EnemyBase
 
     private Coroutine afterImageCoroutine;
     private readonly List<GameObject> afterImages = new();
+
+    [Header("각도 이동 설정")]
+    public bool AIEnabled = true;
+    public bool useAngleMove = false;
+    public float moveAngle = 0f;
+    public string obstacleTag = "Obstacle";
+    private Vector2 moveDirection;
+    public float angleMoveSpeed = 5f;
 
     private void Start()
     {
@@ -41,34 +49,67 @@ public class DashEnemy : EnemyBase
         navMesh.updateUpAxis = false;
         navMesh.speed = speed;
 
+        if (useAngleMove)
+            SetMoveDirection();
+
         if (player != null)
             StartCoroutine(DashLoop());
     }
 
-    /// <summary>
-    /// 대기 → 돌진 → 대기 → 반복
-    /// CanMove 체크 포함
-    /// </summary>
+    private void Update()
+    {
+        if (!isLive || !AIEnabled) return;
+
+        if (!CanMove)
+        {
+            if (navMesh.hasPath)
+                navMesh.ResetPath();
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+            return;
+        }
+
+        if (useAngleMove)
+            AngleMove();
+    }
+
+    private void SetMoveDirection()
+    {
+        float rad = moveAngle * Mathf.Deg2Rad;
+        moveDirection = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
+    }
+
+    private void AngleMove()
+    {
+        Vector3 nextPos = transform.position + (Vector3)moveDirection * angleMoveSpeed * Time.deltaTime;
+        transform.position = nextPos;
+
+        if (moveDirection.x != 0)
+        {
+            Vector3 scale = transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * (moveDirection.x < 0 ? -1 : 1);
+            transform.localScale = scale;
+        }
+
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+    }
+
     private IEnumerator DashLoop()
     {
         while (isLive)
         {
-            // 1️⃣ 돌진 전 대기
             yield return new WaitForSeconds(waitAfterDash);
 
-            // ✅ CanMove 체크
-            if (!CanMove)
+            if (!CanMove || !AIEnabled)
             {
                 enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
                 continue;
             }
 
-            // 2️⃣ 돌진 시작: 속도 순간 증가
             isDashing = true;
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
 
-            float originalSpeed = speed;  // 기본 이동 속도 저장
-            speed = dashSpeed;            // 순간적으로 이동 속도 증가
+            float originalSpeed = speed;
+            speed = dashSpeed;
 
             if (afterImageCoroutine != null)
                 StopCoroutine(afterImageCoroutine);
@@ -80,7 +121,7 @@ public class DashEnemy : EnemyBase
                 if (!CanMove)
                 {
                     isDashing = false;
-                    speed = originalSpeed; // 이동 불가 시 바로 속도 원복
+                    speed = originalSpeed;
                     if (afterImageCoroutine != null)
                     {
                         StopCoroutine(afterImageCoroutine);
@@ -90,19 +131,21 @@ public class DashEnemy : EnemyBase
                     break;
                 }
 
-                // 플레이어 방향으로 이동
-                if (player != null)
+                if (!useAngleMove && player != null)
                 {
                     Vector3 dir = (player.transform.position - transform.position).normalized;
                     transform.position += dir * speed * Time.deltaTime;
                     FlipSprite(dir.x);
+                }
+                else if (useAngleMove)
+                {
+                    AngleMove();
                 }
 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            // 3️⃣ 대시 종료: 속도 원복
             speed = originalSpeed;
             isDashing = false;
 
@@ -114,7 +157,6 @@ public class DashEnemy : EnemyBase
         }
     }
 
-
     private void FlipSprite(float dirX)
     {
         Vector3 scale = transform.localScale;
@@ -122,7 +164,6 @@ public class DashEnemy : EnemyBase
         transform.localScale = scale;
     }
 
-    // ────────── 잔상 관련 ──────────
     private IEnumerator SpawnAfterImages()
     {
         while (isDashing)
@@ -147,7 +188,7 @@ public class DashEnemy : EnemyBase
             sr.sprite = enemySR.sprite;
             sr.flipX = enemySR.flipX;
             Color c = enemySR.color;
-            c.a = 0.5f; // 반투명
+            c.a = 0.5f;
             sr.color = c;
 
             sr.sortingLayerID = enemySR.sortingLayerID;
@@ -168,5 +209,15 @@ public class DashEnemy : EnemyBase
               afterImages.Remove(afterImage);
               Destroy(afterImage);
           });
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!isLive) return;
+
+        if (useAngleMove && collision.CompareTag(obstacleTag))
+        {
+            moveDirection = -moveDirection; // 반전
+        }
     }
 }
