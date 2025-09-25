@@ -11,12 +11,12 @@ public class TurretEnemy_FixedAngle : EnemyBase
     public float fireRange = 5f;
 
     [Header("발사 간격 (순환)")]
-    public float[] fireIntervals = { 1f, 3f, 2f };
+    public float[] fireIntervals = { 1f, 3f, 2f }; // 각 탄마다 발사 대기 시간
     private int fireIndex = 0;
     private float lastFireTime;
 
     [Header("첫 발사 딜레이")]
-    public float firstFireDelay = 2f;
+    public float firstFireDelay = 2f; // 첫 발사는 2초 뒤 실행
 
     [Header("탄환 설정")]
     public GameObject bulletPrefab;
@@ -24,13 +24,18 @@ public class TurretEnemy_FixedAngle : EnemyBase
     public float bulletLifetime = 3f;
 
     [Header("LineRenderer 설정")]
-    public bool showLineRenderer = true; // 여기서 켜고 끔
+    public bool showLineRenderer = true;
     private LineRenderer lineRenderer;
     private bool isPreparingToFire = false;
 
     [Header("고정 발사 각도 (도 단위)")]
     [Range(0f, 360f)]
     public float fixedAngle = 0f;
+
+    // ==== 사이클 쿨다운 추가 ====
+    [Header("사이클 쿨다운(리스트 한 바퀴 후 쉬는 시간)")]
+    public float cycleCooldown = 2f;                  // NEW: 한 사이클 후 적용할 쿨다운 시간
+    private bool cycleCooldownPending = false;        // NEW: 다음 발사 전 쿨다운을 '한 번만' 적용
 
     void Start()
     {
@@ -53,6 +58,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.sortingOrder = 2;
         lineRenderer.sortingLayerName = "Default";
 
+        // 시작 시 첫 발사 시간 = 현재 시간 + firstFireDelay
         lastFireTime = Time.time - fireIntervals[0] + firstFireDelay;
     }
 
@@ -60,6 +66,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (!isLive) return;
 
+        // 현재 고정 각도 → 방향 벡터 변환
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
@@ -73,10 +80,18 @@ public class TurretEnemy_FixedAngle : EnemyBase
             lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
         }
 
+        // 현재 발사 대기 시간
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
 
-        if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
+        // 사이클 쿨다운이 예약돼 있으면 이번 한 번은 cycleCooldown을 우선 적용
+        float effectiveCooldown = cycleCooldownPending ? cycleCooldown : currentCooldown;
+
+        // 발사 조건
+        if (Time.time - lastFireTime >= effectiveCooldown && !isPreparingToFire)
         {
+            // 이번 발사 들어가면 cycleCooldown 소모
+            if (cycleCooldownPending) cycleCooldownPending = false;
+
             StartCoroutine(PrepareAndShoot(dir));
         }
 
@@ -101,12 +116,21 @@ public class TurretEnemy_FixedAngle : EnemyBase
         // 발사
         Shoot(dir);
         lastFireTime = Time.time;
+
+        // 다음 쿨다운으로 이동
+        int prevIndex = fireIndex;
         fireIndex = (fireIndex + 1) % fireIntervals.Length;
+
+        // 한 사이클 끝냈으면 cycleCooldown 예약
+        if (prevIndex == fireIntervals.Length - 1)
+        {
+            cycleCooldownPending = true;
+        }
 
         // 발사 후 본체 색 다시 흰색으로 복귀
         if (spriter != null)
         {
-            spriter.DOColor(Color.white, 0.2f); // 0.2초 동안 자연스럽게
+            spriter.DOColor(Color.white, 0.2f);
         }
 
         // 발사 후 잠시 대기
@@ -127,6 +151,12 @@ public class TurretEnemy_FixedAngle : EnemyBase
 
             bulletBehavior.Initialize(dir.normalized, bulletSpeed, bulletLifetime);
         }
+    }
+
+    // 외부에서 강제로 사이클 쿨다운을 바로 다음 발사 전에 적용하고 싶을 때 호출
+    public void ForceCycleCooldown()
+    {
+        cycleCooldownPending = true;
     }
 
     private void OnDestroy()
