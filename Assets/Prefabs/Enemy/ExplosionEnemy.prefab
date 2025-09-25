@@ -292,7 +292,7 @@ GameObject:
   - component: {fileID: 6125118215960809984}
   m_Layer: 0
   m_Name: ExplosionEnemy
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -376,13 +376,20 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5659302355901705123}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  dotEffectPrefab: {fileID: 0}
+  useKnockback: 1
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &3323279155510814477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -480,7 +487,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  potionPrefab: {fileID: 0}
+  potionDropChance: 0.1
 --- !u!114 &1353719012252967690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -493,10 +501,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5705c5cd42218e04eb79861b0840bda2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
+  originalSpeed: 0
+  spawnDelay: 0.4
   explosionRange: 0.5
-  explosionEffectPrefab: {fileID: 1967835574231978638, guid: 3e196c9e632c76841a71cb6e2dc6d010, type: 3}
+  explosionEffectPrefab: {fileID: 1967835574231978638, guid: b340209fcbbc0b642893d60ad53777b6, type: 3}
 --- !u!195 &6125118215960809984
 NavMeshAgent:
   m_ObjectHideFlags: 0
