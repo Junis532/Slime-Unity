@@ -13,7 +13,7 @@ public class BossFireballProjectile : MonoBehaviour
         direction = dir.normalized;
 
         // 스프라이트가 이동 방향을 바라보도록 회전 (90도 오프셋)
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 90f;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
         // 데미지 계산

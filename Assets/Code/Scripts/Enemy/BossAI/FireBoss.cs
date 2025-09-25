@@ -7,38 +7,23 @@ using System.Collections.Generic;
 [RequireComponent(typeof(NavMeshAgent))]
 public class FireBoss : EnemyBase
 {
-    // ────────── 기본 데이터 ──────────
     private bool isLive = true;
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
     private NavMeshAgent agent;
 
-    // ────────── 스킬/타이밍 ──────────
     [Header("패턴 타이밍")]
     public float skillInterval = 4f;
     private float skillTimer = 0f;
     private bool isSkillPlaying = false;
     private int currentSkillIndex;
 
-    // ────────── 시각 효과 ──────────
-    [Header("범위 표시 프리팹")]
-    public GameObject dashPreviewPrefab;
-    private GameObject dashPreviewInstance;
-
-    // ────────── 스킬 관련 ──────────
     [Header("파이어볼")]
     public GameObject fireballPrefab;
-    public int numberOfFireballs = 36;
     public GameObject fireballWarningPrefab;
-    public float warningDuration = 1f;
+    public int numberOfFireballs = 36;
     public float fireballSpawnRadius = 1.5f;
-
-    [Header("경고/데미지 원")]
-    public GameObject[] warningCirclePrefabs = new GameObject[3];
-    public GameObject[] damageCirclePrefabs = new GameObject[3];
-    public float[] circleScales = new float[3] { 10.0f, 7.5f, 5.0f };
-    public Vector3 skillCenterOffset = Vector3.zero;
-    public float warningDelay = 1f;
+    public float warningDuration = 1f;
 
     [Header("검 스킬")]
     public GameObject swordPrefab;
@@ -46,60 +31,44 @@ public class FireBoss : EnemyBase
     public GameObject swordRangePrefab;
     public float swordRangeDistance = 1.5f;
 
-    // ────────── 초기화 ──────────
+    [Header("범위/원 스킬")]
+    public GameObject[] warningCirclePrefabs = new GameObject[3];
+    public GameObject[] damageCirclePrefabs = new GameObject[3];
+    public float[] circleScales = new float[3] { 10f, 7.5f, 5f };
+    public Vector3 skillCenterOffset = Vector3.zero;
+    public float warningDelay = 1f;
+
+    [Header("Dotween 잔상")]
+    public GameObject afterImagePrefab;
+    public float afterImageSpawnInterval = 0.05f;
+    public float afterImageFadeDuration = 0.3f;
+    public float afterImageLifeTime = 0.5f;
+
+    private Tween afterImageTweener;
+    private Sequence moveSequence;
+
+    private List<GameObject> activeSkillObjects = new List<GameObject>();
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
         agent = GetComponent<NavMeshAgent>();
-
-        if (dashPreviewPrefab != null)
-        {
-            dashPreviewInstance = Instantiate(dashPreviewPrefab, transform.position, Quaternion.identity);
-            dashPreviewInstance.SetActive(false);
-        }
-
-        originalSpeed = GameManager.Instance.boss1Stats.speed;
-        speed = originalSpeed;
-
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.speed = speed;
     }
 
-    // ────────── 메인 루프 ──────────
     void Update()
     {
-        if (!isLive) return;
-
-        if (isSkillPlaying)
-        {
-            agent.SetDestination(transform.position);
-            return;
-        }
-
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
-
-        agent.SetDestination(player.transform.position);
+        if (!isLive || isSkillPlaying) return;
 
         skillTimer += Time.deltaTime;
         if (skillTimer >= skillInterval)
         {
             skillTimer = 0f;
-            currentSkillIndex = Random.Range(0, 3); // 현재 1가지 스킬
+            currentSkillIndex = Random.Range(0, 3);
             UseRandomSkill();
-        }
-
-        Vector2 dir = agent.velocity;
-        if (dir.magnitude > 0.1f)
-        {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
-            FlipSprite(dir.x);
-        }
-        else
-        {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 
@@ -111,75 +80,56 @@ public class FireBoss : EnemyBase
         switch (currentSkillIndex)
         {
             case 0:
-                StartCoroutine(SkillExplosionCoroutine());
+                StartCoroutine(FireballSkill());
                 break;
             case 1:
-                StartCoroutine(SkillWarningSequencePattern());
+                StartCoroutine(WarningCircleSkill());
                 break;
             case 2:
-                StartCoroutine(SkillDoubleAttackPattern());
-                break;
-            case 3:
-                
+                StartCoroutine(DoubleSwordSkill());
                 break;
         }
     }
 
-    private IEnumerator SkillWarningSequencePattern()
+    // ────────── 스킬 1: 파이어볼 ──────────
+    private IEnumerator FireballSkill()
     {
-        yield return StartCoroutine(SkillWarningSequenceCoroutine());
+        Vector2 origin = transform.position;
+        yield return StartCoroutine(FireballWarningAndBurst(origin));
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    private IEnumerator SkillExplosionCoroutine()
+    private IEnumerator FireballWarningAndBurst(Vector2 origin)
     {
-        if (fireballPrefab == null)
-        {
-            StartCoroutine(SkillEndDelay());
-            yield break;
-        }
-
-        Vector2 origin = transform.position;
-        yield return StartCoroutine(FireballWarningAndBurst(origin, 1, 360f, 0f));
-        StartCoroutine(SkillEndDelay());
-    }
-
-    private IEnumerator FireballWarningAndBurst(Vector2 origin, int count, float angleStep, float angleOffset)
-    {
-        List<GameObject> warnings = new List<GameObject>();
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) yield break;
 
         Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;
         Vector2 warnPos = origin + directionToPlayer * fireballSpawnRadius;
 
+        GameObject warning = null;
         if (fireballWarningPrefab != null)
         {
-            GameObject warn = Instantiate(fireballWarningPrefab, warnPos, Quaternion.identity);
-            warnings.Add(warn);
+            warning = Instantiate(fireballWarningPrefab, warnPos, Quaternion.identity);
+            activeSkillObjects.Add(warning);
         }
 
         float elapsed = 0f;
         while (elapsed < warningDuration)
         {
-            if (warnings.Count == 0 || warnings[0] == null) break;
-
+            if (warning == null) break;
             directionToPlayer = (player.transform.position - transform.position).normalized;
             warnPos = (Vector2)transform.position + directionToPlayer * fireballSpawnRadius;
-            warnings[0].transform.position = warnPos;
+            warning.transform.position = warnPos;
 
             float angleDegrees = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
-            warnings[0].transform.rotation = Quaternion.Euler(0f, 0f, angleDegrees);
+            warning.transform.rotation = Quaternion.Euler(0f, 0f, angleDegrees);
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        foreach (var warn in warnings)
-        {
-            if (warn != null) Destroy(warn);
-        }
-
+        if (warning != null) Destroy(warning);
         FireInDirection(origin, Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - 90f);
     }
 
@@ -188,9 +138,11 @@ public class FireBoss : EnemyBase
         GameObject fireball = Instantiate(fireballPrefab, origin, Quaternion.Euler(0f, 0f, angle));
         Vector2 direction = new Vector2(Mathf.Cos((angle + 90f) * Mathf.Deg2Rad), Mathf.Sin((angle + 90f) * Mathf.Deg2Rad));
         fireball.GetComponent<BossFireballProjectile>()?.Init(direction);
+        activeSkillObjects.Add(fireball);
     }
 
-    private IEnumerator SkillWarningSequenceCoroutine()
+    // ────────── 스킬 2: 범위 원 ──────────
+    private IEnumerator WarningCircleSkill()
     {
         Vector3 center = transform.position + skillCenterOffset;
         GameObject prevDamage = null;
@@ -201,156 +153,101 @@ public class FireBoss : EnemyBase
             {
                 Destroy(prevDamage);
                 prevDamage = null;
-
-                GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
-                warning.transform.localScale = Vector3.one * circleScales[i];
-
-                yield return new WaitForSeconds(warningDelay);
-                Destroy(warning);
             }
-            else
-            {
-                GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
-                warning.transform.localScale = Vector3.one * circleScales[i];
 
-                yield return new WaitForSeconds(warningDelay);
-                Destroy(warning);
-            }
+            GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
+            // 🔹 크기 배율 제거
+            // warning.transform.localScale = Vector3.one * circleScales[i];
+            activeSkillObjects.Add(warning);
+
+            yield return new WaitForSeconds(warningDelay);
+            Destroy(warning);
 
             GameObject damage = Instantiate(damageCirclePrefabs[i], center, Quaternion.identity);
-            damage.transform.localScale = Vector3.one * circleScales[i];
+            // 🔹 크기 배율 제거
+            // damage.transform.localScale = Vector3.one * circleScales[i];
+            activeSkillObjects.Add(damage);
             prevDamage = damage;
 
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.6f);
         }
 
         if (prevDamage != null) Destroy(prevDamage);
-    }
-
-    private IEnumerator SkillDoubleAttackPattern()
-    {
-        isSkillPlaying = true;
-        agent.isStopped = true;
-
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null)
-        {
-            isSkillPlaying = false;
-            yield break;
-        }
-
-        // ── 0. 첫 번째 회전 범위 프리팹 생성 ──
-        GameObject rangeInstance = null;
-        if (swordRangePrefab != null)
-        {
-            Vector3 dirToPlayer = (player.transform.position - transform.position).normalized;
-            Vector3 rangePos = transform.position + dirToPlayer * swordRangeDistance;
-            rangeInstance = Instantiate(swordRangePrefab, rangePos, Quaternion.identity);
-        }
-
-        // ── 1. 대쉬 (NavMesh 안전 보정) ──
-        Vector2 offset = Random.insideUnitCircle.normalized * 2f;
-        Vector3 dashTarget = player.transform.position + (Vector3)offset;
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(dashTarget, out hit, 2f, NavMesh.AllAreas))
-            dashTarget = hit.position;
-        else
-            dashTarget = transform.position; // 유효 위치 없으면 제자리
-
-        float dashTime = 0.3f;
-        transform.DOMove(dashTarget, dashTime).SetEase(Ease.OutQuad);
-
-        // 대쉬가 완료될 때까지 기다립니다.
-        yield return new WaitForSeconds(dashTime);
-
-        // ── 2. 범위 프리팹 초 회전 표시 ──
-        float elapsed = 0f;
-        float warningDuration = 1.5f;
-        while (elapsed < warningDuration)
-        {
-            if (rangeInstance != null && player != null)
-            {
-                Vector3 dir = (player.transform.position - transform.position).normalized;
-                rangeInstance.transform.position = transform.position + dir * swordRangeDistance;
-
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                rangeInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        if (rangeInstance != null) Destroy(rangeInstance);
-
-        // ── 3. 첫 번째 검 휘두르기 ──
-        Vector3 dir1 = (player.transform.position - transform.position).normalized;
-        float baseAngle1 = Mathf.Atan2(dir1.y, dir1.x) * Mathf.Rad2Deg;
-        float swordAngleStart1 = baseAngle1 - 90f - 60f;
-        float swordAngleEnd1 = baseAngle1 - 90f + 60f;
-
-        Vector3 swordPos1 = transform.position + dir1 * swordSpawnDistance;
-        GameObject sword1 = Instantiate(swordPrefab, swordPos1, Quaternion.Euler(0, 0, swordAngleStart1), null);
-        sword1.transform.DORotate(new Vector3(0, 0, swordAngleEnd1), 0.5f).SetEase(Ease.OutQuad)
-            .OnComplete(() => Destroy(sword1));
-
-        yield return new WaitForSeconds(0.5f);
-
-        // ── 4. 돌진 (NavMesh 안전 보정) ──
-        // 이 부분은 이미 돌진으로 구현되어 있어 변경하지 않습니다.
-        dashTarget = player.transform.position;
-        if (NavMesh.SamplePosition(dashTarget, out hit, 2f, NavMesh.AllAreas))
-            dashTarget = hit.position;
-
-        dashTime = 0.4f;
-        transform.DOMove(dashTarget, dashTime).SetEase(Ease.OutQuad);
-        yield return new WaitForSeconds(dashTime * 0.5f);
-
-        // ── 5. 두 번째 회전 범위 프리팹 생성 후 초 표시 ──
-        if (swordRangePrefab != null)
-        {
-            rangeInstance = Instantiate(swordRangePrefab, transform.position, Quaternion.identity);
-            elapsed = 0f;
-            warningDuration = 1.5f;
-
-            while (elapsed < warningDuration)
-            {
-                if (rangeInstance != null && player != null)
-                {
-                    Vector3 dir = (player.transform.position - transform.position).normalized;
-                    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                    rangeInstance.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-                    rangeInstance.transform.position = transform.position + dir * swordRangeDistance;
-                }
-
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
-            Destroy(rangeInstance);
-        }
-
-        // ── 6. 두 번째 검 휘두르기 ──
-        Vector3 dir2 = (player.transform.position - transform.position).normalized;
-        float baseAngle2 = Mathf.Atan2(dir2.y, dir2.x) * Mathf.Rad2Deg;
-        float swordAngleStart2 = baseAngle2 - 90f - 60f;
-        float swordAngleEnd2 = baseAngle2 - 90f + 60f;
-
-        Vector3 swordPos2 = transform.position + dir2 * swordSpawnDistance;
-        GameObject sword2 = Instantiate(swordPrefab, swordPos2, Quaternion.Euler(0, 0, swordAngleStart2), null);
-        sword2.transform.DORotate(new Vector3(0, 0, swordAngleEnd2), 0.5f).SetEase(Ease.OutQuad)
-            .OnComplete(() => Destroy(sword2));
-
-        yield return new WaitForSeconds(0.6f);
-
-        // ── 7. 스킬 종료 ──
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    private void SkillDash()
+    // ────────── 스킬 3: 검 스킬 (Dotween 잔상 추가) ──────────
+    private IEnumerator DoubleSwordSkill()
     {
-        StartCoroutine(SkillEndDelay());
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null)
+        {
+            yield return StartCoroutine(SkillEndDelay());
+            yield break;
+        }
+
+        Vector3 originalPos = transform.position;
+
+        for (int j = 0; j < 2; j++)
+        {
+            float sideOffset = 2.5f;
+            float targetX = player.transform.position.x + (Random.value > 0.5f ? sideOffset : -sideOffset);
+            Vector3 sideTarget = new Vector3(targetX, player.transform.position.y, transform.position.z);
+
+            // 🔹 이동 시작 위치와 방향을 고정합니다.
+            Vector3 dashStartPos = transform.position;
+            Vector3 dashDirection = (sideTarget - dashStartPos).normalized;
+
+            // 🔹 잔상 생성용 시퀀스를 시작합니다.
+            float dashTime = j == 0 ? 0.2f : 0.25f;
+            SpawnAfterImagesWithTween(dashStartPos, dashDirection, dashTime);
+
+            // 🔹 보스 이동
+            moveSequence = DOTween.Sequence()
+                .Append(transform.DOMove(sideTarget, dashTime).SetEase(Ease.OutQuad));
+
+            yield return moveSequence.WaitForCompletion();
+
+            // 🔹 이동이 끝나면 잔상 생성 시퀀스 중지
+            StopAfterImagesWithTween();
+
+            Vector3 dir = (player.transform.position - transform.position).normalized;
+            FlipSprite(dir.x);
+
+            float minDistanceFromPlayer = 1.5f;
+            float swordForwardOffset = swordSpawnDistance + 1.0f;
+            Vector3 swordPos = transform.position + dir * swordForwardOffset;
+
+            float distanceToPlayer = Vector3.Distance(swordPos, player.transform.position);
+            if (distanceToPlayer < minDistanceFromPlayer)
+            {
+                swordPos += dir * (minDistanceFromPlayer - distanceToPlayer + 0.2f);
+            }
+
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            Quaternion rot = Quaternion.Euler(0f, 0f, angle);
+
+            if (swordRangePrefab != null)
+            {
+                GameObject range = Instantiate(swordRangePrefab, swordPos, rot);
+                range.transform.localScale = Vector3.one * swordRangeDistance;
+                Destroy(range, 0.25f);
+                yield return new WaitForSeconds(0.25f);
+            }
+
+            GameObject sword = Instantiate(swordPrefab, swordPos, rot);
+            activeSkillObjects.Add(sword);
+            Destroy(sword, 0.5f);
+
+            yield return new WaitForSeconds(0.35f);
+        }
+
+        // 🔹 원래 자리로 복귀 (잔상 없음)
+        float returnTime = 0.4f;
+        transform.DOMove(originalPos, returnTime).SetEase(Ease.InOutQuad);
+        yield return new WaitForSeconds(returnTime);
+
+        yield return StartCoroutine(SkillEndDelay());
     }
 
     private IEnumerator SkillEndDelay()
@@ -360,29 +257,106 @@ public class FireBoss : EnemyBase
         agent.isStopped = false;
     }
 
+    public void ClearAllSkillObjects()
+    {
+        moveSequence?.Kill();
+        StopAfterImagesWithTween();
+
+        foreach (var obj in activeSkillObjects)
+        {
+            if (obj != null) Destroy(obj);
+        }
+        activeSkillObjects.Clear();
+    }
+
+    public void SetDead()
+    {
+        isLive = false;
+        ClearAllSkillObjects();
+    }
+
+    // ────────── Dotween 잔상 관련 메서드 ──────────
     private void FlipSprite(float dirX)
     {
-        Vector3 s = transform.localScale;
-        s.x = Mathf.Abs(s.x) * (dirX < 0 ? -1 : 1);
-        transform.localScale = s;
+        Vector3 scale = transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * (dirX < 0 ? -1 : 1);
+        transform.localScale = scale;
     }
 
-    public override void SetSpeed(float newSpeed)
+    private void SpawnAfterImagesWithTween(Vector3 startPos, Vector3 direction, float totalMoveTime)
     {
-        speed = newSpeed;
-        if (agent != null)
-            agent.speed = newSpeed;
+        StopAfterImagesWithTween();
+
+        afterImageTweener = DOTween.Sequence()
+            .Append(DOVirtual.DelayedCall(0, () => CreateAfterImageAt(startPos, direction, totalMoveTime), false))
+            .AppendInterval(afterImageSpawnInterval)
+            .SetLoops(-1, LoopType.Restart)
+            .SetId("AfterImageTweener");
     }
 
-    void OnDisable()
+    private void StopAfterImagesWithTween()
     {
-        if (dashPreviewInstance != null)
-            dashPreviewInstance.SetActive(false);
+        DOTween.Kill("AfterImageTweener");
     }
 
-    void OnDestroy()
+    private void CreateAfterImageAt(Vector3 startPos, Vector3 direction, float totalMoveTime)
     {
-        if (dashPreviewInstance != null)
-            Destroy(dashPreviewInstance);
+        float totalDistance = Vector3.Distance(startPos, transform.position);
+        float moveProgress = totalDistance / Vector3.Distance(startPos, startPos + direction * totalMoveTime);
+        Vector3 afterImagePos = startPos + direction * totalDistance;
+
+        GameObject afterImage;
+        if (afterImagePrefab != null)
+        {
+            afterImage = Instantiate(afterImagePrefab, afterImagePos, transform.rotation);
+            afterImage.transform.localScale = transform.localScale;
+            SpriteRenderer afterImageSr = afterImage.GetComponent<SpriteRenderer>();
+            if (afterImageSr == null)
+            {
+                afterImageSr = afterImage.AddComponent<SpriteRenderer>();
+            }
+            SpriteRenderer enemySR = GetComponent<SpriteRenderer>();
+            if (enemySR != null)
+            {
+                afterImageSr.sprite = enemySR.sprite;
+                afterImageSr.flipX = enemySR.flipX;
+                afterImageSr.sortingLayerID = enemySR.sortingLayerID;
+                afterImageSr.sortingOrder = enemySR.sortingOrder - 1;
+            }
+        }
+        else
+        {
+            afterImage = new GameObject("AfterImage");
+            afterImage.transform.position = afterImagePos;
+            afterImage.transform.rotation = transform.rotation;
+            afterImage.transform.localScale = transform.localScale;
+
+            SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
+            SpriteRenderer enemySR = GetComponent<SpriteRenderer>();
+
+            if (enemySR != null)
+            {
+                sr.sprite = enemySR.sprite;
+                sr.flipX = enemySR.flipX;
+                sr.sortingLayerID = enemySR.sortingLayerID;
+                sr.sortingOrder = enemySR.sortingOrder - 1;
+            }
+        }
+
+        SpriteRenderer currentSr = afterImage.GetComponent<SpriteRenderer>();
+        if (currentSr != null)
+        {
+            Color c = currentSr.color;
+            c.a = 0.5f;
+            currentSr.color = c;
+
+            currentSr.DOFade(0f, afterImageFadeDuration)
+                .SetDelay(afterImageLifeTime - afterImageFadeDuration)
+                .OnComplete(() => Destroy(afterImage));
+        }
+        else
+        {
+            Destroy(afterImage, afterImageLifeTime);
+        }
     }
 }

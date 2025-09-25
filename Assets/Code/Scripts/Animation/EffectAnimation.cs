@@ -9,6 +9,9 @@ public class EffectAnimation : MonoBehaviour
     [Header("프레임 속도")]
     public float frameRate = 0.1f;
 
+    [Header("한 번만 재생할지 여부")]
+    public bool playOnce = false; // true면 한 번만 재생, false면 루프
+
     private SpriteRenderer spriteRenderer;
     private float timer;
     private int currentFrame;
@@ -31,9 +34,19 @@ public class EffectAnimation : MonoBehaviour
             timer = 0f;
             currentFrame++;
 
-            // 끝까지 가면 다시 처음으로 (루프)
             if (currentFrame >= moveSprites.Count)
-                currentFrame = 0;
+            {
+                if (playOnce)
+                {
+                    // 한 번 재생 후 오브젝트 제거
+                    Destroy(gameObject);
+                    return;
+                }
+                else
+                {
+                    currentFrame = 0; // 루프
+                }
+            }
 
             spriteRenderer.sprite = moveSprites[currentFrame];
         }

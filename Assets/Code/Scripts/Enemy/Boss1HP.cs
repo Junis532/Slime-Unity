@@ -6,7 +6,7 @@ using TMPro;
 public class Boss1HP : MonoBehaviour
 {
     [Header("체력 관련")]
-    public GameObject hpBarPrefab; // 이 프리팹은 더 이상 사용하지 않지만, 인스펙터 오류 방지를 위해 남겨둠.
+    public GameObject hpBarPrefab; // 사용하지 않지만 인스펙터 오류 방지용
     private Image hpBarFill;
     public float currentHP;
     private float maxHP;
@@ -20,6 +20,11 @@ public class Boss1HP : MonoBehaviour
     [Header("이펙트 프리팹")]
     public GameObject hitEffectPrefab;
 
+    [Header("넉백 옵션")]
+    public bool useKnockback = true; // Inspector에서 켜고 끌 수 있음
+    public float knockbackDistance = 0.3f;
+    public float knockbackDuration = 0.1f;
+
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
@@ -31,27 +36,22 @@ public class Boss1HP : MonoBehaviour
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        // ✅ 1. 계층 구조(Hierarchy)에서 "BossHPBarUI" 오브젝트를 찾습니다.
+        // HP 바 세팅
         GameObject bossHpBarUI = GameObject.Find("BossHP");
         if (bossHpBarUI == null)
         {
-            Debug.LogError("Hierarchy에서 'BossHPBarUI' 오브젝트를 찾을 수 없습니다. 해당 오브젝트를 미리 배치해주세요!");
+            Debug.LogError("Hierarchy에서 'BossHP' 오브젝트를 찾을 수 없습니다!");
             return;
         }
 
-        // ✅ 2. 찾은 오브젝트에서 HP를 채우는 Image 컴포넌트를 가져옵니다.
-        // HPFilled는 여러분의 UI 계층 구조에 따라 수정해야 할 수도 있습니다.
         hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
         if (hpBarFill == null)
         {
-            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다. UI 계층 구조를 확인하세요.");
+            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
             return;
         }
 
-        // HP 바 오브젝트를 활성화
         bossHpBarUI.SetActive(true);
-
-        // 초기 HP 바 업데이트
         UpdateHPBar();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -78,9 +78,6 @@ public class Boss1HP : MonoBehaviour
         if (playerTransform != null)
             knockbackDir = (transform.position - playerTransform.position).normalized;
 
-        float knockbackDistance = 0.3f;
-        float knockbackDuration = 0.1f;
-
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
         int damage = isCritical
             ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
@@ -88,15 +85,23 @@ public class Boss1HP : MonoBehaviour
 
         ApplyDamage(damage, isCritical);
 
-        if (playerTransform != null)
+        // 넉백 적용 (옵션)
+        if (useKnockback && playerTransform != null)
         {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
         }
     }
 
-    public void FireballTakeDamage(int damage) => ApplyDamage(damage, false);
-    public void SkillTakeDamage(int damage) => ApplyDamage(damage, false);
+    public void FireballTakeDamage(int damage)
+    {
+        ApplyDamage(damage, false);
+    }
+
+    public void SkillTakeDamage(int damage)
+    {
+        ApplyDamage(damage, false);
+    }
 
     private void ApplyDamage(int damage, bool isCritical)
     {
@@ -132,14 +137,17 @@ public class Boss1HP : MonoBehaviour
     private void PlayHitEffect()
     {
         if (hitEffectPrefab == null) return;
+
         GameObject effectObj = PoolManager.Instance.SpawnFromPool(hitEffectPrefab.name, transform.position, Quaternion.identity);
         if (effectObj == null) return;
+
         DOVirtual.DelayedCall(0.3f, () => PoolManager.Instance.ReturnToPool(effectObj));
     }
 
     private void ShowDamageText(int damage)
     {
         if (damageTextPrefab == null || damage <= 0) return;
+
         GameObject textObj = PoolManager.Instance.SpawnFromPool(damageTextPrefab.name, transform.position, Quaternion.identity);
         if (textObj == null) return;
 
@@ -155,6 +163,7 @@ public class Boss1HP : MonoBehaviour
     private void ShowCDamageText(int damage)
     {
         if (cDamageTextPrefab == null) return;
+
         GameObject textObj = PoolManager.Instance.SpawnFromPool(cDamageTextPrefab.name, transform.position, Quaternion.identity);
         if (textObj == null) return;
 
@@ -178,7 +187,6 @@ public class Boss1HP : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // ✅ 보스가 죽으면 HP 바를 비활성화합니다. (파괴하지 않음)
         GameObject bossHpBarUI = GameObject.Find("BossHPBarUI");
         if (bossHpBarUI != null)
         {
@@ -187,15 +195,20 @@ public class Boss1HP : MonoBehaviour
 
         GameManager.Instance.cameraShake.GenerateImpulse();
 
+        // 플레이어 HP 회복
         PlayerHeal playerHeal = FindFirstObjectByType<PlayerHeal>();
         if (playerHeal != null && playerHeal.hpHeal)
         {
             GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
-            GameManager.Instance.playerStats.currentHP =
-                Mathf.Clamp(GameManager.Instance.playerStats.currentHP, 0, GameManager.Instance.playerStats.maxHP);
+            GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
+                GameManager.Instance.playerStats.currentHP,
+                0,
+                GameManager.Instance.playerStats.maxHP
+            );
         }
 
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
-        if (enemiesDie != null) enemiesDie.Die();
+        if (enemiesDie != null)
+            enemiesDie.Die();
     }
 }

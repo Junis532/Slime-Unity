@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4629182187077551106}
   - component: {fileID: 6032643613741974610}
   - component: {fileID: 3806851225337796425}
-  - component: {fileID: 8123858425724989127}
   - component: {fileID: 4121127087576710826}
   - component: {fileID: 5264202417886166955}
+  - component: {fileID: 4547692815278682947}
   m_Layer: 0
   m_Name: Boss1
   m_TagString: Enemy
@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5719758997320929659}
@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
+  m_Sprite: {fileID: -2899147822462437439, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -108,31 +108,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   originalSpeed: 3.4
+  spawnDelay: 0.4
   skillInterval: 3
-  dashPreviewPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
-  fireballPrefab: {fileID: 5550792999026934341, guid: 7836a18ff439c1d41bd62c1748e95007, type: 3}
-  numberOfFireballs: 36
+  fireballPrefab: {fileID: 6833211366613324076, guid: 3f7eaf34515a14f47bb00382cd955534, type: 3}
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: a1eeda15a1aae7542a2f0bc1ab7212e5, type: 3}
-  warningDuration: 2
+  numberOfFireballs: 36
   fireballSpawnRadius: 1.5
+  warningDuration: 2
+  swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
+  swordSpawnDistance: 1.7
+  swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
+  swordRangeDistance: 2.6
   warningCirclePrefabs:
-  - {fileID: 8383914500574686974, guid: da1039c61b944174e924c7a9e20df858, type: 3}
-  - {fileID: 3755227015551435017, guid: 5030094ace3aeea49965b8ef4329912e, type: 3}
-  - {fileID: 2328355388354309022, guid: f8e0ca9ed0554e94982cb6dada75691c, type: 3}
+  - {fileID: 5624923132438207037, guid: 24f4da13f21f0764290debedb3c09a45, type: 3}
+  - {fileID: 2607715763077659899, guid: b26d56315a790274692376ba99dafe7c, type: 3}
+  - {fileID: 3707792409990616232, guid: 60bad1bc85da11f42b1ac7a25532099b, type: 3}
   damageCirclePrefabs:
-  - {fileID: 4340096184476124004, guid: 979109a4131514d498b33b62a79ca5f6, type: 3}
-  - {fileID: 5866302296878328692, guid: 5b0384c159c6d65419a69a54afd500a0, type: 3}
-  - {fileID: 5690298352692937285, guid: 5ba72477db802854fa7f56d8ed0949b6, type: 3}
+  - {fileID: 5624923132438207037, guid: 8979e48ef7b7ac9408fe9cc52c987594, type: 3}
+  - {fileID: 2607715763077659899, guid: 0fcc38a115349ca42b42704324b36b40, type: 3}
+  - {fileID: 3707792409990616232, guid: b2187da8952520c4db56c6ba8efcb045, type: 3}
   circleScales:
   - 12
   - 10
   - 8
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 1
-  swordPrefab: {fileID: 347653659148658381, guid: 6411b994de10d14439b1fe9cc88e5c2e, type: 3}
-  swordSpawnDistance: 1.7
-  swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
-  swordRangeDistance: 2.6
+  afterImagePrefab: {fileID: 3775493325575688674}
+  afterImageSpawnInterval: 0.05
+  afterImageFadeDuration: 0.3
+  afterImageLifeTime: 0.5
 --- !u!114 &6032643613741974610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,17 +150,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleSprites:
-  - {fileID: 938132271, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -791905833, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: 1684076649, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: 1883720508, guid: 57a1443e67528144aa07582927559650, type: 3}
+  - {fileID: -2899147822462437439, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
+  - {fileID: -6595180401852126516, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
+  - {fileID: 7972457550140286262, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
   moveSprites:
-  - {fileID: -2088749509, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1836318166, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -198311514, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1997520891, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -1017442464, guid: 57a1443e67528144aa07582927559650, type: 3}
-  - {fileID: -2066638598, guid: 57a1443e67528144aa07582927559650, type: 3}
+  - {fileID: -2899147822462437439, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
+  - {fileID: -6595180401852126516, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
+  - {fileID: 7972457550140286262, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
   frameRate: 0.1
   currentState: 0
 --- !u!195 &3806851225337796425
@@ -181,43 +181,6 @@ NavMeshAgent:
   m_BaseOffset: 0.5555556
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &8123858425724989127
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3775493325575688674}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.00087475777, y: 0}
-  m_Size: {x: 0.7848284, y: 1.1111112}
-  m_Direction: 0
 --- !u!50 &4121127087576710826
 Rigidbody2D:
   serializedVersion: 5
@@ -259,10 +222,58 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 369639524887304317}
   currentHP: 10000
-  bossCanvas: {fileID: 4865509538351229110}
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+  useKnockback: 0
+  knockbackDistance: 0.3
+  knockbackDuration: 0.1
+--- !u!61 &4547692815278682947
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3775493325575688674}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.7221961, y: 0.44909668}
+    oldSize: {x: 0.74, y: 0.59}
+    newSize: {x: 1, y: 1.1111112}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.74, y: 0.59}
+  m_EdgeRadius: 0
 --- !u!1001 &4996745156314375115
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -367,11 +378,6 @@ PrefabInstance:
 --- !u!1 &369639524887304317 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4645806125883571126, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
-  m_PrefabInstance: {fileID: 4996745156314375115}
-  m_PrefabAsset: {fileID: 0}
---- !u!223 &4865509538351229110 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 494764957178956669, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
   m_PrefabInstance: {fileID: 4996745156314375115}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &5719758997320929659 stripped
