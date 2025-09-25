@@ -274,7 +274,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   originalSpeed: 0
-  dashSpeed: 9
+  spawnDelay: 0.4
+  dashSpeed: 8
   dashDuration: 0.5
   waitAfterDash: 1
   afterImagePrefab: {fileID: 5045083376037120503}

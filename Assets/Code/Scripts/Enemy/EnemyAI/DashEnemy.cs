@@ -51,8 +51,6 @@ public class DashEnemy : EnemyBase
     /// </summary>
     private IEnumerator DashLoop()
     {
-        transform.rotation = Quaternion.Euler(0, 0, 0);
-
         while (isLive)
         {
             // 1️⃣ 돌진 전 대기
@@ -62,19 +60,15 @@ public class DashEnemy : EnemyBase
             if (!CanMove)
             {
                 enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-                continue; // 이동 불가면 이번 루프 건너뜀
+                continue;
             }
 
-            // 2️⃣ 플레이어 방향 계산
-            if (player != null)
-            {
-                dashDirection = (player.transform.position - transform.position).normalized;
-                FlipSprite(dashDirection.x);
-            }
-
-            // 3️⃣ 돌진 시작
+            // 2️⃣ 돌진 시작: 속도 순간 증가
             isDashing = true;
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
+
+            float originalSpeed = speed;  // 기본 이동 속도 저장
+            speed = dashSpeed;            // 순간적으로 이동 속도 증가
 
             if (afterImageCoroutine != null)
                 StopCoroutine(afterImageCoroutine);
@@ -83,26 +77,35 @@ public class DashEnemy : EnemyBase
             float elapsed = 0f;
             while (elapsed < dashDuration)
             {
-                // ✅ 돌진 중 CanMove 체크
                 if (!CanMove)
                 {
                     isDashing = false;
+                    speed = originalSpeed; // 이동 불가 시 바로 속도 원복
                     if (afterImageCoroutine != null)
                     {
                         StopCoroutine(afterImageCoroutine);
                         afterImageCoroutine = null;
                     }
                     enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-                    break; // 대시 중단
+                    break;
                 }
 
-                transform.Translate(dashDirection * dashSpeed * Time.deltaTime, Space.World);
+                // 플레이어 방향으로 이동
+                if (player != null)
+                {
+                    Vector3 dir = (player.transform.position - transform.position).normalized;
+                    transform.position += dir * speed * Time.deltaTime;
+                    FlipSprite(dir.x);
+                }
+
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            // 4️⃣ 돌진 종료
+            // 3️⃣ 대시 종료: 속도 원복
+            speed = originalSpeed;
             isDashing = false;
+
             if (afterImageCoroutine != null)
             {
                 StopCoroutine(afterImageCoroutine);
@@ -110,6 +113,7 @@ public class DashEnemy : EnemyBase
             }
         }
     }
+
 
     private void FlipSprite(float dirX)
     {
