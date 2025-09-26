@@ -18,8 +18,6 @@ public class RoomData
     public Collider2D cameraCollider;
 
     public List<GameObject> enemyPrefabs;
-
-    [Header("Moving Walls in Room")]
     public List<MovingWall> movingWalls;
 
     [HideInInspector]
@@ -27,6 +25,13 @@ public class RoomData
 
     [Header("카메라 Follow 설정")]
     public bool CameraFollow = true;
+
+    [Header("이벤트 씬 설정")]
+    public bool eventSceneEnabled = false;
+    public Transform eventStartPos;
+    public Transform eventEndPos;
+    public GameObject eventObjectPrefab;
+    public float eventMoveDuration = 3f;
 }
 
 public class WaveManager : MonoBehaviour
@@ -45,24 +50,24 @@ public class WaveManager : MonoBehaviour
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
 
-    [Header("문 프리팹 부모 (한 번만 넣기)")]
+    [Header("문 프리팹 부모")]
     public GameObject doorParentPrefab;
 
-    [Header("문 애니메이션 프리팹 부모 (한 번만 넣기)")]
+    [Header("문 애니메이션 프리팹 부모")]
     public GameObject doorAnimationParentPrefab;
 
     [Header("스폰 관련")]
     public float spawnStop = 0f;
     [Tooltip("방 시작 시 기존 방 적을 모두 제거할지 여부")]
-    public bool clearPreviousEnemies = true; // ✅ 켜고 끌 수 있는 옵션
+    public bool clearPreviousEnemies = true;
 
     private List<DoorController> allDoors = new List<DoorController>();
     private List<DoorAnimation> allDoorAnimations = new List<DoorAnimation>();
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
-
-    private bool isFirstRoom = true; // 첫 방 여부
+    private bool isFirstRoom = true;
+    private bool isEventRunning = false;
 
     void Start()
     {
@@ -75,33 +80,70 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
-        if (!isSpawning)
+        if (!isSpawning && !isEventRunning)
         {
             RoomData room = GetPlayerRoom();
-            if (room != null)
+            if (room != null && room != currentRoom)
             {
-                ApplyCameraConfiner(room);
+                // 이전 방 초기화
+                if (cineCamera != null)
+                    cineCamera.Follow = null;
 
-                if (!room.activated)
-                {
-                    room.activated = true;
-                    currentRoom = room;
+                var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
+                if (confiner != null)
+                    confiner.BoundingShape2D = null;
 
-                    // 룸 벽 활성화
-                    if (room.movingWalls != null)
-                    {
-                        foreach (var wall in room.movingWalls)
-                        {
-                            if (wall != null)
-                                wall.isActive = true;
-                        }
-                    }
+                currentRoom = room;
 
-                    StartCoroutine(StartRoom(room));
-                }
+                // 🔹 카메라 먼저 이동
+                StartCoroutine(MoveCameraToRoomAndStart(room));
             }
         }
     }
+
+    /// <summary>
+    /// 새 방으로 진입 시 카메라를 먼저 이동시키고, 완료 후 StartRoom 실행
+    /// </summary>
+    IEnumerator MoveCameraToRoomAndStart(RoomData room)
+    {
+        if (room.cameraCollider == null) yield break;
+
+        // 카메라 Confiner 적용
+        ApplyCameraConfiner(room, forcePlayerFollow: false);
+
+        Vector3 targetPos = room.cameraCollider.bounds.center;
+        targetPos.z = cineCamera.transform.position.z;
+        cineCamera.transform.DOMove(targetPos, cameraMoveDuration).SetEase(Ease.InOutQuad);
+
+        yield return new WaitForSeconds(cameraMoveDuration);
+
+        // ✅ CameraFollow인 경우 팔로우 즉시 설정 + OrthographicSize도 5.5로 지정
+        if (room.CameraFollow && cineCamera != null)
+        {
+            cineCamera.Follow = playerTransform;
+            ApplyCameraConfiner(room, forcePlayerFollow: true);
+
+            // 여기에서 Size를 5.5로 고정
+            cineCamera.Lens.OrthographicSize = 5.5f; // <-------
+        }
+        else if (cineCamera != null)
+        {
+            cineCamera.Follow = null;
+            ApplyCameraConfiner(room, forcePlayerFollow: false);
+        }
+
+        if (!room.activated)
+        {
+            room.activated = true;
+            if (room.movingWalls != null)
+            {
+                foreach (var wall in room.movingWalls)
+                    if (wall != null) wall.isActive = true;
+            }
+            yield return StartCoroutine(StartRoom(room));
+        }
+    }
+
 
     public RoomData GetPlayerRoom()
     {
@@ -121,26 +163,77 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator StartRoom(RoomData room)
     {
-        // ✅ 옵션이 켜져있으면 기존 방의 모든 적 제거
         if (clearPreviousEnemies)
             DestroyAllEnemies();
 
         isSpawning = true;
         cleared = false;
 
-        ApplyCameraConfiner(room);
-
         if (!isFirstRoom)
             CloseDoors();
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
 
+        // -------- 이벤트 씬 처리 --------
+        if (room.eventSceneEnabled && room.eventObjectPrefab != null && room.eventStartPos != null && room.eventEndPos != null)
+        {
+            // ✅ 전 방이 Follow 꺼져 있고, 이번 방이 Follow 켜진 경우
+            if (room.CameraFollow && cineCamera.Follow == null)
+            {
+                ApplyCameraConfiner(room, forcePlayerFollow: true);
+                cineCamera.Follow = playerTransform;
+
+                // 💡 카메라 안정화 대기
+                yield return new WaitForSeconds(1f);
+            }
+
+            isEventRunning = true;
+
+            // 🔹 플레이어 이동 제한
+            if (GameManager.Instance != null && GameManager.Instance.playerController != null)
+                GameManager.Instance.playerController.canMove = false;
+
+            // 🔹 이벤트 오브젝트 생성
+            GameObject eventObj = Instantiate(room.eventObjectPrefab, room.eventStartPos.position, Quaternion.identity);
+
+            // 🔹 카메라 Follow 이벤트 오브젝트로 전환
+            if (cineCamera != null)
+            {
+                cineCamera.Follow = null;
+                ApplyCameraConfiner(room, forcePlayerFollow: false);
+
+                yield return new WaitForSeconds(0.05f); // Confiner 반영 대기
+                cineCamera.Follow = eventObj.transform;
+            }
+
+            // 🔹 이벤트 이동 애니메이션
+            eventObj.transform.DOMove(room.eventEndPos.position, room.eventMoveDuration)
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    Destroy(eventObj);
+
+                    // ✅ 이벤트 종료 후 플레이어 팔로우 복귀
+                    if (cineCamera != null)
+                        cineCamera.Follow = room.CameraFollow ? playerTransform : null;
+
+                    ApplyCameraConfiner(room);
+
+                    if (GameManager.Instance != null && GameManager.Instance.playerController != null)
+                        GameManager.Instance.playerController.canMove = true;
+
+                    isEventRunning = false;
+                });
+
+            yield return new WaitForSeconds(room.eventMoveDuration + 0.2f);
+        }
+
+        // -------- 적 스폰 --------
         foreach (var prefab in room.enemyPrefabs)
         {
             GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
             tempObj.SetActive(false);
 
-            // 경고 이펙트
             foreach (Transform child in tempObj.transform)
                 ShowWarningEffect(child.position);
 
@@ -148,7 +241,6 @@ public class WaveManager : MonoBehaviour
 
             tempObj.SetActive(true);
 
-            // EnemyBase 계열이면 스폰 후 잠시 멈춤
             EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
             if (enemyBase != null)
             {
@@ -156,19 +248,13 @@ public class WaveManager : MonoBehaviour
                 yield return new WaitForSeconds(spawnStop);
                 enemyBase.CanMove = true;
             }
-            else
-            {
-                yield return new WaitForSeconds(spawnStop);
-            }
 
-            // 지금 소환한 적이 다 죽을 때까지 대기
             while (true)
             {
-                int enemiesLeft = 0;
-                enemiesLeft += GameObject.FindGameObjectsWithTag("Enemy").Length;
-                enemiesLeft += GameObject.FindGameObjectsWithTag("DashEnemy").Length;
-                enemiesLeft += GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length;
-                enemiesLeft += GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
+                int enemiesLeft = GameObject.FindGameObjectsWithTag("Enemy").Length
+                    + GameObject.FindGameObjectsWithTag("DashEnemy").Length
+                    + GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length
+                    + GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
 
                 if (enemiesLeft == 0)
                     break;
@@ -189,22 +275,15 @@ public class WaveManager : MonoBehaviour
         }
 
         OpenDoors();
-        Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
 
-        // 벽 초기화
         if (room.movingWalls != null)
         {
             foreach (var wall in room.movingWalls)
-            {
-                if (wall != null)
-                    wall.ResetWall();
-            }
+                wall?.ResetWall();
         }
 
         isSpawning = false;
-
-        if (isFirstRoom)
-            isFirstRoom = false;
+        if (isFirstRoom) isFirstRoom = false;
     }
 
     void ShowWarningEffect(Vector3 pos)
@@ -227,15 +306,12 @@ public class WaveManager : MonoBehaviour
         foreach (var door in allDoors)
         {
             door.CloseDoor();
-
             if (door.TryGetComponent<Collider2D>(out var col))
                 col.isTrigger = false;
         }
 
         foreach (var anim in allDoorAnimations)
-        {
             anim.PlayAnimation(DoorAnimation.DoorState.Closed);
-        }
     }
 
     void OpenDoors()
@@ -243,24 +319,18 @@ public class WaveManager : MonoBehaviour
         foreach (var door in allDoors)
         {
             door.OpenDoor();
-
             if (door.TryGetComponent<Collider2D>(out var col))
                 col.isTrigger = true;
         }
 
         foreach (var anim in allDoorAnimations)
-        {
             anim.PlayAnimation(DoorAnimation.DoorState.Open);
-        }
     }
 
-    public void ApplyCameraConfiner(RoomData room)
+    public void ApplyCameraConfiner(RoomData room, bool forcePlayerFollow = true)
     {
         if (cineCamera == null || room.cameraCollider == null) return;
 
-        // -----------------------
-        // Confiner 적용
-        // -----------------------
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
         if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
         {
@@ -268,9 +338,6 @@ public class WaveManager : MonoBehaviour
             confiner.InvalidateBoundingShapeCache();
         }
 
-        // -----------------------
-        // 카메라와 화면 비율 계산
-        // -----------------------
         Camera cam = Camera.main;
         if (cam == null || !cam.orthographic) return;
 
@@ -280,57 +347,40 @@ public class WaveManager : MonoBehaviour
 
         float orthoSize;
 
+        if (room.eventSceneEnabled && !forcePlayerFollow)
+            return;
+
         if (room.CameraFollow && playerTransform != null)
         {
-            // 팔로우 켜짐 → OrthographicSize는 Collider 기준으로 계산해도 되고, Virtual Camera가 처리 가능
-            orthoSize = cam.orthographicSize; // 기존 유지
+            orthoSize = cam.orthographicSize;
             cineCamera.Follow = playerTransform;
         }
         else
         {
-            // 팔로우 꺼짐 → Collider 안 화면이 딱 맞도록
             if (screenRatio >= boundsRatio)
-            {
-                // 화면이 더 넓으면 높이에 맞춤
                 orthoSize = bounds.size.y / 2f;
-            }
             else
-            {
-                // 화면이 더 좁으면 가로 기준
                 orthoSize = (bounds.size.x / 2f) / screenRatio;
-            }
 
             cam.orthographicSize = orthoSize;
-
-            // Virtual Camera Lens에도 적용
             var vCam = cineCamera.GetComponent<CinemachineCamera>();
             if (vCam != null)
                 vCam.Lens.OrthographicSize = orthoSize;
 
-            // 카메라 위치를 Bounds 중심으로
             Vector3 center = bounds.center;
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
-
             cineCamera.Follow = null;
         }
     }
 
-
-    /// <summary>
-    /// 씬에 존재하는 모든 적을 한 번에 제거
-    /// </summary>
     private void DestroyAllEnemies()
     {
         string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-
         foreach (string tag in enemyTags)
         {
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
-            foreach (GameObject enemy in enemies)
-            {
+            foreach (GameObject enemy in GameObject.FindGameObjectsWithTag(tag))
                 Destroy(enemy);
-            }
         }
     }
 }
