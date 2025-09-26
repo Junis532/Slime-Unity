@@ -25,6 +25,7 @@ public class LaserObject : MonoBehaviour
 
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
+        lineRenderer.sortingOrder = 10;
     }
 
     void Update()

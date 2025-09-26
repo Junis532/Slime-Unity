@@ -1,5 +1,40 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &369639524887304317
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 4645806125883571126, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
+  m_PrefabInstance: {fileID: 4996745156314375115}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5719758997320929659}
+  m_Layer: 0
+  m_Name: 'BossHP (Missing Prefab with guid: b4492703ce0030b4488c215c1ac21dd4)'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5719758997320929659
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 736527371866026672, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
+  m_PrefabInstance: {fileID: 4996745156314375115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369639524887304317}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7908509216895618500}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &3775493325575688674
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,8 +255,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86f828dde2764e947bd9a2d1a8632d10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 369639524887304317}
-  currentHP: 10000
+  hpBarPrefab: {fileID: 3485047932090325068, guid: 1aa5a6a6c8b8daf48a2b7939886d4ace, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
@@ -375,13 +410,3 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
---- !u!1 &369639524887304317 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4645806125883571126, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
-  m_PrefabInstance: {fileID: 4996745156314375115}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &5719758997320929659 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 736527371866026672, guid: b4492703ce0030b4488c215c1ac21dd4, type: 3}
-  m_PrefabInstance: {fileID: 4996745156314375115}
-  m_PrefabAsset: {fileID: 0}

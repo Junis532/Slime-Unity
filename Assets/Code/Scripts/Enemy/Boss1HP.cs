@@ -6,7 +6,8 @@ using TMPro;
 public class Boss1HP : MonoBehaviour
 {
     [Header("체력 관련")]
-    public GameObject hpBarPrefab; // 사용하지 않지만 인스펙터 오류 방지용
+    public GameObject hpBarPrefab; // 하이어라키에 소환할 프리팹
+    private GameObject hpBarUI;    // 런타임에 생성될 오브젝트
     private Image hpBarFill;
     public float currentHP;
     private float maxHP;
@@ -21,7 +22,7 @@ public class Boss1HP : MonoBehaviour
     public GameObject hitEffectPrefab;
 
     [Header("넉백 옵션")]
-    public bool useKnockback = true; // Inspector에서 켜고 끌 수 있음
+    public bool useKnockback = true;
     public float knockbackDistance = 0.3f;
     public float knockbackDuration = 0.1f;
 
@@ -30,28 +31,35 @@ public class Boss1HP : MonoBehaviour
     private float criticalChance;
     private bool isDead = false;
 
+    // 💡 HP바가 한 번만 생성되었는지 체크
+    private static bool hpBarCreated = false;
+
     void Start()
     {
         maxHP = GameManager.Instance.boss1Stats.maxHP;
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        // HP 바 세팅
-        GameObject bossHpBarUI = GameObject.Find("BossHP");
-        if (bossHpBarUI == null)
+        // 💡 HP바 한 번만 생성
+        if (!hpBarCreated && hpBarPrefab != null)
         {
-            Debug.LogError("Hierarchy에서 'BossHP' 오브젝트를 찾을 수 없습니다!");
-            return;
+            hpBarUI = Instantiate(hpBarPrefab);
+            hpBarUI.SetActive(true);
+
+            hpBarFill = hpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
+            if (hpBarFill == null)
+                Debug.LogError("'HPBar/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
+
+            hpBarCreated = true;
+        }
+        else if (hpBarCreated)
+        {
+            // 이미 생성된 경우, 기존 HP바 찾아 연결
+            hpBarUI = GameObject.FindWithTag("HP"); // prefab에 태그 BossHPBar 추가 필요
+            if (hpBarUI != null)
+                hpBarFill = hpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
         }
 
-        hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
-        if (hpBarFill == null)
-        {
-            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
-            return;
-        }
-
-        bossHpBarUI.SetActive(true);
         UpdateHPBar();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -59,24 +67,26 @@ public class Boss1HP : MonoBehaviour
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             playerTransform = playerObj.transform;
+    }
+
+    private void Update()
+    {
+        if (hpBarUI != null && !isDead)
+        {
+            hpBarUI.transform.position = transform.position + Vector3.up * 2f;
         }
     }
 
     private void UpdateHPBar()
     {
         if (hpBarFill != null)
-        {
             hpBarFill.fillAmount = currentHP / maxHP;
-        }
     }
 
     public void TakeDamage()
     {
-        Vector3 knockbackDir = Vector3.zero;
-        if (playerTransform != null)
-            knockbackDir = (transform.position - playerTransform.position).normalized;
+        Vector3 knockbackDir = playerTransform != null ? (transform.position - playerTransform.position).normalized : Vector3.zero;
 
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
         int damage = isCritical
@@ -85,7 +95,6 @@ public class Boss1HP : MonoBehaviour
 
         ApplyDamage(damage, isCritical);
 
-        // 넉백 적용 (옵션)
         if (useKnockback && playerTransform != null)
         {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
@@ -93,15 +102,8 @@ public class Boss1HP : MonoBehaviour
         }
     }
 
-    public void FireballTakeDamage(int damage)
-    {
-        ApplyDamage(damage, false);
-    }
-
-    public void SkillTakeDamage(int damage)
-    {
-        ApplyDamage(damage, false);
-    }
+    public void FireballTakeDamage(int damage) => ApplyDamage(damage, false);
+    public void SkillTakeDamage(int damage) => ApplyDamage(damage, false);
 
     private void ApplyDamage(int damage, bool isCritical)
     {
@@ -187,11 +189,8 @@ public class Boss1HP : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        GameObject bossHpBarUI = GameObject.Find("BossHPBarUI");
-        if (bossHpBarUI != null)
-        {
-            bossHpBarUI.SetActive(false);
-        }
+        if (hpBarUI != null)
+            hpBarUI.SetActive(false);
 
         GameManager.Instance.cameraShake.GenerateImpulse();
 
@@ -200,11 +199,8 @@ public class Boss1HP : MonoBehaviour
         if (playerHeal != null && playerHeal.hpHeal)
         {
             GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
-            GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
-                GameManager.Instance.playerStats.currentHP,
-                0,
-                GameManager.Instance.playerStats.maxHP
-            );
+            GameManager.Instance.playerStats.currentHP =
+                Mathf.Clamp(GameManager.Instance.playerStats.currentHP, 0, GameManager.Instance.playerStats.maxHP);
         }
 
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();

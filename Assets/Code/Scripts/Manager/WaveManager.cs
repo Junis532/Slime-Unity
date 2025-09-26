@@ -19,6 +19,9 @@ public class RoomData
 
     public List<GameObject> enemyPrefabs;
 
+    [Header("Moving Walls in Room")]
+    public List<MovingWall> movingWalls;
+
     [HideInInspector]
     public bool activated = false;
 
@@ -58,7 +61,6 @@ public class WaveManager : MonoBehaviour
 
     private bool isFirstRoom = true; // 첫 방 여부
 
-
     void Start()
     {
         if (doorParentPrefab != null)
@@ -81,6 +83,17 @@ public class WaveManager : MonoBehaviour
                 {
                     room.activated = true;
                     currentRoom = room;
+
+                    // 룸 벽 활성화
+                    if (room.movingWalls != null)
+                    {
+                        foreach (var wall in room.movingWalls)
+                        {
+                            if (wall != null)
+                                wall.isActive = true;
+                        }
+                    }
+
                     StartCoroutine(StartRoom(room));
                 }
             }
@@ -170,6 +183,16 @@ public class WaveManager : MonoBehaviour
 
         OpenDoors();
         Debug.Log($"[WaveManager] 방 '{room.roomName}' 클리어됨!");
+
+        // 벽 초기화
+        if (room.movingWalls != null)
+        {
+            foreach (var wall in room.movingWalls)
+            {
+                if (wall != null)
+                    wall.ResetWall();
+            }
+        }
 
         isSpawning = false;
 

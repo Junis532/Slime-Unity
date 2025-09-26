@@ -6,7 +6,10 @@ using TMPro;
 public class MiddleBoss1HP : MonoBehaviour
 {
     [Header("체력 관련")]
+    [SerializeField] private GameObject bossHpBarPrefab; // 💡 프리팹으로 연결
+    private GameObject bossHpBarUI; // 💡 런타임에 생성될 오브젝트
     private Image hpBarFill;
+
     public float currentHP;
     private float maxHP;
 
@@ -33,21 +36,22 @@ public class MiddleBoss1HP : MonoBehaviour
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        GameObject bossHpBarUI = GameObject.Find("BossHP");
-        if (bossHpBarUI == null)
+        // 💡 BossHP 프리팹을 그냥 하이어라키에 생성
+        if (bossHpBarPrefab != null)
         {
-            Debug.LogError("Hierarchy에서 'BossHP' 오브젝트를 찾을 수 없습니다!");
-            return;
+            bossHpBarUI = Instantiate(bossHpBarPrefab); // Canvas 없이 바로 생성
+            bossHpBarUI.SetActive(true);
+
+            // HPBar/HPFilled 찾기
+            hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
+            if (hpBarFill == null)
+                Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
+        }
+        else
+        {
+            Debug.LogError("Boss HP Bar Prefab이 연결되지 않았습니다!");
         }
 
-        hpBarFill = bossHpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
-        if (hpBarFill == null)
-        {
-            Debug.LogError("'BossHP/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
-            return;
-        }
-
-        bossHpBarUI.SetActive(true);
         UpdateHPBar();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -55,8 +59,15 @@ public class MiddleBoss1HP : MonoBehaviour
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             playerTransform = playerObj.transform;
+    }
+
+    private void Update()
+    {
+        // 보스가 존재하면 HP바 위치를 보스 위쪽으로 따라가도록
+        if (bossHpBarUI != null && !isDead)
+        {
+            bossHpBarUI.transform.position = transform.position + Vector3.up * 2f;
         }
     }
 
@@ -95,7 +106,6 @@ public class MiddleBoss1HP : MonoBehaviour
 
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
         UpdateHPBar();
 
         if (!bulletSpawner.slowSkillActive)
@@ -169,18 +179,13 @@ public class MiddleBoss1HP : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // 🔥 보스 패턴 스크립트 정리
         MiddleBoss middleBoss = GetComponent<MiddleBoss>();
         if (middleBoss != null)
-        {
             middleBoss.SetDead();
-        }
 
-        GameObject bossHpBarUI = GameObject.Find("BossHPBarUI");
+        // 💡 보스 HP바 숨기기
         if (bossHpBarUI != null)
-        {
             bossHpBarUI.SetActive(false);
-        }
 
         GameManager.Instance.cameraShake.GenerateImpulse();
 

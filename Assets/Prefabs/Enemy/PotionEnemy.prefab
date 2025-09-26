@@ -197,8 +197,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62c26e9f4abea8546ac0cf3c315bcdb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalSpeed: 0
   speed: 0
+  originalSpeed: 0
+  spawnDelay: 0.4
   stopCooldown: 3
   stopDuration: 3
   dashPreviewPrefab: {fileID: 6950589694986560093, guid: 84a05c2ea2b0d5b43bbc91e36ccf8b65, type: 3}
@@ -219,7 +220,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  dotEffectPrefab: {fileID: 0}
+  useKnockback: 1
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &5786222916054633737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +259,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2089936311879354214}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -319,7 +327,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 8187183822575162301, guid: fd04790896d608940b3638e56360b6f9, type: 3}
+  potionPrefab: {fileID: 510499459271775873, guid: 543f0e43233495543ba0b50a764b38fc, type: 3}
+  potionDropChance: 0.1
 --- !u!195 &2894885724907707306
 NavMeshAgent:
   m_ObjectHideFlags: 0
