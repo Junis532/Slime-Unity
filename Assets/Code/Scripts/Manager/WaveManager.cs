@@ -254,10 +254,13 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    void ApplyCameraConfiner(RoomData room)
+    public void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null || room.cameraCollider == null) return;
 
+        // -----------------------
+        // Confiner 설정
+        // -----------------------
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
         if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
         {
@@ -265,39 +268,61 @@ public class WaveManager : MonoBehaviour
             confiner.InvalidateBoundingShapeCache();
         }
 
+        // -----------------------
+        // 카메라와 화면 비율 계산
+        // -----------------------
         Camera cam = Camera.main;
         if (cam == null || !cam.orthographic) return;
 
         Bounds bounds = room.cameraCollider.bounds;
+
         float screenRatio = (float)Screen.width / Screen.height;
         float boundsRatio = bounds.size.x / bounds.size.y;
 
         float orthoSize;
+
         if (screenRatio >= boundsRatio)
+        {
+            // 화면이 더 넓으면 세로 기준
             orthoSize = bounds.size.y / 2f;
+        }
         else
+        {
+            // 화면이 더 좁으면 가로 기준
             orthoSize = (bounds.size.x / 2f) / screenRatio;
+        }
 
-        orthoSize *= 1.0f;
+        // Confiner 안에서 안전하게 들어오도록 여유 배율 적용
+        float maxOrthoY = bounds.size.y / 2f;
+        float maxOrthoX = (bounds.size.x / 2f) / screenRatio;
+        orthoSize = Mathf.Min(orthoSize * 1.05f, maxOrthoX, maxOrthoY);
 
+        // 실제 카메라 적용
         cam.orthographicSize = orthoSize;
 
+        // Virtual Camera Lens에도 적용
         var vCam = cineCamera.GetComponent<CinemachineCamera>();
         if (vCam != null)
+        {
             vCam.Lens.OrthographicSize = orthoSize;
+        }
 
-        Vector3 center = bounds.center;
-
-        if (room.CameraFollow)
+        // -----------------------
+        // 카메라 위치 및 Follow 설정
+        // -----------------------
+        if (room.CameraFollow && playerTransform != null)
+        {
             cineCamera.Follow = playerTransform;
+            // Follow 활성화 시 위치 직접 조정하지 않음
+        }
         else
         {
             cineCamera.Follow = null;
+            Vector3 center = bounds.center;
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
         }
     }
-
     /// <summary>
     /// 씬에 존재하는 모든 적을 한 번에 제거
     /// </summary>
