@@ -55,6 +55,34 @@ public class TurretEnemy3_PlayerTracking : EnemyBase
     {
         if (!isLive) return;
 
+        // -------------------------------
+        // 매 프레임 Crystal 레이어 존재 여부 체크
+        int crystalLayer = LayerMask.NameToLayer("Crystal");
+        bool crystalExists = false;
+
+        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.layer == crystalLayer)
+            {
+                crystalExists = true;
+                break;
+            }
+        }
+
+        // 존재하면 Enemy 태그 제거, 없으면 Enemy 태그 설정
+        if (crystalExists)
+        {
+            if (gameObject.tag == "Enemy")
+                gameObject.tag = "Untagged";
+        }
+        else
+        {
+            if (gameObject.tag != "Enemy")
+                gameObject.tag = "Enemy";
+        }
+        // -------------------------------
+
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)
         {

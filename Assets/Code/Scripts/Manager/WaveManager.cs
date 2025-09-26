@@ -51,7 +51,10 @@ public class WaveManager : MonoBehaviour
     [Header("문 애니메이션 프리팹 부모 (한 번만 넣기)")]
     public GameObject doorAnimationParentPrefab;
 
+    [Header("스폰 관련")]
     public float spawnStop = 0f;
+    [Tooltip("방 시작 시 기존 방 적을 모두 제거할지 여부")]
+    public bool clearPreviousEnemies = true; // ✅ 켜고 끌 수 있는 옵션
 
     private List<DoorController> allDoors = new List<DoorController>();
     private List<DoorAnimation> allDoorAnimations = new List<DoorAnimation>();
@@ -118,6 +121,10 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator StartRoom(RoomData room)
     {
+        // ✅ 옵션이 켜져있으면 기존 방의 모든 적 제거
+        if (clearPreviousEnemies)
+            DestroyAllEnemies();
+
         isSpawning = true;
         cleared = false;
 
@@ -141,13 +148,13 @@ public class WaveManager : MonoBehaviour
 
             tempObj.SetActive(true);
 
-            // EnemyBase 계열이면 스폰 후 0.4초 멈춤 적용
+            // EnemyBase 계열이면 스폰 후 잠시 멈춤
             EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
             if (enemyBase != null)
             {
-                enemyBase.CanMove = false;           // 이동 막기
+                enemyBase.CanMove = false;
                 yield return new WaitForSeconds(spawnStop);
-                enemyBase.CanMove = true;            // 이동 허용
+                enemyBase.CanMove = true;
             }
             else
             {
@@ -288,6 +295,23 @@ public class WaveManager : MonoBehaviour
             cineCamera.Follow = null;
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
+        }
+    }
+
+    /// <summary>
+    /// 씬에 존재하는 모든 적을 한 번에 제거
+    /// </summary>
+    private void DestroyAllEnemies()
+    {
+        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
+
+        foreach (string tag in enemyTags)
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
+            foreach (GameObject enemy in enemies)
+            {
+                Destroy(enemy);
+            }
         }
     }
 }

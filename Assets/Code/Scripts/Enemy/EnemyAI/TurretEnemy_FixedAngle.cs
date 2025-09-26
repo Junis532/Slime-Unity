@@ -66,11 +66,38 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (!isLive) return;
 
-        // 현재 고정 각도 → 방향 벡터 변환
+        // -------------------------------
+        // 매 프레임 Crystal 레이어 존재 여부 체크
+        int crystalLayer = LayerMask.NameToLayer("Crystal");
+        bool crystalExists = false;
+
+        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.layer == crystalLayer)
+            {
+                crystalExists = true;
+                break;
+            }
+        }
+
+        // 존재하면 Enemy 태그 제거, 없으면 Enemy 태그 설정
+        if (crystalExists)
+        {
+            if (gameObject.tag == "Enemy")
+                gameObject.tag = "Untagged";
+        }
+        else
+        {
+            if (gameObject.tag != "Enemy")
+                gameObject.tag = "Enemy";
+        }
+        // -------------------------------
+
+        // 기존 고정 각도 발사/라인 렌더링 로직
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
-        // LineRenderer 켜기/끄기 체크
         if (lineRenderer != null)
             lineRenderer.enabled = showLineRenderer;
 
@@ -80,18 +107,12 @@ public class TurretEnemy_FixedAngle : EnemyBase
             lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
         }
 
-        // 현재 발사 대기 시간
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
-
-        // 사이클 쿨다운이 예약돼 있으면 이번 한 번은 cycleCooldown을 우선 적용
         float effectiveCooldown = cycleCooldownPending ? cycleCooldown : currentCooldown;
 
-        // 발사 조건
         if (Time.time - lastFireTime >= effectiveCooldown && !isPreparingToFire)
         {
-            // 이번 발사 들어가면 cycleCooldown 소모
             if (cycleCooldownPending) cycleCooldownPending = false;
-
             StartCoroutine(PrepareAndShoot(dir));
         }
 

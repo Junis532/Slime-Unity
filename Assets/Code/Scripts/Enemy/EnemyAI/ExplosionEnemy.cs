@@ -14,21 +14,22 @@ public class ExplosionEnemy : EnemyBase
     private GameObject player;
 
     [Header("폭발 관련 설정")]
-    public float explosionRange = 1.5f;
+    public float explosionRange = 1.5f;              // 💡 인스펙터에서 조정 가능
     public GameObject explosionEffectPrefab;
-    public int explosionDamage = 10;
+    // explosionDamage 변수는 Stats로 대체
+    // public int explosionDamage = 100;
 
     [Header("지연 폭발 모드")]
-    public bool useTimedExplosion = false; // 🔛 켜면 일정 시간 뒤 폭발
-    public float explosionDelay = 3f;      // 🔢 몇 초 뒤에 폭발할지
+    public bool useTimedExplosion = false;          // 🔛 켜면 일정 시간 뒤 폭발
+    public float explosionDelay = 3f;               // 🔢 몇 초 뒤에 폭발할지
 
     [Header("깜빡임 설정")]
-    public float blinkDuration = 0.2f;     // 깜빡이는 간격
-    public float blinkStartTime = 1f;      // 폭발 전 몇 초부터 깜빡임 시작
+    public float blinkDuration = 0.2f;              // 깜빡이는 간격
+    public float blinkStartTime = 1f;               // 폭발 전 몇 초부터 깜빡임 시작
 
     private Tween blinkTween;
     private float timer = 0f;
-    private bool isTriggeredByPlayer = false; // 💡 플레이어 접촉 여부
+    private bool isTriggeredByPlayer = false;       // 💡 플레이어 접촉 여부
 
     void Start()
     {
@@ -52,7 +53,7 @@ public class ExplosionEnemy : EnemyBase
         if (!isLive || isExploding) return;
         if (player == null) return;
 
-        // 🧠 플레이어를 추적 (계속 이동)
+        // 🧠 플레이어 추적 (계속 이동)
         agent.SetDestination(player.transform.position);
 
         // 🌀 이동 애니메이션 처리
@@ -72,17 +73,14 @@ public class ExplosionEnemy : EnemyBase
         // 💣 폭발 조건 처리
         if (isTriggeredByPlayer)
         {
-            // 플레이어에 닿은 경우 - 타이머 폭발 진행
             TriggeredExplosionUpdate();
         }
         else if (useTimedExplosion)
         {
-            // 일정 시간 후 폭발 모드
             TimedExplosionUpdate();
         }
         else
         {
-            // 근접 폭발 모드
             CheckProximityExplosion();
         }
     }
@@ -97,7 +95,7 @@ public class ExplosionEnemy : EnemyBase
         }
     }
 
-    // 🔹 타이머 기반 폭발 (기본 모드)
+    // 🔹 타이머 기반 폭발
     private void TimedExplosionUpdate()
     {
         timer += Time.deltaTime;
@@ -167,12 +165,20 @@ public class ExplosionEnemy : EnemyBase
             Destroy(effect, 0.5f);
         }
 
-        // 데미지 적용
-        int damage = explosionDamage > 0 ? explosionDamage : GameManager.Instance.enemyStats.attack;
-        GameManager.Instance.playerDamaged.TakeDamage(damage);
+        // 💡 플레이어가 범위 내에 있을 때만 데미지 적용
+        if (player != null)
+        {
+            float distance = Vector2.Distance(transform.position, player.transform.position);
+            if (distance <= explosionRange)
+            {
+                int damage = GameManager.Instance.explosionEnemyStats.attack;
+                GameManager.Instance.playerDamaged.TakeDamage(damage);
+            }
+        }
 
         Destroy(gameObject);
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive || isExploding) return;
@@ -181,17 +187,14 @@ public class ExplosionEnemy : EnemyBase
         {
             if (useTimedExplosion)
             {
-                // 💡 일정 시간 후 폭발 모드일 경우
-                // 닿는 순간 폭발까지 남은 시간을 짧게 조정 (ex: 깜빡임 구간만 남기기)
+                // 닿는 순간 폭발까지 남은 시간을 깜빡임 구간만 남기기
                 timer = explosionDelay - blinkStartTime;
 
-                // 깜빡임 즉시 시작 (중복 방지)
                 if (blinkTween == null)
                     StartBlinking();
             }
             else
             {
-                // 💣 일반 지연 폭발 모드 → 닿은 후 타이머 시작
                 isTriggeredByPlayer = true;
                 timer = 0f;
             }
@@ -203,8 +206,16 @@ public class ExplosionEnemy : EnemyBase
         StopBlinking();
     }
 
-    private void OnDrawGizmosSelected()
+    // 🔹 폭발 범위 시각화
+    private void OnDrawGizmos()
     {
+        if (!Application.isPlaying) return;
+
+        // 반투명 구
+        Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
+        Gizmos.DrawSphere(transform.position, explosionRange);
+
+        // 테두리 강조
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRange);
     }
