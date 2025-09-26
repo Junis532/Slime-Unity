@@ -47700,7 +47700,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 26.22514, y: -0.07847351, z: -10.032712}
+  m_LocalPosition: {x: 40.74514, y: 84.80152, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52065,9 +52065,10 @@ MonoBehaviour:
     cameraCollider: {fileID: 1073266358140055899}
     enemyPrefabs:
     - {fileID: 3604540007870695517, guid: 4588439d354fdd94790f9b40043fa6cd, type: 3}
-    movingWalls: []
+    movingWalls:
+    - {fileID: 1352066199}
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
   - roomName: 7
     roomPrefab: {fileID: 779543334463355644, guid: 137d65cdb0be0a142bf98eeeef99cb35, type: 3}
     roomCollider: {fileID: 310248301}
@@ -60099,7 +60100,7 @@ Transform:
   m_GameObject: {fileID: 1577947823}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 26.22514, y: -0.07847351, z: -10.032712}
+  m_LocalPosition: {x: 40.74514, y: 84.80152, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -67892,19 +67893,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2103291924370855970, guid: 7b47d6bf138ae7d44869f3ae2383d5db, type: 3}
       propertyPath: m_Size.x
-      value: 18.920774
+      value: 20.079021
       objectReference: {fileID: 0}
     - target: {fileID: 2103291924370855970, guid: 7b47d6bf138ae7d44869f3ae2383d5db, type: 3}
       propertyPath: m_Size.y
-      value: 12.7246475
+      value: 14.844635
       objectReference: {fileID: 0}
     - target: {fileID: 2103291924370855970, guid: 7b47d6bf138ae7d44869f3ae2383d5db, type: 3}
       propertyPath: m_Offset.x
-      value: 0.8752508
+      value: 0.29612732
       objectReference: {fileID: 0}
     - target: {fileID: 2103291924370855970, guid: 7b47d6bf138ae7d44869f3ae2383d5db, type: 3}
       propertyPath: m_Offset.y
-      value: 1.6938362
+      value: 2.0371017
       objectReference: {fileID: 0}
     - target: {fileID: 2403865784578496851, guid: 7b47d6bf138ae7d44869f3ae2383d5db, type: 3}
       propertyPath: m_Size.x
@@ -70456,11 +70457,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 14.52
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 84.88
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.z
