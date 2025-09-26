@@ -15,6 +15,14 @@ public class LaserObject : MonoBehaviour
     public Material laserMaterial;       // 적용할 쉐이더 머티리얼
     public float scrollSpeed = 2f;       // 텍스처 흐르는 속도
 
+    [Header("Laser Timer")]
+    public bool useTimer = false;        // 타이머 기능 켜기/끄기
+    public float activeTime = 2f;        // 레이저 켜진 시간
+    public float inactiveTime = 1f;      // 레이저 꺼진 시간
+
+    private float timer = 0f;
+    private bool isActive = true;
+
     void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -30,12 +38,39 @@ public class LaserObject : MonoBehaviour
 
     void Update()
     {
-        FireLaser();
-
-        // 머티리얼 UV 스크롤
-        if (lineRenderer.material != null)
+        // 타이머 체크
+        if (useTimer)
         {
-            lineRenderer.material.mainTextureOffset = new Vector2(Time.time * scrollSpeed, 0);
+            timer += Time.deltaTime;
+            if (isActive && timer >= activeTime)
+            {
+                isActive = false;
+                timer = 0f;
+                lineRenderer.enabled = false; // 레이저 끄기
+            }
+            else if (!isActive && timer >= inactiveTime)
+            {
+                isActive = true;
+                timer = 0f;
+                lineRenderer.enabled = true; // 레이저 켜기
+            }
+        }
+        else
+        {
+            lineRenderer.enabled = true; // 타이머 사용 안 하면 항상 켬
+            isActive = true;
+        }
+
+        // 레이저 켜져 있을 때만 동작
+        if (isActive)
+        {
+            FireLaser();
+
+            // 머티리얼 UV 스크롤
+            if (lineRenderer.material != null)
+            {
+                lineRenderer.material.mainTextureOffset = new Vector2(Time.time * scrollSpeed, 0);
+            }
         }
     }
 
