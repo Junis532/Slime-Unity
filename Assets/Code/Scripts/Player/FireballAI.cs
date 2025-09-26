@@ -132,6 +132,13 @@ public class FireballAI : MonoBehaviour
                 StartCoroutine(ApplyDotDamage(hp));
             }
 
+            AsuraEnemyHP ahp = other.GetComponent<AsuraEnemyHP>();
+            if (thp != null)
+            {
+         
+                StartCoroutine(ApplyDotDamage(hp));
+            }
+
             Boss1HP bossHP = other.GetComponent<Boss1HP>();
             if (bossHP != null)
             {

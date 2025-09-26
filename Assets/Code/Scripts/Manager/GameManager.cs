@@ -36,6 +36,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public PotionEnemyStats potionEnemyStats;
     public TankerEnemyStats tankerEnemyStats;
     public ExplosionEnemyStats explosionEnemyStats;
+    public AsuraEnemyStats asuraEnemyStats;
     public Boss1Stats boss1Stats;
     public MiddleBoss1Stats middleBoss1Stats;
 
@@ -110,6 +111,7 @@ public class GameManager : MonoSingleTone<GameManager>
         potionEnemyStats.ResetStats();
         tankerEnemyStats.ResetStats();
         explosionEnemyStats.ResetStats();
+        asuraEnemyStats.ResetStats();
         boss1Stats.ResetStats();
         middleBoss1Stats.ResetStats();
 

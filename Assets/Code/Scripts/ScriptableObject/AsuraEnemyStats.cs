@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[CreateAssetMenu(fileName = "TankerEnemyStats", menuName = "Custom/Tanker Enemy Stats")]
-public class TankerEnemyStats : ScriptableObject
+[CreateAssetMenu(fileName = "AsuraEnemyStats", menuName = "Custom/Asura Enemy Stats")]
+public class AsuraEnemyStats : ScriptableObject
 {
     public int id;
     public int level;
@@ -17,8 +17,8 @@ public class TankerEnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 1.5f;
-        maxHP = 3000;
+        speed = 3f;
+        maxHP = 1000000;
         currentHP = maxHP;
         attack = 100;
     }
