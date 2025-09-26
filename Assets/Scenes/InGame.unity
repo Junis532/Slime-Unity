@@ -47559,9 +47559,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: -0.18750001
-    width: 0
-    height: 0.37500003
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -50340,6 +50340,57 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &770070346 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5078354027207611936, guid: 50cd7f223d61e434d9dfa1f32918b8c3, type: 3}
+  m_PrefabInstance: {fileID: 4959598523197520021}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &770070347
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770070346}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1001 &776847490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51642,6 +51693,7 @@ MonoBehaviour:
   longRangeEnemyStats: {fileID: 11400000, guid: 58fd2f9b78594db42a45fcb865ceaf5e, type: 2}
   potionEnemyStats: {fileID: 11400000, guid: 262af9e6818399e4183bac0c156ce898, type: 2}
   tankerEnemyStats: {fileID: 11400000, guid: 6f83d7d40646ae6448b77cbc0d6af9d3, type: 2}
+  explosionEnemyStats: {fileID: 11400000, guid: 3eaf03d01ee4c1c4cafcf7b8caca4a8d, type: 2}
   boss1Stats: {fileID: 11400000, guid: a49d5c17ea6c1ad4bbe52c0959632f9e, type: 2}
   middleBoss1Stats: {fileID: 11400000, guid: a9b705ea0cffdb4449bab858564f4dd5, type: 2}
   shops:
@@ -69630,7 +69682,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5078354027207611936, guid: 50cd7f223d61e434d9dfa1f32918b8c3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 770070347}
   m_SourcePrefab: {fileID: 100100000, guid: 50cd7f223d61e434d9dfa1f32918b8c3, type: 3}
 --- !u!1001 &6565495735566056647
 PrefabInstance:

@@ -506,6 +506,11 @@ MonoBehaviour:
   spawnDelay: 0.4
   explosionRange: 0.5
   explosionEffectPrefab: {fileID: 1967835574231978638, guid: b340209fcbbc0b642893d60ad53777b6, type: 3}
+  explosionDamage: 10
+  useTimedExplosion: 1
+  explosionDelay: 5
+  blinkDuration: 0.2
+  blinkStartTime: 1
 --- !u!195 &6125118215960809984
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -516,7 +521,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 2.5
+  m_Speed: 3
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
