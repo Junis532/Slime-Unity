@@ -24,14 +24,15 @@ public class EnemyHP : MonoBehaviour
     private GameObject activeDotEffect;
 
     [Header("넉백 옵션")]
-    public bool useKnockback = true;   // ✅ Inspector에서 켜고 끌 수 있음
+    public bool useKnockback = true;
     public float knockbackDistance = 0.1f;
     public float knockbackDuration = 0.1f;
-
 
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
+
+    private bool isDead = false; // 적이 죽었는지 상태
 
     void Start()
     {
@@ -55,32 +56,47 @@ public class EnemyHP : MonoBehaviour
 
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
 
-        // 플레이어 찾기 (없을 경우 null)
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             playerTransform = playerObj.transform;
-        }
         else
-        {
             Debug.LogWarning("플레이어를 찾지 못했습니다. playerTransform이 null 상태입니다.");
-            playerTransform = null;
-        }
     }
 
+    // 일반 공격
     public void TakeDamage()
     {
-        Vector3 knockbackDir = Vector3.zero;
-        if (playerTransform != null)
-        {
-            knockbackDir = (transform.position - playerTransform.position).normalized;
-        }
+        if (isDead) return;
+
+        Vector3 knockbackDir = playerTransform != null
+            ? (transform.position - playerTransform.position).normalized
+            : Vector3.zero;
 
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
         int damage = isCritical
             ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
             : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
 
+        ApplyDamage(damage, isCritical, knockbackDir);
+    }
+
+    // 파이어볼 데미지
+    public void FireballTakeDamage(int damage)
+    {
+        if (isDead) return;
+        ApplyDamage(damage, false, Vector3.zero);
+    }
+
+    // 스킬 데미지
+    public void SkillTakeDamage(int damage)
+    {
+        if (isDead) return;
+        ApplyDamage(damage, false, Vector3.zero);
+    }
+
+    // 데미지 적용 공통 함수
+    private void ApplyDamage(int damage, bool isCritical, Vector3 knockbackDir)
+    {
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
@@ -108,8 +124,7 @@ public class EnemyHP : MonoBehaviour
             ShowDamageText(damage);
         }
 
-        // ✅ 넉백 옵션 적용
-        if (useKnockback && playerTransform != null)
+        if (useKnockback && knockbackDir != Vector3.zero)
         {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
@@ -119,53 +134,12 @@ public class EnemyHP : MonoBehaviour
             Die();
     }
 
-    public void FireballTakeDamage(int damage)
-    {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-        if (hpBar != null)
-        {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
-        }
-
-        PlayDamageEffect();
-        ShowDamageText(damage);
-
-        if (currentHP <= 0)
-            Die();
-    }
-
-    public void SkillTakeDamage(int damage)
-    {
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
-
-        if (hpBar != null)
-        {
-            hpBar.SetHP(currentHP);
-            hpBar.gameObject.SetActive(true);
-        }
-
-        PlayDamageEffect();
-        ShowDamageText(damage);
-
-        if (currentHP <= 0)
-            Die();
-    }
-
     private void PlayHitEffect()
     {
         if (hitEffectPrefab == null) return;
 
-        Vector3 spawnPosition = transform.position;
         GameObject effectObj = PoolManager.Instance.SpawnFromPool(
-            hitEffectPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
+            hitEffectPrefab.name, transform.position, Quaternion.identity);
 
         if (effectObj == null) return;
 
@@ -177,31 +151,21 @@ public class EnemyHP : MonoBehaviour
 
     private void ShowDamageText(int damage)
     {
-        if (damageTextPrefab == null) return;
+        if (damageTextPrefab == null || damage <= 0) return;
 
-        // ✅ 데미지가 0 이하일 경우 텍스트 띄우지 않음
-        if (damage <= 0) return;
-
-        Vector3 spawnPosition = transform.position;
         GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            damageTextPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
+            damageTextPrefab.name, transform.position, Quaternion.identity);
+
         if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null)
-            text.text = damage.ToString();
+        if (text != null) text.text = damage.ToString();
 
         Transform t = textObj.transform;
-        t.position = spawnPosition;
+        t.position = transform.position;
         t.localScale = Vector3.one;
-        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() =>
-        {
-            t.DOScale(1f, 0.3f);
-        });
+        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
         DOVirtual.DelayedCall(0.6f, () =>
         {
@@ -213,27 +177,19 @@ public class EnemyHP : MonoBehaviour
     {
         if (cDamageTextPrefab == null) return;
 
-        Vector3 spawnPosition = transform.position;
         GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            cDamageTextPrefab.name,
-            spawnPosition,
-            Quaternion.identity
-        );
+            cDamageTextPrefab.name, transform.position, Quaternion.identity);
 
         if (textObj == null) return;
 
         TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null)
-            text.text = damage.ToString();
+        if (text != null) text.text = damage.ToString();
 
         Transform t = textObj.transform;
-        t.position = spawnPosition;
+        t.position = transform.position;
         t.localScale = Vector3.one;
-        t.DOMoveY(spawnPosition.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() =>
-        {
-            t.DOScale(1f, 0.3f);
-        });
+        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
         DOVirtual.DelayedCall(0.6f, () =>
         {
@@ -251,23 +207,20 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
-    private bool isDead = false; // 적이 죽었는지 상태
-
     private void Die()
     {
-        if (isDead) return; // 이미 죽었으면 아무것도 하지 않음
-        isDead = true;       // 죽음 상태로 변경
+        if (isDead) return;
+        isDead = true;
 
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
         GameManager.Instance.cameraShake.GenerateImpulse();
 
-        // ✅ 플레이어 HP 회복
+        // 플레이어 HP 회복
         PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();
-        int healAmount = playerHeal.hpHealAmount; // PlayerHeal 스크립트에서 설정
         if (playerHeal != null && playerHeal.hpHeal)
         {
-            GameManager.Instance.playerStats.currentHP += healAmount;
+            GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
             GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
                 GameManager.Instance.playerStats.currentHP,
                 0,
@@ -275,11 +228,26 @@ public class EnemyHP : MonoBehaviour
             );
         }
 
-
+        // 본인 사망 처리
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null)
             enemiesDie.Die();
+
+        // Crystal 레이어 처리: Turret 레이어 적 모두 죽이기
+        if (gameObject.layer == LayerMask.NameToLayer("Crystal"))
+        {
+            // FindObjectsByType 사용, 정렬 필요 없으므로 FindObjectsSortMode.None
+            EnemyHP[] allEnemies = Object.FindObjectsByType<EnemyHP>(FindObjectsSortMode.None);
+            foreach (EnemyHP turretHP in allEnemies)
+            {
+                if (turretHP.gameObject.layer == LayerMask.NameToLayer("Turret") && !turretHP.isDead)
+                {
+                    turretHP.currentHP = 0;
+                    turretHP.Die();
+                    Debug.Log($"Turret killed: {turretHP.name}");
+                }
+            }
+        }
+
     }
-
-
 }
