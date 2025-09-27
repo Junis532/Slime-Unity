@@ -199,6 +199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   originalSpeed: 0
+  spawnDelay: 0.4
   moveDuration: 3
   fireCooldown: 4
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
@@ -222,6 +223,9 @@ MonoBehaviour:
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
+  useKnockback: 1
+  knockbackDistance: 0.1
+  knockbackDuration: 0.1
 --- !u!114 &7309634297501502348
 MonoBehaviour:
   m_ObjectHideFlags: 0

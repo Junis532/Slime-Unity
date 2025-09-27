@@ -8,10 +8,14 @@ public class MovingWall : MonoBehaviour
     public float returnSpeed = 1f;
     public float waitTime = 1f;
 
+    [Header("시작 지연")]
+    public float startDelay = 1.5f; // 방 입장 후 대기 시간
+
     private Vector3 startPos;
     private bool movingRight = true;
     private bool returning = false;
     private float waitTimer = 0f;
+    private float delayTimer = 0f;
 
     [HideInInspector]
     public bool isActive = false; // 룸 진입 시 활성화
@@ -23,8 +27,16 @@ public class MovingWall : MonoBehaviour
 
     void Update()
     {
-        if (!isActive) return; // 활성화 전에는 이동하지 않음
+        if (!isActive) return;
 
+        // 시작 지연 처리
+        if (delayTimer < startDelay)
+        {
+            delayTimer += Time.deltaTime;
+            return;
+        }
+
+        // 벽 이동 로직
         if (returning)
         {
             transform.position = Vector3.MoveTowards(transform.position, startPos, returnSpeed * Time.deltaTime);
@@ -51,10 +63,6 @@ public class MovingWall : MonoBehaviour
                     if (movingRight) returning = true;
                     else movingRight = true;
                 }
-                else
-                {
-                    return;
-                }
             }
         }
     }
@@ -66,5 +74,6 @@ public class MovingWall : MonoBehaviour
         movingRight = true;
         returning = false;
         waitTimer = 0f;
+        delayTimer = 0f; // 지연 타이머 초기화
     }
 }

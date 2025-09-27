@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 227899488989791474}
   - component: {fileID: -4044906070339621718}
   - component: {fileID: 8891758504497907706}
-  - component: {fileID: 9038630083855474124}
+  - component: {fileID: 40812373143206957}
   m_Layer: 10
   m_Name: AsuraEnemy
   m_TagString: Enemy
@@ -208,7 +208,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 1
+  m_Speed: 3
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -220,7 +220,7 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &9038630083855474124
+--- !u!114 &40812373143206957
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -229,11 +229,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 989741138225912565}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c54db241b1861c147b60e90eded81347, type: 3}
+  m_Script: {fileID: 11500000, guid: 1666dea9a842dbd40a35b09c9fb3e6f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0
-  originalSpeed: 0
+  speed: 3
+  originalSpeed: 3
   spawnDelay: 0.4
 --- !u!1 &2480310358608517322
 GameObject:

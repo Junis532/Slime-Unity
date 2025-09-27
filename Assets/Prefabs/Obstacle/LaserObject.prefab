@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 11
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 347329323, guid: b631ed305dfd43c488e0f8edf5c829bc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -214,6 +214,9 @@ MonoBehaviour:
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
+  useTimer: 0
+  activeTime: 2
+  inactiveTime: 1
 --- !u!61 &8234417129628003444
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -252,7 +255,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.25, y: 1.25}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
