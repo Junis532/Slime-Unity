@@ -17,7 +17,7 @@ public class AsuraEnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 3f;
+        speed = 1.5f;
         maxHP = 1000000;
         currentHP = maxHP;
         attack = 100;

@@ -32,6 +32,9 @@ public class RoomData
     public Transform eventEndPos;
     public GameObject eventObjectPrefab;
     public float eventMoveDuration = 3f;
+
+    [Header("방 시작 시 기존 적 제거 여부")]
+    public bool clearPreviousEnemies = true; // ← Room별로 설정 가능
 }
 
 public class WaveManager : MonoBehaviour
