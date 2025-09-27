@@ -32,7 +32,7 @@ public class EnemyHP : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
 
-    private bool isDead = false; // 적이 죽었는지 상태
+    public bool isDead = false; // 적이 죽었는지 상태
 
     void Start()
     {
@@ -207,7 +207,7 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
-    private void Die()
+    public void Die()
     {
         if (isDead) return;
         isDead = true;

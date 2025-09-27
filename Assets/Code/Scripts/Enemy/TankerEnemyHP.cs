@@ -256,19 +256,18 @@ public class TankerEnemyHP : MonoBehaviour
 
     private void Die()
     {
-        if (isDead) return; // 이미 죽었으면 아무것도 하지 않음
-        isDead = true;       // 죽음 상태로 변경
+        if (isDead) return;
+        isDead = true;
 
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
         GameManager.Instance.cameraShake.GenerateImpulse();
 
-        // ✅ 플레이어 HP 회복
+        // 플레이어 HP 회복
         PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();
-        int healAmount = playerHeal.hpHealAmount; // PlayerHeal 스크립트에서 설정
         if (playerHeal != null && playerHeal.hpHeal)
         {
-            GameManager.Instance.playerStats.currentHP += healAmount;
+            GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
             GameManager.Instance.playerStats.currentHP = Mathf.Clamp(
                 GameManager.Instance.playerStats.currentHP,
                 0,
@@ -276,11 +275,25 @@ public class TankerEnemyHP : MonoBehaviour
             );
         }
 
-
+        // 본인 사망 처리
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null)
             enemiesDie.Die();
-    }
 
+        // ✅ Crystal 레이어 처리: Turret 레이어 적 모두 죽이기
+        if (gameObject.layer == LayerMask.NameToLayer("Crystal"))
+        {
+            EnemyHP[] allEnemies = Object.FindObjectsByType<EnemyHP>(FindObjectsSortMode.None);
+            foreach (EnemyHP turretHP in allEnemies)
+            {
+                if (turretHP.gameObject.layer == LayerMask.NameToLayer("Turret") && !turretHP.isDead)
+                {
+                    turretHP.currentHP = 0;
+                    turretHP.Die();
+                    Debug.Log($"Turret killed: {turretHP.name}");
+                }
+            }
+        }
+    }
 
 }
