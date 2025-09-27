@@ -14,20 +14,23 @@ public class ExplosionEnemy : EnemyBase
     private GameObject player;
 
     [Header("폭발 관련 설정")]
-    public float explosionRange = 1.5f;              // 폭발 범위
+    public float explosionRange = 1.5f;
     public GameObject explosionEffectPrefab;
 
     [Header("지연 폭발 모드")]
-    public bool useTimedExplosion = false;          // 일정 시간 후 폭발
-    public float explosionDelay = 3f;               // 몇 초 후 폭발
+    public bool useTimedExplosion = false;
+    public float explosionDelay = 3f;
+
+    [Header("플레이어 접촉 폭발 설정")]
+    public float playerTriggeredExplosionDelay = 1f; // 플레이어 접촉 시 폭발까지 시간
 
     [Header("깜빡임 설정")]
-    public float blinkDuration = 0.2f;              // 깜빡이는 간격
-    public float blinkStartTime = 1f;               // 폭발 전 몇 초부터 깜빡임 시작
+    public float blinkDuration = 0.2f;
+    public float blinkStartTime = 1f;
 
     private Tween blinkTween;
     private float timer = 0f;
-    private bool isTriggeredByPlayer = false;       // 플레이어 접촉 여부
+    private bool isTriggeredByPlayer = false;
 
     void Start()
     {
@@ -38,7 +41,6 @@ public class ExplosionEnemy : EnemyBase
         originalSpeed = GameManager.Instance.explosionEnemyStats.speed;
         speed = originalSpeed;
 
-        // NavMeshAgent 2D 설정
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.speed = speed;
@@ -48,16 +50,14 @@ public class ExplosionEnemy : EnemyBase
 
     void Update()
     {
-        if (!isLive || isExploding) return;
-        if (player == null) return;
+        if (!isLive || isExploding || player == null) return;
 
-        // 플레이어 접촉 후 폭발 대기 시 이동 멈춤
         if (!isTriggeredByPlayer)
         {
             // 플레이어 추적
             agent.SetDestination(player.transform.position);
 
-            // 이동 애니메이션 처리
+            // 이동 애니메이션
             Vector2 dir = agent.velocity;
             if (dir.magnitude > 0.1f)
             {
@@ -70,33 +70,26 @@ public class ExplosionEnemy : EnemyBase
             {
                 enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
             }
+
+            // 타이머 폭발
+            if (useTimedExplosion)
+                TimedExplosionUpdate();
+            else
+                CheckProximityExplosion();
         }
         else
         {
-            // 이동 정지 후 폭발 시퀀스
-            TriggeredExplosionUpdate();
+            // 플레이어 접촉 폭발 진행
+            PlayerTriggeredExplosionUpdate();
         }
-
-        // 타이머 기반 폭발
-        if (useTimedExplosion && !isTriggeredByPlayer)
-            TimedExplosionUpdate();
-
-        // 거리 기반 폭발
-        if (!useTimedExplosion && !isTriggeredByPlayer)
-            CheckProximityExplosion();
     }
 
-    // 거리 기반 폭발
     private void CheckProximityExplosion()
     {
-        float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
-        if (distanceToPlayer <= explosionRange)
-        {
+        if (Vector2.Distance(transform.position, player.transform.position) <= explosionRange)
             Explode(transform.position);
-        }
     }
 
-    // 타이머 기반 폭발
     private void TimedExplosionUpdate()
     {
         timer += Time.deltaTime;
@@ -111,22 +104,21 @@ public class ExplosionEnemy : EnemyBase
         }
     }
 
-    // 플레이어 접촉 후 폭발
-    private void TriggeredExplosionUpdate()
+    private void PlayerTriggeredExplosionUpdate()
     {
         timer += Time.deltaTime;
 
-        if (timer >= explosionDelay - blinkStartTime && blinkTween == null)
+        // 폭발까지 깜빡임 유지
+        if (blinkTween == null)
             StartBlinking();
 
-        if (timer >= explosionDelay)
+        if (timer >= playerTriggeredExplosionDelay)
         {
             StopBlinking();
             Explode(transform.position);
         }
     }
 
-    // DOTween 깜빡임 시작
     private void StartBlinking()
     {
         if (spriter == null) return;
@@ -136,7 +128,6 @@ public class ExplosionEnemy : EnemyBase
             .SetEase(Ease.InOutQuad);
     }
 
-    // 깜빡임 중지
     private void StopBlinking()
     {
         if (blinkTween != null && blinkTween.IsActive())
@@ -146,7 +137,6 @@ public class ExplosionEnemy : EnemyBase
         }
     }
 
-    // 실제 폭발 처리
     private void Explode(Vector3 position)
     {
         if (!isLive || isExploding) return;
@@ -155,22 +145,16 @@ public class ExplosionEnemy : EnemyBase
         isLive = false;
         StopBlinking();
 
-        // 폭발 이펙트
         if (explosionEffectPrefab != null)
         {
             GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
             Destroy(effect, 0.5f);
         }
 
-        // 플레이어 범위 내 피해
-        if (player != null)
+        if (player != null && Vector2.Distance(transform.position, player.transform.position) <= explosionRange)
         {
-            float distance = Vector2.Distance(transform.position, player.transform.position);
-            if (distance <= explosionRange)
-            {
-                int damage = GameManager.Instance.explosionEnemyStats.attack;
-                GameManager.Instance.playerDamaged.TakeDamage(damage);
-            }
+            int damage = GameManager.Instance.explosionEnemyStats.attack;
+            GameManager.Instance.playerDamaged.TakeDamage(damage);
         }
 
         Destroy(gameObject);
@@ -182,13 +166,11 @@ public class ExplosionEnemy : EnemyBase
 
         if (collision.CompareTag("Player"))
         {
-            // 닿으면 이동 멈추고 폭발 준비
             agent.isStopped = true;
             isTriggeredByPlayer = true;
             timer = 0f;
 
-            if (blinkTween == null)
-                StartBlinking();
+            StartBlinking();
         }
     }
 
@@ -197,7 +179,6 @@ public class ExplosionEnemy : EnemyBase
         StopBlinking();
     }
 
-    // 폭발 범위 시각화
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
