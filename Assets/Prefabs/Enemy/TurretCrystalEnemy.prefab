@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1822604486470973699}
   - component: {fileID: 6436740360920285420}
-  - component: {fileID: 3818131844207129269}
+  - component: {fileID: -850089717562445371}
   - component: {fileID: -1081806734638263433}
   - component: {fileID: 9034176444359971680}
   - component: {fileID: 4156295177328753157}
@@ -96,7 +96,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3818131844207129269
+--- !u!114 &-850089717562445371
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -105,7 +105,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 989741138225912565}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a57d779109e78c4d9614422fbaac4a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}

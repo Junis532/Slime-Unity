@@ -52800,7 +52800,7 @@ MonoBehaviour:
   spawnInterval: 0.7
   attackSpeedMultiplier: 1
   arrowDistanceFromPlayer: 1
-  stopDelay: 0.09
+  stopDelay: 0.1
   bulletsPerShot: 1
   spreadAngle: 20
   targetMarkerPrefab: {fileID: 5449532905997063942, guid: 4b37bf068a319aa43b900b30474eaab9, type: 3}
@@ -53122,6 +53122,14 @@ PrefabInstance:
       propertyPath: frameRate
       value: 0.05
       objectReference: {fileID: 0}
+    - target: {fileID: 3249348055405680799, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3276629896843439793, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3835443559090304717, guid: b198d124fab66d648951231024801966, type: 3}
       propertyPath: m_LocalScale.y
       value: -1
@@ -53165,6 +53173,14 @@ PrefabInstance:
     - target: {fileID: 3835443559090304717, guid: b198d124fab66d648951231024801966, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 179.562
+      objectReference: {fileID: 0}
+    - target: {fileID: 5729926932190279086, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6015982718783513016, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6463650222861885894, guid: b198d124fab66d648951231024801966, type: 3}
       propertyPath: frameRate
@@ -60661,6 +60677,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 4.3
       objectReference: {fileID: 0}
+    - target: {fileID: 882366891478613976, guid: 803e3fa63f705e34783a994789137558, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3534319313970473326, guid: 803e3fa63f705e34783a994789137558, type: 3}
       propertyPath: m_Name
       value: Door 1 (3)
@@ -60740,6 +60760,10 @@ PrefabInstance:
     - target: {fileID: 8575919754100098418, guid: 803e3fa63f705e34783a994789137558, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 9182515559680181748, guid: 803e3fa63f705e34783a994789137558, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -61963,11 +61987,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4009207151552565485, guid: 803e3fa63f705e34783a994789137558, type: 3}
       propertyPath: m_SortingOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4968462058084821697, guid: 803e3fa63f705e34783a994789137558, type: 3}
       propertyPath: m_SortingOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6371095370971363060, guid: 803e3fa63f705e34783a994789137558, type: 3}
       propertyPath: m_LocalScale.x
@@ -63197,6 +63221,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 5729926932190279086, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6015982718783513016, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6463650222861885894, guid: b198d124fab66d648951231024801966, type: 3}
       propertyPath: frameRate
       value: 0.05
@@ -63204,6 +63236,10 @@ PrefabInstance:
     - target: {fileID: 9203081771882534623, guid: b198d124fab66d648951231024801966, type: 3}
       propertyPath: m_Name
       value: Door 1 (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 9203081771882534623, guid: b198d124fab66d648951231024801966, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
