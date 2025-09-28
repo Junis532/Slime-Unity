@@ -125,7 +125,7 @@ public class TurretEnemy_PlayerTracking : EnemyBase
     {
         isPreparingToFire = true;
 
-        float duration = 1f; // 발사 준비 시간
+        float duration = fireIntervals[fireIndex];
 
         // 발사 준비: 본체 색이 하얀색 → 빨강으로 변화
         if (spriter != null)

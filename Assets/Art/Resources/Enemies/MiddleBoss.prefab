@@ -105,17 +105,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17f50df10ffcf0c4586c9d602f535318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillInterval: 4
+  skillInterval: 2
   bulletPrefab: {fileID: 6382944771956985129, guid: 52728663e8fc3d643bd125540d7bc77e, type: 3}
-  bulletsPerWave: 8
+  bulletsPerWave: 10
   bulletAngle: 15
-  bulletSpeed: 6
+  bulletSpeed: 7
   mapCollider: {fileID: 0}
   laserDuration: 2
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: 4eafba37ffceadb46b8be885a1a67bb6, type: 2}
-  swordRotateSpeed: 130
+  swordRotateSpeed: 150
   swordStartAngle: 90
+  jumpHeight: 10
+  jumpDuration: 0.5
+  jumpBulletCount: 15
+  jumpBulletSpeed: 8
 --- !u!114 &9146112077593207702
 MonoBehaviour:
   m_ObjectHideFlags: 0

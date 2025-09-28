@@ -123,7 +123,7 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         isPreparingToFire = true;
 
-        float duration = 1f; // 발사 준비 시간
+        float duration = fireIntervals[fireIndex]; // 발사 준비 시간
 
         // 본체 색이 흰색 → 빨강으로 변함
         if (spriter != null)

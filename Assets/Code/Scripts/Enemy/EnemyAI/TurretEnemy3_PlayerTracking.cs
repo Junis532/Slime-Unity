@@ -122,7 +122,7 @@ public class TurretEnemy3_PlayerTracking : EnemyBase
     {
         isPreparingToFire = true;
 
-        float duration = 1f;
+        float duration = fireIntervals[fireIndex];
 
         // 발사 준비: 본체 빨간색
         if (spriter != null) spriter.DOColor(Color.red, duration);
