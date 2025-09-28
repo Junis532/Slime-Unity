@@ -97,9 +97,18 @@ public class LaserObject : MonoBehaviour
             if (hit.collider.CompareTag("Player"))
             {
                 JoystickDirectionIndicator indicator = hit.collider.GetComponent<JoystickDirectionIndicator>();
+
+                // 1. 스킬 사용 중이 아니거나 indicator가 없는 경우에만 데미지 처리
                 if (indicator == null || !indicator.IsUsingSkill)
                 {
-                    GameManager.Instance.playerDamaged.TakeDamage(laserDamage);
+                    // 2. 넉백 방향 계산을 위해 현재 오브젝트(레이저 발사체/적)의 위치를 전달합니다.
+                    Vector3 enemyPosition = transform.position;
+
+                    // 3. PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
+                    //    (기존의 hit.collider와 hit.point 인자는 제거됩니다.)
+                    GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPosition);
+
+                    // 여기에 레이저 파괴 로직 등을 추가할 수 있습니다.
                 }
             }
         }

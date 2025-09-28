@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9013428061850824177
 Transform:
   m_ObjectHideFlags: 0
@@ -155,8 +155,8 @@ Transform:
   m_GameObject: {fileID: 3138796063724582110}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.77, y: 0.46, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9013428061850824177}
@@ -207,7 +207,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 6541257662711044462, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
+  m_Sprite: {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
@@ -239,6 +239,7 @@ MonoBehaviour:
   useKnockback: 0
   knockbackDistance: 0.1
   knockbackDuration: 0.1
+  isDead: 0
 --- !u!114 &8177429782430038500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,16 +253,86 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleSprites:
-  - {fileID: 6541257662711044462, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: -3079685290255376333, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: 815294380564538996, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: -3318282245358676436, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
+  - {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   moveSprites:
-  - {fileID: 6541257662711044462, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: -3079685290255376333, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: 815294380564538996, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
-  - {fileID: -3318282245358676436, guid: 6b3200d36da462a42a95e01e9f40cf95, type: 3}
+  - {fileID: -6898183587839755063, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4697487717561888957, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4159279952556973153, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3487258302320658862, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3951662435464445829, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4538846319712727530, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -782055110366105121, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -2985851590034088253, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: 9150952553601429979, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4759373985568214116, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: 799274653299492021, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3633419440063748118, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3592020211401212975, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  attackStartSprites:
+  - {fileID: -1144524399771964028, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: 6273649054176858238, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -8061089812897360315, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -5450632278337619065, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -5878649532159027277, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -5195315157100015529, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -9147299731870798332, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: 2922091868285954794, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -708889713167503492, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -4083633650364381285, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: 2666453864601797547, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -6919058161453774555, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  - {fileID: -7220702130486077886, guid: 02b2b9f75085c3442a4477069f3b8ad9, type: 3}
+  attackSprites: []
+  attackEndSprites: []
+  attackStartFrontSprites:
+  - {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 3525449545553414727, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 4480656170617966194, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 4596020926947945514, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -3767216476198604655, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 505680319468160528, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 505680319468160528, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -2088423905800365828, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 4893920662514608065, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -6071164777947903951, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -3467285552773551773, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: 5379979728194539788, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -6299204775379481222, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  - {fileID: -8392245097595797263, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
+  attackEndFrontSprites: []
+  moveSideSprites:
+  - {fileID: -6898183587839755063, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4697487717561888957, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4159279952556973153, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3487258302320658862, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3951662435464445829, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4538846319712727530, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -782055110366105121, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -2985851590034088253, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: 9150952553601429979, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -4759373985568214116, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: 799274653299492021, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3633419440063748118, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  - {fileID: -3592020211401212975, guid: 9c20771a481c40147867e4e21260bc37, type: 3}
+  moveFrontSprites:
+  - {fileID: -6898183587839755063, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4697487717561888957, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4159279952556973153, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3487258302320658862, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3951662435464445829, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4538846319712727530, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -782055110366105121, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  moveBackSprites:
+  - {fileID: -6898183587839755063, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4697487717561888957, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4159279952556973153, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3487258302320658862, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3951662435464445829, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4538846319712727530, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -782055110366105121, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
   frameRate: 0.15
+  attackFrameRate: 0.01
+  verticalThreshold: 0.5
   currentState: 0
 --- !u!50 &4309892111239111779
 Rigidbody2D:
@@ -320,7 +391,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -356,6 +427,7 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
+  attackPrepareDuration: 0.5
   fireIntervals:
   - 1
   - 3

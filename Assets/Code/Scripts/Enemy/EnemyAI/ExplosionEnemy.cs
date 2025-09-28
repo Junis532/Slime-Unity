@@ -153,12 +153,26 @@ public class ExplosionEnemy : EnemyBase
 
         if (player != null && Vector2.Distance(transform.position, player.transform.position) <= explosionRange)
         {
+            // 🚨 스킬 사용 중이면 데미지 무시
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Debug.Log("스킬 사용 중이라 폭발 데미지 무시");
+                return; // 폭발 처리가 루프나 함수 내부에 있다고 가정하고 return 또는 break 사용
+            }
+
             int damage = GameManager.Instance.explosionEnemyStats.attack;
-            GameManager.Instance.playerDamaged.TakeDamage(damage);
+
+            // 넉백 방향 계산을 위해 폭발한 몬스터의 위치를 '적 위치'로 전달합니다.
+            Vector3 enemyPosition = transform.position;
+
+            // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
+            // 기존의 playerCollider와 contactPoint 인수는 제거됩니다.
+            GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
         }
 
         Destroy(gameObject);
     }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

@@ -226,6 +226,7 @@ MonoBehaviour:
   useKnockback: 1
   knockbackDistance: 0.1
   knockbackDuration: 0.1
+  isDead: 0
 --- !u!114 &7309634297501502348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,7 +248,22 @@ MonoBehaviour:
   - {fileID: 2078964560, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: -971271808, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
   - {fileID: 86454189, guid: 4104ee12b4d54f54b91b3ba875787837, type: 3}
+  attackStartSprites: []
+  attackSprites: []
+  attackEndSprites: []
+  moveSideSprites:
+  - {fileID: -6898183587839755063, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4697487717561888957, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4159279952556973153, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3487258302320658862, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -3951662435464445829, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -4538846319712727530, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  - {fileID: -782055110366105121, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  moveFrontSprites: []
+  moveBackSprites: []
   frameRate: 0.15
+  attackFrameRate: 0.05
+  verticalThreshold: 0.5
   currentState: 0
 --- !u!50 &2575544821683126937
 Rigidbody2D:

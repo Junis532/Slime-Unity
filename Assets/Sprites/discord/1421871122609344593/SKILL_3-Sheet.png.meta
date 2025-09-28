@@ -1,0 +1,755 @@
+fileFormatVersion: 2
+guid: 73ba964ea6644bb42b476736c6d8bc64
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8397538591753321932
+    second: SKILL_3-Sheet_0
+  - first:
+      213: -4500346100638567264
+    second: SKILL_3-Sheet_1
+  - first:
+      213: 7493798017354412544
+    second: SKILL_3-Sheet_2
+  - first:
+      213: -996607770238375663
+    second: SKILL_3-Sheet_3
+  - first:
+      213: -7521087959473540347
+    second: SKILL_3-Sheet_4
+  - first:
+      213: 8940498925595531405
+    second: SKILL_3-Sheet_5
+  - first:
+      213: -4255631930164653216
+    second: SKILL_3-Sheet_6
+  - first:
+      213: 2315154431645747108
+    second: SKILL_3-Sheet_7
+  - first:
+      213: -5497199542739464133
+    second: SKILL_3-Sheet_8
+  - first:
+      213: -4226948941061347339
+    second: SKILL_3-Sheet_9
+  - first:
+      213: 6367542472671516061
+    second: SKILL_3-Sheet_10
+  - first:
+      213: -8510729595245884424
+    second: SKILL_3-Sheet_11
+  - first:
+      213: 7472044859330893960
+    second: SKILL_3-Sheet_12
+  - first:
+      213: 5944849767413742099
+    second: SKILL_3-Sheet_13
+  - first:
+      213: 7988021384431129278
+    second: SKILL_3-Sheet_14
+  - first:
+      213: -5432713389594598392
+    second: SKILL_3-Sheet_15
+  - first:
+      213: -7229401787726657447
+    second: SKILL_3-Sheet_16
+  - first:
+      213: -3631813999948821046
+    second: SKILL_3-Sheet_17
+  - first:
+      213: 5242625123384159556
+    second: SKILL_3-Sheet_18
+  - first:
+      213: -6064776853419788102
+    second: SKILL_3-Sheet_19
+  - first:
+      213: -8685112975663315542
+    second: SKILL_3-Sheet_20
+  - first:
+      213: 4760076159097134293
+    second: SKILL_3-Sheet_21
+  - first:
+      213: 5732014424598370910
+    second: SKILL_3-Sheet_22
+  - first:
+      213: -2216391075885500788
+    second: SKILL_3-Sheet_23
+  - first:
+      213: 6676500680305914722
+    second: SKILL_3-Sheet_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_0
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 4
+        width: 74
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 432c8e29423f57b80800000000000000
+      internalID: -8397538591753321932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 4
+        width: 77
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a4bf19b01f8b81c0800000000000000
+      internalID: -4500346100638567264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 4
+        width: 80
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 002bfeac7915ff760800000000000000
+      internalID: 7493798017354412544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 4
+        width: 71
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1192c8263865b22f0800000000000000
+      internalID: -996607770238375663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 45
+        width: 20
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 503bc1b695abf9790800000000000000
+      internalID: -7521087959473540347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 441
+        y: 4
+        width: 52
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8812ee6768031c70800000000000000
+      internalID: 8940498925595531405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_6
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 45
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 063d9bb8e45f0f4c0800000000000000
+      internalID: -4255631930164653216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_7
+      rect:
+        serializedVersion: 2
+        x: 541
+        y: 4
+        width: 52
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a78a6a70b4112020800000000000000
+      internalID: 2315154431645747108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_8
+      rect:
+        serializedVersion: 2
+        x: 648
+        y: 4
+        width: 45
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b30139b242606b3b0800000000000000
+      internalID: -5497199542739464133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_9
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 4
+        width: 45
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f7235c555cd655c0800000000000000
+      internalID: -4226948941061347339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_10
+      rect:
+        serializedVersion: 2
+        x: 848
+        y: 4
+        width: 45
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d955cc7642e0e5850800000000000000
+      internalID: 6367542472671516061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_11
+      rect:
+        serializedVersion: 2
+        x: 947
+        y: 4
+        width: 46
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fb07ff5680d3e980800000000000000
+      internalID: -8510729595245884424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_12
+      rect:
+        serializedVersion: 2
+        x: 1048
+        y: 4
+        width: 45
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8889332063902b760800000000000000
+      internalID: 7472044859330893960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_13
+      rect:
+        serializedVersion: 2
+        x: 1121
+        y: 4
+        width: 72
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31a72c5cd59508250800000000000000
+      internalID: 5944849767413742099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_14
+      rect:
+        serializedVersion: 2
+        x: 1242
+        y: 4
+        width: 51
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb2dd3570272bde60800000000000000
+      internalID: 7988021384431129278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_15
+      rect:
+        serializedVersion: 2
+        x: 1348
+        y: 4
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 804a4b6b4ff1b94b0800000000000000
+      internalID: -5432713389594598392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_16
+      rect:
+        serializedVersion: 2
+        x: 1448
+        y: 4
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9588af780610cab90800000000000000
+      internalID: -7229401787726657447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_17
+      rect:
+        serializedVersion: 2
+        x: 1548
+        y: 4
+        width: 45
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acd82c2c864399dc0800000000000000
+      internalID: -3631813999948821046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_18
+      rect:
+        serializedVersion: 2
+        x: 1648
+        y: 0
+        width: 45
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44de9d9e5cb81c840800000000000000
+      internalID: 5242625123384159556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_19
+      rect:
+        serializedVersion: 2
+        x: 1748
+        y: 0
+        width: 45
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab8f6e9959595dba0800000000000000
+      internalID: -6064776853419788102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_20
+      rect:
+        serializedVersion: 2
+        x: 1848
+        y: 0
+        width: 45
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa5c37ba3c7487780800000000000000
+      internalID: -8685112975663315542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_21
+      rect:
+        serializedVersion: 2
+        x: 1948
+        y: 0
+        width: 45
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5dc5ac6fb003f0240800000000000000
+      internalID: 4760076159097134293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_22
+      rect:
+        serializedVersion: 2
+        x: 1221
+        y: 20
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5ad999efb43c8f40800000000000000
+      internalID: 5732014424598370910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_23
+      rect:
+        serializedVersion: 2
+        x: 1232
+        y: 15
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c86bf763f0ccd31e0800000000000000
+      internalID: -2216391075885500788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SKILL_3-Sheet_24
+      rect:
+        serializedVersion: 2
+        x: 1321
+        y: 15
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 263b940cef1b7ac50800000000000000
+      internalID: 6676500680305914722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

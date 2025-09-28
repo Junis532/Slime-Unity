@@ -1,5 +1,6 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
+using System.Collections; // Coroutineì„ ìœ„í•´ ëª…ì‹œì ìœ¼ë¡œ ì¶”ê°€
 
 public class TurretEnemy_FixedAngle : EnemyBase
 {
@@ -7,49 +8,48 @@ public class TurretEnemy_FixedAngle : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    [Header("¹ß»ç ¹üÀ§ / ¶óÀÎ Ç¥½Ã")]
+    [Header("ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¤€ë¹„ ì‹œê°„")]
+    [Tooltip("AttackStart ì• ë‹ˆë©”ì´ì…˜ì´ ì‹œì‘ë˜ì–´ ë°œì‚¬ê¹Œì§€ ê±¸ë¦¬ëŠ” ì‹œê°„")]
+    public float attackPrepareDuration = 2.0f;
+
+    [Header("ë°œì‚¬ ë²”ìœ„ / ë¼ì¸ í‘œì‹œ")]
     public float fireRange = 5f;
 
-    [Header("¹ß»ç °£°İ (¼øÈ¯)")]
-    public float[] fireIntervals = { 1f, 3f, 2f }; // °¢ Åº¸¶´Ù ¹ß»ç ´ë±â ½Ã°£
+    [Header("ë°œì‚¬ ê°„ê²© (ìˆœí™˜)")]
+    public float[] fireIntervals = { 1f, 3f, 2f };
     private int fireIndex = 0;
-    private float lastFireTime;
+    private float lastFireTime; // ë‹¤ìŒ ë°œì‚¬ ëŒ€ê¸° ì‹œê°„ ê³„ì‚°ì˜ ê¸°ì¤€
 
-    [Header("Ã¹ ¹ß»ç µô·¹ÀÌ")]
-    public float firstFireDelay = 2f; // Ã¹ ¹ß»ç´Â 2ÃÊ µÚ ½ÇÇà
+    [Header("ì²« ë°œì‚¬ ë”œë ˆì´")]
+    public float firstFireDelay = 2f; // ì²« ë°œì‚¬ëŠ” 2ì´ˆ ë’¤ ì‹¤í–‰
 
-    [Header("ÅºÈ¯ ¼³Á¤")]
+    [Header("íƒ„í™˜ ì„¤ì •")]
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
 
-    [Header("LineRenderer ¼³Á¤")]
+    [Header("LineRenderer ì„¤ì •")]
     public bool showLineRenderer = true;
     private LineRenderer lineRenderer;
     private bool isPreparingToFire = false;
 
-    [Header("°íÁ¤ ¹ß»ç °¢µµ (µµ ´ÜÀ§)")]
+    [Header("ê³ ì • ë°œì‚¬ ê°ë„ (ë„ ë‹¨ìœ„)")]
     [Range(0f, 360f)]
     public float fixedAngle = 0f;
 
-    // ==== »çÀÌÅ¬ Äğ´Ù¿î Ãß°¡ ====
-    [Header("»çÀÌÅ¬ Äğ´Ù¿î(¸®½ºÆ® ÇÑ ¹ÙÄû ÈÄ ½¬´Â ½Ã°£)")]
-    public float cycleCooldown = 2f;                  // NEW: ÇÑ »çÀÌÅ¬ ÈÄ Àû¿ëÇÒ Äğ´Ù¿î ½Ã°£
-    private bool cycleCooldownPending = false;        // NEW: ´ÙÀ½ ¹ß»ç Àü Äğ´Ù¿îÀ» 'ÇÑ ¹ø¸¸' Àû¿ë
+    [Header("ì‚¬ì´í´ ì¿¨ë‹¤ìš´(ë¦¬ìŠ¤íŠ¸ í•œ ë°”í€´ í›„ ì‰¬ëŠ” ì‹œê°„)")]
+    public float cycleCooldown = 2f; // NEW: í•œ ì‚¬ì´í´ í›„ ì ìš©í•  ì¿¨ë‹¤ìš´ ì‹œê°„
+    private bool cycleCooldownPending = false; // NEW: ë‹¤ìŒ ë°œì‚¬ ì „ ì¿¨ë‹¤ìš´ì„ 'í•œ ë²ˆë§Œ' ì ìš©
 
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
 
-        originalSpeed = GameManager.Instance.longRangeEnemyStats.speed;
-        speed = originalSpeed;
-
-        // LineRenderer ¼¼ÆÃ
+        // LineRenderer ì„¸íŒ…
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = showLineRenderer;
-
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -58,7 +58,9 @@ public class TurretEnemy_FixedAngle : EnemyBase
         lineRenderer.sortingOrder = 2;
         lineRenderer.sortingLayerName = "Default";
 
-        // ½ÃÀÛ ½Ã Ã¹ ¹ß»ç ½Ã°£ = ÇöÀç ½Ã°£ + firstFireDelay
+        // ì‹œì‘ ì‹œ ì²« ë°œì‚¬ ì‹œê°„ ì„¤ì •
+        // Time.time - fireIntervals[0] + firstFireDelay;
+        // fireIntervals[0]ë§Œí¼ ë¯¸ë¦¬ ê²½ê³¼ëœ ê²ƒì²˜ëŸ¼ ì„¤ì • í›„ firstFireDelayë§Œí¼ ëŒ€ê¸° ì‹œê°„ì„ ì¶”ê°€í•˜ì—¬ ì²« ë°œì‚¬ ë”œë ˆì´ êµ¬í˜„
         lastFireTime = Time.time - fireIntervals[0] + firstFireDelay;
     }
 
@@ -66,8 +68,9 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (!isLive) return;
 
-        // -------------------------------
-        // ¸Å ÇÁ·¹ÀÓ Crystal ·¹ÀÌ¾î Á¸Àç ¿©ºÎ Ã¼Å©
+        // --- Crystal ë ˆì´ì–´ ì²´í¬ ë¡œì§ ---
+        // âš ï¸ ì£¼ì˜: Object.FindObjectsByTypeë¥¼ Update()ì—ì„œ ë§¤ í”„ë ˆì„ í˜¸ì¶œí•˜ëŠ” ê²ƒì€ ì„±ëŠ¥ì— ë§¤ìš° ì•ˆ ì¢‹ìŠµë‹ˆë‹¤.
+        // Crystalì˜ ìƒíƒœëŠ” ë³„ë„ì˜ Manager ìŠ¤í¬ë¦½íŠ¸ì—ì„œ ê´€ë¦¬í•˜ê³  ì°¸ì¡°í•˜ëŠ” ê²ƒì´ ì¢‹ìŠµë‹ˆë‹¤.
         int crystalLayer = LayerMask.NameToLayer("Crystal");
         bool crystalExists = false;
 
@@ -81,7 +84,6 @@ public class TurretEnemy_FixedAngle : EnemyBase
             }
         }
 
-        // Á¸ÀçÇÏ¸é Enemy ÅÂ±× Á¦°Å, ¾øÀ¸¸é Enemy ÅÂ±× ¼³Á¤
         if (crystalExists)
         {
             if (gameObject.tag == "Enemy")
@@ -92,12 +94,29 @@ public class TurretEnemy_FixedAngle : EnemyBase
             if (gameObject.tag != "Enemy")
                 gameObject.tag = "Enemy";
         }
-        // -------------------------------
+        // ------------------------------------
 
-        // ±âÁ¸ °íÁ¤ °¢µµ ¹ß»ç/¶óÀÎ ·»´õ¸µ ·ÎÁ÷
+        // ê³ ì • ê°ë„ ë° ì¢Œìš° ë°˜ì „ ë¡œì§
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
+        // ğŸŸ¢ ìˆ˜ì •ëœ ì¢Œìš° ë°˜ì „ ë¡œì§: ë°©í–¥ì´ ë°”ë€” ë•Œë§Œ ìŠ¤ì¼€ì¼ ë³€ê²½
+        if (Mathf.Abs(dir.x) > 0.01f)
+        {
+            float targetSign = dir.x < 0 ? -1 : 1;
+            float currentSign = Mathf.Sign(transform.localScale.x);
+
+            // í˜„ì¬ ìŠ¤ì¼€ì¼ì˜ ë¶€í˜¸(ë°©í–¥)ì™€ ëª©í‘œ ìŠ¤ì¼€ì¼ì˜ ë¶€í˜¸ê°€ ë‹¤ë¥¼ ë•Œë§Œ ìŠ¤ì¼€ì¼ ë³€ê²½
+            if (!Mathf.Approximately(targetSign, currentSign))
+            {
+                var s = transform.localScale;
+                s.x = Mathf.Abs(s.x) * targetSign;
+                transform.localScale = s;
+            }
+        }
+        // ------------------------------------
+
+        // LineRenderer ë¡œì§ ìœ ì§€
         if (lineRenderer != null)
             lineRenderer.enabled = showLineRenderer;
 
@@ -107,61 +126,105 @@ public class TurretEnemy_FixedAngle : EnemyBase
             lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
         }
 
+        // ë°œì‚¬ ì¿¨ë‹¤ìš´ ì²´í¬
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
         float effectiveCooldown = cycleCooldownPending ? cycleCooldown : currentCooldown;
 
+        // ë‹¤ìŒ ë°œì‚¬ ì‹œê°„ì´ ë˜ì—ˆê³ , í˜„ì¬ ë°œì‚¬ ì¤€ë¹„ ì¤‘ì´ ì•„ë‹ˆë¼ë©´ ì½”ë£¨í‹´ ì‹œì‘
         if (Time.time - lastFireTime >= effectiveCooldown && !isPreparingToFire)
         {
+            // cycleCooldownPendingì´ ì ìš© ì¤‘ì´ì—ˆë‹¤ë©´ í•´ì œ
             if (cycleCooldownPending) cycleCooldownPending = false;
+
+            // ì½”ë£¨í‹´ ì‹œì‘ (ë‚´ë¶€ì—ì„œ lastFireTime ì—…ë°ì´íŠ¸ ë° ë°œì‚¬ ì¤€ë¹„ ì‹œì‘)
             StartCoroutine(PrepareAndShoot(dir));
         }
 
-        enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+        // ë°œì‚¬ ì¤€ë¹„ ì¤‘ì´ ì•„ë‹ ë•Œ, ê·¸ë¦¬ê³  ê³µê²© ì• ë‹ˆë©”ì´ì…˜(Start/End)ì´ ì§„í–‰ ì¤‘ì´ ì•„ë‹ ë•Œë§Œ Move/Idleë¡œ ì „í™˜
+        if (!isPreparingToFire)
+        {
+            if (enemyAnimation.currentState != EnemyAnimation.State.AttackStart &&
+                enemyAnimation.currentState != EnemyAnimation.State.AttackEnd &&
+                enemyAnimation.currentState != EnemyAnimation.State.FrontAttackEnd)
+            {
+                // ì´ í•¨ìˆ˜ê°€ 90/270ë„ì¼ ë•Œ MoveBack/MoveFront ìƒíƒœë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+                enemyAnimation.PlayDirectionalMoveAnimation(dir);
+            }
+        }
     }
 
     private System.Collections.IEnumerator PrepareAndShoot(Vector2 dir)
     {
         isPreparingToFire = true;
 
-        float duration = fireIntervals[fireIndex]; // ¹ß»ç ÁØºñ ½Ã°£
+        float totalInterval = fireIntervals[fireIndex % fireIntervals.Length]; // ë‹¤ìŒ ë°œì‚¬ ê°„ê²©
+        float waitDuration = Mathf.Max(0f, totalInterval - attackPrepareDuration);
 
-        // º»Ã¼ »öÀÌ Èò»ö ¡æ »¡°­À¸·Î º¯ÇÔ
-        if (spriter != null)
+        // 1. AttackStart ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ 'ì „ì—' ìˆœìˆ˜í•œ ëŒ€ê¸° ì‹œê°„ì„ ê¸°ë‹¤ë¦¼. (ì´ ë¶€ë¶„ì´ ë°œì‚¬ ê°„ê²©ì„ ë§ì¶¥ë‹ˆë‹¤)
+        if (waitDuration > 0)
         {
-            spriter.DOColor(Color.red, duration);
+            yield return new WaitForSeconds(waitDuration);
         }
 
-        // ¹ß»ç ÁØºñ ´ë±â
-        yield return new WaitForSeconds(duration);
+        // ğŸš¨ 1. AttackStart ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Attack);
 
-        // ¹ß»ç
+        // ë³¸ì²´ ìƒ‰ì´ í°ìƒ‰ â†’ ë¹¨ê°•ìœ¼ë¡œ ë³€í•¨
+        if (spriter != null)
+        {
+            spriter.DOKill();
+            spriter.DOColor(Color.red, attackPrepareDuration);
+        }
+
+        // ğŸ¯ AttackStart ì¬ìƒ ë° ë°œì‚¬ ì¤€ë¹„ ëŒ€ê¸°
+        yield return new WaitForSeconds(attackPrepareDuration);
+
+        // ğŸš¨ 2. ë°œì‚¬ ë° AttackEndë¡œ ì „í™˜ (ë°œì‚¬ ì‹œì )
         Shoot(dir);
+
+        // AttackEnd ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ì„ PlayAnimationìœ¼ë¡œ ì§ì ‘ í˜¸ì¶œ
+        // ğŸš¨ ìˆ˜ì •ëœ ë¡œì§: fixedAngleì´ 90ë„ ë˜ëŠ” 270ë„ì¼ ë•Œ FrontAttackEnd ì‚¬ìš©
+        if (Mathf.Approximately(fixedAngle, 90f) || Mathf.Approximately(fixedAngle, 270f))
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.FrontAttackEnd);
+        }
+        else
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.AttackEnd);
+        }
+
+        // ë°œì‚¬ í›„ ë³¸ì²´ ìƒ‰ ë‹¤ì‹œ í°ìƒ‰ìœ¼ë¡œ ë³µê·€
+        if (spriter != null)
+        {
+            spriter.DOKill();
+            spriter.DOColor(Color.white, 0.2f);
+        }
+
+        // ğŸš¨ AttackEnd/FrontAttackEnd ì• ë‹ˆë©”ì´ì…˜ì´ ëë‚  ë•Œê¹Œì§€ ëŒ€ê¸°
+        yield return new WaitUntil(() =>
+            enemyAnimation.currentState != EnemyAnimation.State.AttackEnd &&
+            enemyAnimation.currentState != EnemyAnimation.State.FrontAttackEnd
+        );
+
+        // ğŸš¨ 3. ë‹¤ìŒ ì‚¬ì´í´ ë¡œì§ ì‹¤í–‰
         lastFireTime = Time.time;
 
-        // ´ÙÀ½ Äğ´Ù¿îÀ¸·Î ÀÌµ¿
+        // ë‹¤ìŒ ì¿¨ë‹¤ìš´ìœ¼ë¡œ ì´ë™ ë° ì‚¬ì´í´ ì¿¨ë‹¤ìš´ ì˜ˆì•½ ë¡œì§ ìœ ì§€
         int prevIndex = fireIndex;
         fireIndex = (fireIndex + 1) % fireIntervals.Length;
 
-        // ÇÑ »çÀÌÅ¬ ³¡³ÂÀ¸¸é cycleCooldown ¿¹¾à
         if (prevIndex == fireIntervals.Length - 1)
         {
             cycleCooldownPending = true;
         }
-
-        // ¹ß»ç ÈÄ º»Ã¼ »ö ´Ù½Ã Èò»öÀ¸·Î º¹±Í
-        if (spriter != null)
-        {
-            spriter.DOColor(Color.white, 0.2f);
-        }
-
-        // ¹ß»ç ÈÄ Àá½Ã ´ë±â
-        yield return new WaitForSeconds(0.3f);
 
         isPreparingToFire = false;
     }
 
     void Shoot(Vector2 dir)
     {
+        // íƒ„í™˜ ë°œì‚¬ ë¡œì§ ìœ ì§€
+        // *ì£¼ì˜: PoolManager.Instance.SpawnFromPoolì´ í”„ë¡œì íŠ¸ì— ì •ì˜ë˜ì–´ ìˆì–´ì•¼ í•©ë‹ˆë‹¤.*
         GameObject bullet = PoolManager.Instance.SpawnFromPool(bulletPrefab.name, transform.position, Quaternion.identity);
 
         if (bullet != null)
@@ -174,7 +237,6 @@ public class TurretEnemy_FixedAngle : EnemyBase
         }
     }
 
-    // ¿ÜºÎ¿¡¼­ °­Á¦·Î »çÀÌÅ¬ Äğ´Ù¿îÀ» ¹Ù·Î ´ÙÀ½ ¹ß»ç Àü¿¡ Àû¿ëÇÏ°í ½ÍÀ» ¶§ È£Ãâ
     public void ForceCycleCooldown()
     {
         cycleCooldownPending = true;
@@ -184,6 +246,11 @@ public class TurretEnemy_FixedAngle : EnemyBase
     {
         if (lineRenderer != null)
             Destroy(lineRenderer);
+
+        if (spriter != null)
+        {
+            spriter.DOKill();
+        }
 
         isLive = false;
     }

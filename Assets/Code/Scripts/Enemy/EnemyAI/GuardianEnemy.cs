@@ -128,10 +128,26 @@ public class GuardianEnemy : EnemyBase
         while (isDamaging)
         {
             if (player == null) yield break;
+
+            // 1초마다 피해를 줍니다.
             yield return new WaitForSeconds(1f);
 
+            // 🚨 스킬 사용 중이면 데미지 무시
+            // 코루틴 내부에서 매번 체크해야 지속 피해가 스킬에 막힙니다.
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Debug.Log("스킬 사용 중이라 지속 몬스터 데미지 무시");
+                continue; // 데미지 주지 않고 루프 처음으로 돌아가 다음 1초를 기다림
+            }
+
             int damage = GameManager.Instance.enemyStats.attack;
-            GameManager.Instance.playerDamaged.TakeDamage(damage);
+
+            // 넉백 방향 계산을 위해 현재 몬스터의 위치를 '적 위치'로 전달합니다.
+            Vector3 enemyPosition = transform.position;
+
+            // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
+            // 기존의 playerCollider와 contactPoint 인수는 제거됩니다.
+            GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
         }
     }
 }

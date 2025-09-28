@@ -73,17 +73,33 @@ public class ExplosionDronEnemy : EnemyBase
             Destroy(effect, 0.3f);
         }
 
-        // ✅ 이제는 PlayerDamaged 쪽에 위임
-        int damage = GameManager.Instance.enemyStats.attack;
-        GameManager.Instance.playerDamaged.TakeDamage(damage);
+        // 플레이어가 범위 안에 있는 경우 데미지
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null && Vector2.Distance(transform.position, player.transform.position) <= explosionRange)
+        {
+            // 🚨 스킬 사용 중이면 데미지 무시
+            if (GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                Debug.Log("스킬 사용 중이라 폭발 데미지 무시");
+                return;
+            }
 
+            int damage = GameManager.Instance.enemyStats.attack;
+
+            // 넉백 방향 계산을 위해 폭발한 오브젝트의 위치를 '적 위치'로 전달합니다.
+            Vector3 enemyPosition = transform.position;
+
+            // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
+            // 기존의 playerCollider와 contactPoint 인수는 제거됩니다.
+            GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
+        }
         Destroy(gameObject);
     }
 
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // 플레이어와 충돌해도 바로 폭발할 수 있음 (옵션)
+        // 플레이어와 충돌 시 바로 폭발
         if (!isLive) return;
 
         if (collision.CompareTag("Player"))
@@ -91,4 +107,5 @@ public class ExplosionDronEnemy : EnemyBase
             Explode(transform.position);
         }
     }
+
 }

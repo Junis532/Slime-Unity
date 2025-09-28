@@ -244,13 +244,22 @@ public class MiddleBoss : MonoBehaviour
             if (hit.collider.CompareTag("Player"))
             {
                 JoystickDirectionIndicator indicator = hit.collider.GetComponent<JoystickDirectionIndicator>();
-                if (indicator != null && indicator.IsUsingSkill)
-                    continue;
 
-                GameManager.Instance.playerDamaged.TakeDamage(laserDamage);
+                // 스킬 사용 중인 경우 데미지 무시하고 다음 충돌 처리로 이동
+                if (indicator != null && indicator.IsUsingSkill)
+                    return; // continue는 루프 내에서 사용되지만, 여기서는 함수를 종료하는 return을 사용하거나
+                            // 원래 루프의 흐름을 따르는 것이 좋습니다. (루프 밖으로 코드를 옮겼다고 가정하고 return 사용)
+
+                // 넉백 방향 계산을 위해 현재 오브젝트(레이저 발사체/적)의 위치를 전달합니다.
+                Vector3 enemyPosition = transform.position;
+
+                // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
+                // 기존의 hit.collider와 hit.point 인수는 제거됩니다.
+                GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPosition);
             }
         }
     }
+
 
     // ────────── 스킬 3: 검 휘두르기 ──────────
     // ────────── 스킬 3: 회전 레이저 ──────────
@@ -327,12 +336,20 @@ public class MiddleBoss : MonoBehaviour
     // 🔸 레이저 데미지 체크 함수 (보조)
     private void CheckLaserDamage(Vector3 start, Vector3 dir, float distance)
     {
+        // 레이어 마스크를 변수로 가져오는 대신 인라인으로 사용 가능
         RaycastHit2D hit = Physics2D.Raycast(start, dir, distance, LayerMask.GetMask("Player"));
+
         if (hit.collider != null && hit.collider.CompareTag("Player"))
         {
-            GameManager.Instance.playerDamaged.TakeDamage(laserDamage);
+            // 넉백 방향 계산을 위해 레이저를 쏜 오브젝트의 위치를 적 위치로 전달합니다.
+            Vector3 enemyPosition = transform.position;
+
+            // 기존의 hit.collider와 hit.point 인수를 제거하고,
+            // 수정된 TakeDamage(데미지, 적 위치) 형식으로 호출합니다.
+            GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPosition);
         }
     }
+
 
 
     // ────────── 스킬 4: 점프 후 원형탄 ──────────
