@@ -189,11 +189,14 @@ public class MiddleBoss : MonoBehaviour
         activeSkillObjects.Add(leftLaser);
         activeSkillObjects.Add(rightLaser);
 
-        // 초기 위치는 경고 위치 기준
-        leftLR.SetPosition(0, leftWarningPos + Vector3.up * bounds.extents.y);
-        leftLR.SetPosition(1, leftWarningPos + Vector3.down * bounds.extents.y);
-        rightLR.SetPosition(0, rightWarningPos + Vector3.up * bounds.extents.y);
-        rightLR.SetPosition(1, rightWarningPos + Vector3.down * bounds.extents.y);
+        // 레이저 길이 추가
+        float laserExtraLength = 5f; // 위/아래로 추가할 길이
+
+        // 초기 위치
+        leftLR.SetPosition(0, leftWarningPos + Vector3.up * (bounds.extents.y + laserExtraLength));
+        leftLR.SetPosition(1, leftWarningPos + Vector3.down * (bounds.extents.y + laserExtraLength));
+        rightLR.SetPosition(0, rightWarningPos + Vector3.up * (bounds.extents.y + laserExtraLength));
+        rightLR.SetPosition(1, rightWarningPos + Vector3.down * (bounds.extents.y + laserExtraLength));
 
         // 레이저 움직임 설정
         float pulseSpeed = 7f;
@@ -217,10 +220,10 @@ public class MiddleBoss : MonoBehaviour
             Vector3 curLeftPos = leftWarningPos + Vector3.left * moveOffset;
             Vector3 curRightPos = rightWarningPos + Vector3.right * moveOffset;
 
-            leftLR.SetPosition(0, curLeftPos + Vector3.up * bounds.extents.y);
-            leftLR.SetPosition(1, curLeftPos + Vector3.down * bounds.extents.y);
-            rightLR.SetPosition(0, curRightPos + Vector3.up * bounds.extents.y);
-            rightLR.SetPosition(1, curRightPos + Vector3.down * bounds.extents.y);
+            leftLR.SetPosition(0, curLeftPos + Vector3.up * (bounds.extents.y + laserExtraLength));
+            leftLR.SetPosition(1, curLeftPos + Vector3.down * (bounds.extents.y + laserExtraLength));
+            rightLR.SetPosition(0, curRightPos + Vector3.up * (bounds.extents.y + laserExtraLength));
+            rightLR.SetPosition(1, curRightPos + Vector3.down * (bounds.extents.y + laserExtraLength));
 
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
@@ -230,7 +233,7 @@ public class MiddleBoss : MonoBehaviour
             {
                 string pattern = patternSequence[patternIndex % patternSequence.Length];
                 Vector2[] dirs = pattern == "X"
-                    ? new Vector2[] { new(1, 1), new(-1, 1), new(1, -1), new(-1, -1) }
+                    ? new Vector2[] { new Vector2(1, 1), new Vector2(-1, 1), new Vector2(1, -1), new Vector2(-1, -1) }
                     : new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
                 foreach (Vector2 dir in dirs)
@@ -255,6 +258,7 @@ public class MiddleBoss : MonoBehaviour
 
         yield return StartCoroutine(SkillEndDelay());
     }
+
 
     private void SetupLaser(LineRenderer lr, Color color)
     {

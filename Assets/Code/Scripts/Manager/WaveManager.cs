@@ -292,31 +292,38 @@ public class WaveManager : MonoBehaviour
             confiner.BoundingShape2D = room.cameraCollider;
             confiner.InvalidateBoundingShapeCache();
         }
+
         Camera cam = Camera.main;
         if (cam == null || !cam.orthographic) return;
+
         Bounds bounds = room.cameraCollider.bounds;
         float screenRatio = (float)Screen.width / Screen.height;
         float boundsRatio = bounds.size.x / bounds.size.y;
         float orthoSize;
+
         if (room.eventSceneEnabled && !forcePlayerFollow) return;
+
         if (room.CameraFollow && playerTransform != null)
         {
+            // Follow 켜진 방: 기존대로 유지
             orthoSize = cam.orthographicSize;
             cineCamera.Follow = playerTransform;
         }
         else
         {
-            if (screenRatio >= boundsRatio) orthoSize = bounds.size.y / 2f;
-            else orthoSize = (bounds.size.x / 2f) / screenRatio;
+            // Follow 꺼진 방: OrthographicSize를 5.5로 고정
+            orthoSize = 5.5f;
             cam.orthographicSize = orthoSize;
             var vCam = cineCamera.GetComponent<CinemachineCamera>();
             if (vCam != null) vCam.Lens.OrthographicSize = orthoSize;
+
             Vector3 center = bounds.center;
             cam.transform.position = new Vector3(center.x, center.y, cam.transform.position.z);
             cineCamera.transform.position = cam.transform.position;
             cineCamera.Follow = null;
         }
     }
+
 
     private void DestroyAllEnemies()
     {
