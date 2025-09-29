@@ -7,7 +7,7 @@ using DG.Tweening;
 public class TurretEnemy_FixedAngle : MonoBehaviour
 {
     [Header("🎯 스프라이트 / 애니메이션")]
-    public TurretEnemyAnimation turretAnim;
+    public TurretEnemyAnimation turretAnim; // 이 클래스가 아래 TurretEnemyAnimation이라고 가정
 
     private bool isLive = true;
     private SpriteRenderer spriter;
