@@ -19,7 +19,7 @@ public class Enemy : EnemyBase
     [Header("AI & 이동 설정")]
     public bool AIEnabled = true;
     public bool useAngleMove = false;
-    [Range(-180f, 180f)] public float moveAngle = 0f;
+    [Range(-360f, 360f)] public float moveAngle = 0f;
     public float angleMoveSpeed = 5f;
     private Vector2 moveDirection;
 
