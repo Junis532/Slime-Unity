@@ -126,9 +126,11 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
             transform.localScale = scale;
         }
 
-        // 발사 준비 중이 아닐 때만 Idle 애니메이션을 재생하며 추적합니다.
+        // 🎯 [기본 Idle/Front Idle] 발사 준비 중이 아닐 때만 Idle 애니메이션을 재생하며 추적합니다.
         if (!isPreparingToFire && enemyAnimation != null)
         {
+            // 이 호출은 angle을 사용하여 TurretEnemyAnimation 컴포넌트 내에서 
+            // Idle 상태에서 SideIdle 또는 FrontIdle을 선택하게 됩니다.
             enemyAnimation.PlayAnimation(TurretEnemyAnimation.State.Idle, angle);
         }
 
@@ -154,7 +156,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             if (attackRoutine != null) StopCoroutine(attackRoutine);
-            // PrepareAndShoot 호출 시 dir과 angle은 사용되지 않으므로, 기본값을 넘겨줍니다.
+            // PrepareAndShoot 코루틴 시작
             attackRoutine = StartCoroutine(PrepareAndShoot());
         }
     }
@@ -182,6 +184,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
             initialAngle = Mathf.Atan2(initialDir.y, initialDir.x) * Mathf.Rad2Deg;
         }
 
+        // 🎯 [쏘기 직전 Prepare/FrontPrepare] 준비 애니메이션 상태를 결정합니다.
         TurretEnemyAnimation.State prepareState = GetPrepareState(initialAngle);
 
         if (enemyAnimation != null)
@@ -210,11 +213,9 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         {
             Vector2 toPlayer = player.transform.position - transform.position;
             finalDir = toPlayer.normalized;
-
-            // finalAngle은 애니메이션 복귀에 필요하지 않으므로 생략 가능
         }
 
-        // 🎯 최종 계산된 방향으로 발사
+        // 🎯 최종 계산된 방향으로 발사 (라인 렌더러가 향하는 방향과 일치)
         Shoot(finalDir);
 
         // 4. 발사 후 본체 색 다시 하얀색으로 빠르게 복구
@@ -224,7 +225,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
             spriter.DOColor(Color.white, 0.1f);
         }
 
-        // 5. 즉시 Idle 상태로 복귀
+        // 5. 🎯 [쏘고난 후 바로 Idle] 즉시 Idle 상태로 복귀
         if (enemyAnimation != null)
         {
             enemyAnimation.PlayAnimation(TurretEnemyAnimation.State.Idle);
@@ -234,7 +235,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         lastFireTime = Time.time;
         fireIndex = (fireIndex + 1) % fireIntervals.Length;
 
-        // 준비 플래그 해제.
+        // 준비 플래그 해제. Update()가 Idle 추적을 재개합니다.
         isPreparingToFire = false;
         attackRoutine = null;
     }
