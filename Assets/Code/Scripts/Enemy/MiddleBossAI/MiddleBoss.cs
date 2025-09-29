@@ -30,19 +30,32 @@ public class MiddleBoss : MonoBehaviour
     public int laserDamage = 100;
     public Material laserMaterial;
 
+    // ★ 인스펙터에서 좌우 레이저 위치 조절 가능
+    [Header("레이저 소환 위치 조정")]
+    public float leftLaserOffsetX = -2f;   // 보스 위치 기준 좌측 레이저 X 오프셋
+    public float rightLaserOffsetX = 2f;   // 보스 위치 기준 우측 레이저 X 오프셋
+
+
     // ────────── 패턴 3: 검 ──────────
     [Header("검 휘두르기 패턴 설정")]
     public float swordRotateSpeed = 360f;
     public float swordStartAngle = 180f;
+    public float swordWarningDuration = 1.0f;
 
     // ────────── 패턴 4: 점프 후 원형탄 ──────────
     [Header("점프 후 원형탄 패턴")]
-    public float jumpHeight = 5f;        // 점프 높이
-    public float jumpDuration = 0.5f;    // 점프 시간
-    public int jumpBulletCount = 8;      // 원형 탄환 개수 (인스펙터 조절)
-    public float jumpBulletSpeed = 6f;   // 탄환 속도
+    public float jumpHeight = 5f;
+    public float jumpDuration = 0.5f;
+    public int jumpBulletCount = 8;
+    public float jumpBulletSpeed = 6f;
 
-    // 🔥 생성된 오브젝트 추적 리스트
+    // 🔥 경고 프리팹 설정
+    [Header("경고 설정")]
+    public GameObject warningPrefab;
+    public float warningLengthScale = 2f;
+    public float warningThicknessScale = 0.5f;
+    public float warningOffsetDistance = 1.5f;
+
     private List<GameObject> activeSkillObjects = new List<GameObject>();
 
     void Start()
@@ -50,7 +63,6 @@ public class MiddleBoss : MonoBehaviour
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
 
-        // ── 맵 콜라이더 자동 찾기 ──
         if (mapCollider == null)
         {
             GameObject roomObj = GameObject.Find("RC 00");
@@ -73,7 +85,7 @@ public class MiddleBoss : MonoBehaviour
         if (skillTimer >= skillInterval)
         {
             skillTimer = 0f;
-            currentSkillIndex = Random.Range(0, 4); // ✅ 0~3까지 (4가지 스킬)
+            currentSkillIndex = Random.Range(0, 4);
             UseRandomSkill();
         }
     }
@@ -83,18 +95,10 @@ public class MiddleBoss : MonoBehaviour
         isSkillPlaying = true;
         switch (currentSkillIndex)
         {
-            case 0:
-                StartCoroutine(SkillBulletCircle());
-                break;
-            case 1:
-                StartCoroutine(SkillLaserPattern());
-                break;
-            case 2:
-                StartCoroutine(SkillSwordPattern());
-                break;
-            case 3:
-                StartCoroutine(SkillJumpAndShoot());
-                break;
+            case 0: StartCoroutine(SkillBulletCircle()); break;
+            case 1: StartCoroutine(SkillLaserPattern()); break;
+            case 2: StartCoroutine(SkillSwordPattern()); break;
+            case 3: StartCoroutine(SkillJumpAndShoot()); break;
         }
     }
 
@@ -130,7 +134,7 @@ public class MiddleBoss : MonoBehaviour
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // ────────── 스킬 2: 레이저 + X/Y 탄막 반복 ──────────
+    // ────────── 스킬 2: 레이저 (경고 위치에서 시작 후 움직이도록 수정) ──────────
     private IEnumerator SkillLaserPattern()
     {
         if (mapCollider == null)
@@ -141,11 +145,43 @@ public class MiddleBoss : MonoBehaviour
         }
 
         Bounds bounds = mapCollider.bounds;
+        float centerY = transform.position.y;
+        List<GameObject> activeWarnings = new List<GameObject>();
+        float warningLength = bounds.size.y + 10f;
 
-        // 레이저 생성
+        // ⚠️ 경고 위치 생성
+        Vector3 leftWarningPos = transform.position + Vector3.left * 2f;  // 인스펙터 값으로 대체 가능
+        Vector3 rightWarningPos = transform.position + Vector3.right * 2f; // 인스펙터 값으로 대체 가능
+
+        if (warningPrefab != null)
+        {
+            GameObject warningLeft = Instantiate(warningPrefab, leftWarningPos, Quaternion.Euler(0, 0, 90f));
+            warningLeft.transform.localScale = new Vector3(warningLength, warningThicknessScale, warningThicknessScale);
+            activeWarnings.Add(warningLeft);
+            activeSkillObjects.Add(warningLeft);
+
+            GameObject warningRight = Instantiate(warningPrefab, rightWarningPos, Quaternion.Euler(0, 0, 90f));
+            warningRight.transform.localScale = new Vector3(warningLength, warningThicknessScale, warningThicknessScale);
+            activeWarnings.Add(warningRight);
+            activeSkillObjects.Add(warningRight);
+        }
+
+        // ⏱️ 경고 시간 대기
+        yield return new WaitForSeconds(1f);
+
+        // ⚠️ 경고 제거
+        foreach (var warning in activeWarnings)
+        {
+            if (warning != null) Destroy(warning);
+            activeSkillObjects.Remove(warning);
+        }
+        activeWarnings.Clear();
+
+        // ⚡ 레이저 발사 (경고 위치 그대로)
         GameObject leftLaser = new GameObject("LeftLaser");
         LineRenderer leftLR = leftLaser.AddComponent<LineRenderer>();
         SetupLaser(leftLR, Color.red);
+
         GameObject rightLaser = new GameObject("RightLaser");
         LineRenderer rightLR = rightLaser.AddComponent<LineRenderer>();
         SetupLaser(rightLR, Color.red);
@@ -153,59 +189,58 @@ public class MiddleBoss : MonoBehaviour
         activeSkillObjects.Add(leftLaser);
         activeSkillObjects.Add(rightLaser);
 
-        float minDistance = bounds.extents.x * 0.3f;
-        float maxDistance = bounds.extents.x;
+        // 초기 위치는 경고 위치 기준
+        leftLR.SetPosition(0, leftWarningPos + Vector3.up * bounds.extents.y);
+        leftLR.SetPosition(1, leftWarningPos + Vector3.down * bounds.extents.y);
+        rightLR.SetPosition(0, rightWarningPos + Vector3.up * bounds.extents.y);
+        rightLR.SetPosition(1, rightWarningPos + Vector3.down * bounds.extents.y);
+
+        // 레이저 움직임 설정
         float pulseSpeed = 7f;
         float laserElapsed = 0f;
         float laserActiveDuration = 8f;
+        float startTime = Time.time;
 
-        string[] patternSequence = { "X", "Y", "X", "Y", "X", "Y" };
-        int patternIndex = 0;
         float fireInterval = 0.5f;
         float fireTimer = 0f;
+        int patternIndex = 0;
+        string[] patternSequence = { "X", "Y", "X", "Y", "X", "Y" };
 
         while (laserElapsed < laserActiveDuration)
         {
             laserElapsed += Time.deltaTime;
             fireTimer += Time.deltaTime;
 
-            float offset = Mathf.PingPong(Time.time * pulseSpeed, maxDistance - minDistance) + minDistance;
-            leftLR.SetPosition(0, new Vector3(transform.position.x - offset, transform.position.y + bounds.extents.y, 0));
-            leftLR.SetPosition(1, new Vector3(transform.position.x - offset, transform.position.y - bounds.extents.y, 0));
-            rightLR.SetPosition(0, new Vector3(transform.position.x + offset, transform.position.y + bounds.extents.y, 0));
-            rightLR.SetPosition(1, new Vector3(transform.position.x + offset, transform.position.y - bounds.extents.y, 0));
+            // 경고 위치 기준으로 PingPong 이동
+            float moveOffset = Mathf.PingPong((Time.time - startTime) * pulseSpeed, bounds.extents.x * 0.7f);
+
+            Vector3 curLeftPos = leftWarningPos + Vector3.left * moveOffset;
+            Vector3 curRightPos = rightWarningPos + Vector3.right * moveOffset;
+
+            leftLR.SetPosition(0, curLeftPos + Vector3.up * bounds.extents.y);
+            leftLR.SetPosition(1, curLeftPos + Vector3.down * bounds.extents.y);
+            rightLR.SetPosition(0, curRightPos + Vector3.up * bounds.extents.y);
+            rightLR.SetPosition(1, curRightPos + Vector3.down * bounds.extents.y);
 
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
 
+            // 보조 탄막
             if (fireTimer >= fireInterval)
             {
                 string pattern = patternSequence[patternIndex % patternSequence.Length];
-                if (pattern == "X")
+                Vector2[] dirs = pattern == "X"
+                    ? new Vector2[] { new(1, 1), new(-1, 1), new(1, -1), new(-1, -1) }
+                    : new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
+
+                foreach (Vector2 dir in dirs)
                 {
-                    Vector2[] diagDirs = {
-                        new Vector2(1,1).normalized, new Vector2(-1,1).normalized,
-                        new Vector2(1,-1).normalized, new Vector2(-1,-1).normalized
-                    };
-                    foreach (Vector2 dir in diagDirs)
-                    {
-                        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-                        if (rb != null) rb.linearVelocity = dir * bulletSpeed;
-                        activeSkillObjects.Add(bullet);
-                    }
+                    GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+                    Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+                    if (rb != null) rb.linearVelocity = dir.normalized * bulletSpeed;
+                    activeSkillObjects.Add(bullet);
                 }
-                else
-                {
-                    Vector2[] crossDirs = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
-                    foreach (Vector2 dir in crossDirs)
-                    {
-                        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-                        if (rb != null) rb.linearVelocity = dir * bulletSpeed;
-                        activeSkillObjects.Add(bullet);
-                    }
-                }
+
                 patternIndex++;
                 fireTimer = 0f;
             }
@@ -224,11 +259,15 @@ public class MiddleBoss : MonoBehaviour
     private void SetupLaser(LineRenderer lr, Color color)
     {
         lr.positionCount = 2;
-        lr.startWidth = 0.1f;
-        lr.endWidth = 0.1f;
+        lr.startWidth = 0.15f;
+        lr.endWidth = 0.15f;
         lr.material = laserMaterial != null ? laserMaterial : new Material(Shader.Find("Sprites/Default"));
         lr.startColor = color;
         lr.endColor = color;
+
+        // 발광 효과 (Emission)
+        if (lr.material.HasProperty("_EmissionColor"))
+            lr.material.SetColor("_EmissionColor", color * 2f);
     }
 
     private void CheckLaserHit(LineRenderer lr)
@@ -243,26 +282,14 @@ public class MiddleBoss : MonoBehaviour
         {
             if (hit.collider.CompareTag("Player"))
             {
-                JoystickDirectionIndicator indicator = hit.collider.GetComponent<JoystickDirectionIndicator>();
-
-                // 스킬 사용 중인 경우 데미지 무시하고 다음 충돌 처리로 이동
-                if (indicator != null && indicator.IsUsingSkill)
-                    return; // continue는 루프 내에서 사용되지만, 여기서는 함수를 종료하는 return을 사용하거나
-                            // 원래 루프의 흐름을 따르는 것이 좋습니다. (루프 밖으로 코드를 옮겼다고 가정하고 return 사용)
-
-                // 넉백 방향 계산을 위해 현재 오브젝트(레이저 발사체/적)의 위치를 전달합니다.
                 Vector3 enemyPosition = transform.position;
-
-                // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
-                // 기존의 hit.collider와 hit.point 인수는 제거됩니다.
+                // 플레이어가 데미지 입는 로직 (게임 매니저 인스턴스 사용)
                 GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPosition);
             }
         }
     }
 
-
-    // ────────── 스킬 3: 검 휘두르기 ──────────
-    // ────────── 스킬 3: 회전 레이저 ──────────
+    // ────────── 스킬 3: 검 휘두르기 (1초 경고가 이미 구현되어 있음) ──────────
     private IEnumerator SkillSwordPattern()
     {
         if (mapCollider == null)
@@ -272,17 +299,47 @@ public class MiddleBoss : MonoBehaviour
             yield break;
         }
 
-        // 🔹 맵 크기에 맞춰 레이저 길이 설정
         float radius = Mathf.Max(mapCollider.bounds.size.x, mapCollider.bounds.size.y) / 2f;
+        Vector3 center = transform.position;
+        List<GameObject> activeWarnings = new List<GameObject>();
 
-        // 🔹 레이저 2개 생성 (양쪽 방향)
+        // ⚠️ 1단계: 경고 표시 (swordWarningDuration = 1.0f)
+        if (warningPrefab != null)
+        {
+            float currentWarningAngle = swordStartAngle;
+            Quaternion rotA = Quaternion.Euler(0, 0, currentWarningAngle);
+            Quaternion rotB = Quaternion.Euler(0, 0, currentWarningAngle + 180f);
+            float finalLength = radius * 2f * warningLengthScale;
+
+            GameObject warningA = Instantiate(warningPrefab, center, rotA);
+            warningA.transform.localScale = new Vector3(finalLength, warningThicknessScale, warningThicknessScale);
+            activeWarnings.Add(warningA);
+            activeSkillObjects.Add(warningA);
+
+            GameObject warningB = Instantiate(warningPrefab, center, rotB);
+            warningB.transform.localScale = new Vector3(finalLength, warningThicknessScale, warningThicknessScale);
+            activeWarnings.Add(warningB);
+            activeSkillObjects.Add(warningB);
+
+            // ⚡ 1초 대기 (swordWarningDuration)
+            yield return new WaitForSeconds(swordWarningDuration);
+
+            foreach (var warning in activeWarnings)
+            {
+                if (warning != null) Destroy(warning);
+                activeSkillObjects.Remove(warning);
+            }
+            activeWarnings.Clear();
+        }
+
+        // ⚔️ 2단계: 실제 레이저 회전 시작
         GameObject laserA = new GameObject("RotatingLaserA");
         LineRenderer lrA = laserA.AddComponent<LineRenderer>();
-        SetupLaser(lrA, Color.cyan);
+        SetupLaser(lrA, Color.red); // 빨간색 레이저
 
         GameObject laserB = new GameObject("RotatingLaserB");
         LineRenderer lrB = laserB.AddComponent<LineRenderer>();
-        SetupLaser(lrB, Color.cyan);
+        SetupLaser(lrB, Color.red); // 빨간색 레이저
 
         lrA.sortingLayerName = "Foreground";
         lrB.sortingLayerName = "Foreground";
@@ -292,32 +349,25 @@ public class MiddleBoss : MonoBehaviour
         activeSkillObjects.Add(laserA);
         activeSkillObjects.Add(laserB);
 
-        // 🔹 회전 관련 변수
         float currentAngle = swordStartAngle;
         float elapsed = 0f;
-        float rotateDuration = 360f / swordRotateSpeed; // 1바퀴 도는 시간
+        float rotateDuration = 360f / swordRotateSpeed;
 
         while (elapsed < rotateDuration)
         {
-            // 각도 갱신
             currentAngle += swordRotateSpeed * Time.deltaTime;
             float rad = currentAngle * Mathf.Deg2Rad;
 
-            Vector3 center = transform.position;
-
-            // 🔹 첫 번째 레이저 (정방향)
             Vector3 dirA = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0);
             Vector3 endA = center + dirA * radius;
             lrA.SetPosition(0, center);
             lrA.SetPosition(1, endA);
 
-            // 🔹 두 번째 레이저 (반대방향)
             Vector3 dirB = -dirA;
             Vector3 endB = center + dirB * radius;
             lrB.SetPosition(0, center);
             lrB.SetPosition(1, endB);
 
-            // 🔸 충돌 판정
             CheckLaserDamage(center, dirA, radius);
             CheckLaserDamage(center, dirB, radius);
 
@@ -333,48 +383,58 @@ public class MiddleBoss : MonoBehaviour
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // 🔸 레이저 데미지 체크 함수 (보조)
     private void CheckLaserDamage(Vector3 start, Vector3 dir, float distance)
     {
-        // 레이어 마스크를 변수로 가져오는 대신 인라인으로 사용 가능
         RaycastHit2D hit = Physics2D.Raycast(start, dir, distance, LayerMask.GetMask("Player"));
-
         if (hit.collider != null && hit.collider.CompareTag("Player"))
         {
-            // 넉백 방향 계산을 위해 레이저를 쏜 오브젝트의 위치를 적 위치로 전달합니다.
             Vector3 enemyPosition = transform.position;
-
-            // 기존의 hit.collider와 hit.point 인수를 제거하고,
-            // 수정된 TakeDamage(데미지, 적 위치) 형식으로 호출합니다.
             GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPosition);
         }
     }
-
-
 
     // ────────── 스킬 4: 점프 후 원형탄 ──────────
     private IEnumerator SkillJumpAndShoot()
     {
         Vector3 startPos = transform.position;
         Vector3 peakPos = startPos + Vector3.up * jumpHeight;
+        List<GameObject> activeWarnings = new List<GameObject>();
 
-        // 점프
-        yield return transform.DOMove(peakPos, jumpDuration)
-            .SetEase(Ease.OutQuad)
-            .WaitForCompletion();
+        yield return transform.DOMove(peakPos, jumpDuration).SetEase(Ease.OutQuad).WaitForCompletion();
 
-        // 착지
-        yield return transform.DOMove(startPos, jumpDuration)
-            .SetEase(Ease.InQuad)
-            .WaitForCompletion();
+        if (warningPrefab != null)
+        {
+            float step = 360f / jumpBulletCount;
+            for (int i = 0; i < jumpBulletCount; i++)
+            {
+                float rotationZ = step * i;
+                float angleRad = rotationZ * Mathf.Deg2Rad;
+                Vector3 shotDir = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0);
+                Vector3 warningPos = startPos + shotDir * warningOffsetDistance;
 
-        // 착지 순간 원형탄 1회 발사
+                GameObject warning = Instantiate(warningPrefab, warningPos, Quaternion.Euler(0, 0, rotationZ));
+                warning.transform.localScale = new Vector3(warningLengthScale, warningThicknessScale, warningThicknessScale);
+
+                activeWarnings.Add(warning);
+                activeSkillObjects.Add(warning);
+            }
+        }
+
+        yield return transform.DOMove(startPos, jumpDuration).SetEase(Ease.InQuad).WaitForCompletion();
+
+        foreach (var warning in activeWarnings)
+        {
+            if (warning != null) Destroy(warning);
+            activeSkillObjects.Remove(warning);
+        }
+        activeWarnings.Clear();
+
         Vector3 origin = transform.position;
-        float step = 360f / jumpBulletCount;
+        float stepAngle = 360f / jumpBulletCount;
 
         for (int i = 0; i < jumpBulletCount; i++)
         {
-            float angle = step * i * Mathf.Deg2Rad;
+            float angle = stepAngle * i * Mathf.Deg2Rad;
             Vector2 dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
             GameObject bullet = Instantiate(bulletPrefab, origin, Quaternion.identity);
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
@@ -385,14 +445,12 @@ public class MiddleBoss : MonoBehaviour
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // ────────── 공통 종료 ──────────
     private IEnumerator SkillEndDelay()
     {
         yield return new WaitForSeconds(1f);
         isSkillPlaying = false;
     }
 
-    // 🔥 보스 죽을 때 스킬 오브젝트 정리
     public void ClearAllSkillObjects()
     {
         foreach (var obj in activeSkillObjects)

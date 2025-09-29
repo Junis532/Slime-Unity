@@ -81,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 30
   m_Sprite: {fileID: 21300000, guid: e0e88a53fb5dd7541a0fb2b9849ac1a0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -114,12 +114,19 @@ MonoBehaviour:
   laserDuration: 2
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: 4eafba37ffceadb46b8be885a1a67bb6, type: 2}
+  leftLaserOffsetX: -2
+  rightLaserOffsetX: 2
   swordRotateSpeed: 150
   swordStartAngle: 90
+  swordWarningDuration: 1
   jumpHeight: 10
-  jumpDuration: 0.5
+  jumpDuration: 1
   jumpBulletCount: 15
   jumpBulletSpeed: 8
+  warningPrefab: {fileID: 3800818024053641637, guid: b11d5bd50af026f4dabe7646d52a90c1, type: 3}
+  warningLengthScale: 10
+  warningThicknessScale: 0.5
+  warningOffsetDistance: 5
 --- !u!114 &6907334164349342496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,11 +140,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bossHpBarPrefab: {fileID: 3485047932090325068, guid: 1aa5a6a6c8b8daf48a2b7939886d4ace, type: 3}
+  hpBarRootPath: HPBar
+  hpFillPath: HPBar/HPFilled
   currentHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   enableKnockback: 0
+  playIntroOnSpawn: 1
+  useScaleGrow: 1
+  useWidthGrow: 0
+  useFillWipe: 1
+  introDelay: 0.1
+  introDuration: 0.6
+  scaleBounce: 1
+  hpBarHeightOffset: 2
 --- !u!114 &4700048704790697264
 MonoBehaviour:
   m_ObjectHideFlags: 0
