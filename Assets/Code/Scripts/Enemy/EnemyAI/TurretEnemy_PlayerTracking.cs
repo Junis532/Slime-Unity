@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using UnityEngine;
-using System.Collections; // Coroutine을 위해 명시적으로 추가
+using System.Collections;
+using System.Collections.Generic; // List/Dictionary를 사용하지 않더라도 Coroutine을 위해 명시적으로 유지
 
 // EnemyBase를 상속받는다고 가정 (주석 처리된 원본 유지)
 // public class TurretEnemy_PlayerTracking : EnemyBase
@@ -30,6 +31,16 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     public GameObject bulletPrefab;
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
+
+    // 🔥 추가: 발사 개수 및 각도 설정
+    [Header("탄환 패턴 설정")]
+    [Tooltip("한 번에 발사할 탄환의 개수 (1개 이상)")]
+    [Range(1, 10)]
+    public int bulletCount = 1;
+    [Tooltip("탄환 전체가 퍼지는 각도 (부채꼴 모양, 0이면 일자)")]
+    [Range(0f, 180f)]
+    public float spreadAngle = 0f;
+    // 🔥 여기까지 추가
 
     [Header("LineRenderer 설정")]
     public bool showLineRenderer = true;
@@ -80,6 +91,8 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         int crystalLayer = LayerMask.NameToLayer("Crystal");
         bool crystalExists = false;
 
+        // FindObjectsByType 대신 GameObject.FindGameObjectsWithTag("Crystal")과 같은
+        // 효율적인 방법을 사용하는 것이 좋지만, 기존 로직 구조를 유지합니다.
         GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         foreach (GameObject obj in allObjects)
         {
@@ -139,7 +152,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         {
             lineRenderer.enabled = showLineRenderer;
             lineRenderer.SetPosition(0, transform.position);
-            // 라인 렌더러는 항상 현재 플레이어 위치를 추적합니다.
+            // 라인 렌더러는 항상 현재 플레이어 위치를 추적합니다. (중앙선 역할)
             lineRenderer.SetPosition(1, player.transform.position);
         }
         else if (lineRenderer != null)
@@ -162,26 +175,21 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     }
 
 
-    // dir, angle 인수를 제거하고 코루틴 내부에서 발사 직전에 현재 위치를 계산하도록 수정
     private System.Collections.IEnumerator PrepareAndShoot()
     {
         isPreparingToFire = true;
 
-        // prepTime을 fireIntervals의 현재 값으로 설정합니다.
         float totalPrepTime = fireIntervals[fireIndex % fireIntervals.Length];
 
         // 1. 발사 준비 애니메이션 시작 및 색상 변화 설정
-
-        // 🎯 PrepareState를 얻기 위해 현재 플레이어 방향을 한 번 계산합니다.
         GameObject player = GameObject.FindWithTag("Player");
-        Vector2 initialDir = Vector2.right; // 기본값
-        float initialAngle = 0; // 기본값
+        float initialAngle = 0;
 
         if (player != null)
         {
             Vector2 toPlayer = player.transform.position - transform.position;
-            initialDir = toPlayer.normalized;
-            initialAngle = Mathf.Atan2(initialDir.y, initialDir.x) * Mathf.Rad2Deg;
+            // 초기 각도를 계산하여 Prepare 애니메이션 상태를 결정
+            initialAngle = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
         }
 
         // 🎯 [쏘기 직전 Prepare/FrontPrepare] 준비 애니메이션 상태를 결정합니다.
@@ -208,15 +216,17 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         // 3. 발사 직전, 플레이어의 최종 위치를 다시 계산하여 발사 방향을 갱신합니다.
         player = GameObject.FindWithTag("Player");
         Vector2 finalDir = Vector2.right; // 기본값
+        float finalAngle = 0f; // 🔥 추가: 최종 각도 저장
 
         if (player != null)
         {
             Vector2 toPlayer = player.transform.position - transform.position;
             finalDir = toPlayer.normalized;
+            finalAngle = Mathf.Atan2(finalDir.y, finalDir.x) * Mathf.Rad2Deg; // 🔥 최종 각도 계산
         }
 
-        // 🎯 최종 계산된 방향으로 발사 (라인 렌더러가 향하는 방향과 일치)
-        Shoot(finalDir);
+        // 🎯 최종 계산된 방향과 각도로 부채꼴 발사
+        Shoot(finalDir, finalAngle); // 🔥 Shoot 함수에 finalAngle 전달
 
         // 4. 발사 후 본체 색 다시 하얀색으로 빠르게 복구
         if (spriter != null)
@@ -225,13 +235,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
             spriter.DOColor(Color.white, 0.1f);
         }
 
-        // 5. 🎯 [쏘고난 후 바로 Idle] 즉시 Idle 상태로 복귀
-        if (enemyAnimation != null)
-        {
-            enemyAnimation.PlayAnimation(TurretEnemyAnimation.State.Idle);
-        }
-
-        // 6. 다음 사이클 설정
+        // 5. 다음 사이클 설정
         lastFireTime = Time.time;
         fireIndex = (fireIndex + 1) % fireIntervals.Length;
 
@@ -245,17 +249,15 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     /// <summary> 각도에 따라 알맞은 ShootPrepare 상태를 반환합니다. (90도/270도 부근은 Front) </summary>
     private TurretEnemyAnimation.State GetPrepareState(float angle)
     {
-        // 각도를 0~360 범위로 정규화
+        // ... (기존 로직 유지) ...
         angle = (angle % 360 + 360) % 360;
-        float verticalTolerance = 25f; // 정면/후면 애니메이션을 사용할 각도 범위
+        float verticalTolerance = 25f;
 
-        // 90도(위) 부근 또는 270도(아래) 부근
         if ((angle >= 90f - verticalTolerance && angle <= 90f + verticalTolerance) ||
             (angle >= 270f - verticalTolerance && angle <= 270f + verticalTolerance))
         {
             return TurretEnemyAnimation.State.FrontShootPrepare;
         }
-        // 측면
         return TurretEnemyAnimation.State.ShootPrepare;
     }
 
@@ -267,14 +269,61 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
     // ================= 발사 로직 =================
 
-    void Shoot(Vector2 dir)
+    // 🔥 Shoot 함수 시그니처 및 로직 변경 (중앙 방향 벡터와 중앙 각도 전달 받음)
+    void Shoot(Vector2 centerDir, float centerAngle)
     {
-        if (!bulletPrefab) return;
+        if (!bulletPrefab || bulletCount <= 0) return;
+
+        // 탄환이 1개일 경우 중앙 각도 그대로 사용
+        if (bulletCount == 1)
+        {
+            SpawnBullet(centerDir);
+            return;
+        }
+
+        // 2개 이상일 경우 부채꼴 각도 계산
+        float startAngle;
+
+        // spreadAngle이 0이면 중앙 각도만 사용 (평행 발사)
+        if (spreadAngle <= 0.01f)
+        {
+            // 중앙 각도 그대로 사용
+            startAngle = centerAngle;
+        }
+        else
+        {
+            // 중앙 각도에서 (spreadAngle / 2) 만큼 뺀 각도부터 시작
+            startAngle = centerAngle - spreadAngle / 2f;
+        }
+
+        // 탄환 사이의 각 간격 (Count가 1이면 사용 안 됨)
+        float angleStep = spreadAngle / (bulletCount - 1);
+
+        for (int i = 0; i < bulletCount; i++)
+        {
+            float currentAngle = startAngle + (i * angleStep);
+
+            // 각도를 벡터로 변환 (유니티는 0도가 오른쪽, 시계 반대 방향 증가)
+            Vector2 shotDir = new Vector2(
+                Mathf.Cos(currentAngle * Mathf.Deg2Rad),
+                Mathf.Sin(currentAngle * Mathf.Deg2Rad)
+            );
+
+            SpawnBullet(shotDir);
+        }
+    }
+
+    // 🔥 탄환 생성 로직 분리
+    private void SpawnBullet(Vector2 dir)
+    {
         GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
 
-        // Rigidbody2D.linearVelocity는 Unity 2021+에서 Rigidbody2D.velocity로 대체됨
-        if (rb) rb.linearVelocity = dir.normalized * bulletSpeed;
+        if (rb)
+        {
+            // Rigidbody2D.linearVelocity는 Unity 2021+에서 Rigidbody2D.velocity로 대체됨
+            rb.linearVelocity = dir.normalized * bulletSpeed; // velocity로 명시적 변경
+        }
         Destroy(bullet, bulletLifetime);
     }
 
