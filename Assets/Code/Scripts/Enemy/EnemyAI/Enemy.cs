@@ -43,7 +43,7 @@ public class Enemy : EnemyBase
     public float minMoveSpeedToAnimate = 0.1f;
 
     [Header("충돌/반전")]
-    public string obstacleTag = "Obstacle"; // 각도 이동 모드에서 반전될 장애물 태그
+    public string obstacleTag = "AIWall"; // 각도 이동 모드에서 반전될 장애물 태그
 
     private float _repathTimer;
 

@@ -253,6 +253,7 @@ GameObject:
   - component: {fileID: 4602395991164932201}
   - component: {fileID: 9138321317947486612}
   - component: {fileID: 1712296371880641779}
+  - component: {fileID: 4165468506687211403}
   m_Layer: 0
   m_Name: TurretEnemy_FixedAngle
   m_TagString: Enemy
@@ -420,6 +421,9 @@ MonoBehaviour:
   - {fileID: -3729277235828302240, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
   - {fileID: -7565657823146172238, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
   - {fileID: 2573989334921024570, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
   frameRate: 0.15
   attackFrameRate: 0.05
   verticalThreshold: 0.5
@@ -514,22 +518,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 215d563e8fbd3ac45aa6c9265971b31c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0
-  originalSpeed: 0
-  spawnDelay: 0.4
-  attackPrepareDuration: 2
+  turretAnim: {fileID: 0}
   fireRange: 50
-  fireIntervals:
-  - 1
-  - 3
-  - 2
   firstFireDelay: 2
+  preWindUp: 0.15
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   bulletSpeed: 10
   bulletLifetime: 3
   showLineRenderer: 1
   fixedAngle: 75
-  cycleCooldown: 2
+  cycleLength: 1.2
+  firePhases:
+  - 0
+--- !u!114 &4165468506687211403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4157940147317243271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f15e69a0972aa94468bb9ec4d14c719e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rendererOverride: {fileID: 0}
+  idleSprites:
+  - {fileID: -743869632349312218, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  - {fileID: 7169127915854313066, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  - {fileID: 794759624552558442, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  - {fileID: -3470780731282127428, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  - {fileID: 2539358188926668946, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  - {fileID: -3593204378976280831, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
+  idleFrontSprites:
+  - {fileID: 7505519542017433432, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  - {fileID: -7193048920465267246, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  - {fileID: -1370225762496125908, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  - {fileID: -3729277235828302240, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  - {fileID: -7565657823146172238, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  - {fileID: 2573989334921024570, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
+  idleBackSprites: []
+  moveSideSprites: []
+  moveFrontSprites: []
+  moveBackSprites: []
+  attackPrepareSprites: []
+  attackShootSprites: []
+  idleFrameTime: 0.14
+  moveFrameTime: 0.1
+  attackPrepareFrameTime: 0.12
+  attackShootFrameTime: 0.12
+  globalSpeed: 1
+  idleSpeed: 1
+  moveSpeed: 1
+  attackPrepareSpeed: 1
+  attackShootSpeed: 1
+  verticalThreshold: 0.5
+  autoPlayIdle: 1
+  logDebug: 0
 --- !u!1 &4613030088718096519
 GameObject:
   m_ObjectHideFlags: 0

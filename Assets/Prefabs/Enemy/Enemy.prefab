@@ -121,7 +121,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  obstacleTag: Obstacle
+  obstacleTag: AIWall
 --- !u!114 &3818131844207129269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,6 +159,7 @@ MonoBehaviour:
   idleSprites:
   - {fileID: -5394947154684592707, guid: f7e9e5f8be5455743b1ed4cc3fe76aa7, type: 3}
   moveSprites: []
+  attackStartSprites: []
   attackSprites:
   - {fileID: 4654611918963298992, guid: 1fda8129149b0404a98926cbacefaee3, type: 3}
   - {fileID: -113050378490998039, guid: 1fda8129149b0404a98926cbacefaee3, type: 3}
@@ -169,6 +170,9 @@ MonoBehaviour:
   - {fileID: 4035936689185151719, guid: 1fda8129149b0404a98926cbacefaee3, type: 3}
   - {fileID: -739521583640802187, guid: 1fda8129149b0404a98926cbacefaee3, type: 3}
   - {fileID: -8744973515467441440, guid: 1fda8129149b0404a98926cbacefaee3, type: 3}
+  attackEndSprites: []
+  attackStartFrontSprites: []
+  attackEndFrontSprites: []
   moveSideSprites:
   - {fileID: 6031232564189365677, guid: 28ee193f97bde0b4985a0209b7b0fb53, type: 3}
   - {fileID: -3066480881889594263, guid: 28ee193f97bde0b4985a0209b7b0fb53, type: 3}
@@ -219,7 +223,11 @@ MonoBehaviour:
   - {fileID: -8968412436286119426, guid: f7e9e5f8be5455743b1ed4cc3fe76aa7, type: 3}
   - {fileID: -5683730267076258020, guid: f7e9e5f8be5455743b1ed4cc3fe76aa7, type: 3}
   - {fileID: 4984824590318089999, guid: f7e9e5f8be5455743b1ed4cc3fe76aa7, type: 3}
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
   frameRate: 0.15
+  attackFrameRate: 0.05
   verticalThreshold: 0.5
   currentState: 0
 --- !u!50 &4156295177328753157

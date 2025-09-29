@@ -34,7 +34,7 @@ public class DashEnemy : EnemyBase
     public bool AIEnabled = true;
     public bool useAngleMove = false;
     public float moveAngle = 0f;
-    public string obstacleTag = "Obstacle";
+    public string obstacleTag = "AIWall";
     private Vector2 moveDirection;
     public float angleMoveSpeed = 5f;
 

@@ -330,6 +330,9 @@ MonoBehaviour:
   - {fileID: -3951662435464445829, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
   - {fileID: -4538846319712727530, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
   - {fileID: -782055110366105121, guid: 86c5b25edca691b45b00d847bc1dfb63, type: 3}
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
   frameRate: 0.15
   attackFrameRate: 0.01
   verticalThreshold: 0.5
@@ -391,7 +394,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
