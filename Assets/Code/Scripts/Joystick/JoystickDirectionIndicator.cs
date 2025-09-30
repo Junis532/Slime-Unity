@@ -87,8 +87,10 @@ public class JoystickDirectionIndicator : MonoBehaviour
         if (isSkillActive) return;
         isSkillActive = true;
 
+        AudioManager.Instance?.PlayDashSound(1.5f);
+
         transform.DOKill();
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
+        //AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
 
         // 방향 결정
         Vector3 dashDirection = Vector3.right;
