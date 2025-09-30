@@ -263,7 +263,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4245280282409445577, guid: d19900991c8d7fa40b23448ea64b9fe7, type: 3}
       propertyPath: spreadAngle
-      value: 18
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: -4245280282409445577, guid: d19900991c8d7fa40b23448ea64b9fe7, type: 3}
+      propertyPath: bulletLifetime
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: -4245280282409445577, guid: d19900991c8d7fa40b23448ea64b9fe7, type: 3}
       propertyPath: firstFireDelay
