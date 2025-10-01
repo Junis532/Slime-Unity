@@ -171,33 +171,70 @@ public class FireBoss : EnemyBase
     }
 
     // ────────── 스킬 2: 범위 원 ──────────
+    [SerializeField] private float warningCircleDuration = 0.5f; // 경고 원 유지 시간
+    [SerializeField] private float damageCircleDuration = 1.0f;  // 데미지 원 유지 시간
+
     private IEnumerator WarningCircleSkill()
     {
-        enemyAnimation?.PlayAnimation(BossAnimation.State.Skill2Circle);
-
         Vector3 center = transform.position + skillCenterOffset;
         GameObject prevDamage = null;
 
         for (int i = 0; i < 3; i++)
         {
-            if (prevDamage != null) { Destroy(prevDamage); prevDamage = null; }
+            // 🔹 애니메이션 각 원마다 재생
+            enemyAnimation?.PlayAnimation(BossAnimation.State.Skill2Circle);
 
-            GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
-            activeSkillObjects.Add(warning);
+            // 🔹 이전 데미지 원 제거
+            if (prevDamage != null)
+            {
+                Destroy(prevDamage);
+                prevDamage = null;
+            }
 
-            yield return new WaitForSeconds(warningDelay);
-            Destroy(warning);
+            // 🔹 경고 원 생성
+            if (warningCirclePrefabs[i] != null)
+            {
+                GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
+                activeSkillObjects.Add(warning);
 
-            GameObject damage = Instantiate(damageCirclePrefabs[i], center, Quaternion.identity);
-            activeSkillObjects.Add(damage);
-            prevDamage = damage;
+                yield return new WaitForSeconds(warningCircleDuration);
+                Destroy(warning);
+            }
 
-            yield return new WaitForSeconds(0.6f);
+            // 🔹 데미지 원 생성
+            if (damageCirclePrefabs[i] != null)
+            {
+                GameObject damage = Instantiate(damageCirclePrefabs[i], center, Quaternion.identity);
+                activeSkillObjects.Add(damage);
+                prevDamage = damage;
+
+                // 🔹 데미지 원의 Collider 꺼지게
+                Collider2D col = damage.GetComponent<Collider2D>();
+                if (col != null)
+                {
+                    StartCoroutine(DisableColliderAfterTime(col, damageCircleDuration));
+                }
+            }
+
+            // 🔹 데미지 원 지속 시간만큼 대기
+            yield return new WaitForSeconds(damageCircleDuration);
         }
 
-        if (prevDamage != null) Destroy(prevDamage);
+        // 🔹 마지막 원 제거
+        if (prevDamage != null)
+            Destroy(prevDamage);
+
         yield return StartCoroutine(SkillEndDelay());
     }
+
+    // 콜라이더 일정 시간 후 비활성화
+    private IEnumerator DisableColliderAfterTime(Collider2D col, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (col != null)
+            col.enabled = false;
+    }
+
 
     // ────────── 스킬 3: 대시 2회 (각각 준비→대시(루프)→베기) ──────────
     private IEnumerator DoubleSwordSkill()
@@ -224,8 +261,8 @@ public class FireBoss : EnemyBase
             Vector3 sideTarget = new Vector3(targetX, player.transform.position.y, transform.position.z);
 
             // (2) 대시 모션(루프) + 실제 이동
-            enemyAnimation.PlaySkill3DashLoop();  // 🔁 대시 중 계속 재생
-            float dashTime = j == 0 ? 0.20f : 0.25f;
+            enemyAnimation.PlaySkill3DashLoop();
+            float dashTime = j == 0 ? 0.20f : 0.25f; // 두 번째 대시는 살짝 느리게
             float elapsed = 0f;
             Vector3 startPos = transform.position;
             while (elapsed < dashTime)
@@ -235,6 +272,12 @@ public class FireBoss : EnemyBase
                 yield return null;
             }
             transform.position = sideTarget;
+
+            // 🔹 첫 번째 대시 후 잠깐 대기
+            if (j == 0)
+            {
+                yield return new WaitForSeconds(1f);
+            }
 
             // (3) 베기 모션 + 히트박스/이펙트
             enemyAnimation.PlayAnimation(BossAnimation.State.Skill3Slash);
@@ -259,11 +302,11 @@ public class FireBoss : EnemyBase
             float slashDur = Mathf.Max(0.05f, enemyAnimation.GetNonLoopDuration(BossAnimation.State.Skill3Slash));
             yield return new WaitForSeconds(slashDur);
 
-            // 🔹 각 Slash 직후 Idle로 복귀해 잔상 제거
+            // 🔹 각 Slash 직후 Idle로 복귀
             enemyAnimation.PlayAnimation(BossAnimation.State.Idle);
         }
 
-        // 원래 위치로 복귀(연출 유지)
+        // 원래 위치로 복귀
         float returnTime = 0.4f;
         float returnElapsed = 0f;
         Vector3 returnStart = transform.position;

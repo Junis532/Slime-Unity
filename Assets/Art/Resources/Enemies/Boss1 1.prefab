@@ -33,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 9056929667236055254}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 92.8, y: 67.01, z: 0}
+  m_LocalPosition: {x: 92.665955, y: 67.75853, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingOrder: 4
   m_Sprite: {fileID: -2899147822462437439, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1.1111112}
@@ -346,17 +346,17 @@ MonoBehaviour:
   moveFrameTime: 0.1
   skill1FrameTime: 0.12
   skill2FrameTime: 0.12
-  skill3DashStartFrameTime: 0.09
-  skill3DashFrameTime: 0.08
-  skill3SlashFrameTime: 0.1
+  skill3DashStartFrameTime: 0.2
+  skill3DashFrameTime: 0.14
+  skill3SlashFrameTime: 0.14
   globalSpeed: 1
   idleSpeed: 1
   moveSpeed: 1
   skill1Speed: 0.5
   skill2Speed: 3
-  skill3DashStartSpeed: 4
-  skill3DashSpeed: 4
-  skill3SlashSpeed: 4
+  skill3DashStartSpeed: 3
+  skill3DashSpeed: 3
+  skill3SlashSpeed: 3
   verticalThreshold: 0.5
   autoPlayIdle: 1
   logDebug: 0

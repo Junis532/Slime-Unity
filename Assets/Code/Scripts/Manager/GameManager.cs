@@ -47,8 +47,8 @@ public class GameManager : MonoSingleTone<GameManager>
 
 
     [Header("이벤트 버프 & 디버프 UI")]
-    //public BuffEvent buffEvent;
-    //public deBuffEvent debuffEvent;
+    public BuffEvent buffEvent;
+    public deBuffEvent debuffEvent;
     public GameObject eventBuffUI;
     public GameObject eventBuffUICanvas;
     public GameObject eventDebuffUI;
