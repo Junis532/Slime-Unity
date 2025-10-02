@@ -449,10 +449,13 @@ MonoBehaviour:
   firstFireDelay: 2
   preWindUp: 0.15
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
+  secondaryBulletPrefab: {fileID: 6382944771956985129, guid: bb58f54c768e467459da8ebfc1306d92, type: 3}
   bulletSpeed: 10
   bulletLifetime: 3
+  secondaryDelay: 0.2
+  secondarySpeed: 20
   showLineRenderer: 1
-  fixedAngle: 75
+  fixedAngle: 270
   cycleLength: 1.2
   firePhases:
   - 0
@@ -468,7 +471,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15e69a0972aa94468bb9ec4d14c719e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rendererOverride: {fileID: 0}
   idleSprites:
   - {fileID: -743869632349312218, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
   - {fileID: 7169127915854313066, guid: 8ef8408a8bf370c49b0c7f9a3669edb2, type: 3}
@@ -483,24 +485,31 @@ MonoBehaviour:
   - {fileID: -3729277235828302240, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
   - {fileID: -7565657823146172238, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
   - {fileID: 2573989334921024570, guid: 16caa636cdda1704c84975f4a6aaec4d, type: 3}
-  idleBackSprites: []
+  moveSprites: []
+  shootPrepareSprites: []
+  shootPostSprites: []
+  shootPrepareFrontSprites: []
+  shootPostFrontSprites: []
+  attackStartSprites: []
+  attackSprites: []
+  attackEndSprites: []
+  attackStartFrontSprites: []
+  attackEndFrontSprites: []
   moveSideSprites: []
   moveFrontSprites: []
   moveBackSprites: []
-  attackPrepareSprites: []
-  attackShootSprites: []
-  idleFrameTime: 0.14
-  moveFrameTime: 0.1
-  attackPrepareFrameTime: 0.12
-  attackShootFrameTime: 0.12
-  globalSpeed: 1
-  idleSpeed: 1
-  moveSpeed: 1
-  attackPrepareSpeed: 1
-  attackShootSpeed: 1
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
+  frameRate: 0.1
+  attackFrameRate: 0.05
+  shootPrepareFrameTime: 0.1
+  shootPostFrameTime: 0.1
+  shootPrepareSpeed: 1
+  shootPostSpeed: 1
   verticalThreshold: 0.5
-  autoPlayIdle: 1
-  logDebug: 0
+  globalSpeed: 1
+  currentState: 0
 --- !u!1 &4613030088718096519
 GameObject:
   m_ObjectHideFlags: 0

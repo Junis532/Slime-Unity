@@ -6,8 +6,6 @@ using DG.Tweening;
 [RequireComponent(typeof(SpriteRenderer))]
 public class TurretEnemy_FixedAngle : MonoBehaviour
 {
-    // TurretEnemyAnimation의 State를 사용하기 위해 TurretEnemyAnimation.State를 직접 사용합니다.
-
     [Header("🎯 스프라이트 / 애니메이션")]
     public TurretEnemyAnimation turretAnim;
 
@@ -23,10 +21,15 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     [Header("프리-와인드(발사 전 예열 연출)")]
     public float preWindUp = 0.15f;
 
-    [Header("탄환 설정")]
-    public GameObject bulletPrefab;
-    public float bulletSpeed = 1.5f;
+    [Header("Bullet 설정")]
+    public GameObject bulletPrefab;                 // 기존 Bullet
+    public GameObject secondaryBulletPrefab;        // 속도 바꿀 Bullet
+    public float bulletSpeed = 1.5f;               // 초기 속도
     public float bulletLifetime = 3f;
+
+    [Header("두 번째 Bullet 속도 변경")]
+    public float secondaryDelay = 1f;              // 몇 초 후 속도 변경
+    public float secondarySpeed = 2f;              // 바뀔 속도
 
     [Header("LineRenderer 설정")]
     public bool showLineRenderer = true;
@@ -45,8 +48,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     private double nextFireAt;
     private bool isPrepping = false;
     private bool isShooting = false;
-
-    // ⚠️ 외부 종속성 (PoolManager, BulletBehavior)을 가정하고 작성되었습니다.
 
     void Awake()
     {
@@ -84,7 +85,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     {
         if (!isLive) return;
 
-        // 라인 표시
         float rad = fixedAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
@@ -95,7 +95,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
         }
 
-        // Idle 애니메이션 각도 기반 적용은 액션 중이 아닐 때만 호출
         if (turretAnim != null && !isPrepping && !isShooting)
             turretAnim.PlayAnimation(TurretEnemyAnimation.State.Idle, fixedAngle);
     }
@@ -107,9 +106,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             float rad = fixedAngle * Mathf.Deg2Rad;
             Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
 
-            // ----------------------------------------------------
-            // 1) 발사 준비 (ShootPrepare) 단계
-            // ----------------------------------------------------
             double prepStart = nextFireAt - preWindUp;
             double now = Time.timeAsDouble;
 
@@ -118,17 +114,12 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
                 yield return new WaitForSeconds((float)(prepStart - now));
             }
 
-            // 2) 프리-와인드 연출 및 애니메이션 재생
+            // 발사 준비
             isPrepping = true;
-
-            // 🎯 애니메이션: 발사 준비 상태로 전환
             TurretEnemyAnimation.State prepareState = GetPrepareState(fixedAngle);
             if (turretAnim != null)
-            {
                 turretAnim.PlayAnimation(prepareState);
-            }
 
-            // DOTween 색상 연출 (발사 직전 깜빡임)
             if (spriter != null && preWindUp > 0f)
             {
                 spriter.DOKill();
@@ -136,48 +127,34 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
                 spriter.DOColor(Color.red, preWindUp).SetEase(Ease.Linear);
             }
 
-            // 3) 발사 시각까지 대기
             now = Time.timeAsDouble;
             if (nextFireAt > now)
                 yield return new WaitForSeconds((float)(nextFireAt - now));
 
-            // ----------------------------------------------------
-            // 4) 발사 (Shoot) 단계
-            // ----------------------------------------------------
+            // 발사
             isPrepping = false;
             isShooting = true;
             Shoot(dir);
 
-            // 🎯 애니메이션: 발사 후 상태로 전환 (비반복)
             TurretEnemyAnimation.State postState = GetPostState(fixedAngle);
             float postDuration = 0f;
-
             if (turretAnim != null)
             {
                 turretAnim.PlayAnimation(postState);
-
-                // ShootPost 애니메이션이 끝날 때까지 대기
                 postDuration = turretAnim.GetNonLoopDuration(postState);
             }
 
-            // 5) 색상 원복 및 대기
             if (spriter != null)
             {
                 spriter.DOKill();
                 spriter.DOColor(Color.white, 0.1f);
             }
 
-            // 애니메이션 대기
             if (postDuration > 0f)
-            {
                 yield return new WaitForSeconds(postDuration);
-            }
 
             isShooting = false;
 
-            // ----------------------------------------------------
-            // 6) 다음 phase
-            // ----------------------------------------------------
             phaseIdx++;
             if (phaseIdx >= firePhases.Length)
             {
@@ -192,67 +169,54 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
 
     void Shoot(Vector2 dir)
     {
-        // ⚠️ PoolManager가 있다고 가정합니다.
-        /*
-        if (!bulletPrefab || !PoolManager.Instance) return;
+        GameObject bulletToShoot = null;
 
-        GameObject bullet = PoolManager.Instance.SpawnFromPool(
-            bulletPrefab.name,
-            transform.position,
-            Quaternion.identity
-        );
+        // 랜덤으로 선택
+        if (bulletPrefab && secondaryBulletPrefab)
+            bulletToShoot = (Random.value < 0.5f) ? bulletPrefab : secondaryBulletPrefab;
+        else if (bulletPrefab)
+            bulletToShoot = bulletPrefab;
+        else if (secondaryBulletPrefab)
+            bulletToShoot = secondaryBulletPrefab;
+        else
+            return;
 
-        if (bullet != null)
-        {
-            BulletBehavior bulletBehavior = bullet.GetComponent<BulletBehavior>();
-            if (bulletBehavior == null)
-                bulletBehavior = bullet.AddComponent<BulletBehavior>();
-
-            bulletBehavior.Initialize(dir.normalized, bulletSpeed, bulletLifetime);
-        }
-        */
-
-        // PoolManager와 BulletBehavior가 없는 경우를 가정한 임시 발사 로직:
-        if (!bulletPrefab) return;
-        GameObject bullet = Instantiate(
-            bulletPrefab,
-            transform.position,
-            Quaternion.identity
-        );
+        GameObject bullet = Instantiate(bulletToShoot, transform.position, Quaternion.identity);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        if (rb) rb.linearVelocity = dir.normalized * bulletSpeed;
+        if (rb)
+            rb.linearVelocity = dir.normalized * bulletSpeed;
+
+        // 두 번째 Bullet이면 일정 시간 후 속도 변경
+        if (bulletToShoot == secondaryBulletPrefab && rb != null && secondaryDelay > 0f)
+            StartCoroutine(ChangeBulletSpeed(rb, secondaryDelay, secondarySpeed));
+
         Destroy(bullet, bulletLifetime);
     }
 
-    /// <summary> 각도에 따라 알맞은 ShootPrepare 상태를 반환합니다. </summary>
+    private IEnumerator ChangeBulletSpeed(Rigidbody2D rb, float delay, float newSpeed)
+    {
+        yield return new WaitForSeconds(delay);
+        if (rb != null)
+            rb.linearVelocity = rb.linearVelocity.normalized * newSpeed;
+    }
+
     private TurretEnemyAnimation.State GetPrepareState(float angle)
     {
         angle = (angle % 360 + 360) % 360;
         float verticalTolerance = 25f;
-
-        // 90도(위) 또는 270도(아래) 부근
         if ((angle >= 90f - verticalTolerance && angle <= 90f + verticalTolerance) ||
             (angle >= 270f - verticalTolerance && angle <= 270f + verticalTolerance))
-        {
             return TurretEnemyAnimation.State.FrontShootPrepare;
-        }
-        // 측면
         return TurretEnemyAnimation.State.ShootPrepare;
     }
 
-    /// <summary> 각도에 따라 알맞은 ShootPost 상태를 반환합니다. </summary>
     private TurretEnemyAnimation.State GetPostState(float angle)
     {
         angle = (angle % 360 + 360) % 360;
         float verticalTolerance = 25f;
-
-        // 90도(위) 또는 270도(아래) 부근
         if ((angle >= 90f - verticalTolerance && angle <= 90f + verticalTolerance) ||
             (angle >= 270f - verticalTolerance && angle <= 270f + verticalTolerance))
-        {
             return TurretEnemyAnimation.State.FrontShootPost;
-        }
-        // 측면
         return TurretEnemyAnimation.State.ShootPost;
     }
 
