@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using System.Collections;
 
 public class BulletSpawner : MonoBehaviour
 {
@@ -179,6 +180,9 @@ public class BulletSpawner : MonoBehaviour
         if (centerTarget == null) return;
 
         AudioManager.Instance?.PlayArrowSound(1.5f); // 🔊 커스텀 1.5배
+
+        VibrationManager.Vibrate(100);
+
 
         // 🔥 플레이어 강한 찌부 효과
         if (playerController != null)

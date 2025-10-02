@@ -23,7 +23,7 @@ public class BtnType : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         switch (currentType)
         {
             case BTNType.Start:
-                LoadingManager.LoadScene("Lobby");
+                LoadingManager.LoadScene("InGame");
                 break;
 
             case BTNType.Option:
