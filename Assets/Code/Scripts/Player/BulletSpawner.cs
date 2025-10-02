@@ -181,7 +181,7 @@ public class BulletSpawner : MonoBehaviour
 
         AudioManager.Instance?.PlayArrowSound(1.5f); // 🔊 커스텀 1.5배
 
-        VibrationManager.Vibrate(100);
+        VibrationManager.Vibrate(50);
 
 
         // 🔥 플레이어 강한 찌부 효과
