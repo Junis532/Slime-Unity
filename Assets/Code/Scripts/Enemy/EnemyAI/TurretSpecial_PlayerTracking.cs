@@ -3,15 +3,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TurretEnemy_PlayerTracking : MonoBehaviour
+public class TurretSpecial_PlayerTracking : MonoBehaviour
 {
     private bool isLive = true;
     private SpriteRenderer spriter;
     private TurretEnemyAnimation enemyAnimation;
     private Coroutine attackRoutine;
-
-    [Header("AI 설정")]
-    public bool AIEnabled = true;  // 꺼져 있으면 공격/추적 안 함
 
     [Header("공격 애니메이션 준비 시간")]
     public float attackPrepareDuration = 0.5f;
@@ -29,16 +26,23 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
 
+    [Header("두 번째 Bullet 설정")]
+    public GameObject secondaryBulletPrefab;
+    [Header("두 번째 Bullet 속도 변경")]
+    public float secondaryDelay = 1f;
+    public float secondarySpeed = 2f;
+
     [Header("탄환 패턴 설정")]
-    [Range(1, 10)]
-    public int bulletCount = 1;
-    [Range(0f, 180f)]
-    public float spreadAngle = 0f;
+    [Range(1, 10)] public int bulletCount = 1;
+    [Range(0f, 180f)] public float spreadAngle = 0f;
 
     [Header("LineRenderer 설정")]
     public bool showLineRenderer = true;
     private LineRenderer lineRenderer;
     private bool isPreparingToFire = false;
+
+    // 🔹 발사 순서 제어 (1, 1, 2 반복)
+    private int bulletPatternIndex = 0; // 0 → bullet1, 1 → bullet1, 2 → bullet2
 
     void Start()
     {
@@ -66,7 +70,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
     void Update()
     {
-        if (!isLive || !AIEnabled) return;  // 🔹 AI 꺼져 있으면 전체 동작 멈춤
+        if (!isLive) return;
 
         // Crystal 레이어 존재 체크
         int crystalLayer = LayerMask.NameToLayer("Crystal");
@@ -115,10 +119,10 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         else if (lineRenderer != null)
             lineRenderer.enabled = false;
 
-        if (fireIntervals.Length == 0 || !AIEnabled) return;  // 🔹 AI 꺼져 있으면 공격 안 함
+        if (fireIntervals.Length == 0) return;
         float currentCooldown = fireIntervals[fireIndex % fireIntervals.Length];
 
-        if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire && AIEnabled)
+        if (Time.time - lastFireTime >= currentCooldown && !isPreparingToFire)
         {
             if (attackRoutine != null) StopCoroutine(attackRoutine);
             attackRoutine = StartCoroutine(PrepareAndShoot());
@@ -127,7 +131,6 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
     private IEnumerator PrepareAndShoot()
     {
-        if (!AIEnabled) yield break;  // 🔹 AI 꺼져 있으면 바로 종료
         isPreparingToFire = true;
         float totalPrepTime = fireIntervals[fireIndex % fireIntervals.Length];
 
@@ -187,30 +190,49 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
     private void Shoot(Vector2 centerDir, float centerAngle)
     {
-        if (!bulletPrefab || bulletCount <= 0 || !AIEnabled) return;  // 🔹 AI 꺼져 있으면 발사 안 함
+        if ((!bulletPrefab && !secondaryBulletPrefab) || bulletCount <= 0) return;
 
         float startAngle = spreadAngle <= 0.01f ? centerAngle : centerAngle - spreadAngle / 2f;
         float angleStep = bulletCount > 1 ? spreadAngle / (bulletCount - 1) : 0f;
+
+        // 🔹 발사 순서 결정: 0,1 → bulletPrefab / 2 → secondaryBulletPrefab
+        GameObject bulletToShoot = bulletPrefab;
+        if (bulletPatternIndex == 2 && secondaryBulletPrefab != null)
+            bulletToShoot = secondaryBulletPrefab;
 
         for (int i = 0; i < bulletCount; i++)
         {
             float currentAngle = startAngle + i * angleStep;
             Vector2 shotDir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad),
                                           Mathf.Sin(currentAngle * Mathf.Deg2Rad));
-            SpawnBullet(shotDir);
+            SpawnBullet(shotDir, bulletToShoot);
         }
+
+        // 다음 순서로 이동 (0→1→2→0...)
+        bulletPatternIndex = (bulletPatternIndex + 1) % 3;
     }
 
-    private void SpawnBullet(Vector2 dir)
+    private void SpawnBullet(Vector2 dir, GameObject prefab)
     {
-        if (!bulletPrefab || !AIEnabled) return;  // 🔹 AI 꺼져 있으면 발사 안 함
+        if (!prefab) return;
 
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        GameObject bullet = Instantiate(prefab, transform.position, Quaternion.identity);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb)
             rb.linearVelocity = dir.normalized * bulletSpeed;
 
+        // 🔹 secondaryBulletPrefab인 경우, 일정 시간 후 속도 변경
+        if (prefab == secondaryBulletPrefab && secondaryDelay > 0f && rb != null)
+            StartCoroutine(ChangeBulletSpeed(rb, secondaryDelay, secondarySpeed));
+
         Destroy(bullet, bulletLifetime);
+    }
+
+    private IEnumerator ChangeBulletSpeed(Rigidbody2D rb, float delay, float newSpeed)
+    {
+        yield return new WaitForSeconds(delay);
+        if (rb != null)
+            rb.linearVelocity = rb.linearVelocity.normalized * newSpeed;
     }
 
     private void OnDestroy()

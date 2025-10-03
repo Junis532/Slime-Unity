@@ -11,16 +11,25 @@ public class EnemyBase : MonoBehaviour
 
     protected bool canMove = true;
 
-    // 외부에서 제어 가능
     public bool CanMove
     {
-        get { return canMove; }
-        set { canMove = value; }
+        get => canMove;
+        set => canMove = value;
     }
 
     public virtual void SetSpeed(float newSpeed)
     {
         speed = newSpeed;
         originalSpeed = newSpeed;
+    }
+
+    public virtual void StopMovement()
+    {
+        canMove = false;
+    }
+
+    public virtual void ResumeMovement()
+    {
+        canMove = true;
     }
 }

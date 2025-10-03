@@ -17,7 +17,7 @@ public class EnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 2f;
+        speed = 3.2f;
         maxHP = 1000;
         currentHP = maxHP;
         attack = 100;

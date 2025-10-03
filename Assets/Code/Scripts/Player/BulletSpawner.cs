@@ -26,8 +26,8 @@ public class BulletSpawner : MonoBehaviour
     [Header("플레이어 기준 거리")]
     public float arrowDistanceFromPlayer = 0f;
 
-    [Header("멈춘 후 대기 시간")]
-    public float stopDelay = 0.1f;
+    [Header("공격 쿨타임")]
+    public float attackCooldown = 0.3f;
 
     [Header("한 번에 발사할 총알 개수")]
     public int bulletsPerShot = 3;
@@ -59,9 +59,8 @@ public class BulletSpawner : MonoBehaviour
     private GameObject secondMarker;
     private GameObject currentMarker;
 
-    private float stopDelayTimer = 0f;
-    private float spawnTimer = 0f;
-    private bool firedAfterStop = false;
+    private float cooldownTimer = 0f;
+    private bool wasMoving = false;
     private PlayerController playerController;
 
     private int fireCount = 0;
@@ -78,39 +77,38 @@ public class BulletSpawner : MonoBehaviour
         if (playerController == null || bulletPrefab == null) return;
 
         Transform closestEnemy = FindClosestEnemy();
-
         UpdateMarkers(closestEnemy);
 
         bool isStill = playerController.inputVec.magnitude < 0.05f;
-        float actualSpawnInterval = spawnInterval / Mathf.Max(0.1f, attackSpeedMultiplier);
+        bool isMoving = !isStill;
 
+        // 쿨타임 감소
+        if (cooldownTimer > 0f)
+        {
+            cooldownTimer -= Time.deltaTime;
+        }
+
+        // 정지 상태에서 공격 처리
         if (isStill)
         {
-            stopDelayTimer += Time.deltaTime;
-
-            if (!firedAfterStop && stopDelayTimer >= stopDelay)
+            // 이전에 움직이고 있었다면 즉시 공격 (쿨타임이 끝났을 때)
+            if (wasMoving && cooldownTimer <= 0f)
             {
                 FireArrow(closestEnemy);
-                spawnTimer = 0f;
-                firedAfterStop = true;
+                float actualCooldown = attackCooldown / Mathf.Max(0.1f, attackSpeedMultiplier);
+                cooldownTimer = actualCooldown;
             }
-
-            if (firedAfterStop)
+            // 계속 정지 상태에서 쿨타임이 끝나면 연속 공격
+            else if (!wasMoving && cooldownTimer <= 0f)
             {
-                spawnTimer += Time.deltaTime;
-                if (spawnTimer >= actualSpawnInterval)
-                {
-                    FireArrow(closestEnemy);
-                    spawnTimer = 0f;
-                }
+                FireArrow(closestEnemy);
+                float actualCooldown = attackCooldown / Mathf.Max(0.1f, attackSpeedMultiplier);
+                cooldownTimer = actualCooldown;
             }
         }
-        else
-        {
-            stopDelayTimer = 0f;
-            spawnTimer = 0f;
-            firedAfterStop = false;
-        }
+
+        // 이동 상태 업데이트
+        wasMoving = isMoving;
     }
 
     private void UpdateMarkers(Transform closestEnemy)
