@@ -1,4 +1,4 @@
-﻿using Unity.VisualScripting;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     public bool canMove = true;
 
     [Header("조이스틱")]
-    public VariableJoystick joystick;
+    public Joystick joystick;
 
     [Header("조이스틱 방향 표시")]
     public GameObject directionIndicatorPrefab;
@@ -55,11 +55,16 @@ public class PlayerController : MonoBehaviour
         // 2) 조이스틱 입력
         Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
 
-        // 조이스틱 입력 세기 무시하고 항상 방향만 사용
+        // 조이스틱 입력 세기 반영 (Floating Joystick 지원)
         if (joystickInput.magnitude > 0.05f)
-            joystickInput = joystickInput.normalized;
+        {
+            // 입력 세기를 그대로 사용하되, 최대값을 1로 제한
+            joystickInput = Vector2.ClampMagnitude(joystickInput, 1f);
+        }
         else
+        {
             joystickInput = Vector2.zero;
+        }
 
 
         // 3) 두 입력 합치기

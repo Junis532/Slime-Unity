@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -82,6 +82,8 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         {
             if (magnitude > 1)
                 input = normalised;
+            else
+                input = normalised * magnitude; // 입력 세기 반영
         }
         else
             input = Vector2.zero;
