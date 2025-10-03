@@ -1,6 +1,9 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using UnityEngine;
 using System.Collections;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class BulletSpawner : MonoBehaviour
 {
@@ -38,7 +41,6 @@ public class BulletSpawner : MonoBehaviour
     [Header("타겟 표시 프리팹")]
     public GameObject targetMarkerPrefab;
 
-    [Header("타겟 마커 위치 오프셋")]
     public Vector3 targetMarkerOffset = new Vector3(0, 0, 0);
 
     [Header("두 번째 타겟 표시 프리팹")]
@@ -47,10 +49,18 @@ public class BulletSpawner : MonoBehaviour
     [Header("두 번째 타겟 마커 위치 오프셋")]
     public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0);
 
-    //[Header("Bow 이펙트 프리팹")]
-    //public GameObject bowEffectPrefab;
+    [Header("공격 사거리 설정 (카메라 기준)")]
+    [Tooltip("카메라 화면 크기의 몇 배까지 공격할지 (1.0 = 카메라 화면과 동일, 카메라 중심 기준)")]
+    public float attackRangeMultiplier = 1.2f;
+    
+    [Header("사거리 모양 설정")]
+    [Tooltip("Circle: 카메라 중심에서 원형 사거리, Rectangle: 카메라 화면 비율에 맞는 사각형 사거리")]
+    public AttackRangeType attackRangeType = AttackRangeType.Rectangle;
+    
+    [Header("디버그")]
+    public bool showAttackRange = false;
 
-    //[Header("Bow 이펙트 지속 시간")]
+    //public GameObject bowEffectPrefab;
     //public float bowEffectDuration = 0.2f;
 
     //[Header("Bow 거리")]
@@ -161,16 +171,181 @@ public class BulletSpawner : MonoBehaviour
             GameObject[] enemies = GameObject.FindGameObjectsWithTag(tag);
             foreach (var enemy in enemies)
             {
-                float dist = Vector3.Distance(playerController.transform.position, enemy.transform.position);
-                if (dist < closestDist)
+                // 사거리 타입에 따라 다른 검사 방법 사용
+                bool isInRange = IsEnemyInAttackRange(enemy.transform.position);
+                
+                if (isInRange)
                 {
-                    closestDist = dist;
-                    closest = enemy.transform;
+                    float dist = Vector3.Distance(playerController.transform.position, enemy.transform.position);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closest = enemy.transform;
+                    }
                 }
             }
         }
 
         return closest;
+    }
+
+    /// <summary>
+    /// 적이 공격 사거리 내에 있는지 확인합니다. (카메라 기준)
+    /// </summary>
+    private bool IsEnemyInAttackRange(Vector3 enemyPosition)
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null) return false;
+        
+        Vector3 cameraPos = mainCamera.transform.position;
+        
+        if (attackRangeType == AttackRangeType.Circle)
+        {
+            float maxAttackRange = GetCameraBasedAttackRange();
+            float distance = Vector3.Distance(cameraPos, enemyPosition);
+            return distance <= maxAttackRange;
+        }
+        else // Rectangle
+        {
+            Vector2 cameraSize = GetCameraSize();
+            float halfWidth = cameraSize.x * attackRangeMultiplier * 0.5f;
+            float halfHeight = cameraSize.y * attackRangeMultiplier * 0.5f;
+            
+            float deltaX = Mathf.Abs(enemyPosition.x - cameraPos.x);
+            float deltaY = Mathf.Abs(enemyPosition.y - cameraPos.y);
+            
+            return deltaX <= halfWidth && deltaY <= halfHeight;
+        }
+    }
+
+    /// <summary>
+    /// 카메라 크기를 반환합니다.
+    /// </summary>
+    private Vector2 GetCameraSize()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null) return new Vector2(20f, 15f); // 기본값
+
+        if (mainCamera.orthographic)
+        {
+            float cameraHeight = mainCamera.orthographicSize * 2f;
+            float cameraWidth = cameraHeight * mainCamera.aspect;
+            return new Vector2(cameraWidth, cameraHeight);
+        }
+        else
+        {
+            return new Vector2(30f, 20f); // Perspective 카메라용 기본값
+        }
+    }
+
+    /// <summary>
+    /// 카메라 사이즈를 기반으로 공격 사거리를 계산합니다.
+    /// </summary>
+    private float GetCameraBasedAttackRange()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null) return 10f; // 기본값
+
+        // 카메라가 Orthographic인 경우
+        if (mainCamera.orthographic)
+        {
+            // 카메라의 orthographicSize는 화면 높이의 절반
+            // 화면의 대각선 길이를 기준으로 사거리 계산
+            float cameraHeight = mainCamera.orthographicSize * 2f;
+            float cameraWidth = cameraHeight * mainCamera.aspect;
+            float cameraDiagonal = Mathf.Sqrt(cameraWidth * cameraWidth + cameraHeight * cameraHeight);
+            
+            return cameraDiagonal * attackRangeMultiplier;
+        }
+        else
+        {
+            // Perspective 카메라인 경우 (일반적으로 2D 게임에서는 사용하지 않음)
+            return 15f * attackRangeMultiplier; // 기본값
+        }
+    }
+
+    /// <summary>
+    /// 에디터에서 공격 사거리를 시각적으로 표시합니다. (카메라 기준)
+    /// </summary>
+    private void OnDrawGizmosSelected()
+    {
+        if (!showAttackRange) return;
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null) return;
+        
+        Vector3 cameraPos = mainCamera.transform.position;
+        
+        // 공격 사거리 표시 (빨간색) - 카메라 기준
+        Gizmos.color = Color.red;
+        if (attackRangeType == AttackRangeType.Circle)
+        {
+            float attackRange = GetCameraBasedAttackRange();
+            DrawWireCircle(cameraPos, attackRange);
+        }
+        else // Rectangle
+        {
+            Vector2 cameraSize = GetCameraSize();
+            float width = cameraSize.x * attackRangeMultiplier;
+            float height = cameraSize.y * attackRangeMultiplier;
+            DrawWireRectangle(cameraPos, width, height);
+        }
+        
+        // 카메라 화면 크기도 표시 (파란색, 참고용) - 카메라 기준
+        if (mainCamera.orthographic)
+        {
+            Vector2 cameraSize = GetCameraSize();
+            Gizmos.color = Color.blue;
+            
+            if (attackRangeType == AttackRangeType.Circle)
+            {
+                float cameraDiagonal = Mathf.Sqrt(cameraSize.x * cameraSize.x + cameraSize.y * cameraSize.y);
+                DrawWireCircle(cameraPos, cameraDiagonal);
+            }
+            else
+            {
+                DrawWireRectangle(cameraPos, cameraSize.x, cameraSize.y);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gizmos를 사용하여 원을 그립니다.
+    /// </summary>
+    private void DrawWireCircle(Vector3 center, float radius)
+    {
+        int segments = 32;
+        float angleStep = 360f / segments;
+        
+        Vector3 prevPoint = center + new Vector3(radius, 0, 0);
+        
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 newPoint = center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+            Gizmos.DrawLine(prevPoint, newPoint);
+            prevPoint = newPoint;
+        }
+    }
+
+    /// <summary>
+    /// Gizmos를 사용하여 사각형을 그립니다.
+    /// </summary>
+    private void DrawWireRectangle(Vector3 center, float width, float height)
+    {
+        float halfWidth = width * 0.5f;
+        float halfHeight = height * 0.5f;
+        
+        Vector3 topLeft = center + new Vector3(-halfWidth, halfHeight, 0);
+        Vector3 topRight = center + new Vector3(halfWidth, halfHeight, 0);
+        Vector3 bottomRight = center + new Vector3(halfWidth, -halfHeight, 0);
+        Vector3 bottomLeft = center + new Vector3(-halfWidth, -halfHeight, 0);
+        
+        // 사각형의 각 변을 그립니다
+        Gizmos.DrawLine(topLeft, topRight);      // 위쪽
+        Gizmos.DrawLine(topRight, bottomRight);  // 오른쪽
+        Gizmos.DrawLine(bottomRight, bottomLeft); // 아래쪽
+        Gizmos.DrawLine(bottomLeft, topLeft);    // 왼쪽
     }
 
     private void FireArrow(Transform centerTarget)
@@ -297,4 +472,13 @@ public class BulletSpawner : MonoBehaviour
         foreach (Transform child in obj.transform)
             SetAlphaRecursive(child.gameObject, alpha);
     }
+}
+
+/// <summary>
+/// 공격 사거리의 모양을 정의하는 열거형
+/// </summary>
+public enum AttackRangeType
+{
+    Circle,    // 원형 사거리
+    Rectangle  // 사각형 사거리
 }
