@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6919421869475458394}
   - component: {fileID: 2042443870762678638}
   - component: {fileID: 6621685254837438524}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WALL_12
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -127,7 +127,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.18, y: 0.18}
+    oldSize: {x: 0.28125, y: 0.28125}
     newSize: {x: 0.18, y: 0.18}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
