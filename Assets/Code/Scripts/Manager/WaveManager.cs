@@ -107,16 +107,13 @@ public class WaveManager : MonoBehaviour
 
     public void SetAllEnemiesAI(bool enabled)
     {
-        // 태그가 "Enemy"인 모든 게임오브젝트 찾기
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
         foreach (var obj in enemies)
         {
             TurretEnemy_PlayerTracking enemyScript = obj.GetComponent<TurretEnemy_PlayerTracking>();
             if (enemyScript != null)
-            {
-                enemyScript.AIEnabled = enabled; // 🔹 AIEnabled 토글
-            }
+                enemyScript.AIEnabled = enabled;
 
             Enemy enemyBase = obj.GetComponent<Enemy>();
             if (enemyBase != null)
@@ -128,6 +125,7 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
         if (room.cameraCollider == null) yield break;
@@ -146,7 +144,7 @@ public class WaveManager : MonoBehaviour
         // 🔹 1. 현재 씬 적 AI 모두 끄기
         SetAllEnemiesAI(false);
 
-        // 🔹 줌 아웃 연출 동안 BulletSpawner 끄기
+        // 🔹 줌 아웃 동안 BulletSpawner 끄기
         SetAllBulletSpawnersActive(false);
 
         // 🔹 적 미리 소환 + 이동/공격 잠금
@@ -158,9 +156,8 @@ public class WaveManager : MonoBehaviour
 
             EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
             if (enemyBase != null)
-            {
                 enemyBase.CanMove = false;
-            }
+
             spawnedEnemies.Add(enemyBase);
 
             foreach (Transform child in tempObj.transform)
@@ -175,6 +172,9 @@ public class WaveManager : MonoBehaviour
             .SetEase(Ease.InOutQuad)
             .WaitForCompletion();
 
+        // ✅ 방 이동 시 문 닫기
+        CloseDoors();
+
         Camera cam = Camera.main;
         if (cam != null)
         {
@@ -185,10 +185,8 @@ public class WaveManager : MonoBehaviour
 
             Sequence zoomOutSeq = DOTween.Sequence();
             zoomOutSeq.AppendInterval(0.2f);
-            zoomOutSeq.Append(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f)
-                .SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f)
-                .SetEase(Ease.InOutSine));
+            zoomOutSeq.Append(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
             yield return zoomOutSeq.WaitForCompletion();
         }
 
@@ -197,7 +195,6 @@ public class WaveManager : MonoBehaviour
         // 🔹 2. 줌인 연출 처리
         if (room.zoomInCameraFollow)
         {
-            // 줌인 직전에 BulletSpawner를 바로 켜는 대신 2초 지연 호출
             DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
 
             Sequence zoomInSeq = DOTween.Sequence();
@@ -205,31 +202,24 @@ public class WaveManager : MonoBehaviour
             endPos.z = cineCamera.transform.position.z;
 
             zoomInSeq.Append(cineCamera.transform.DOMove(endPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-            zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration)
-                .SetEase(Ease.InOutSine));
+            zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
 
             yield return zoomInSeq.WaitForCompletion();
 
-            // 🔹 줌인 연출 끝난 뒤 모든 적 AI 켜기
             SetAllEnemiesAI(true);
-
             cineCamera.Follow = playerTransform;
         }
         else if (room.CameraFollow)
         {
             cineCamera.Follow = playerTransform;
             cineCamera.Lens.OrthographicSize = 5.5f;
-            SetAllEnemiesAI(true); // 🔹 AI 켜기
-
-            // 🔹 BulletSpawner 2초 지연 호출
+            SetAllEnemiesAI(true);
             DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         }
         else
         {
             cineCamera.Follow = null;
-            SetAllEnemiesAI(true); // 🔹 AI 켜기
-
-            // 🔹 BulletSpawner 2초 지연 호출
+            SetAllEnemiesAI(true);
             DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         }
 
@@ -244,19 +234,59 @@ public class WaveManager : MonoBehaviour
                 foreach (var wall in room.movingWalls)
                     wall.isActive = true;
         }
+
+        // ✅ 적 처치 감시 코루틴 실행
+        StartCoroutine(CheckEnemiesCleared(room));
     }
 
-    // 참고: SetAllBulletSpawnersActive 함수는 그대로 유지됩니다.
+    IEnumerator CheckEnemiesCleared(RoomData room)
+    {
+        if (cleared) yield break;
+
+        while (true)
+        {
+            int enemiesLeft =
+                GameObject.FindGameObjectsWithTag("Enemy").Length +
+                GameObject.FindGameObjectsWithTag("DashEnemy").Length +
+                GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length +
+                GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
+
+            if (enemiesLeft == 0)
+            {
+                cleared = true;
+
+                if (GameManager.Instance.cameraShake != null)
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        GameManager.Instance.cameraShake.GenerateImpulse();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                }
+
+                OpenDoors();
+
+                if (room.movingWalls != null)
+                {
+                    foreach (var wall in room.movingWalls)
+                        wall?.ResetWall();
+                }
+
+                yield break;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
     void SetAllBulletSpawnersActive(bool enabled)
     {
-        // FindObjectsByType 사용, 정렬 필요 없으면 FindObjectsSortMode.None
         BulletSpawner[] spawners = Object.FindObjectsByType<BulletSpawner>(FindObjectsSortMode.None);
         foreach (var spawner in spawners)
         {
             spawner.enabled = enabled;
         }
     }
-
 
     public RoomData GetPlayerRoom()
     {
@@ -270,99 +300,6 @@ public class WaveManager : MonoBehaviour
             }
         }
         return null;
-    }
-
-    IEnumerator StartRoom(RoomData room)
-    {
-        if (clearPreviousEnemies) DestroyAllEnemies();
-
-        isSpawning = true;
-        cleared = false;
-
-        if (!isFirstRoom) CloseDoors();
-        yield return new WaitForSeconds(0.3f);
-
-        // 🔹 이벤트 씬 처리
-        if (room.eventSceneEnabled && room.eventObjectPrefab != null && room.eventStartPos != null && room.eventEndPos != null)
-        {
-            isEventRunning = true;
-
-            GameObject eventObj = Instantiate(room.eventObjectPrefab, room.eventStartPos.position, Quaternion.identity);
-
-            if (cineCamera != null)
-            {
-                cineCamera.Follow = null;
-                ApplyCameraConfiner(room, false);
-                yield return new WaitForSeconds(0.05f);
-                cineCamera.Follow = eventObj.transform;
-            }
-
-            eventObj.transform.DOMove(room.eventEndPos.position, room.eventMoveDuration)
-                .SetEase(Ease.Linear)
-                .OnComplete(() =>
-                {
-                    Destroy(eventObj);
-                    if (cineCamera != null)
-                        cineCamera.Follow = room.CameraFollow ? playerTransform : null;
-                    ApplyCameraConfiner(room);
-                    isEventRunning = false;
-                });
-
-            yield return new WaitForSeconds(room.eventMoveDuration + 0.2f);
-        }
-
-        // 🔹 적 스폰
-        foreach (var prefab in room.enemyPrefabs)
-        {
-            GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
-            tempObj.SetActive(false);
-            foreach (Transform child in tempObj.transform)
-                ShowWarningEffect(child.position);
-
-            yield return new WaitForSeconds(warningDuration);
-            tempObj.SetActive(true);
-
-            EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
-            if (enemyBase != null)
-            {
-                enemyBase.CanMove = false;
-                yield return new WaitForSeconds(spawnStop);
-                enemyBase.CanMove = true;
-            }
-
-            // 🔹 남은 적 확인 루프
-            while (true)
-            {
-                int enemiesLeft =
-                    GameObject.FindGameObjectsWithTag("Enemy").Length +
-                    GameObject.FindGameObjectsWithTag("DashEnemy").Length +
-                    GameObject.FindGameObjectsWithTag("LongRangeEnemy").Length +
-                    GameObject.FindGameObjectsWithTag("PotionEnemy").Length;
-
-                if (enemiesLeft == 0) break;
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-
-        cleared = true;
-
-        if (GameManager.Instance.cameraShake != null)
-        {
-            for (int i = 0; i < 7; i++)
-            {
-                GameManager.Instance.cameraShake.GenerateImpulse();
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
-
-        OpenDoors();
-        if (room.movingWalls != null)
-        {
-            foreach (var wall in room.movingWalls) wall?.ResetWall();
-        }
-
-        isSpawning = false;
-        if (isFirstRoom) isFirstRoom = false;
     }
 
     void ShowWarningEffect(Vector3 pos)

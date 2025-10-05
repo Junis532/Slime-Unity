@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     public GameObject directionIndicatorPrefab;
     private GameObject directionIndicatorInstance;
 
+    [Header("Bridge")]
+    public Bridge bridge; // Scene에서 연결
+
     public float directionIndicatorDistance = 0.3f; // 원이 플레이어로부터 떨어진 거리
 
     private Vector2 keyboardInput;
@@ -40,7 +43,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-
         if (!canMove) return;
 
         // 1) 키보드 입력
@@ -50,22 +52,17 @@ public class PlayerController : MonoBehaviour
         );
 
         // 2) 조이스틱 입력
-        //Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
-
-        // 2) 조이스틱 입력
         Vector2 joystickInput = new Vector2(joystick.Horizontal, joystick.Vertical);
 
         // 조이스틱 입력 세기 반영 (Floating Joystick 지원)
         if (joystickInput.magnitude > 0.05f)
         {
-            // 입력 세기를 그대로 사용하되, 최대값을 1로 제한
             joystickInput = Vector2.ClampMagnitude(joystickInput, 1f);
         }
         else
         {
             joystickInput = Vector2.zero;
         }
-
 
         // 3) 두 입력 합치기
         inputVec = keyboardInput + joystickInput;
@@ -75,10 +72,6 @@ public class PlayerController : MonoBehaviour
             inputVec = inputVec.normalized;
 
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-        Vector2 moveDelta = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
-
-        // 장애물 체크 없이 바로 이동
-        transform.Translate(moveDelta);
 
         UpdateDirectionIndicator(); // 방향 원 업데이트
 
@@ -92,6 +85,22 @@ public class PlayerController : MonoBehaviour
             playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
         else
             playerAnimation.PlayAnimation(PlayerAnimation.State.Move);
+    }
+
+    void LateUpdate()
+    {
+        if (!canMove) return;
+
+        // 기본 이동량
+        Vector2 moveDelta = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
+
+        // Bridge가 있고, 플레이어가 위에 있다면 Bridge 이동량 합산
+        if (bridge != null && bridge.PlayerOnBridge())
+        {
+            moveDelta += (Vector2)bridge.bridgeDelta;
+        }
+
+        transform.Translate(moveDelta);
     }
 
     void UpdateDirectionIndicator()
@@ -125,7 +134,6 @@ public class PlayerController : MonoBehaviour
         }
         return 1f;
     }
-
 
     void OnMove(InputValue value)
     {
