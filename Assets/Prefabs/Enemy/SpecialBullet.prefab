@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 7723352012375868533}
   - component: {fileID: 9045973787070427373}
   - component: {fileID: -2152000061847644352}
-  - component: {fileID: 4003388990343684644}
   - component: {fileID: 8837218477310367084}
   - component: {fileID: 3026175196375873847}
+  - component: {fileID: -6220067241599260255}
   m_Layer: 18
   m_Name: SpecialBullet
   m_TagString: Bullet
@@ -164,20 +164,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.16666667
---- !u!114 &4003388990343684644
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382944771956985129}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58ddb4843cc8f9447b4da881a82d1d7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  destroyOnObstacle: 1
-  ignorePlayerWhenUsingSkill: 0
 --- !u!50 &8837218477310367084
 Rigidbody2D:
   serializedVersion: 5
@@ -257,3 +243,19 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
+--- !u!114 &-6220067241599260255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382944771956985129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8228338720d560549bfa2aa4a7de2b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyOnObstacle: 1
+  ignorePlayerWhenUsingSkill: 0
+  maxBounces: 2
+  bounceCount: 0
