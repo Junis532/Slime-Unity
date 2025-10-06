@@ -92,11 +92,9 @@ public class SpecialBullet : MonoBehaviour
         }
         if (collision.gameObject.layer == LayerMask.NameToLayer("Wall_Block"))
         {
-            bounceCount++;
-            if (bounceCount >= maxBounces)
-            {
-                Destroy(gameObject); // 3번 튕기면 삭제
-            }
+
+            Destroy(gameObject); // 3번 튕기면 삭제
+
         }
     }
 
