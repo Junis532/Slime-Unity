@@ -71,33 +71,28 @@ public class PlayerDamaged : MonoBehaviour
 
         spriteRenderer.DOKill();
 
-        // AudioManager.Instance.PlaySFX(AudioManager.Instance.hitSound);
-
         // 색 변경
         spriteRenderer.color = Color.red;
         spriteRenderer.DOColor(originalColor, 0.5f);
 
         // -----------------------------------------------------
-        // 핵심 넉백 로직: 적의 위치와 반대 방향으로 밀기
+        // Bridge 위면 넉백 무시
         // -----------------------------------------------------
+        if (playerController != null && playerController.bridge != null && playerController.bridge.PlayerOnBridge())
+        {
+            // 다리 위면 넉백을 하지 않고 종료
+            return;
+        }
 
-        // 1. 넉백 방향 계산: (플레이어 위치 - 적 위치) = 적에게서 멀어지는 방향
+        // 1. 넉백 방향 계산
         Vector3 knockbackDir = (transform.position - enemyPosition).normalized;
 
         // 2. DOTween으로 넉백 이동 실행
         transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                  .SetEase(Ease.OutQuad)
                  .OnComplete(() => {
-                     // 3. 넉백 애니메이션이 끝나면 이동 제어 재활성화! (무적 중이라도 이동은 가능)
-                     if (playerController != null)
-                     {
-                         //playerController.SetCanMove(true);
-                     }
+                     // 넉백 완료 후 처리
                  });
-
-        // Handheld.Vibrate();
-
-        // ZacSkill 파편 생성 로직은 생략합니다.
     }
 
     public bool IsInvincible()

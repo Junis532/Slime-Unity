@@ -42379,9 +42379,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.12290502
-    width: 0.99999994
-    height: 0.7541899
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -114142,6 +114142,7 @@ GameObject:
   - component: {fileID: 2122160084}
   - component: {fileID: 2122160087}
   - component: {fileID: 2122160083}
+  - component: {fileID: 2122160088}
   m_Layer: 17
   m_Name: err
   m_TagString: Bridge
@@ -114302,6 +114303,53 @@ MonoBehaviour:
   passableLayer: Wall_Passable
   blockLayer: Wall_Block
   bridgePassLayer: Cliff
+  projectileLayer: Projectile
+--- !u!61 &2122160088
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122160082}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &2125176902
 GameObject:
   m_ObjectHideFlags: 0
@@ -118889,7 +118937,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5888740913974979812, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_Radius
-      value: 0.09810183
+      value: 0.07228632
       objectReference: {fileID: 0}
     - target: {fileID: 6045572874715174237, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: damageInterval
