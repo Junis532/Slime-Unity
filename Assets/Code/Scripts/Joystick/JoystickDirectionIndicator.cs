@@ -47,6 +47,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Vector3 originalScale;
     private Vector3 lastDashDirection = Vector3.right; // 마지막 이동 방향 저장
 
+    public Bridge currentBridge;
+
     public bool IsUsingSkill => isSkillActive;
 
     private void Start()
@@ -71,6 +73,10 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     public void UseSkillButton()
     {
+        // ✅ 다리 위라면 스킬 사용 금지
+        if (currentBridge != null && currentBridge.PlayerOnBridge())
+            return;
+
         if (hasUsedSkill || isSkillActive) return;
 
         UseSlimeJump();

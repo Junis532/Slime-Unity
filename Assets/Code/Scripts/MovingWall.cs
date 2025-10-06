@@ -2,66 +2,67 @@ using UnityEngine;
 
 public class MovingWall : MonoBehaviour
 {
-    [Header("이동 설정")]
-    public float moveDistance = 3f;
+    [Header("이동 포인트")]
+    public Vector2 startPoint;
+    public Vector2 endPoint1;
+    public Vector2 endPoint2;
+
+    [Header("이동 속도")]
     public float moveSpeed = 2f;
     public float returnSpeed = 1f;
     public float waitTime = 1f;
 
     [Header("시작 지연")]
-    public float startDelay = 1.5f; // 방 입장 후 대기 시간
+    public float startDelay = 1.5f;
 
-    private Vector3 startPos;
-    private bool movingRight = true;
-    private bool returning = false;
+    private Vector2 targetPoint;
+    private int targetIndex = 0; // 0 = End1, 1 = End2
     private float waitTimer = 0f;
     private float delayTimer = 0f;
 
     [HideInInspector]
-    public bool isActive = false; // 룸 진입 시 활성화
+    public bool isActive = false;
 
     void Start()
     {
-        startPos = transform.position;
+        transform.position = startPoint;
+        targetPoint = endPoint1; // 처음 이동할 목표
+        targetIndex = 0;
     }
 
     void Update()
     {
         if (!isActive) return;
 
-        // 시작 지연 처리
+        // 시작 지연
         if (delayTimer < startDelay)
         {
             delayTimer += Time.deltaTime;
             return;
         }
 
-        // 벽 이동 로직
-        if (returning)
+        // 이동
+        float speed = (targetIndex == 0) ? moveSpeed : returnSpeed;
+        transform.position = Vector2.MoveTowards(transform.position, targetPoint, speed * Time.deltaTime);
+
+        // 목표점 도달
+        if (Vector2.Distance(transform.position, targetPoint) < 0.01f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, startPos, returnSpeed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, startPos) < 0.01f)
+            waitTimer += Time.deltaTime;
+            if (waitTimer >= waitTime)
             {
-                returning = false;
-                movingRight = true;
-            }
-        }
-        else
-        {
-            float targetX = startPos.x + (movingRight ? moveDistance : -moveDistance);
-            Vector3 targetPos = new Vector3(targetX, startPos.y, startPos.z);
+                waitTimer = 0f;
 
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, targetPos) < 0.01f)
-            {
-                waitTimer += Time.deltaTime;
-                if (waitTimer >= waitTime)
+                // 다음 목표점 설정 (End1 ↔ End2 반복)
+                if (targetIndex == 0)
                 {
-                    waitTimer = 0f;
-                    if (movingRight) returning = true;
-                    else movingRight = true;
+                    targetPoint = endPoint2;
+                    targetIndex = 1;
+                }
+                else
+                {
+                    targetPoint = endPoint1;
+                    targetIndex = 0;
                 }
             }
         }
@@ -70,10 +71,10 @@ public class MovingWall : MonoBehaviour
     public void ResetWall()
     {
         isActive = false;
-        transform.position = startPos;
-        movingRight = true;
-        returning = false;
+        transform.position = startPoint;
+        targetPoint = endPoint1;
+        targetIndex = 0;
         waitTimer = 0f;
-        delayTimer = 0f; // 지연 타이머 초기화
+        delayTimer = 0f;
     }
 }
