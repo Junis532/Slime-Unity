@@ -53,6 +53,14 @@ PrefabInstance:
       propertyPath: spreadAngle
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: secondaryDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: secondarySpeed
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 3138796063724582110, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_Name
       value: TurretSpecial_PlayerTracking 1 (1)
@@ -314,6 +322,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 3229353953315649582}
     m_Modifications:
     - target: {fileID: 1253902831000662349, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1253902831000662349, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1253902831000662349, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1253902831000662349, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.95
       objectReference: {fileID: 0}
@@ -358,8 +378,12 @@ PrefabInstance:
       value: BabySpawnEnemy
       objectReference: {fileID: 0}
     - target: {fileID: 8850763643025424571, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
+      propertyPath: spawnDelay
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8850763643025424571, guid: e65cf8269a52376499c2425fe81ebcbe, type: 3}
       propertyPath: spawnInterval
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -386,6 +410,22 @@ PrefabInstance:
     - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: spreadAngle
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: firstFireDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: secondaryDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: secondarySpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: 'fireIntervals.Array.data[0]'
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3138796063724582110, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_Name
