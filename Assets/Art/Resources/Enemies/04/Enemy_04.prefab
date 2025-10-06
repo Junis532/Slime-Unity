@@ -412,6 +412,10 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: bulletLifetime
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: firstFireDelay
       value: 1
       objectReference: {fileID: 0}
@@ -433,11 +437,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.02
+      value: -4.74
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.7
+      value: 8.18
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_LocalPosition.z
