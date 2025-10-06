@@ -620,7 +620,7 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  AIEnabled: 0
+  AIEnabled: 1
   useAngleMove: 0
   moveAngle: 0
   angleMoveSpeed: 5
@@ -1322,7 +1322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d489e94b66f6df44bc98833b1027595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AIEnabled: 0
+  AIEnabled: 1
   attackPrepareDuration: 0.5
   fireIntervals:
   - 1
@@ -2295,7 +2295,7 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  AIEnabled: 0
+  AIEnabled: 1
   useAngleMove: 0
   moveAngle: 0
   angleMoveSpeed: 5
@@ -3156,7 +3156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d489e94b66f6df44bc98833b1027595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AIEnabled: 0
+  AIEnabled: 1
   attackPrepareDuration: 0.5
   fireIntervals:
   - 1
@@ -3556,7 +3556,7 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  AIEnabled: 0
+  AIEnabled: 1
   useAngleMove: 0
   moveAngle: 0
   angleMoveSpeed: 5

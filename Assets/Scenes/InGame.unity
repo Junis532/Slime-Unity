@@ -58235,7 +58235,7 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 0
-    zoomInCameraFollow: 0
+    zoomInCameraFollow: 1
     zoomInDelay: 0.8
     zoomInDuration: 1.2
     zoomInTargetSize: 5.5
@@ -58429,8 +58429,8 @@ MonoBehaviour:
     activated: 0
     CameraFollow: 0
     zoomInCameraFollow: 1
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
+    zoomInDelay: 2
+    zoomInDuration: 2
     zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
