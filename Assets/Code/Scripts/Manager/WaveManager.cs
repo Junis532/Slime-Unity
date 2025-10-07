@@ -127,36 +127,31 @@ public class WaveManager : MonoBehaviour
     }
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
-        cleared = false;
-        if (room.cameraCollider == null) yield break;
+        if (room == null || room.cameraCollider == null)
+        {
+            Debug.LogWarning("Room or cameraCollider is null!");
+            yield break;
+        }
 
         Vector3 roomCenter = room.cameraCollider.bounds.center;
         roomCenter.z = cineCamera.transform.position.z;
 
-        // 🔹 카메라 Confiner 설정
-        ApplyCameraConfiner(room, false);
+        ApplyCameraConfiner(null);
         cineCamera.Follow = null;
 
-        // 🔹 플레이어 이동 제한
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
 
-        // 🔹 기존 적 AI 끄기
         SetAllEnemiesAI(false);
         SetAllBulletSpawnersActive(false);
 
-        // 🔹 적 미리 소환 + 비활성
-        List<EnemyBase> spawnedEnemies = new List<EnemyBase>();
+        // 방 적 미리 소환
         foreach (var prefab in room.enemyPrefabs)
         {
             GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
             tempObj.SetActive(false);
-
             EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
-            if (enemyBase != null)
-                enemyBase.CanMove = false;
-
-            spawnedEnemies.Add(enemyBase);
+            if (enemyBase != null) enemyBase.CanMove = false;
 
             foreach (Transform child in tempObj.transform)
                 ShowWarningEffect(child.position);
@@ -165,133 +160,83 @@ public class WaveManager : MonoBehaviour
             tempObj.SetActive(true);
         }
 
-        // ✅ 카메라 이동 (비동기)
-        cineCamera.transform.DOMove(roomCenter, cameraMoveDuration).SetEase(Ease.InOutQuad);
-        if (isFirstRoom)
-        {
-            isFirstRoom = false; // 한 번만 실행되게
-            OpenDoors();
-
-            // 🔹 첫 방 문 열릴 때 카메라 흔들림
-            if (GameManager.Instance.cameraShake != null)
-            {
-                for (int i = 0; i < 7; i++)
-                {
-                    GameManager.Instance.cameraShake.GenerateImpulse();
-                    yield return new WaitForSeconds(0.1f);
-                }
-            }
-
-            if (playerCtrl != null) playerCtrl.canMove = true;
-
-            // 카메라 팔로우 설정 (기본)
-            if (room.CameraFollow)
-                cineCamera.Follow = playerTransform;
-            else
-                cineCamera.Follow = null;
-
-            cineCamera.Lens.OrthographicSize = 5.5f;
-
-            SetAllEnemiesAI(true);
-            SetAllBulletSpawnersActive(true);
-
-            // 방 활성화
-            if (!room.activated)
-            {
-                room.activated = true;
-                if (room.movingWalls != null)
-                    foreach (var wall in room.movingWalls)
-                        wall.isActive = true;
-            }
-
-            // ✅ 첫 방은 적이 없으므로 클리어 감시 X
-            yield break;
-        }
-
-        // 🔹 나머지 방은 문 닫기
-        CloseDoors();
-
-        // 🔹 카메라 줌아웃 (비동기)
+        // -------------------
+        // 1. 줌아웃 (방 전체 보여주기)
+        // -------------------
         Camera cam = Camera.main;
         if (cam != null)
         {
             Bounds bounds = room.cameraCollider.bounds;
             float screenRatio = (float)Screen.width / Screen.height;
             float boundsRatio = bounds.size.x / bounds.size.y;
+
             float targetOrthoSize = (boundsRatio >= screenRatio)
                 ? bounds.size.x / 2f / screenRatio
                 : bounds.size.y / 2f;
 
-            DOTween.To(
-                () => cam.orthographicSize,
-                x => cam.orthographicSize = x,
-                targetOrthoSize,
-                0.6f
-            ).SetEase(Ease.InOutSine);
+            targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 10f);
 
-            DOTween.To(
-                () => cineCamera.Lens.OrthographicSize,
-                x => cineCamera.Lens.OrthographicSize = x,
-                targetOrthoSize,
-                0.6f
-            ).SetEase(Ease.InOutSine);
+            Sequence zoomOutSeq = DOTween.Sequence();
+            zoomOutSeq.Append(cineCamera.transform.DOMove(new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z), cameraMoveDuration).SetEase(Ease.InOutSine));
+            zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+            yield return zoomOutSeq.WaitForCompletion();
         }
 
-        // ✅ 줌 꺼져 있으면 카메라 이동 즉시 이동 가능
-        if (!room.zoomInCameraFollow && playerCtrl != null)
-            playerCtrl.canMove = true;
+        yield return new WaitForSeconds(0.1f);
 
-        // 🔹 줌인 연출 처리
-        if (room.zoomInCameraFollow)
+        // -------------------
+        // 2. 줌인 (플레이어 중심, Collider 안으로 제한)
+        // -------------------
+        if (room.zoomInCameraFollow && room.cameraCollider != null)
         {
-            DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
+            Bounds camBounds = room.cameraCollider.bounds; // 방 collider
+            Vector3 targetPos = playerTransform.position;
+            targetPos.z = cineCamera.transform.position.z;
+
+            float camHalfHeight = room.zoomInTargetSize; // OrthographicSize
+            float camHalfWidth = camHalfHeight * Camera.main.aspect;
+
+            // Collider 안으로 제한
+            float minX = camBounds.min.x + camHalfWidth;
+            float maxX = camBounds.max.x - camHalfWidth;
+            float minY = camBounds.min.y + camHalfHeight;
+            float maxY = camBounds.max.y - camHalfHeight;
+
+            targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
+            targetPos.y = Mathf.Clamp(targetPos.y, minY, maxY);
 
             Sequence zoomInSeq = DOTween.Sequence();
-            Vector3 endPos = playerTransform.position;
-            endPos.z = cineCamera.transform.position.z;
-
-            zoomInSeq.Append(cineCamera.transform.DOMove(endPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-            zoomInSeq.Join(DOTween.To(
-                () => cineCamera.Lens.OrthographicSize,
-                x => cineCamera.Lens.OrthographicSize = x,
-                room.zoomInTargetSize,
-                room.zoomInDuration
-            ).SetEase(Ease.InOutSine));
-
+            zoomInSeq.Append(cineCamera.transform.DOMove(targetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
+            zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
             yield return zoomInSeq.WaitForCompletion();
-
-            SetAllEnemiesAI(true);
-            cineCamera.Follow = playerTransform;
-
-            // 🔹 줌인 끝나면 이동 허용
-            if (playerCtrl != null) playerCtrl.canMove = true;
-        }
-        else if (room.CameraFollow)
-        {
-            cineCamera.Follow = playerTransform;
-            cineCamera.Lens.OrthographicSize = 5.5f;
-            SetAllEnemiesAI(true);
-            DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
-        }
-        else
-        {
-            cineCamera.Follow = null;
-            SetAllEnemiesAI(true);
-            DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         }
 
-        // 🔹 방 활성화 처리
-        if (!room.activated)
+        // -------------------
+        // 3. Follow 적용 + Confiner (튐 방지용)
+        // -------------------
+        // DOTween 종료 위치를 그대로 유지한 채 Follow만 적용
+        Vector3 finalCamPos = cineCamera.transform.position;
+        finalCamPos.z = cineCamera.transform.position.z; // Z 유지
+        cineCamera.transform.position = finalCamPos;
+
+        cineCamera.Follow = playerTransform;
+        ApplyCameraConfiner(room);
+
+        SetAllEnemiesAI(true);
+        DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
+        if (playerCtrl != null) playerCtrl.canMove = true;
+
+        if (!room.activated && room.movingWalls != null)
         {
             room.activated = true;
-            if (room.movingWalls != null)
-                foreach (var wall in room.movingWalls)
-                    wall.isActive = true;
+            foreach (var wall in room.movingWalls)
+                wall.isActive = true;
         }
 
-        // ✅ 적 처치 감시 코루틴 실행
         StartCoroutine(CheckEnemiesCleared(room));
     }
+
 
     IEnumerator CheckEnemiesCleared(RoomData room)
     {
@@ -391,16 +336,18 @@ public class WaveManager : MonoBehaviour
             anim.PlayAnimation(DoorAnimation.DoorState.Open);
     }
 
-    public void ApplyCameraConfiner(RoomData room, bool forcePlayerFollow = true)
+    public void ApplyCameraConfiner(RoomData room)
     {
-        if (cineCamera == null || room.cameraCollider == null) return;
+        if (cineCamera == null) return;
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
-        if (confiner != null && confiner.BoundingShape2D != room.cameraCollider)
+        Collider2D col = (room != null && room.cameraCollider != null) ? room.cameraCollider : null;
+        if (confiner != null && confiner.BoundingShape2D != col)
         {
-            confiner.BoundingShape2D = room.cameraCollider;
+            confiner.BoundingShape2D = col;
             confiner.InvalidateBoundingShapeCache();
         }
     }
+
 
     private void DestroyAllEnemies()
     {

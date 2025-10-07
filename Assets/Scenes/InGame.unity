@@ -11397,7 +11397,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 4.6004496, y: -0.40223265}
+  m_Offset: {x: 4.669834, y: -0.8878813}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -11407,7 +11407,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 28.375975, y: 18.777237}
+  m_Size: {x: 28.822273, y: 19.748533}
   m_EdgeRadius: 0
 --- !u!1001 &269741044
 PrefabInstance:
@@ -42468,7 +42468,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 26.525139, y: -1.4784734, z: -10.032712}
+  m_LocalPosition: {x: 51.32514, y: -78.178474, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -58291,8 +58291,8 @@ MonoBehaviour:
     enemyPrefabs: []
     movingWalls: []
     activated: 0
-    CameraFollow: 0
-    zoomInCameraFollow: 1
+    CameraFollow: 1
+    zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
     zoomInTargetSize: 5.5
@@ -58310,7 +58310,7 @@ MonoBehaviour:
     - {fileID: 394419594535034226, guid: 558786edf766d434db4332a102bcd65f, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58329,7 +58329,7 @@ MonoBehaviour:
     - {fileID: 2033112630111573487, guid: c0a2cb0e9bedfdb42a7f0b1c556b59ab, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58348,7 +58348,7 @@ MonoBehaviour:
     - {fileID: 4725481194808050067, guid: 6fe3bdda70e679d499368c99b767ae43, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58367,7 +58367,7 @@ MonoBehaviour:
     - {fileID: 217457610395979299, guid: ace3a1f521ff48f4992b00228e9f6536, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58386,7 +58386,7 @@ MonoBehaviour:
     - {fileID: 1883867953935787052, guid: b366a08b6d5f90543855c5fd29f3fc51, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58405,7 +58405,7 @@ MonoBehaviour:
     - {fileID: 381026665819792882, guid: ff42cb265cb685b4aa387c422aef8631, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
+    CameraFollow: 1
     zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
@@ -58444,8 +58444,8 @@ MonoBehaviour:
     - {fileID: 9056929667236055254, guid: fe179183156a0ce459a4293d573c149e, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 0
-    zoomInCameraFollow: 1
+    CameraFollow: 1
+    zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
     zoomInTargetSize: 5.5
@@ -58461,11 +58461,10 @@ MonoBehaviour:
     cameraCollider: {fileID: 763799651}
     enemyPrefabs:
     - {fileID: 21564578223096748, guid: 2fba652cbdd668049a6662ee5a152d20, type: 3}
-    movingWalls:
-    - {fileID: 2122160084}
+    movingWalls: []
     activated: 0
-    CameraFollow: 0
-    zoomInCameraFollow: 1
+    CameraFollow: 1
+    zoomInCameraFollow: 0
     zoomInDelay: 0.8
     zoomInDuration: 1.2
     zoomInTargetSize: 5.5
@@ -58486,9 +58485,9 @@ MonoBehaviour:
     activated: 0
     CameraFollow: 0
     zoomInCameraFollow: 1
-    zoomInDelay: 2.5
-    zoomInDuration: 2
-    zoomInTargetSize: 5.5
+    zoomInDelay: 0.8
+    zoomInDuration: 1.2
+    zoomInTargetSize: 7
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -89038,7 +89037,7 @@ Transform:
   m_GameObject: {fileID: 1577947823}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 26.525139, y: -1.4784734, z: -10.032712}
+  m_LocalPosition: {x: 51.32514, y: -78.178474, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -112693,7 +112692,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 7.0904427, y: -1.2229156}
+  m_Offset: {x: 7.233917, y: -1.2131443}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -112703,7 +112702,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 34.27688, y: 24.976166}
+  m_Size: {x: 33.98993, y: 24.535763}
   m_EdgeRadius: 0
 --- !u!1 &2079879941
 GameObject:
@@ -119038,11 +119037,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.3
+      value: 25.1
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.4
+      value: -78.1
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.z
