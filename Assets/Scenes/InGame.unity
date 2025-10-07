@@ -42468,7 +42468,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 52.92514, y: -76.87848, z: -10.032712}
+  m_LocalPosition: {x: 56.317696, y: -76.39805, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -58487,7 +58487,7 @@ MonoBehaviour:
     zoomInCameraFollow: 1
     zoomInDelay: 3
     zoomInDuration: 1.2
-    zoomInTargetSize: 7
+    zoomInTargetSize: 7.3
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -89183,7 +89183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f453f694addf4275988fac205bc91968, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoundingShape2D: {fileID: 0}
+  BoundingShape2D: {fileID: 269132321}
   Damping: 0.5
   SlowingDistance: 5
   OversizeWindow:
