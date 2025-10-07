@@ -137,7 +137,7 @@ public class WaveManager : MonoBehaviour
         ApplyCameraConfiner(room, false);
         cineCamera.Follow = null;
 
-        // 🔹 플레이어 이동 제한 (기본값 false)
+        // 🔹 플레이어 이동 제한
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
 
@@ -165,14 +165,50 @@ public class WaveManager : MonoBehaviour
             tempObj.SetActive(true);
         }
 
-        // ✅ 줌 꺼져 있으면 카메라 이동 기다리지 않고 즉시 canMove = true
-        if (!room.zoomInCameraFollow && playerCtrl != null)
-            playerCtrl.canMove = true;
-
-        // 🔹 카메라 이동 (비동기)
+        // ✅ 카메라 이동 (비동기)
         cineCamera.transform.DOMove(roomCenter, cameraMoveDuration).SetEase(Ease.InOutQuad);
+        if (isFirstRoom)
+        {
+            isFirstRoom = false; // 한 번만 실행되게
+            OpenDoors();
 
-        // 🔹 문 닫기
+            // 🔹 첫 방 문 열릴 때 카메라 흔들림
+            if (GameManager.Instance.cameraShake != null)
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    GameManager.Instance.cameraShake.GenerateImpulse();
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+
+            if (playerCtrl != null) playerCtrl.canMove = true;
+
+            // 카메라 팔로우 설정 (기본)
+            if (room.CameraFollow)
+                cineCamera.Follow = playerTransform;
+            else
+                cineCamera.Follow = null;
+
+            cineCamera.Lens.OrthographicSize = 5.5f;
+
+            SetAllEnemiesAI(true);
+            SetAllBulletSpawnersActive(true);
+
+            // 방 활성화
+            if (!room.activated)
+            {
+                room.activated = true;
+                if (room.movingWalls != null)
+                    foreach (var wall in room.movingWalls)
+                        wall.isActive = true;
+            }
+
+            // ✅ 첫 방은 적이 없으므로 클리어 감시 X
+            yield break;
+        }
+
+        // 🔹 나머지 방은 문 닫기
         CloseDoors();
 
         // 🔹 카메라 줌아웃 (비동기)
@@ -200,6 +236,10 @@ public class WaveManager : MonoBehaviour
                 0.6f
             ).SetEase(Ease.InOutSine);
         }
+
+        // ✅ 줌 꺼져 있으면 카메라 이동 즉시 이동 가능
+        if (!room.zoomInCameraFollow && playerCtrl != null)
+            playerCtrl.canMove = true;
 
         // 🔹 줌인 연출 처리
         if (room.zoomInCameraFollow)
