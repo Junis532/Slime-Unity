@@ -138,7 +138,7 @@ public class WaveManager : MonoBehaviour
         Vector3 roomCenter = room.cameraCollider.bounds.center;
         roomCenter.z = cineCamera.transform.position.z;
 
-        ApplyCameraConfiner(null);
+        ApplyCameraConfiner(room);
         cineCamera.Follow = null;
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
@@ -235,7 +235,7 @@ public class WaveManager : MonoBehaviour
         cineCamera.transform.position = finalCamPos;
 
         cineCamera.Follow = playerTransform;
-        ApplyCameraConfiner(room);
+   
 
         SetAllEnemiesAI(true);
         DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
