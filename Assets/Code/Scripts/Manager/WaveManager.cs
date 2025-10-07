@@ -133,20 +133,14 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-
-
-        Vector3 roomCenter = room.cameraCollider.bounds.center;
-        roomCenter.z = cineCamera.transform.position.z;
-
-        ApplyCameraConfiner(null);
-        cineCamera.Follow = null;
+        Camera cam = Camera.main;
+        if (cam == null) yield break;
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
-        if (playerCtrl != null) playerCtrl.canMove = false;
-         
+        if (playerCtrl != null) playerCtrl.canMove = false; // 플레이어 이동 금지
+
         cleared = false;
         CloseDoors();
-
         SetAllEnemiesAI(false);
         SetAllBulletSpawnersActive(false);
 
@@ -165,81 +159,53 @@ public class WaveManager : MonoBehaviour
             tempObj.SetActive(true);
         }
 
-        // -------------------
-        // 1. 줌아웃 (카메라 Collider 전체 보여주기)
-        // -------------------
-        Camera cam = Camera.main;
-        if (cam != null)
-        {
-            Bounds bounds = room.cameraCollider.bounds;
-            float screenRatio = (float)Screen.width / Screen.height;
+        // 1️⃣ 줌 아웃 (Room 전체가 보이도록)
+        Bounds bounds = room.cameraCollider.bounds;
+        float screenRatio = (float)Screen.width / Screen.height;
 
-            // 세로 기준 OrthographicSize
-            float targetOrthoSize = bounds.size.y / 2f;
+        float targetOrthoSize = bounds.size.y / 2f;
+        float camHalfWidth = targetOrthoSize * screenRatio;
+        if (camHalfWidth < bounds.size.x / 2f)
+            targetOrthoSize = bounds.size.x / 2f / screenRatio;
 
-            // 가로가 부족하면 세로를 늘려서 가로 맞춤
-            float camHalfWidth = targetOrthoSize * screenRatio;
-            if (camHalfWidth < bounds.size.x / 2f)
-            {
-                targetOrthoSize = bounds.size.x / 2f / screenRatio;
-            }
+        targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
 
-            // 최소/최대 제한 (필요시 조정)
-            targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
+        Sequence zoomOutSeq = DOTween.Sequence();
+        zoomOutSeq.Append(cineCamera.transform.DOMove(new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z), cameraMoveDuration).SetEase(Ease.InOutSine));
+        zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+        zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+        yield return zoomOutSeq.WaitForCompletion();
 
-            // DOTween으로 카메라 이동 및 줌 적용
-            Sequence zoomOutSeq = DOTween.Sequence();
-            zoomOutSeq.Append(cineCamera.transform.DOMove(new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z), cameraMoveDuration).SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            yield return zoomOutSeq.WaitForCompletion();
-        }
-
-
-
+        // 줌인 Delay
         yield return new WaitForSeconds(room.zoomInDelay);
 
-        // -------------------
-        // 2. 줌인 (플레이어 중심, Collider 안으로 제한)
-        // -------------------
-        if (room.zoomInCameraFollow && room.cameraCollider != null)
+        // 2️⃣ 줌 인 (플레이어 중심, Collider 안으로 제한)
+        if (room.zoomInCameraFollow)
         {
-            Bounds camBounds = room.cameraCollider.bounds; // 방 collider
+            Bounds camBounds = room.cameraCollider.bounds;
             Vector3 targetPos = playerTransform.position;
             targetPos.z = cineCamera.transform.position.z;
 
-            float camHalfHeight = room.zoomInTargetSize; // OrthographicSize
-            float camHalfWidth = camHalfHeight * Camera.main.aspect;
+            float camHalfHeight = room.zoomInTargetSize;
+            float camHalfWidthIn = camHalfHeight * cam.aspect;
 
-            // Collider 안으로 제한
-            float minX = camBounds.min.x + camHalfWidth;
-            float maxX = camBounds.max.x - camHalfWidth;
-            float minY = camBounds.min.y + camHalfHeight;
-            float maxY = camBounds.max.y - camHalfHeight;
+            targetPos.x = Mathf.Clamp(targetPos.x, camBounds.min.x + camHalfWidthIn, camBounds.max.x - camHalfWidthIn);
+            targetPos.y = Mathf.Clamp(targetPos.y, camBounds.min.y + camHalfHeight, camBounds.max.y - camHalfHeight);
 
-            targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
-            targetPos.y = Mathf.Clamp(targetPos.y, minY, maxY);
+            // 줌 인 시작 전에는 Follow 끄기
+            cineCamera.Follow = null;
 
             Sequence zoomInSeq = DOTween.Sequence();
             zoomInSeq.Append(cineCamera.transform.DOMove(targetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
             zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
+
+            // 줌인 완료까지 대기
             yield return zoomInSeq.WaitForCompletion();
         }
 
-        // -------------------
-        // 3. Follow 적용 + Confiner (튐 방지용)
-        // -------------------
-        // DOTween 종료 위치를 그대로 유지한 채 Follow만 적용
-        Vector3 finalCamPos = cineCamera.transform.position;
-        finalCamPos.z = cineCamera.transform.position.z; // Z 유지
-        cineCamera.transform.position = finalCamPos;
-
+        // 3️⃣ 줌인 완료 후 Follow 적용 + Confiner 적용 + 플레이어 이동 허용
         cineCamera.Follow = playerTransform;
         ApplyCameraConfiner(room);
-
-        SetAllEnemiesAI(true);
-        DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
-        if (playerCtrl != null) playerCtrl.canMove = true;
 
         if (!room.activated && room.movingWalls != null)
         {
@@ -248,9 +214,13 @@ public class WaveManager : MonoBehaviour
                 wall.isActive = true;
         }
 
+        if (playerCtrl != null)
+            playerCtrl.canMove = true;
+
+        DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
+        SetAllEnemiesAI(true);
         StartCoroutine(CheckEnemiesCleared(room));
     }
-
 
     IEnumerator CheckEnemiesCleared(RoomData room)
     {
