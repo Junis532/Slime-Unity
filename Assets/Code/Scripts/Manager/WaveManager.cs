@@ -125,9 +125,9 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
-
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
+        cleared = false;
         if (room.cameraCollider == null) yield break;
 
         Vector3 roomCenter = room.cameraCollider.bounds.center;
@@ -137,17 +137,15 @@ public class WaveManager : MonoBehaviour
         ApplyCameraConfiner(room, false);
         cineCamera.Follow = null;
 
-        // 🔹 플레이어 이동 제한
+        // 🔹 플레이어 이동 제한 (기본값 false)
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
 
-        // 🔹 1. 현재 씬 적 AI 모두 끄기
+        // 🔹 기존 적 AI 끄기
         SetAllEnemiesAI(false);
-
-        // 🔹 줌 아웃 동안 BulletSpawner 끄기
         SetAllBulletSpawnersActive(false);
 
-        // 🔹 적 미리 소환 + 이동/공격 잠금
+        // 🔹 적 미리 소환 + 비활성
         List<EnemyBase> spawnedEnemies = new List<EnemyBase>();
         foreach (var prefab in room.enemyPrefabs)
         {
@@ -167,32 +165,43 @@ public class WaveManager : MonoBehaviour
             tempObj.SetActive(true);
         }
 
-        // 🔹 카메라 이동 & 줌아웃
-        yield return cineCamera.transform.DOMove(roomCenter, cameraMoveDuration)
-            .SetEase(Ease.InOutQuad)
-            .WaitForCompletion();
+        // ✅ 줌 꺼져 있으면 카메라 이동 기다리지 않고 즉시 canMove = true
+        if (!room.zoomInCameraFollow && playerCtrl != null)
+            playerCtrl.canMove = true;
 
-        // ✅ 방 이동 시 문 닫기
+        // 🔹 카메라 이동 (비동기)
+        cineCamera.transform.DOMove(roomCenter, cameraMoveDuration).SetEase(Ease.InOutQuad);
+
+        // 🔹 문 닫기
         CloseDoors();
 
+        // 🔹 카메라 줌아웃 (비동기)
         Camera cam = Camera.main;
         if (cam != null)
         {
             Bounds bounds = room.cameraCollider.bounds;
             float screenRatio = (float)Screen.width / Screen.height;
             float boundsRatio = bounds.size.x / bounds.size.y;
-            float targetOrthoSize = (boundsRatio >= screenRatio) ? bounds.size.x / 2f / screenRatio : bounds.size.y / 2f;
+            float targetOrthoSize = (boundsRatio >= screenRatio)
+                ? bounds.size.x / 2f / screenRatio
+                : bounds.size.y / 2f;
 
-            Sequence zoomOutSeq = DOTween.Sequence();
-            zoomOutSeq.AppendInterval(0.2f);
-            zoomOutSeq.Append(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            yield return zoomOutSeq.WaitForCompletion();
+            DOTween.To(
+                () => cam.orthographicSize,
+                x => cam.orthographicSize = x,
+                targetOrthoSize,
+                0.6f
+            ).SetEase(Ease.InOutSine);
+
+            DOTween.To(
+                () => cineCamera.Lens.OrthographicSize,
+                x => cineCamera.Lens.OrthographicSize = x,
+                targetOrthoSize,
+                0.6f
+            ).SetEase(Ease.InOutSine);
         }
 
-        yield return new WaitForSeconds(0.2f);
-
-        // 🔹 2. 줌인 연출 처리
+        // 🔹 줌인 연출 처리
         if (room.zoomInCameraFollow)
         {
             DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
@@ -202,12 +211,20 @@ public class WaveManager : MonoBehaviour
             endPos.z = cineCamera.transform.position.z;
 
             zoomInSeq.Append(cineCamera.transform.DOMove(endPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-            zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
+            zoomInSeq.Join(DOTween.To(
+                () => cineCamera.Lens.OrthographicSize,
+                x => cineCamera.Lens.OrthographicSize = x,
+                room.zoomInTargetSize,
+                room.zoomInDuration
+            ).SetEase(Ease.InOutSine));
 
             yield return zoomInSeq.WaitForCompletion();
 
             SetAllEnemiesAI(true);
             cineCamera.Follow = playerTransform;
+
+            // 🔹 줌인 끝나면 이동 허용
+            if (playerCtrl != null) playerCtrl.canMove = true;
         }
         else if (room.CameraFollow)
         {
@@ -222,9 +239,6 @@ public class WaveManager : MonoBehaviour
             SetAllEnemiesAI(true);
             DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         }
-
-        // 🔹 플레이어 이동 허용
-        if (playerCtrl != null) playerCtrl.canMove = true;
 
         // 🔹 방 활성화 처리
         if (!room.activated)
