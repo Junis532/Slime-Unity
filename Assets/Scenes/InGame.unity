@@ -42468,7 +42468,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 51.32514, y: -78.178474, z: -10.032712}
+  m_LocalPosition: {x: 52.92514, y: -76.87848, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -58463,8 +58463,8 @@ MonoBehaviour:
     - {fileID: 21564578223096748, guid: 2fba652cbdd668049a6662ee5a152d20, type: 3}
     movingWalls: []
     activated: 0
-    CameraFollow: 1
-    zoomInCameraFollow: 0
+    CameraFollow: 0
+    zoomInCameraFollow: 1
     zoomInDelay: 0.8
     zoomInDuration: 1.2
     zoomInTargetSize: 5.5
@@ -58485,7 +58485,7 @@ MonoBehaviour:
     activated: 0
     CameraFollow: 0
     zoomInCameraFollow: 1
-    zoomInDelay: 0.8
+    zoomInDelay: 3
     zoomInDuration: 1.2
     zoomInTargetSize: 7
     eventSceneEnabled: 0
@@ -89037,7 +89037,7 @@ Transform:
   m_GameObject: {fileID: 1577947823}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 51.32514, y: -78.178474, z: -10.032712}
+  m_LocalPosition: {x: 52.92514, y: -76.87848, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -119037,11 +119037,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 25.1
+      value: 26.7
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -78.1
+      value: -76.8
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.z

@@ -133,6 +133,8 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
+
+
         Vector3 roomCenter = room.cameraCollider.bounds.center;
         roomCenter.z = cineCamera.transform.position.z;
 
@@ -141,6 +143,9 @@ public class WaveManager : MonoBehaviour
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
+         
+        cleared = false;
+        CloseDoors();
 
         SetAllEnemiesAI(false);
         SetAllBulletSpawnersActive(false);
@@ -161,21 +166,28 @@ public class WaveManager : MonoBehaviour
         }
 
         // -------------------
-        // 1. 줌아웃 (방 전체 보여주기)
+        // 1. 줌아웃 (카메라 Collider 전체 보여주기)
         // -------------------
         Camera cam = Camera.main;
         if (cam != null)
         {
             Bounds bounds = room.cameraCollider.bounds;
             float screenRatio = (float)Screen.width / Screen.height;
-            float boundsRatio = bounds.size.x / bounds.size.y;
 
-            float targetOrthoSize = (boundsRatio >= screenRatio)
-                ? bounds.size.x / 2f / screenRatio
-                : bounds.size.y / 2f;
+            // 세로 기준 OrthographicSize
+            float targetOrthoSize = bounds.size.y / 2f;
 
-            targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 10f);
+            // 가로가 부족하면 세로를 늘려서 가로 맞춤
+            float camHalfWidth = targetOrthoSize * screenRatio;
+            if (camHalfWidth < bounds.size.x / 2f)
+            {
+                targetOrthoSize = bounds.size.x / 2f / screenRatio;
+            }
 
+            // 최소/최대 제한 (필요시 조정)
+            targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
+
+            // DOTween으로 카메라 이동 및 줌 적용
             Sequence zoomOutSeq = DOTween.Sequence();
             zoomOutSeq.Append(cineCamera.transform.DOMove(new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z), cameraMoveDuration).SetEase(Ease.InOutSine));
             zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
@@ -183,7 +195,9 @@ public class WaveManager : MonoBehaviour
             yield return zoomOutSeq.WaitForCompletion();
         }
 
-        yield return new WaitForSeconds(0.1f);
+
+
+        yield return new WaitForSeconds(room.zoomInDelay);
 
         // -------------------
         // 2. 줌인 (플레이어 중심, Collider 안으로 제한)
