@@ -43440,7 +43440,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 95.463486, y: -75.0083, z: -10.032712}
+  m_LocalPosition: {x: 26.22514, y: 0.7215265, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -59263,11 +59263,7 @@ MonoBehaviour:
     enemyPrefabs: []
     movingWalls: []
     activated: 0
-    CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
+    CameraFollow: 0
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59283,10 +59279,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59302,10 +59294,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59321,10 +59309,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59340,10 +59324,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59359,10 +59339,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59378,10 +59354,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 0}
     eventEndPos: {fileID: 0}
@@ -59398,10 +59370,6 @@ MonoBehaviour:
     - {fileID: 1370891981}
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 1
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -59417,10 +59385,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 1
-    zoomInCameraFollow: 0
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -59436,10 +59400,6 @@ MonoBehaviour:
     movingWalls: []
     activated: 0
     CameraFollow: 0
-    zoomInCameraFollow: 1
-    zoomInDelay: 0.8
-    zoomInDuration: 1.2
-    zoomInTargetSize: 5.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -59456,10 +59416,6 @@ MonoBehaviour:
     - {fileID: 2122160084}
     activated: 0
     CameraFollow: 0
-    zoomInCameraFollow: 1
-    zoomInDelay: 3
-    zoomInDuration: 0.8
-    zoomInTargetSize: 7.5
     eventSceneEnabled: 0
     eventStartPos: {fileID: 1517429121}
     eventEndPos: {fileID: 1902338639}
@@ -59470,7 +59426,7 @@ MonoBehaviour:
   cineCamera: {fileID: 1577947824}
   cameraMoveDuration: 0.5
   warningEffectPrefab: {fileID: 0}
-  warningDuration: 0
+  warningDuration: 1
   doorParentPrefab: {fileID: 1223183268}
   doorAnimationParentPrefab: {fileID: 1694082478}
   spawnStop: 0
@@ -90009,7 +89965,7 @@ Transform:
   m_GameObject: {fileID: 1577947823}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 90.71513, y: -77.27847, z: -10.032712}
+  m_LocalPosition: {x: 26.22514, y: 0.7215265, z: -10.032712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -90155,7 +90111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f453f694addf4275988fac205bc91968, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoundingShape2D: {fileID: 2079639183}
+  BoundingShape2D: {fileID: 0}
   Damping: 0.5
   SlowingDistance: 5
   OversizeWindow:
@@ -120013,11 +119969,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 64.49
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -77.2
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 8740702165785062773, guid: 81414e54b4ce7c84dab272e16c6f94ec, type: 3}
       propertyPath: m_LocalPosition.z
