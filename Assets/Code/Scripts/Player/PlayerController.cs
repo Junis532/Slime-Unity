@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 currentDirection;
     private PlayerAnimation playerAnimation;
     private SpriteRenderer spriteRenderer;
+    
+    [Header("Mesh Object")]
+    public GameObject meshObject; // Mesh 오브젝트 참조
 
     public float smoothTime = 0.1f;
     public bool canMove = true;
@@ -31,8 +34,22 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        playerAnimation = GetComponent<PlayerAnimation>();
+        // Mesh 오브젝트가 지정되지 않았다면 자동으로 찾기
+        if (meshObject == null)
+        {
+            meshObject = transform.Find("Mesh")?.gameObject;
+        }
+        
+        // Mesh 오브젝트에서 컴포넌트 가져오기
+        if (meshObject != null)
+        {
+            spriteRenderer = meshObject.GetComponent<SpriteRenderer>();
+            playerAnimation = meshObject.GetComponent<PlayerAnimation>();
+        }
+        else
+        {
+            Debug.LogError("Mesh 오브젝트를 찾을 수 없습니다. Player의 하위에 'Mesh' 오브젝트가 있는지 확인하거나 meshObject 필드에 직접 할당해주세요.");
+        }
 
         if (directionIndicatorPrefab != null)
         {
@@ -75,16 +92,22 @@ public class PlayerController : MonoBehaviour
 
         UpdateDirectionIndicator(); // 방향 원 업데이트
 
-        // 방향 전환
-        float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
-        if (flipInput < -0.01f) spriteRenderer.flipX = true;
-        else if (flipInput > 0.01f) spriteRenderer.flipX = false;
+        // 방향 전환 (null 체크 추가)
+        if (spriteRenderer != null)
+        {
+            float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
+            if (flipInput < -0.01f) spriteRenderer.flipX = true;
+            else if (flipInput > 0.01f) spriteRenderer.flipX = false;
+        }
 
-        // 애니메이션
-        if (currentDirection == Vector2.zero)
-            playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
-        else
-            playerAnimation.PlayAnimation(PlayerAnimation.State.Move);
+        // 애니메이션 (null 체크 추가)
+        if (playerAnimation != null)
+        {
+            if (currentDirection == Vector2.zero)
+                playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
+            else
+                playerAnimation.PlayAnimation(PlayerAnimation.State.Move);
+        }
     }
 
     void LateUpdate()
@@ -127,10 +150,10 @@ public class PlayerController : MonoBehaviour
 
     float GetPlayerSize()
     {
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null && sr.sprite != null)
+        // Mesh 오브젝트의 SpriteRenderer 사용
+        if (spriteRenderer != null && spriteRenderer.sprite != null)
         {
-            return Mathf.Max(sr.bounds.size.x, sr.bounds.size.y);
+            return Mathf.Max(spriteRenderer.bounds.size.x, spriteRenderer.bounds.size.y);
         }
         return 1f;
     }

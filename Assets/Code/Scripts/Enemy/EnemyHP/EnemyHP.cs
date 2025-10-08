@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using UnityEngine;
 using TMPro;
 
@@ -7,8 +7,11 @@ public class EnemyHP : MonoBehaviour
     [Header("체력 관련")]
     public GameObject hpBarPrefab;
     private EnemyHPBar hpBar;
+    public float maxHP = 1000f; // Inspector에서 설정 가능, 기본값 1000
     public float currentHP;
-    private float maxHP;
+    
+    [Header("체력 설정 옵션")]
+    public bool useGameManagerHP = true; // GameManager의 enemyStats 사용 여부
 
     private BulletSpawner bulletSpawner;
 
@@ -36,7 +39,13 @@ public class EnemyHP : MonoBehaviour
 
     void Start()
     {
-        maxHP = GameManager.Instance.enemyStats.maxHP;
+        // 체력 설정: GameManager 사용 여부에 따라 결정
+        if (useGameManagerHP)
+        {
+            maxHP = GameManager.Instance.enemyStats.maxHP;
+        }
+        // useGameManagerHP가 false면 Inspector에서 설정한 maxHP 값 사용
+        
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 

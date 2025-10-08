@@ -6,6 +6,15 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [System.Serializable]
+public class RoomWaveData
+{
+    [Header("웨이브 정보")]
+    public string waveName = "Wave 1";
+    public List<GameObject> enemyPrefabs;
+    public float waveDelay = 2f; // 웨이브 시작 전 대기 시간
+}
+
+[System.Serializable]
 public class RoomData
 {
     public string roomName;
@@ -17,8 +26,8 @@ public class RoomData
     [Header("Camera Confiner Collider")]
     public Collider2D cameraCollider;
 
-    [Header("적 스폰 설정")]
-    public List<GameObject> enemyPrefabs;
+    [Header("웨이브 시스템 설정")]
+    public List<RoomWaveData> waves = new List<RoomWaveData>(); // 웨이브별 적 설정
     public List<MovingWall> movingWalls;
 
     [HideInInspector]
@@ -79,6 +88,10 @@ public class WaveManager : MonoBehaviour
     private bool isSpawning = false;
     private bool isFirstRoom = true;
     private bool isEventRunning = false;
+    
+    [Header("웨이브 진행 상태")]
+    private int currentWaveIndex = 0;
+    private bool isWaveActive = false;
 
     void Start()
     {
@@ -143,31 +156,15 @@ public class WaveManager : MonoBehaviour
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
-         
         cleared = false;
         CloseDoors();
 
         SetAllEnemiesAI(false);
         SetAllBulletSpawnersActive(false);
 
-        // 방 적 미리 소환
-        foreach (var prefab in room.enemyPrefabs)
-        {
-            GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
-            tempObj.SetActive(false);
-            EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
-            if (enemyBase != null) enemyBase.CanMove = false;
-
-            foreach (Transform child in tempObj.transform)
-                ShowWarningEffect(child.position);
-
-            yield return null;
-            tempObj.SetActive(true);
-        }
-
-        // -------------------
+        // -----------------
         // 1. 줌아웃 (카메라 Collider 전체 보여주기)
-        // -------------------
+        // ----------------
         Camera cam = Camera.main;
         if (cam != null)
         {
@@ -237,6 +234,12 @@ public class WaveManager : MonoBehaviour
         cineCamera.Follow = playerTransform;
         ApplyCameraConfiner(room);
 
+        // -------------------
+        // 4. 카메라 연출 완료 후 웨이브 시스템 시작
+        // -------------------
+        currentWaveIndex = 0;
+        isWaveActive = false;
+
         SetAllEnemiesAI(true);
         DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         if (playerCtrl != null) playerCtrl.canMove = true;
@@ -248,14 +251,89 @@ public class WaveManager : MonoBehaviour
                 wall.isActive = true;
         }
 
-        StartCoroutine(CheckEnemiesCleared(room));
+        // 웨이브 시스템 시작
+        StartCoroutine(StartWaveSystem(room));
     }
 
-
-    IEnumerator CheckEnemiesCleared(RoomData room)
+    // 웨이브 시스템 시작
+    IEnumerator StartWaveSystem(RoomData room)
     {
-        if (cleared) yield break;
+        if (room.waves == null || room.waves.Count == 0)
+        {
+            Debug.LogWarning($"Room {room.roomName}에 웨이브가 설정되지 않았습니다!");
+            cleared = true;
+            OpenDoors();
+            yield break;
+        }
 
+        for (currentWaveIndex = 0; currentWaveIndex < room.waves.Count; currentWaveIndex++)
+        {
+            RoomWaveData currentWave = room.waves[currentWaveIndex];
+            
+            // 웨이브 시작 전 대기
+            yield return new WaitForSeconds(currentWave.waveDelay);
+            
+            // 웨이브 시작 알림 (필요시 UI 표시)
+            Debug.Log($"Starting {currentWave.waveName}");
+            
+            // 현재 웨이브 적들 소환
+            yield return StartCoroutine(SpawnWaveEnemies(currentWave));
+            
+            // 현재 웨이브 적들이 모두 처치될 때까지 대기
+            yield return StartCoroutine(WaitForWaveCleared());
+            
+            Debug.Log($"{currentWave.waveName} 클리어!");
+        }
+
+        // 모든 웨이브 완료
+        cleared = true;
+        
+        // 방 클리어 효과
+        if (GameManager.Instance.cameraShake != null)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                GameManager.Instance.cameraShake.GenerateImpulse();
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        OpenDoors();
+
+        if (room.movingWalls != null)
+        {
+            foreach (var wall in room.movingWalls)
+                wall?.ResetWall();
+        }
+    }
+
+    // 웨이브의 적들 소환
+    IEnumerator SpawnWaveEnemies(RoomWaveData wave)
+    {
+        isWaveActive = true;
+        
+        // 경고 이펙트 먼저 표시
+        foreach (var prefab in wave.enemyPrefabs)
+        {
+            foreach (Transform child in prefab.transform)
+                ShowWarningEffect(child.position);
+        }
+
+        // 경고 이펙트 표시 후 잠시 대기
+        yield return new WaitForSeconds(0.5f);
+
+        // 적 실제 소환
+        foreach (var prefab in wave.enemyPrefabs)
+        {
+            GameObject tempObj = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
+            EnemyBase enemyBase = tempObj.GetComponent<EnemyBase>();
+            if (enemyBase != null) enemyBase.CanMove = true; // 웨이브 시작 시 이동 가능
+        }
+    }
+
+    // 현재 웨이브의 모든 적이 처치될 때까지 대기
+    IEnumerator WaitForWaveCleared()
+    {
         while (true)
         {
             int enemiesLeft =
@@ -266,31 +344,14 @@ public class WaveManager : MonoBehaviour
 
             if (enemiesLeft == 0)
             {
-                cleared = true;
-
-                if (GameManager.Instance.cameraShake != null)
-                {
-                    for (int i = 0; i < 7; i++)
-                    {
-                        GameManager.Instance.cameraShake.GenerateImpulse();
-                        yield return new WaitForSeconds(0.1f);
-                    }
-                }
-
-                OpenDoors();
-
-                if (room.movingWalls != null)
-                {
-                    foreach (var wall in room.movingWalls)
-                        wall?.ResetWall();
-                }
-
+                isWaveActive = false;
                 yield break;
             }
 
             yield return new WaitForSeconds(0.5f);
         }
     }
+
 
     void SetAllBulletSpawnersActive(bool enabled)
     {
