@@ -148,7 +148,7 @@ public class ExplosionEnemy : EnemyBase
         if (explosionEffectPrefab != null)
         {
             GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
-            Destroy(effect, 0.5f);
+            Destroy(effect, 0.3f);
         }
 
         if (player != null && Vector2.Distance(transform.position, player.transform.position) <= explosionRange)

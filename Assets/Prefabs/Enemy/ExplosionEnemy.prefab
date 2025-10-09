@@ -390,6 +390,7 @@ MonoBehaviour:
   useKnockback: 1
   knockbackDistance: 0.1
   knockbackDuration: 0.1
+  isDead: 0
 --- !u!114 &3323279155510814477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,7 +410,20 @@ MonoBehaviour:
   - {fileID: -140220566, guid: 1bc6097228993f045852159e71f81d5b, type: 3}
   - {fileID: 1611109861, guid: 1bc6097228993f045852159e71f81d5b, type: 3}
   - {fileID: 1488126946, guid: 1bc6097228993f045852159e71f81d5b, type: 3}
+  attackStartSprites: []
+  attackSprites: []
+  attackEndSprites: []
+  attackStartFrontSprites: []
+  attackEndFrontSprites: []
+  moveSideSprites: []
+  moveFrontSprites: []
+  moveBackSprites: []
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
   frameRate: 0.15
+  attackFrameRate: 0.05
+  verticalThreshold: 0.5
   currentState: 0
 --- !u!50 &4610323694758892587
 Rigidbody2D:
@@ -505,10 +519,10 @@ MonoBehaviour:
   originalSpeed: 0
   spawnDelay: 0.4
   explosionRange: 0.5
-  explosionEffectPrefab: {fileID: 1967835574231978638, guid: b340209fcbbc0b642893d60ad53777b6, type: 3}
-  explosionDamage: 10
+  explosionEffectPrefab: {fileID: 1147892876492476407, guid: fbcfa53b764bcc043b953589407b0111, type: 3}
   useTimedExplosion: 1
   explosionDelay: 5
+  playerTriggeredExplosionDelay: 1
   blinkDuration: 0.2
   blinkStartTime: 1
 --- !u!195 &6125118215960809984
