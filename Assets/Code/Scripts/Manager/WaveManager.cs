@@ -52,6 +52,16 @@ public class RoomData
 
     [Header("방 시작 시 기존 적 제거 여부")]
     public bool clearPreviousEnemies = true; // Room별로 설정 가능
+
+
+    [Header("낙석 설정")]
+    public bool fallingRocksEnabled = false;
+    public GameObject fallingRockPrefab;
+    public GameObject fallingRockWarningPrefab;
+    public int fallingRockCount = 5;
+    public float fallingRockDelay = 0.5f;
+    public float fallingRockWarningHeight = 5f; // 경고 표시 Y 오프셋
+    public float fallingRockFallDuration = 1f;
 }
 
 public class WaveManager : MonoBehaviour
@@ -181,25 +191,26 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        // 1. 현재 카메라 위치 저장 (안전장치)
         Vector3 currentCameraPos = cineCamera.transform.position;
-        
-        // 2. 목표 방 중심 위치 계산
         Vector3 roomCenter = room.cameraCollider.bounds.center;
         roomCenter.z = currentCameraPos.z;
 
-        // 3. Follow 해제 (Confiner는 이미 Update에서 설정됨)
         cineCamera.Follow = null;
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
+
         cleared = false;
         CloseDoors();
 
-        SetAllEnemiesAI(false);
-        SetAllBulletSpawnersActive(false);
+        // ✅ 줌 연출 여부에 따라 AI 처리 분기
+        if (room.enableZoomInSequence)
+        {
+            SetAllEnemiesAI(false);
+            SetAllBulletSpawnersActive(false);
+        }
 
-        // ✅ [1단계] 이벤트씬 먼저 실행
+        // 이벤트씬 먼저 실행
         if (room.eventSceneEnabled)
         {
             Debug.Log($"이벤트씬 시작: {room.roomName}");
@@ -208,33 +219,23 @@ public class WaveManager : MonoBehaviour
         }
 
         // -------------------
-        // 카메라 줌 연출 (줌아웃 + 줌인)
+        // 줌 연출
         // -------------------
         if (room.enableZoomInSequence)
         {
-            // -----------------
-            // 1. 줌아웃 (카메라 Collider 전체 보여주기)
-            // ----------------
             Camera cam = Camera.main;
             if (cam != null)
             {
                 Bounds bounds = room.cameraCollider.bounds;
                 float screenRatio = (float)Screen.width / Screen.height;
 
-                // 세로 기준 OrthographicSize
                 float targetOrthoSize = bounds.size.y / 2f;
-
-                // 가로가 부족하면 세로를 늘려서 가로 맞춤
                 float camHalfWidth = targetOrthoSize * screenRatio;
                 if (camHalfWidth < bounds.size.x / 2f)
-                {
                     targetOrthoSize = bounds.size.x / 2f / screenRatio;
-                }
 
-                // 최소/최대 제한
                 targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
 
-                // DOTween으로 카메라 이동 및 줌 적용
                 Sequence zoomOutSeq = DOTween.Sequence();
                 zoomOutSeq.Append(cineCamera.transform.DOMove(
                     new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z),
@@ -245,14 +246,10 @@ public class WaveManager : MonoBehaviour
                 yield return zoomOutSeq.WaitForCompletion();
             }
 
-            // -------------------
-            // 2. 줌인 연출 (설정에 따라 실행)
-            // -------------------
             yield return new WaitForSeconds(room.zoomInDelay);
 
             if (room.zoomInCameraFollow && room.cameraCollider != null)
             {
-                // 플레이어 중심으로 줌인
                 Bounds camBounds = room.cameraCollider.bounds;
                 Vector3 targetPos = playerTransform.position;
                 targetPos.z = cineCamera.transform.position.z;
@@ -275,38 +272,34 @@ public class WaveManager : MonoBehaviour
             }
             else
             {
-                // 방 중앙에서 줌인
                 Sequence zoomInSeq = DOTween.Sequence();
                 zoomInSeq.Append(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
                 yield return zoomInSeq.WaitForCompletion();
             }
+
+            // AI 다시 켜기
+            SetAllEnemiesAI(true);
+            DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         }
         else
         {
-            // 🔸 줌 기능이 비활성화된 경우: 바로 웨이브로 진입
-            Debug.Log($"Room '{room.roomName}'은(는) 줌 연출이 비활성화됨 → 줌 건너뜀");
+            Debug.Log($"Room '{room.roomName}'은(는) 줌 연출 비활성화 → AI 유지, 바로 웨이브 시작");
         }
-        // enableZoomInSequence = false인 경우 줌인 연출 전체를 건너뜀
 
         // -------------------
-        // 3. Follow 적용 + Confiner (튐 방지용)
+        // 카메라 Follow + Confiner
         // -------------------
-        // DOTween 종료 위치를 그대로 유지한 채 Follow만 적용
         Vector3 finalCamPos = cineCamera.transform.position;
-        finalCamPos.z = cineCamera.transform.position.z; // Z 유지
+        finalCamPos.z = cineCamera.transform.position.z;
         cineCamera.transform.position = finalCamPos;
-
         cineCamera.Follow = playerTransform;
-        // Confiner는 이미 Update에서 설정되었으므로 재설정 불필요
 
         // -------------------
-        // 4. 카메라 연출 완료 후 웨이브 시스템 시작
+        // 웨이브 시작
         // -------------------
         currentWaveIndex = 0;
         isWaveActive = false;
 
-        SetAllEnemiesAI(true);
-        DOVirtual.DelayedCall(1.5f, () => SetAllBulletSpawnersActive(true));
         if (playerCtrl != null) playerCtrl.canMove = true;
 
         if (!room.activated && room.movingWalls != null)
@@ -316,9 +309,39 @@ public class WaveManager : MonoBehaviour
                 wall.isActive = true;
         }
 
-        // 웨이브 시스템 시작
+        if (room.fallingRocksEnabled)
+            yield return StartCoroutine(StartFallingRocks(room));
+
         StartCoroutine(StartWaveSystem(room));
     }
+
+    IEnumerator StartFallingRocks(RoomData room)
+    {
+        Bounds bounds = room.roomCollider.bounds;
+
+        for (int i = 0; i < room.fallingRockCount; i++)
+        {
+            float randomX = Random.Range(bounds.min.x, bounds.max.x);
+            Vector3 targetPos = new Vector3(randomX, bounds.min.y, 0);
+
+            // 1️⃣ 프리팹에서 새로운 인스턴스 생성
+            GameObject rockObj = Instantiate(room.fallingRockPrefab);
+            rockObj.SetActive(true); // 혹시 비활성화 상태라면 활성화
+
+            // 2️⃣ 스크립트 초기화
+            FallingRock rockScript = rockObj.GetComponent<FallingRock>();
+            if (rockScript != null)
+            {
+                rockScript.warningPrefab = room.fallingRockWarningPrefab;
+                rockScript.warningHeightOffset = room.fallingRockWarningHeight;
+                rockScript.fallDuration = room.fallingRockFallDuration;
+                rockScript.StartFall(targetPos);
+            }
+
+            yield return new WaitForSeconds(room.fallingRockDelay);
+        }
+    }
+
 
     // 웨이브 시스템 시작
     IEnumerator StartWaveSystem(RoomData room)
