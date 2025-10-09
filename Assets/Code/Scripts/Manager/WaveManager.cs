@@ -141,6 +141,38 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
+    IEnumerator RunEventScene(RoomData room)
+    {
+        if (!room.eventSceneEnabled || room.eventObjectPrefab == null ||
+            room.eventStartPos == null || room.eventEndPos == null)
+            yield break;
+
+        isEventRunning = true;
+
+        // 이벤트 오브젝트 생성
+        GameObject eventObj = Instantiate(room.eventObjectPrefab, room.eventStartPos.position, Quaternion.identity);
+
+        // 카메라를 이벤트 중심으로 이동 (플레이어 비활성화)
+        cineCamera.Follow = eventObj.transform;
+        PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
+        if (playerCtrl != null) playerCtrl.canMove = false;
+
+        // 이동 연출 (DOTween)
+        eventObj.transform.DOMove(room.eventEndPos.position, room.eventMoveDuration)
+            .SetEase(Ease.InOutSine);
+
+        // 이동 시간 대기
+        yield return new WaitForSeconds(room.eventMoveDuration);
+
+        // 이벤트 종료 처리
+        Destroy(eventObj);
+        cineCamera.Follow = null; // 다시 제어권 복귀
+
+        isEventRunning = false;
+    }
+
+
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
         if (room == null || room.cameraCollider == null)
@@ -167,58 +199,67 @@ public class WaveManager : MonoBehaviour
         SetAllEnemiesAI(false);
         SetAllBulletSpawnersActive(false);
 
-        // -----------------
-        // 1. 줌아웃 (카메라 Collider 전체 보여주기)
-        // ----------------
-        Camera cam = Camera.main;
-        if (cam != null)
+        // ✅ [1단계] 이벤트씬 먼저 실행
+        if (room.eventSceneEnabled)
         {
-            Bounds bounds = room.cameraCollider.bounds;
-            float screenRatio = (float)Screen.width / Screen.height;
-
-            // 세로 기준 OrthographicSize
-            float targetOrthoSize = bounds.size.y / 2f;
-
-            // 가로가 부족하면 세로를 늘려서 가로 맞춤
-            float camHalfWidth = targetOrthoSize * screenRatio;
-            if (camHalfWidth < bounds.size.x / 2f)
-            {
-                targetOrthoSize = bounds.size.x / 2f / screenRatio;
-            }
-
-            // 최소/최대 제한 (필요시 조정)
-            targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
-
-            // DOTween으로 카메라 이동 및 줌 적용
-            Sequence zoomOutSeq = DOTween.Sequence();
-            zoomOutSeq.Append(cineCamera.transform.DOMove(new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z), cameraMoveDuration).SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-            yield return zoomOutSeq.WaitForCompletion();
+            Debug.Log($"이벤트씬 시작: {room.roomName}");
+            yield return StartCoroutine(RunEventScene(room));
+            Debug.Log("이벤트씬 종료");
         }
 
-
-
         // -------------------
-        // 2. 줌인 연출 (설정에 따라 실행)
+        // 카메라 줌 연출 (줌아웃 + 줌인)
         // -------------------
         if (room.enableZoomInSequence)
         {
-            // 줌인 시작 전 대기
+            // -----------------
+            // 1. 줌아웃 (카메라 Collider 전체 보여주기)
+            // ----------------
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Bounds bounds = room.cameraCollider.bounds;
+                float screenRatio = (float)Screen.width / Screen.height;
+
+                // 세로 기준 OrthographicSize
+                float targetOrthoSize = bounds.size.y / 2f;
+
+                // 가로가 부족하면 세로를 늘려서 가로 맞춤
+                float camHalfWidth = targetOrthoSize * screenRatio;
+                if (camHalfWidth < bounds.size.x / 2f)
+                {
+                    targetOrthoSize = bounds.size.x / 2f / screenRatio;
+                }
+
+                // 최소/최대 제한
+                targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
+
+                // DOTween으로 카메라 이동 및 줌 적용
+                Sequence zoomOutSeq = DOTween.Sequence();
+                zoomOutSeq.Append(cineCamera.transform.DOMove(
+                    new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z),
+                    cameraMoveDuration
+                ).SetEase(Ease.InOutSine));
+                zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+                zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+                yield return zoomOutSeq.WaitForCompletion();
+            }
+
+            // -------------------
+            // 2. 줌인 연출 (설정에 따라 실행)
+            // -------------------
             yield return new WaitForSeconds(room.zoomInDelay);
-            
-            // 줌인 연출 실행
+
             if (room.zoomInCameraFollow && room.cameraCollider != null)
             {
                 // 플레이어 중심으로 줌인
-                Bounds camBounds = room.cameraCollider.bounds; // 방 collider
+                Bounds camBounds = room.cameraCollider.bounds;
                 Vector3 targetPos = playerTransform.position;
                 targetPos.z = cineCamera.transform.position.z;
 
-                float camHalfHeight = room.zoomInTargetSize; // OrthographicSize
+                float camHalfHeight = room.zoomInTargetSize;
                 float camHalfWidth = camHalfHeight * Camera.main.aspect;
 
-                // Collider 안으로 제한
                 float minX = camBounds.min.x + camHalfWidth;
                 float maxX = camBounds.max.x - camHalfWidth;
                 float minY = camBounds.min.y + camHalfHeight;
@@ -234,11 +275,16 @@ public class WaveManager : MonoBehaviour
             }
             else
             {
-                // 방 중앙에서 줌인 (플레이어 중심 아님)
+                // 방 중앙에서 줌인
                 Sequence zoomInSeq = DOTween.Sequence();
                 zoomInSeq.Append(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
                 yield return zoomInSeq.WaitForCompletion();
             }
+        }
+        else
+        {
+            // 🔸 줌 기능이 비활성화된 경우: 바로 웨이브로 진입
+            Debug.Log($"Room '{room.roomName}'은(는) 줌 연출이 비활성화됨 → 줌 건너뜀");
         }
         // enableZoomInSequence = false인 경우 줌인 연출 전체를 건너뜀
 
