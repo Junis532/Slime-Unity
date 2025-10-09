@@ -17,8 +17,8 @@ public class TankerEnemyStats : ScriptableObject
 
     public void ResetStats()
     {
-        speed = 1.5f;
-        maxHP = 3000;
+        speed = 0.5f;
+        maxHP = 1000;
         currentHP = maxHP;
         attack = 100;
     }
