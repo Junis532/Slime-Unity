@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
@@ -54,7 +54,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private void Start()
     {
         originalScale = transform.localScale;
-        if (CooltimeImage != null) CooltimeImage.fillAmount = 0f;
+        if (CooltimeImage != null) CooltimeImage.fillAmount = 1f;
         if (slimeJumpButton != null) slimeJumpButton.onClick.AddListener(UseSkillButton);
         StartRollingLoop();
     }
@@ -196,11 +196,12 @@ public class JoystickDirectionIndicator : MonoBehaviour
     {
         while (hasUsedSkill)
         {
-            float waitTime = waitInterval;
-            while (waitTime > 0f)
+            float elapsedTime = 0f;
+            while (elapsedTime < waitInterval)
             {
-                waitTime -= Time.deltaTime;
-                if (CooltimeImage != null) CooltimeImage.fillAmount = waitTime / waitInterval;
+                elapsedTime += Time.deltaTime;
+                // 쿨타임이 진행될수록 0에서 1로 차오르게 변경
+                if (CooltimeImage != null) CooltimeImage.fillAmount = elapsedTime / waitInterval;
                 yield return null;
             }
             hasUsedSkill = false;

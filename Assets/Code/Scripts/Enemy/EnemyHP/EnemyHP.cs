@@ -1,19 +1,36 @@
+using System.Collections.Generic;
 using DG.Tweening;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class EnemyHP : MonoBehaviour
 {
     [Header("체력 관련")]
     public GameObject hpBarPrefab;
     private EnemyHPBar hpBar;
-    public float maxHP = 1000f; // Inspector에서 설정 가능, 기본값 1000
+
+    [Tooltip("Inspector에서 직접 설정(예: 15000). useGameManagerHP=false일 때 이 값이 사용됩니다.")]
+    public float maxHP = 15000f;
     public float currentHP;
-    
-    [Header("체력 설정 옵션")]
-    public bool useGameManagerHP = true; // GameManager의 enemyStats 사용 여부
+
+    [Header("ID / 공유 HP 옵션")]
+    [Tooltip("같은 ID를 가진 적끼리 HP를 공유하고 싶다면 값 지정")]
+    public string ID = "";
+    [Tooltip("같은 ID를 가진 적끼리 HP를 공유")]
+    public bool shareHPByID = false;
+    [Tooltip("씬 시작 시 이 개체의 maxHP로 SharedHP[ID]를 초기화")]
+    public bool initializeSharedToMaxOnStart = true;
+
+    [Header("체력 설정 소스")]
+    [Tooltip("true면 GameManager.Instance.enemyStats.maxHP로 maxHP를 덮어씁니다")]
+    public bool useGameManagerHP = false;
+
+    private static readonly Dictionary<string, float> SharedHP = new();
 
     private BulletSpawner bulletSpawner;
+    private Transform playerTransform;
+    private SpriteRenderer spriteRenderer;
+    private float criticalChance;
 
     [Header("데미지 텍스트")]
     public GameObject damageTextPrefab;
@@ -31,62 +48,91 @@ public class EnemyHP : MonoBehaviour
     public float knockbackDistance = 0.1f;
     public float knockbackDuration = 0.1f;
 
-    private Transform playerTransform;
-    private SpriteRenderer spriteRenderer;
-    private float criticalChance;
+    [Header("상태")]
+    public bool isDead = false;
 
-    public bool isDead = false; // 적이 죽었는지 상태
+    // ========== 라이프사이클 ==========
 
     void Start()
     {
-        // 체력 설정: GameManager 사용 여부에 따라 결정
+        // 1) 최대 체력 결정 순서: GameManager → Inspector
         if (useGameManagerHP)
         {
-            maxHP = GameManager.Instance.enemyStats.maxHP;
+            maxHP = GameManager.Instance.enemyStats.maxHP; // 예: 1000
         }
-        // useGameManagerHP가 false면 Inspector에서 설정한 maxHP 값 사용
-        
-        currentHP = maxHP;
+        // useGameManagerHP=false면 Inspector의 값(예: 15000)을 그대로 사용
+
+        // 2) 공유 HP 초기화/동기화
+        if (shareHPByID && !string.IsNullOrEmpty(ID))
+        {
+            if (initializeSharedToMaxOnStart || !SharedHP.ContainsKey(ID))
+            {
+                SharedHP[ID] = maxHP; // 이 개체의 maxHP로 시작값 고정 (예: 15000)
+            }
+            currentHP = Mathf.Clamp(SharedHP[ID], 0f, maxHP);
+        }
+        else
+        {
+            currentHP = maxHP;
+        }
+
+        // 3) 기타 레퍼런스
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        // 월드 캔버스에 HP 바 붙이기
-        Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-        GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(
-            hpBarPrefab.name, Vector3.zero, Quaternion.identity);
-        hpBarObj.transform.SetParent(worldCanvas.transform, false);
-
-        hpBar = hpBarObj.GetComponent<EnemyHPBar>();
-        hpBar.Init(transform, maxHP);
-        hpBarObj.SetActive(false);
-
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
-            Debug.LogWarning("SpriteRenderer를 찾지 못했습니다.");
-
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-            playerTransform = playerObj.transform;
-        else
-            Debug.LogWarning("플레이어를 찾지 못했습니다. playerTransform이 null 상태입니다.");
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) playerTransform = playerObj.transform;
+
+        // 4) HP 바 생성(월드 캔버스에 붙임)
+        Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
+        if (worldCanvas != null && hpBarPrefab != null)
+        {
+            GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(hpBarPrefab.name, Vector3.zero, Quaternion.identity);
+            if (hpBarObj != null)
+            {
+                hpBarObj.transform.SetParent(worldCanvas.transform, false);
+                hpBar = hpBarObj.GetComponent<EnemyHPBar>();
+                if (hpBar != null)
+                {
+                    hpBar.Init(transform, maxHP);
+                    hpBar.gameObject.SetActive(false);
+                }
+            }
+        }
     }
+
+    void Update()
+    {
+        // 공유 HP 모드라면, 다른 동일 ID 개체가 먼저 맞아 SharedHP가 내려갔을 때 동기화
+        if (shareHPByID && !string.IsNullOrEmpty(ID))
+        {
+            if (SharedHP.TryGetValue(ID, out float shared) && shared < currentHP)
+            {
+                currentHP = shared;
+                if (hpBar != null) hpBar.SetHP(currentHP);
+                if (currentHP <= 0f && !isDead) Die();
+            }
+        }
+    }
+
+    // ========== 외부 데미지 인터페이스 ==========
 
     // 일반 공격
     public void TakeDamage()
     {
         if (isDead) return;
 
-        Vector3 knockbackDir = playerTransform != null
+        Vector3 knockDir = playerTransform != null
             ? (transform.position - playerTransform.position).normalized
             : Vector3.zero;
 
         bool isCritical = Random.Range(0f, 100f) < criticalChance;
-        int damage = isCritical
-            ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
-            : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
+        int baseAtk = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
+        int damage = isCritical ? baseAtk * 2 : baseAtk;
 
-        ApplyDamage(damage, isCritical, knockbackDir);
+        ApplyDamage(damage, isCritical, knockDir);
     }
 
     // 파이어볼 데미지
@@ -103,44 +149,51 @@ public class EnemyHP : MonoBehaviour
         ApplyDamage(damage, false, Vector3.zero);
     }
 
-    // 데미지 적용 공통 함수
+    // ========== 내부 공통 처리 ==========
+
     private void ApplyDamage(int damage, bool isCritical, Vector3 knockbackDir)
     {
         currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        currentHP = Mathf.Clamp(currentHP, 0f, maxHP);
 
+        // 공유 HP 반영
+        if (shareHPByID && !string.IsNullOrEmpty(ID))
+            SharedHP[ID] = currentHP;
+
+        // HP바 갱신/표시
         if (hpBar != null)
         {
             hpBar.SetHP(currentHP);
             hpBar.gameObject.SetActive(true);
         }
 
-        if (!bulletSpawner.slowSkillActive)
+        // 이펙트 (슬로우 스킬 중엔 생략)
+        if (bulletSpawner == null || !bulletSpawner.slowSkillActive)
         {
             PlayDamageEffect();
             PlayHitEffect();
         }
 
+        // 사운드 & 텍스트 & 카메라 셰이크
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
         if (isCritical)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-            ShowCDamageText(damage);
+            ShowCriticalDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
             ShowDamageText(damage);
         }
 
+        // 넉백
         if (useKnockback && knockbackDir != Vector3.zero)
         {
             transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
         }
 
-        if (currentHP <= 0)
-            Die();
+        if (currentHP <= 0f) Die();
     }
 
     private void PlayHitEffect()
@@ -155,6 +208,16 @@ public class EnemyHP : MonoBehaviour
         DOVirtual.DelayedCall(0.3f, () =>
         {
             PoolManager.Instance.ReturnToPool(effectObj);
+        });
+    }
+
+    private void PlayDamageEffect()
+    {
+        if (spriteRenderer == null) return;
+
+        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
+        {
+            spriteRenderer.DOColor(Color.white, 0.1f);
         });
     }
 
@@ -173,6 +236,7 @@ public class EnemyHP : MonoBehaviour
         Transform t = textObj.transform;
         t.position = transform.position;
         t.localScale = Vector3.one;
+
         t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
         t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
@@ -182,7 +246,7 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
-    private void ShowCDamageText(int damage)
+    private void ShowCriticalDamageText(int damage)
     {
         if (cDamageTextPrefab == null) return;
 
@@ -197,22 +261,13 @@ public class EnemyHP : MonoBehaviour
         Transform t = textObj.transform;
         t.position = transform.position;
         t.localScale = Vector3.one;
+
         t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
         t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
         DOVirtual.DelayedCall(0.6f, () =>
         {
             PoolManager.Instance.ReturnToPool(textObj);
-        });
-    }
-
-    private void PlayDamageEffect()
-    {
-        if (spriteRenderer == null) return;
-
-        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
-        {
-            spriteRenderer.DOColor(Color.white, 0.1f);
         });
     }
 
@@ -223,9 +278,10 @@ public class EnemyHP : MonoBehaviour
 
         if (hpBar != null)
             PoolManager.Instance.ReturnToPool(hpBar.gameObject);
+
         GameManager.Instance.cameraShake.GenerateImpulse();
 
-        // 플레이어 HP 회복
+        // 플레이어 HP 회복(옵션)
         PlayerHeal playerHeal = Object.FindFirstObjectByType<PlayerHeal>();
         if (playerHeal != null && playerHeal.hpHeal)
         {
@@ -239,24 +295,43 @@ public class EnemyHP : MonoBehaviour
 
         // 본인 사망 처리
         EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
-        if (enemiesDie != null)
-            enemiesDie.Die();
+        if (enemiesDie != null) enemiesDie.Die();
 
-        // Crystal 레이어 처리: Turret 레이어 적 모두 죽이기
+        // Crystal 레이어: Turret 레이어 적 모두 제거
         if (gameObject.layer == LayerMask.NameToLayer("Crystal"))
         {
-            // FindObjectsByType 사용, 정렬 필요 없으므로 FindObjectsSortMode.None
             EnemyHP[] allEnemies = Object.FindObjectsByType<EnemyHP>(FindObjectsSortMode.None);
             foreach (EnemyHP turretHP in allEnemies)
             {
                 if (turretHP.gameObject.layer == LayerMask.NameToLayer("Turret") && !turretHP.isDead)
                 {
-                    turretHP.currentHP = 0;
+                    turretHP.currentHP = 0f;
+                    if (turretHP.shareHPByID && !string.IsNullOrEmpty(turretHP.ID))
+                        SharedHP[turretHP.ID] = 0f;
+
                     turretHP.Die();
                     Debug.Log($"Turret killed: {turretHP.name}");
                 }
             }
         }
+    }
 
+    // ========== 유틸(테스트/초기화) ==========
+
+    /// <summary>현재 실행 중 SharedHP 테이블 전체 초기화(테스트용)</summary>
+    public static void ClearAllSharedHP() => SharedHP.Clear();
+
+    /// <summary>특정 ID의 공유 HP를 지정 값으로 설정</summary>
+    public static void SetSharedHP(string id, float value)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        SharedHP[id] = value;
+    }
+
+    /// <summary>특정 ID의 공유 HP를 제거</summary>
+    public static void RemoveSharedHP(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        if (SharedHP.ContainsKey(id)) SharedHP.Remove(id);
     }
 }

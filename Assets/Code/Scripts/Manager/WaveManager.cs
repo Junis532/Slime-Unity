@@ -36,11 +36,12 @@ public class RoomData
     [Header("카메라 Follow 설정")]
     public bool CameraFollow = true;
 
-    [Header("카메라 줌인 팔로우 설정")]
-    public bool zoomInCameraFollow = false; // 🔹 전체 → 줌인 전환
-    public float zoomInDelay = 0.8f;
-    public float zoomInDuration = 1.2f;
-    public float zoomInTargetSize = 5.5f;
+    [Header("카메라 연출 설정")]
+    public bool enableZoomInSequence = true;        // 줌인 연출 사용 여부
+    public bool zoomInCameraFollow = false;         // 줌인 시 플레이어 중심으로 이동 여부
+    public float zoomInDelay = 0.8f;               // 줌인 시작 전 대기 시간
+    public float zoomInDuration = 1.2f;            // 줌인 지속 시간
+    public float zoomInTargetSize = 5.5f;          // 줌인 목표 크기
 
     [Header("이벤트 씬 설정")]
     public bool eventSceneEnabled = false;
@@ -108,9 +109,11 @@ public class WaveManager : MonoBehaviour
             RoomData room = GetPlayerRoom();
             if (room != null && room != currentRoom)
             {
+                // 1. 먼저 새로운 방의 Confiner를 즉시 적용 (연출 전에)
+                ApplyCameraConfiner(room);
+                
+                // 2. Follow 해제
                 if (cineCamera != null) cineCamera.Follow = null;
-                var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
-                if (confiner != null) confiner.BoundingShape2D = null;
 
                 currentRoom = room;
                 StartCoroutine(MoveCameraToRoomAndStart(room));
@@ -146,12 +149,14 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-
-
+        // 1. 현재 카메라 위치 저장 (안전장치)
+        Vector3 currentCameraPos = cineCamera.transform.position;
+        
+        // 2. 목표 방 중심 위치 계산
         Vector3 roomCenter = room.cameraCollider.bounds.center;
-        roomCenter.z = cineCamera.transform.position.z;
+        roomCenter.z = currentCameraPos.z;
 
-        ApplyCameraConfiner(null);
+        // 3. Follow 해제 (Confiner는 이미 Update에서 설정됨)
         cineCamera.Follow = null;
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
@@ -194,34 +199,48 @@ public class WaveManager : MonoBehaviour
 
 
 
-        yield return new WaitForSeconds(room.zoomInDelay);
-
         // -------------------
-        // 2. 줌인 (플레이어 중심, Collider 안으로 제한)
+        // 2. 줌인 연출 (설정에 따라 실행)
         // -------------------
-        if (room.zoomInCameraFollow && room.cameraCollider != null)
+        if (room.enableZoomInSequence)
         {
-            Bounds camBounds = room.cameraCollider.bounds; // 방 collider
-            Vector3 targetPos = playerTransform.position;
-            targetPos.z = cineCamera.transform.position.z;
+            // 줌인 시작 전 대기
+            yield return new WaitForSeconds(room.zoomInDelay);
+            
+            // 줌인 연출 실행
+            if (room.zoomInCameraFollow && room.cameraCollider != null)
+            {
+                // 플레이어 중심으로 줌인
+                Bounds camBounds = room.cameraCollider.bounds; // 방 collider
+                Vector3 targetPos = playerTransform.position;
+                targetPos.z = cineCamera.transform.position.z;
 
-            float camHalfHeight = room.zoomInTargetSize; // OrthographicSize
-            float camHalfWidth = camHalfHeight * Camera.main.aspect;
+                float camHalfHeight = room.zoomInTargetSize; // OrthographicSize
+                float camHalfWidth = camHalfHeight * Camera.main.aspect;
 
-            // Collider 안으로 제한
-            float minX = camBounds.min.x + camHalfWidth;
-            float maxX = camBounds.max.x - camHalfWidth;
-            float minY = camBounds.min.y + camHalfHeight;
-            float maxY = camBounds.max.y - camHalfHeight;
+                // Collider 안으로 제한
+                float minX = camBounds.min.x + camHalfWidth;
+                float maxX = camBounds.max.x - camHalfWidth;
+                float minY = camBounds.min.y + camHalfHeight;
+                float maxY = camBounds.max.y - camHalfHeight;
 
-            targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
-            targetPos.y = Mathf.Clamp(targetPos.y, minY, maxY);
+                targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
+                targetPos.y = Mathf.Clamp(targetPos.y, minY, maxY);
 
-            Sequence zoomInSeq = DOTween.Sequence();
-            zoomInSeq.Append(cineCamera.transform.DOMove(targetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-            zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
-            yield return zoomInSeq.WaitForCompletion();
+                Sequence zoomInSeq = DOTween.Sequence();
+                zoomInSeq.Append(cineCamera.transform.DOMove(targetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
+                zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
+                yield return zoomInSeq.WaitForCompletion();
+            }
+            else
+            {
+                // 방 중앙에서 줌인 (플레이어 중심 아님)
+                Sequence zoomInSeq = DOTween.Sequence();
+                zoomInSeq.Append(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
+                yield return zoomInSeq.WaitForCompletion();
+            }
         }
+        // enableZoomInSequence = false인 경우 줌인 연출 전체를 건너뜀
 
         // -------------------
         // 3. Follow 적용 + Confiner (튐 방지용)
@@ -232,7 +251,7 @@ public class WaveManager : MonoBehaviour
         cineCamera.transform.position = finalCamPos;
 
         cineCamera.Follow = playerTransform;
-        ApplyCameraConfiner(room);
+        // Confiner는 이미 Update에서 설정되었으므로 재설정 불필요
 
         // -------------------
         // 4. 카메라 연출 완료 후 웨이브 시스템 시작
@@ -319,8 +338,8 @@ public class WaveManager : MonoBehaviour
                 ShowWarningEffect(child.position);
         }
 
-        // 경고 이펙트 표시 후 잠시 대기
-        yield return new WaitForSeconds(0.5f);
+        // 경고 이펙트가 완전히 끝날 때까지 대기
+        yield return new WaitForSeconds(warningDuration);
 
         // 적 실제 소환
         foreach (var prefab in wave.enemyPrefabs)
@@ -414,12 +433,35 @@ public class WaveManager : MonoBehaviour
     public void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null) return;
+        
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
+        if (confiner == null) return;
+        
         Collider2D col = (room != null && room.cameraCollider != null) ? room.cameraCollider : null;
-        if (confiner != null && confiner.BoundingShape2D != col)
+        
+        // Confiner 변경 시 현재 카메라 위치 보존
+        Vector3 preservedPos = cineCamera.transform.position;
+        
+        // (0,0) 위치 감지 시 경고 및 복원
+        if (Mathf.Approximately(preservedPos.x, 0f) && Mathf.Approximately(preservedPos.y, 0f))
+        {
+            Debug.LogError("ApplyCameraConfiner: 카메라가 (0,0) 위치에 있음!");
+            return; // Confiner 변경을 중단하여 추가 문제 방지
+        }
+        
+        if (confiner.BoundingShape2D != col)
         {
             confiner.BoundingShape2D = col;
             confiner.InvalidateBoundingShapeCache();
+            
+            // 위치 변경 확인 및 복원
+            Vector3 newPos = cineCamera.transform.position;
+            if (Vector3.Distance(preservedPos, newPos) > 0.1f || 
+                (Mathf.Approximately(newPos.x, 0f) && Mathf.Approximately(newPos.y, 0f)))
+            {
+                cineCamera.transform.position = preservedPos;
+                Debug.LogWarning($"카메라 위치 복원: {newPos} → {preservedPos}");
+            }
         }
     }
 

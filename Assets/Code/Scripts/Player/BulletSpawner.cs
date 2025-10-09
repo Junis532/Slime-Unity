@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -31,6 +32,10 @@ public class BulletSpawner : MonoBehaviour
 
     [Header("공격 쿨타임")]
     public float attackCooldown = 0.3f;
+    
+    [Header("공격 쿨타임 UI")]
+    [Tooltip("공격 쿨타임을 표시할 Filled UI (Image 컴포넌트)")]
+    public Image attackCooldownUI;
 
     [Header("한 번에 발사할 총알 개수")]
     public int bulletsPerShot = 3;
@@ -80,6 +85,12 @@ public class BulletSpawner : MonoBehaviour
         var playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
             playerController = playerObj.GetComponent<PlayerController>();
+
+        // 초기 쿨타임 UI 상태 설정 (공격 가능 상태 = 1)
+        if (attackCooldownUI != null)
+        {
+            attackCooldownUI.fillAmount = 1f;
+        }
     }
 
     void Update()
@@ -98,8 +109,11 @@ public class BulletSpawner : MonoBehaviour
             cooldownTimer -= Time.deltaTime;
         }
 
-        // 정지 상태에서 공격 처리
-        if (isStill)
+        // 쿨타임 UI 업데이트
+        UpdateCooldownUI();
+
+        // 정지 상태에서 공격 처리 (적이 있을 때만)
+        if (isStill && closestEnemy != null)
         {
             // 이전에 움직이고 있었다면 즉시 공격 (쿨타임이 끝났을 때)
             if (wasMoving && cooldownTimer <= 0f)
@@ -119,6 +133,24 @@ public class BulletSpawner : MonoBehaviour
 
         // 이동 상태 업데이트
         wasMoving = isMoving;
+    }
+
+    /// <summary>
+    /// 공격 쿨타임 UI를 업데이트합니다.
+    /// 공격 가능: 1, 쿨타임 중: 0
+    /// </summary>
+    private void UpdateCooldownUI()
+    {
+        if (attackCooldownUI == null) return;
+
+        // 실제 쿨타임 계산 (공격 속도 배율 적용)
+        float actualCooldown = attackCooldown / Mathf.Max(0.1f, attackSpeedMultiplier);
+        
+        // 쿨타임 진행률 계산 (0: 쿨타임 완료, 1: 쿨타임 시작)
+        float cooldownProgress = Mathf.Clamp01(cooldownTimer / actualCooldown);
+        
+        // 공격 가능: 1, 쿨타임 중: 0으로 표시
+        attackCooldownUI.fillAmount = 1f - cooldownProgress;
     }
 
     private void UpdateMarkers(Transform closestEnemy)

@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,6 +37,10 @@ public class DashEnemy : EnemyBase
     public string obstacleTag = "AIWall";
     private Vector2 moveDirection;
     public float angleMoveSpeed = 5f;
+
+    [Header("데미지 설정")]
+    public int attackDamage = 50;
+    public bool useGameManagerDamage = false; // GameManager의 enemyStats 사용 여부
 
     private void Start()
     {
@@ -214,6 +218,22 @@ public class DashEnemy : EnemyBase
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive) return;
+
+        if (collision.CompareTag("Player"))
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Attack);
+
+            // 플레이어가 스킬 사용 중이면 데미지 무시
+            if (GameManager.Instance.joystickDirectionIndicator != null && GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+                return;
+
+            // 데미지 계산
+            int damage = useGameManagerDamage ? GameManager.Instance.enemyStats.attack : attackDamage;
+            Vector3 enemyPosition = transform.position;
+            
+            // 플레이어에게 데미지 적용
+            GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
+        }
 
         if (useAngleMove && collision.CompareTag(obstacleTag))
         {
