@@ -49,7 +49,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: maxHP
-      value: 3700
+      value: 6000
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: shareHPByID
@@ -109,15 +109,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: cycleLength
-      value: 2.5
+      value: 2.25
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firstFireDelay
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: showLineRenderer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: linearRatePerSecond
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: enableGradualSpeedUp
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: 'firePhases.Array.data[0]'
-      value: 0.25
+      value: 0.23
       objectReference: {fileID: 0}
     - target: {fileID: 9040352700553030433, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: m_Name
@@ -147,7 +159,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: maxHP
-      value: 3700
+      value: 6000
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: shareHPByID
@@ -207,11 +219,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: cycleLength
-      value: 2.5
+      value: 2.25
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firstFireDelay
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: showLineRenderer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: linearRatePerSecond
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: enableGradualSpeedUp
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9040352700553030433, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: m_Name
@@ -241,7 +265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: maxHP
-      value: 3700
+      value: 6000
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: shareHPByID
@@ -301,11 +325,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: cycleLength
-      value: 2.5
+      value: 2.25
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firstFireDelay
       value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: showLineRenderer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: linearRatePerSecond
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: enableGradualSpeedUp
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firePhases.Array.size
@@ -313,11 +349,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: 'firePhases.Array.data[0]'
-      value: 0.16
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: 'firePhases.Array.data[1]'
-      value: 1.15
+      value: 1.01
       objectReference: {fileID: 0}
     - target: {fileID: 9040352700553030433, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: m_Name
@@ -347,7 +383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: maxHP
-      value: 3700
+      value: 6000
       objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: shareHPByID
@@ -407,11 +443,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: cycleLength
-      value: 2.5
+      value: 2.25
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firstFireDelay
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: showLineRenderer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: linearRatePerSecond
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: enableGradualSpeedUp
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: firePhases.Array.size
@@ -419,11 +467,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: 'firePhases.Array.data[0]'
-      value: 0.08
+      value: 0.015
       objectReference: {fileID: 0}
     - target: {fileID: 6235381737110900860, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: 'firePhases.Array.data[1]'
-      value: 1.6
+      value: 1.38
       objectReference: {fileID: 0}
     - target: {fileID: 9040352700553030433, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: m_Name

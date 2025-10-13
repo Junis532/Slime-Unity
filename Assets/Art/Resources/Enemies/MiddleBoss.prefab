@@ -111,11 +111,21 @@ MonoBehaviour:
   bulletAngle: 15
   bulletSpeed: 7
   mapCollider: {fileID: 0}
-  laserDuration: 2
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: 4eafba37ffceadb46b8be885a1a67bb6, type: 2}
-  leftLaserOffsetX: -2
-  rightLaserOffsetX: 2
+  leftLaserOffsetX: -8
+  rightLaserOffsetX: 8
+  laserExtraStartOffset: {x: 0, y: 0}
+  useStartAnchors: 0
+  leftLaserAnchor: {fileID: 0}
+  rightLaserAnchor: {fileID: 0}
+  sweepSpeed: 7
+  sweepWidthRatio: 0.692
+  useAbsoluteSweep: 0
+  sweepWidthUnits: 6
+  laserActiveDuration: 8
+  laserOverrun: 5
+  fireInterval: 0.5
   swordRotateSpeed: 150
   swordStartAngle: 90
   swordWarningDuration: 1
