@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(LineRenderer))]
 public class LaserObject : MonoBehaviour
@@ -6,33 +7,40 @@ public class LaserObject : MonoBehaviour
     private LineRenderer lineRenderer;
 
     [Header("Laser Settings")]
-    public float laserLength = 20f;                 // 레이저 최대 길이
-    [Range(0f, 360f)] public float angle = 0f;      // 레이저 각도
-    public int laserDamage = 100;                   // 레이저 데미지
-    public LayerMask raycastMask = ~0;              // 레이캐스트 대상(필요 시 레이어 제한)
+    public float laserLength = 20f;
+    [Range(0f, 360f)] public float angle = 0f;
+    public int laserDamage = 100;
+    public LayerMask raycastMask = ~0;
 
     [Header("Laser Material")]
-    public Material laserMaterial;                  // 적용할 머티리얼
-    public float scrollSpeed = 2f;                  // 텍스처 흐름 속도
+    public Material laserMaterial;
+    public float scrollSpeed = 2f;
 
     [Header("Laser Timer (자체 온/오프 순환)")]
-    public bool useTimer = false;                   // 온/오프 순환 사용
-    public float activeTime = 2f;                   // 켜진 시간
-    public float inactiveTime = 1f;                 // 꺼진 시간
+    public bool useTimer = false;
+    public float activeTime = 2f;
+    public float inactiveTime = 1f;
 
     [Header("Activation")]
-    public bool startActive = false;                // 시작 시 켜둘지
-    public bool selfActivateOnTrigger = false;      // 이 오브젝트의 트리거로 직접 활성화할지
-    public string triggerTag = "Player";            // 트리거로 인식할 태그
-    public float activateDelay = 3.5f;              // 트리거 후 지연
+    public bool startActive = false;
+    public bool selfActivateOnTrigger = false;
+    public string triggerTag = "Player";
+    public float activateDelay = 3.5f;
+
+    [Header("Warning Settings")]
+    public bool useWarning = true;                  // 🔹 경고 기능 켜기/끄기
+    public GameObject warningPrefab;                // 🔹 경고 프리팹
+    public float warningDuration = 1f;              // 🔹 경고 유지 시간
+    public Vector3 warningOffset = Vector3.zero;    // 🔹 경고 위치 오프셋
+    public float warningScale = 1.5f;               // 🔹 경고 크기
 
     [Header("Damage Throttle")]
-    public float damageCooldown = 0.15f;            // 같은 대상 연타 방지(초)
+    public float damageCooldown = 0.15f;
     private float lastDamageTime = -999f;
 
     private float timer = 0f;
-    private bool isActive = false;                  // 실제 레이저 켜짐 상태
-    private bool isManuallyActivated = false;       // 외부/트리거로 한 번이라도 켜진 적이 있는가
+    private bool isActive = false;
+    private bool isManuallyActivated = false;
 
     void Awake()
     {
@@ -46,7 +54,6 @@ public class LaserObject : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
         lineRenderer.sortingOrder = 10;
 
-        // 시작 상태
         if (startActive)
         {
             Activate();
@@ -54,54 +61,63 @@ public class LaserObject : MonoBehaviour
         else
         {
             isActive = false;
-            isManuallyActivated = false;
             lineRenderer.enabled = false;
         }
     }
 
     void Update()
     {
-        // 아직 수동 활성화(트리거나 외부 호출)가 안 됐고 startActive도 아니라면 아무 것도 하지 않음
         if (!isManuallyActivated && !startActive)
         {
             lineRenderer.enabled = false;
             return;
         }
 
-        // 타이머 순환
         if (useTimer)
         {
             timer += Time.deltaTime;
+
             if (isActive && timer >= activeTime)
             {
+                // 활성 상태가 끝남 → 꺼짐
                 isActive = false;
                 timer = 0f;
                 lineRenderer.enabled = false;
             }
             else if (!isActive && timer >= inactiveTime)
             {
-                isActive = true;
+                // 🔹 여기서 바로 켜지지 말고, 경고부터 보여주기
                 timer = 0f;
-                lineRenderer.enabled = true;
+
+                if (useWarning && warningPrefab != null)
+                {
+                    StartCoroutine(WarningThenActivate());
+                }
+                else
+                {
+                    StartLaserImmediately();
+                }
             }
         }
         else
         {
-            // 타이머 미사용이면 항상 켜두기
-            isActive = true;
-            lineRenderer.enabled = true;
+            // useTimer 안 쓸 때는 고정 활성
+            if (isActive)
+            {
+                lineRenderer.enabled = true;
+            }
         }
 
         if (!isActive) return;
 
         FireLaser();
 
-        // UV 스크롤
         if (lineRenderer.material != null)
         {
             lineRenderer.material.mainTextureOffset = new Vector2(Time.time * scrollSpeed, 0f);
         }
     }
+
 
     void FireLaser()
     {
@@ -109,67 +125,70 @@ public class LaserObject : MonoBehaviour
         Vector2 origin = transform.position;
 
         float endDist = laserLength;
-        bool blocked = false;
 
-        // 가장 가까운 막힘(LaserNot 등)을 기준으로 끝점 결정
         RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir, laserLength, raycastMask);
         foreach (var hit in hits)
         {
-            if (!hit.collider) continue;
-            if (hit.collider.gameObject == gameObject) continue; // 자기 자신 무시(필요 시)
+            if (!hit.collider || hit.collider.gameObject == gameObject) continue;
 
-            // 막는 오브젝트: LaserNot
             if (hit.collider.CompareTag("LaserNot"))
             {
                 endDist = hit.distance;
-                blocked = true;
-                break; // 더 멀리는 볼 필요 없음
+                break;
             }
 
-            // 플레이어 피격 처리(끝점은 유지해서 관통형처럼 보임)
             if (hit.collider.CompareTag("Player"))
             {
-                var indicator = hit.collider.GetComponent<JoystickDirectionIndicator>();
-                if (indicator == null || !indicator.IsUsingSkill)
+                if (Time.time - lastDamageTime >= damageCooldown)
                 {
-                    if (Time.time - lastDamageTime >= damageCooldown)
-                    {
-                        lastDamageTime = Time.time;
-                        Vector3 enemyPos = transform.position;
-                        GameManager.Instance.playerDamaged.TakeDamage(laserDamage, enemyPos);
-                    }
+                    lastDamageTime = Time.time;
+                    GameManager.Instance.playerDamaged.TakeDamage(laserDamage, transform.position);
                 }
-                // 만약 플레이어에서 레이저를 끊고 싶다면 아래 두 줄 활성화:
-                // endDist = Mathf.Min(endDist, hit.distance);
-                // blocked = true;
             }
         }
 
-        Vector3 startPos = transform.position;
-        Vector3 endPos = startPos + (Vector3)dir * endDist;
-
-        lineRenderer.SetPosition(0, startPos);
-        lineRenderer.SetPosition(1, endPos);
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position + (Vector3)dir * endDist);
     }
 
     // ===== 외부 제어 API =====
     public void Activate()
     {
+        if (useWarning && warningPrefab != null)
+        {
+            StartCoroutine(WarningThenActivate());
+        }
+        else
+        {
+            StartLaserImmediately();
+        }
+    }
+
+    private IEnumerator WarningThenActivate()
+    {
         isManuallyActivated = true;
+
+        // 경고 생성
+        GameObject warning = Instantiate(
+            warningPrefab,
+            transform.position + warningOffset,
+            Quaternion.Euler(0, 0, angle)
+        );
+        warning.transform.localScale *= warningScale;
+
+        yield return new WaitForSeconds(warningDuration);
+
+        if (warning) Destroy(warning);
+
+        StartLaserImmediately();
+    }
+
+    private void StartLaserImmediately()
+    {
+        isManuallyActivated = true;
+        isActive = true;
         timer = 0f;
-        isActive = !useTimer || true;    // 타이머 미사용이면 바로 켜짐
-        lineRenderer.enabled = !useTimer || true;
-    }
-
-    public void ActivateAfterDelay(float delay)
-    {
-        StartCoroutine(ActivateRoutine(delay));
-    }
-
-    private System.Collections.IEnumerator ActivateRoutine(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        Activate();
+        lineRenderer.enabled = true;
     }
 
     public void Deactivate()
@@ -180,13 +199,17 @@ public class LaserObject : MonoBehaviour
         lineRenderer.enabled = false;
     }
 
-    // 이 스크립트가 달린 오브젝트가 직접 트리거를 받을 때 사용
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!selfActivateOnTrigger) return;
         if (!other.CompareTag(triggerTag)) return;
 
-        // 트리거 후 3.5초(activateDelay) 뒤 켜기
-        ActivateAfterDelay(activateDelay);
+        StartCoroutine(ActivateAfterDelay(activateDelay));
+    }
+
+    private IEnumerator ActivateAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Activate();
     }
 }

@@ -212,11 +212,24 @@ MonoBehaviour:
   laserLength: 20
   angle: 0
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 0
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 3800818024053641637, guid: 4770a92faec673041b2f8a4b7731d876, type: 3}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &8234417129628003444
 BoxCollider2D:
   m_ObjectHideFlags: 0
