@@ -66,29 +66,45 @@ public class BulletAI : MonoBehaviour
     void SwitchToEnemy()
     {
         FindClosestTarget();
+
         if (target != null)
         {
             fixedDirection = (target.position - transform.position).normalized;
-            moveCoroutine = StartCoroutine(MoveTowardsTarget());
         }
         else
         {
-            DestroySelf();
+            // 타겟이 없으면 기존 forward 방향 유지
+            // 필요 시 player 기준 각도로 초기화 가능
+            fixedDirection = transform.right; // 현재 회전 기준 오른쪽
         }
+
+        if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+        moveCoroutine = StartCoroutine(MoveTowardsOrStraight());
     }
 
-    IEnumerator MoveTowardsTarget()
+    /// <summary>
+    /// 타겟이 살아있으면 따라가고, 없으면 직선 이동
+    /// </summary>
+    IEnumerator MoveTowardsOrStraight()
     {
-        float angle = Mathf.Atan2(fixedDirection.y, fixedDirection.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        while (target != null && target.gameObject.activeInHierarchy && !isDestroying)
+        while (!isDestroying)
         {
+            if (target != null && target.gameObject.activeInHierarchy)
+            {
+                // 타겟 쫓기
+                fixedDirection = (target.position - transform.position).normalized;
+            }
+
             transform.position += fixedDirection * moveSpeed * Time.deltaTime;
+
+            // 각도 업데이트
+            float angle = Mathf.Atan2(fixedDirection.y, fixedDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+
             yield return null;
         }
-        DestroySelf();
     }
+
 
     void FindClosestTarget()
     {

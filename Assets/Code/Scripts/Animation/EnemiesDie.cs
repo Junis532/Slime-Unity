@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
 
 public class EnemiesDie : MonoBehaviour
@@ -6,9 +6,9 @@ public class EnemiesDie : MonoBehaviour
     private bool isLive = true;
     private GroupController groupController;
 
-    [Header("Á×À» ¶§ Æ÷¼Ç")]
-    public GameObject potionPrefab; // Ç®¿¡ µî·Ï ÇÊ¿ä
-    public float potionDropChance = 0.1f; // 10% È®·ü·Î Æ÷¼Ç µå¶ø
+    [Header("ì£½ì„ ë•Œ í¬ì…˜")]
+    public GameObject potionPrefab; // í’€ì— ë“±ë¡ í•„ìš”
+    public float potionDropChance = 0.1f; // 10% í™•ë¥ ë¡œ í¬ì…˜ ë“œë
 
     private SpriteRenderer spriter;
 
@@ -27,18 +27,20 @@ public class EnemiesDie : MonoBehaviour
         if (!isLive) return;
         isLive = false;
 
+        // ğŸ”¹ íƒ€ê²Ÿ ë§‰ê¸°: íƒœê·¸ Noneìœ¼ë¡œ ë³€ê²½
+        gameObject.tag = "Untagged"; // ë˜ëŠ” "None"ìœ¼ë¡œ ì„¤ì • ê°€ëŠ¥
+
         if (potionPrefab != null && Random.value <= potionDropChance)
         {
             PoolManager.Instance.SpawnFromPool(potionPrefab.name, transform.position, Quaternion.identity);
         }
 
-        // ÇÃ·¹ÀÌ¾î À§Ä¡ ÅÂ±×·Î Ã£±â
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         Vector3 backwardDir = Vector3.zero;
         if (playerObj != null)
         {
             Vector3 dirToPlayer = (playerObj.transform.position - transform.position).normalized;
-            backwardDir = -dirToPlayer * 0.5f;  // ÇÃ·¹ÀÌ¾î ¹İ´ë ¹æÇâÀ¸·Î 0.5¸¸Å­ ¹Ğ±â
+            backwardDir = -dirToPlayer * 0.5f;
         }
         else
         {
@@ -47,20 +49,16 @@ public class EnemiesDie : MonoBehaviour
 
         Sequence deathSequence = DOTween.Sequence();
 
-        // µÚ·Î ¹Ğ¸®¸é¼­ Ãà¼Ò
         deathSequence.Append(transform.DOMove(transform.position + backwardDir, 0.5f).SetEase(Ease.OutQuad));
         deathSequence.Join(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack));
 
-        // Åõ¸íÇØÁö±â
         if (spriter != null)
-        {
             deathSequence.Join(spriter.DOFade(0f, 0.5f));
-        }
 
         deathSequence.OnComplete(() =>
         {
             DOTween.Kill(transform);
-            if (spriter != null) spriter.color = new Color(1, 1, 1, 1); // ÀçÈ°¼ºÈ­ ´ëºñ
+            if (spriter != null) spriter.color = new Color(1, 1, 1, 1);
             gameObject.SetActive(false);
 
             if (groupController != null)
@@ -68,11 +66,12 @@ public class EnemiesDie : MonoBehaviour
         });
     }
 
+
     void OnEnable()
     {
         isLive = true;
         if (spriter != null)
-            spriter.color = new Color(1, 1, 1, 1); // ÃÊ±â Åõ¸íµµ º¹±¸
+            spriter.color = new Color(1, 1, 1, 1); // ì´ˆê¸° íˆ¬ëª…ë„ ë³µêµ¬
     }
 
     void OnDisable()

@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4887445025712351868}
   - component: {fileID: 7191978755468027004}
-  - component: {fileID: -3790489645591990498}
   - component: {fileID: 7157077542858023148}
+  - component: {fileID: -7630664396902064714}
   m_Layer: 0
   m_Name: Thron
   m_TagString: Untagged
@@ -89,18 +89,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-3790489645591990498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6950589694986560093}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c9664a1bdb7a8248972f89f8ce0640c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &7157077542858023148
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -147,3 +135,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-7630664396902064714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6950589694986560093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce0e5ab2ceaba394193687aef90cd1fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 100
+  activeDuration: 1
+  inactiveDuration: 2
+  activeColor: {r: 1, g: 0, b: 0, a: 1}
+  inactiveColor: {r: 1, g: 1, b: 1, a: 1}
+  colorTweenTime: 0.3
