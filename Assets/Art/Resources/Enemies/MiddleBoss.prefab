@@ -106,6 +106,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillInterval: 2
+  enableBulletCircle: 1
+  enableLaserPattern: 1
+  enableSwordPattern: 1
+  enableJumpPattern: 0
+  warnBulletCircle: 0
+  warnLaserPattern: 1
+  warnSwordPattern: 1
+  warnJumpPattern: 0
   bulletPrefab: {fileID: 6382944771956985129, guid: 52728663e8fc3d643bd125540d7bc77e, type: 3}
   bulletsPerWave: 10
   bulletAngle: 15
@@ -119,10 +127,13 @@ MonoBehaviour:
   useStartAnchors: 0
   leftLaserAnchor: {fileID: 0}
   rightLaserAnchor: {fileID: 0}
-  sweepSpeed: 7
-  sweepWidthRatio: 0.692
-  useAbsoluteSweep: 0
-  sweepWidthUnits: 6
+  useRegularCrossing: 1
+  crossingHz: 0.9
+  crossingAmplitudeUnits: 6
+  waveform: 1
+  edgeHoldRatio: 0.2
+  clampToBounds: 1
+  clampMargin: 0.5
   laserActiveDuration: 8
   laserOverrun: 5
   fireInterval: 0.5
@@ -137,6 +148,13 @@ MonoBehaviour:
   warningLengthScale: 10
   warningThicknessScale: 0.5
   warningOffsetDistance: 5
+  preWarnDuration: 1
+  warnLineWidth: 0.28
+  warnLineColor: {r: 1, g: 0.6, b: 0.2, a: 0.95}
+  warnLineMaterial: {fileID: 0}
+  keepWarnDuringTransition: 0
+  warnTransitionTime: 0.15
+  debugForceBulletCircle: 0
 --- !u!114 &6907334164349342496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,8 +224,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathStyle: 1
   potionPrefab: {fileID: 0}
   potionDropChance: 0.1
+  classicBackwardTime: 0.5
+  classicBackwardDistance: 0.5
+  classicShrinkTime: 0.5
+  classicFadeTime: 0.5
+  spBackwardTime: 0.12
+  spBackwardDistance: 0.45
+  spSquishTime: 0.14
+  spPrePopHold: 0.05
+  spPopTime: 0.08
+  spCollapseTime: 0.18
+  spFadeTime: 0.2
+  spSquishScale: {x: 0.65, y: 0.45}
+  spPopScale: 1.35
+  spUseCameraShake: 1
+  spFlashOnPop: 1
+  spFlashTime: 0.06
+  spExplosionVFXPrefab: {fileID: 0}
+  spShockwavePrefab: {fileID: 0}
 --- !u!61 &8294113168161909949
 BoxCollider2D:
   m_ObjectHideFlags: 0
