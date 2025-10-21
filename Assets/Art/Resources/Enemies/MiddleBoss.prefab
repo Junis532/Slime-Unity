@@ -106,6 +106,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillInterval: 2
+  intensity: 0
+  intensityPerSkill: 0.15
+  intensityMax: 2
+  tempoBPM: 120
   enableBulletCircle: 1
   enableLaserPattern: 1
   enableSwordPattern: 1
@@ -118,6 +122,34 @@ MonoBehaviour:
   bulletsPerWave: 10
   bulletAngle: 15
   bulletSpeed: 7
+  gapCount: 2
+  gapWidthRatio: 0.15
+  spinCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spinUpSeconds: 1.2
+  spinDownSeconds: 0.8
   mapCollider: {fileID: 0}
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: 4eafba37ffceadb46b8be885a1a67bb6, type: 2}
@@ -137,9 +169,18 @@ MonoBehaviour:
   laserActiveDuration: 8
   laserOverrun: 5
   fireInterval: 0.5
+  laserWidthPulse: 1
+  laserWidthBase: 0.18
+  laserWidthPulseAmt: 0.12
+  showMagicCircleWarn: 1
   swordRotateSpeed: 150
   swordStartAngle: 90
   swordWarningDuration: 1
+  afterimageCount: 3
+  afterimageFadeSeconds: 0.35
+  endShockwaveBullets: 12
+  endShockwaveCountScale: 0.6
+  endShockwaveStagger: 0.03
   jumpHeight: 10
   jumpDuration: 1
   jumpBulletCount: 15
@@ -150,10 +191,109 @@ MonoBehaviour:
   warningOffsetDistance: 5
   preWarnDuration: 1
   warnLineWidth: 0.28
-  warnLineColor: {r: 1, g: 0.6, b: 0.2, a: 0.95}
+  warnLineColor: {r: 0.5498401, g: 0.0047169924, b: 1, a: 0.95}
   warnLineMaterial: {fileID: 0}
   keepWarnDuringTransition: 0
   warnTransitionTime: 0.15
+  magicCircleSprite: {fileID: 1347456068492712528, guid: db79eb267db335d42812b1b7f07e1268, type: 3}
+  extraMagicRings:
+  - {fileID: -1714001547620959680, guid: 5f7c1b6958bc6024ab6aacfd0a5ff9a4, type: 3}
+  magicCircleResourcesPath: 
+  magicCircleColor: {r: 0.85, g: 0.7, b: 1, a: 0.9}
+  magicCircleBaseScale: 2.2
+  magicCircleSpinSpeed: 120
+  magicCirclePulseScale: 0.12
+  magicCircleFadeOut: 0.15
+  ringsCounterRotate: 1
+  ringScaleStep: 1.12
+  ringSpinMul: -0.6
+  ringSortingOrderBase: 50
+  magicWhipOnStart: 1
+  magicWhipScaleMul: 1.35
+  magicWhipSpinSpeed: 900
+  magicWhipDuration: 0.22
+  magicWhipEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  laserOutline: 1
+  outlineWidthAdd: 0.08
+  outlineColor: {r: 1, g: 0.6, b: 1, a: 0.35}
+  addBulletTrail: 1
+  trailTime: 0.45
+  trailStartWidth: 0.12
+  trailEndWidth: 0
+  trailGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  addCircleLight: 1
+  lightRadius: 4
+  lightIntensity: 1.6
+  lightColor: {r: 0.95, g: 0.7, b: 1, a: 1}
+  additiveGlowFallback: 1
+  glowSpriteScaleMul: 1.25
+  glowSpriteAlpha: 0.55
+  useHitStop: 1
+  hitStopScale: 0.15
+  hitStopDuration: 0.06
+  useCameraShake: 1
+  shakeAmplitude: 0.2
+  shakeDuration: 0.2
+  flashSpriteOnFire: 1
+  flashColor: {r: 1, g: 0.8, b: 0.2, a: 1}
+  flashDuration: 0.05
+  zoomOnClimax: 1
+  zoomSize: 4.8
+  zoomInDur: 0.12
+  zoomHold: 0.1
+  zoomOutDur: 0.15
   debugForceBulletCircle: 0
 --- !u!114 &6907334164349342496
 MonoBehaviour:
@@ -234,17 +374,38 @@ MonoBehaviour:
   spBackwardTime: 0.12
   spBackwardDistance: 0.45
   spSquishTime: 0.14
+  spSquishScale: {x: 0.65, y: 0.45}
   spPrePopHold: 0.05
   spPopTime: 0.08
+  spPopScale: 1.35
   spCollapseTime: 0.18
   spFadeTime: 0.2
-  spSquishScale: {x: 0.65, y: 0.45}
-  spPopScale: 1.35
+  spUseTimeSlow: 1
+  spTimeScale: 0.1
+  spTimeSlowDur: 0.08
+  spUseScreenFlash: 1
+  spFlashAlpha: 0.9
+  spFlashDur: 0.08
   spUseCameraShake: 1
-  spFlashOnPop: 1
-  spFlashTime: 0.06
-  spExplosionVFXPrefab: {fileID: 0}
-  spShockwavePrefab: {fileID: 0}
+  spUseCameraPump: 1
+  spCamPumpZoomDelta: -0.6
+  spCamPumpInTime: 0.08
+  spCamPumpOutTime: 0.35
+  spUseShockwaveRing: 1
+  spRingDuration: 0.35
+  spRingRadius: 2
+  spRingSegments: 48
+  spRingWidth: 0.12
+  spRingColor: {r: 1, g: 1, b: 1, a: 0.85}
+  spUseDebris: 1
+  spDebrisCount: 24
+  spDebrisLifetime: 0.5
+  spDebrisSpeed: 6
+  spDebrisGravity: 0
+  spDebrisStartColor: {r: 1, g: 0.85, b: 0.4, a: 1}
+  spDebrisEndColor: {r: 1, g: 0.85, b: 0.4, a: 0}
+  spDebrisStartSize: 0.08
+  spDebrisEndSize: 0.02
 --- !u!61 &8294113168161909949
 BoxCollider2D:
   m_ObjectHideFlags: 0
