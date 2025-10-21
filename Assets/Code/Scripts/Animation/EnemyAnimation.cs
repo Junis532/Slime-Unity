@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyAnimation : MonoBehaviour
 {
     [System.Serializable]
-    // 상태 정의
     public enum State
     {
+        // 기본/이동/공격(기존)
         Idle,
         Move,
         AttackStart,
@@ -17,83 +17,92 @@ public class EnemyAnimation : MonoBehaviour
         MoveFront,
         MoveBack,
         FrontAttackEnd,
-        // 🟢 NEW: 보스 스킬 상태 추가
+
+        // 스킬(기존)
         Skill1Fireball,
         Skill2Circle,
-        Skill3Dash
+        Skill3Dash,
+
+        // 연출/보스 전용 (추가)
+        Entry,          // 등장 (원샷 → Idle)
+        PatternStart,   // 패턴 시작 (원샷 → Idle)
+        PatternLoop,    // 패턴 진행 (마커) → Idle 유지(보스 모드에서만)
+        PatternEnd,     // 패턴 종료 (마커) → Idle 유지(보스 모드에서만)
+        Death           // 사망 (원샷 → 잠금)
     };
 
-    [Header("스프라이트 리스트 (기본/측면)")]
+    // ===== 스프라이트 슬롯 =====
+    [Header("스프라이트 (기본/측면)")]
     public List<Sprite> idleSprites;
-    public List<Sprite> moveSprites;      // 일반 이동 애니메이션 (MoveSide 대체용)
+    public List<Sprite> moveSprites;
 
-    // 기본 공격 3단계 애니메이션 스프라이트 리스트 (측면을 기준으로 사용)
-    public List<Sprite> attackStartSprites; // 공격 준비 (비반복)
-    public List<Sprite> attackSprites;      // 공격 유지/반복 (반복)
-    public List<Sprite> attackEndSprites;   // 공격 마무리 (비반복)
-
-    // NEW: 정면 공격 3단계 애니메이션 스프라이트 리스트
-    [Header("정면 공격 애니메이션 (Front)")]
-    [Tooltip("정면(아래쪽)을 바라보는 공격 준비 애니메이션")]
+    [Header("공격(측면/정면)")]
+    public List<Sprite> attackStartSprites;   // 비루프
+    public List<Sprite> attackSprites;        // 루프
+    public List<Sprite> attackEndSprites;     // 비루프
     public List<Sprite> attackStartFrontSprites;
-    [Tooltip("정면(아래쪽)을 바라보는 공격 마무리 애니메이션")]
     public List<Sprite> attackEndFrontSprites;
 
-    // 방향별 이동 애니메이션
-    public List<Sprite> moveSideSprites;    // 측면 이동 (좌/우)
-    public List<Sprite> moveFrontSprites;   // 앞쪽 이동 (아래)
-    public List<Sprite> moveBackSprites;    // 뒤쪽 이동 (위)
+    [Header("방향 이동")]
+    public List<Sprite> moveSideSprites;
+    public List<Sprite> moveFrontSprites;
+    public List<Sprite> moveBackSprites;
 
-    // 🟢 NEW: 스킬 애니메이션 스프라이트 리스트
-    [Header("보스 스킬 애니메이션")]
+    [Header("스킬(기존)")]
     public List<Sprite> skill1FireballSprites;
     public List<Sprite> skill2CircleSprites;
     public List<Sprite> skill3DashSprites;
 
-    [Header("설정")]
+    [Header("연출/보스 전용")]
+    public List<Sprite> entrySprites;         // 원샷
+    public List<Sprite> patternStartSprites;  // 원샷
+    public List<Sprite> deathSprites;         // 원샷(잠금)
+
+    // ===== 설정 =====
+    [Header("속도/설정")]
     public float frameRate = 0.1f;
-    [Tooltip("Attack 관련 애니메이션 전용 프레임 간격 (초). Start/Attack/End 모두 적용됩니다.")]
+    [Tooltip("빠른 원샷류(AttackStart/End/Entry/PatternStart/Death)에 적용")]
     public float attackFrameRate = 0.05f;
-    [Tooltip("수직/수평 애니메이션 전환 임계값 (0에 가까울수록 민감)")]
+    [Tooltip("수직/수평 전환 임계값")]
     public float verticalThreshold = 0.5f;
 
+    [Header("중간보스 전용 옵션")]
+    [Tooltip("ON: 패턴은 PatternStart만 연출, PatternLoop/End/Skill*은 Idle 유지")]
+    public bool bossPatternIdleMode = false;
+
+    [Tooltip("ON: entrySprites가 있으면 Start 시 Entry 한 번 자동 재생")]
+    public bool autoPlayEntry = false;
+
+    // ===== 내부 상태 =====
     private SpriteRenderer spriteRenderer;
     private int currentFrame;
     public State currentState;
     private List<Sprite> currentSprites;
-
     private Coroutine animationRoutine;
-
-    // 💡 최적화: WaitForSeconds 객체를 미리 생성하여 GC를 줄입니다.
     private WaitForSeconds defaultWait;
-    private WaitForSeconds attackWait;
+    private WaitForSeconds fastWait;
+    private bool lockedByDeath = false;
 
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        // 💡 최적화: WaitForSeconds 객체를 Start 시에 한 번만 생성합니다.
-        defaultWait = new WaitForSeconds(frameRate);
-        attackWait = new WaitForSeconds(attackFrameRate);
+        defaultWait = new WaitForSeconds(Mathf.Max(0.0001f, frameRate));
+        fastWait = new WaitForSeconds(Mathf.Max(0.0001f, attackFrameRate));
 
-        if (spriteRenderer != null)
-        {
+        if (autoPlayEntry && entrySprites != null && entrySprites.Count > 0)
+            PlayAnimation(State.Entry);
+        else
             PlayAnimation(State.Idle);
-        }
     }
 
-    void Update() { }
-
+    // ===== 코루틴 시작 =====
     private void StartAnimation(List<Sprite> sprites)
     {
-        // 💡 중첩 방지 핵심: 새로운 애니메이션 시작 시 기존 코루틴을 중단합니다.
-        if (animationRoutine != null)
-        {
-            StopCoroutine(animationRoutine);
-        }
-
+        if (animationRoutine != null) StopCoroutine(animationRoutine);
         animationRoutine = StartCoroutine(AnimateRoutine(sprites));
     }
 
+    // ===== 메인 애니 루프 =====
     private IEnumerator AnimateRoutine(List<Sprite> sprites)
     {
         currentSprites = sprites;
@@ -106,43 +115,66 @@ public class EnemyAnimation : MonoBehaviour
             yield break;
         }
 
-        // 🟢 NEW: 스킬 1, 2, 3은 루프하지 않습니다.
-        bool isLooping = (currentState == State.Idle ||
-                             currentState == State.Move ||
-                             currentState == State.MoveSide ||
-                             currentState == State.MoveFront ||
-                             currentState == State.MoveBack ||
-                             currentState == State.Attack);
+        bool isLooping =
+            currentState == State.Idle ||
+            currentState == State.Move ||
+            currentState == State.MoveSide ||
+            currentState == State.MoveFront ||
+            currentState == State.MoveBack ||
+            currentState == State.Attack;
 
-        // 💡 최적화: 사용할 WaitForSeconds 객체 선택
-        // 🟢 NEW: 스킬 1, 2, 3은 빠른 애니메이션으로 취급하지 않습니다. (frameRate 적용)
-        bool isFastAnimation = (currentState == State.AttackStart ||
-                                 currentState == State.Attack ||
-                                 currentState == State.AttackEnd ||
-                                 currentState == State.FrontAttackEnd);
+        bool isFast =
+            currentState == State.AttackStart ||
+            currentState == State.AttackEnd ||
+            currentState == State.FrontAttackEnd ||
+            currentState == State.Entry ||
+            currentState == State.PatternStart ||
+            currentState == State.Death ||
+            currentState == State.Attack; // 공격 유지 빠르게
 
-        WaitForSeconds wait = isFastAnimation ? attackWait : defaultWait;
+        var wait = isFast ? fastWait : defaultWait;
 
         while (isLooping || currentFrame < currentSprites.Count)
         {
-            // 스프라이트가 null일 경우, 프레임 계산 중 SpriteRenderer의 설정이 변경된 것이므로 종료합니다.
-            if (currentSprites == null || currentSprites.Count == 0 || currentFrame >= currentSprites.Count) break;
+            if (currentSprites == null || currentSprites.Count == 0) break;
+            if (currentFrame >= currentSprites.Count) break;
 
             spriteRenderer.sprite = currentSprites[currentFrame];
-
             yield return wait;
 
             currentFrame++;
+            if (isLooping) currentFrame %= currentSprites.Count;
+        }
 
-            if (isLooping)
+        // Death는 잠금 유지
+        if (currentState == State.Death)
+        {
+            animationRoutine = null;
+            yield break;
+        }
+
+        // ✅ AttackStart가 끝나면 Attack 루프로 자동 진입
+        if (currentState == State.AttackStart)
+        {
+            if (attackSprites != null && attackSprites.Count > 0)
             {
-                currentFrame %= currentSprites.Count;
+                currentState = State.Attack;
+                StartAnimation(attackSprites); // 루프
+                animationRoutine = null;
+                yield break;
+            }
+            else
+            {
+                PlayAnimation(State.Idle);
+                animationRoutine = null;
+                yield break;
             }
         }
 
-        // 🟢 NEW: 비반복 애니메이션 (공격, 스킬) 종료 후, 상태 복귀
+        // 비루프 종료 후 Idle 복귀 (Entry/PatternStart/스킬 종료/공격 End 포함)
         if (currentState == State.AttackEnd || currentState == State.FrontAttackEnd ||
-            currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash)
+            currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash ||
+            currentState == State.Entry || currentState == State.PatternStart)
         {
             PlayAnimation(State.Idle);
         }
@@ -150,144 +182,123 @@ public class EnemyAnimation : MonoBehaviour
         animationRoutine = null;
     }
 
-    /// <summary>
-    /// Idle, Move, Attack 관련 상태로 전환합니다.
-    /// 외부에서 Attack을 호출하면 AttackStart부터 시작합니다.
-    /// </summary>
-    /// <param name="newState">요청된 상태. Attack이 요청되면 AttackStart로 시작합니다.</param>
+    // ===== 외부 API =====
     public void PlayAnimation(State newState)
     {
-        // 1. 공격 중 보호 로직 강화
-        bool isCurrentlyInAction = (currentState == State.AttackStart || currentState == State.Attack);
+        if (lockedByDeath) return;
 
-        // 🟢 NEW: 스킬 상태일 때 다른 전환을 막습니다. (스킬 코루틴 내부에서만 상태 전환을 허용)
-        bool isCurrentlyInSkill = (currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash);
-
-        if (isCurrentlyInAction || isCurrentlyInSkill)
+        // === 보스 모드일 때만 패턴 상태를 Idle로 우회 ===
+        if (bossPatternIdleMode)
         {
-            bool isTransitionAllowed = (
-                // 공격 3단계 진행 허용 (Start -> AttackEnd/FrontAttackEnd)
-                (currentState == State.AttackStart && (newState == State.AttackEnd || newState == State.FrontAttackEnd)) ||
-                // 스킬 종료 시 Idle/Move로의 복귀 허용
-                (isCurrentlyInSkill && (newState == State.Idle || newState == State.Move))
-            );
-
-            // 허용되지 않은 전환이라면 무시
-            if (!isTransitionAllowed)
+            if (newState == State.PatternLoop || newState == State.PatternEnd ||
+                newState == State.Skill1Fireball || newState == State.Skill2Circle || newState == State.Skill3Dash)
             {
-                // 현재 상태가 스킬이라면, 해당 스킬 상태로의 요청도 무시
-                if (newState == currentState) return;
-
+                if (currentState != State.Idle) { currentState = State.Idle; StartAnimation(idleSprites); }
                 return;
             }
+            // PatternStart는 원샷 연출 허용(아래 switch에서 처리)
         }
 
-        // AttackEnd/FrontAttackEnd 상태일 때 Idle/Move 복귀는 허용해야 합니다.
-        bool isFinishingAction = (currentState == State.AttackEnd || currentState == State.FrontAttackEnd);
-        if (isFinishingAction && newState != State.Idle && newState != State.Move)
+        // ✅ 행동/스킬 중 보호 (AttackStart→Attack 허용)
+        bool inAction = (currentState == State.AttackStart || currentState == State.Attack);
+        bool inSkill = (currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash);
+        if (inAction || inSkill)
         {
-            // 종료 단계일 때 다른 공격 명령이나 이동 명령을 무시합니다.
+            bool allow =
+                (currentState == State.AttackStart && (newState == State.Attack || newState == State.AttackEnd || newState == State.FrontAttackEnd)) ||
+                (currentState == State.Attack && (newState == State.AttackEnd || newState == State.FrontAttackEnd)) ||
+                (inSkill && (newState == State.Idle || newState == State.Move));
+
+            if (!allow) return;
+        }
+
+        bool finishing = (currentState == State.AttackEnd || currentState == State.FrontAttackEnd);
+        if (finishing && newState != State.Idle && newState != State.Move)
+        {
             if (newState != currentState) return;
         }
 
-        // 2. 방향별 Move 상태로의 직접적인 전환 요청 방지 
         if (newState == State.MoveSide || newState == State.MoveFront || newState == State.MoveBack)
         {
-            Debug.LogError("방향별 애니메이션은 PlayDirectionalMoveAnimation(Vector2)을 사용하세요.");
+            Debug.LogError("방향별 이동은 PlayDirectionalMoveAnimation(Vector2)을 사용하세요.");
             return;
         }
 
-        // 3. 외부에서 State.Attack을 호출하면 항상 State.AttackStart부터 시작합니다.
+        // ✅ Attack 요청 처리 (Idle/Move에서 오면 AttackStart부터)
         if (newState == State.Attack)
         {
-            if (currentState != State.AttackEnd && currentState != State.FrontAttackEnd)
+            if (currentState == State.AttackStart)
+            {
+                // AttackStart 중 Attack 요청 → 허용
+            }
+            else if (currentState != State.Attack && currentState != State.AttackEnd && currentState != State.FrontAttackEnd)
             {
                 newState = State.AttackStart;
             }
-            else if (isFinishingAction && newState == State.Attack)
+            else if (finishing) // End 단계면 재공격 무시
             {
-                // End 상태인데 다시 Attack을 요청하면, Idle로 돌아간 후 다시 공격해야 하므로 요청 무시
                 return;
             }
         }
 
-        // 4. 같은 상태로 다시 전환하려고 하면 무시 
         if (newState == currentState) return;
 
-        // 상태 갱신
-        State previousState = currentState;
+        State prev = currentState;
         currentState = newState;
 
-        List<Sprite> targetSprites;
-
-        // AttackStart/AttackEnd에서 방향을 확인할 때 사용. 
-        bool isFacingVertical = (previousState == State.MoveFront || previousState == State.MoveBack);
+        bool facingVertical = (prev == State.MoveFront || prev == State.MoveBack);
+        List<Sprite> target;
 
         switch (currentState)
         {
-            case State.Idle:
-                targetSprites = idleSprites;
-                break;
-            case State.Move:
-                targetSprites = moveSprites;
-                break;
+            case State.Idle: target = idleSprites; break;
+            case State.Move: target = moveSprites; break;
 
             case State.AttackStart:
-                targetSprites = (isFacingVertical && attackStartFrontSprites != null && attackStartFrontSprites.Count > 0)
-                                 ? attackStartFrontSprites
-                                 : attackStartSprites;
+                target = (facingVertical && attackStartFrontSprites != null && attackStartFrontSprites.Count > 0)
+                    ? attackStartFrontSprites : attackStartSprites;
                 break;
 
-            case State.Attack: // Loop Attack
-                targetSprites = attackSprites;
-                break;
+            case State.Attack: target = attackSprites; break;
+            case State.AttackEnd: target = attackEndSprites; break;
+            case State.FrontAttackEnd: target = attackEndFrontSprites; break;
 
-            case State.AttackEnd:
-                targetSprites = attackEndSprites;
-                break;
+            // 연출/보스 전용
+            case State.Entry: target = entrySprites; break;
+            case State.PatternStart: target = patternStartSprites; break;
+            case State.PatternLoop: target = idleSprites; break;   // 방어적 폴백
+            case State.PatternEnd: target = idleSprites; break;   // 방어적 폴백
+            case State.Death:
+                lockedByDeath = true;
+                target = deathSprites; break;
 
-            case State.FrontAttackEnd:
-                targetSprites = attackEndFrontSprites;
-                break;
+            // 스킬(기존)
+            case State.Skill1Fireball: target = skill1FireballSprites; break;
+            case State.Skill2Circle: target = skill2CircleSprites; break;
+            case State.Skill3Dash: target = skill3DashSprites; break;
 
-            // 🟢 NEW: 스킬 상태 처리
-            case State.Skill1Fireball:
-                targetSprites = skill1FireballSprites;
-                break;
-            case State.Skill2Circle:
-                targetSprites = skill2CircleSprites;
-                break;
-            case State.Skill3Dash:
-                targetSprites = skill3DashSprites;
-                break;
-
-            default:
-                targetSprites = idleSprites;
-                break;
+            default: target = idleSprites; break;
         }
 
-        if (targetSprites != null && targetSprites.Count > 0)
+        if (target != null && target.Count > 0)
         {
-            StartAnimation(targetSprites);
+            StartAnimation(target);
         }
         else if (currentState != State.Idle)
         {
-            Debug.LogWarning($"Enemy Animation: {currentState}에 할당된 스프라이트가 없습니다. Idle로 전환을 시도합니다.");
-
-            // 스킬 애니메이션이 없는 경우, 즉시 Idle로 전환
+            Debug.LogWarning($"EnemyAnimation: {currentState} 스프라이트가 없어 Idle로 대체합니다.");
             PlayAnimation(State.Idle);
         }
     }
 
-    /// <summary>
-    /// 이동 방향 벡터를 기반으로 MoveSide, MoveFront, MoveBack 중 하나로 전환합니다.
-    /// </summary>
-    /// <param name="moveDirection">몬스터의 이동 방향 벡터</param>
+    /// <summary> 이동 벡터로 MoveSide/Front/Back 전환 (공격/스킬/죽음 중 무시) </summary>
     public void PlayDirectionalMoveAnimation(Vector2 moveDirection)
     {
-        // 💡 핵심: 공격 및 스킬 관련 상태일 때는 이동 애니메이션 요청을 무시하여 중첩 방지
+        if (lockedByDeath) return;
+
         if (currentState == State.AttackStart || currentState == State.Attack || currentState == State.AttackEnd || currentState == State.FrontAttackEnd ||
-            currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash)
+            currentState == State.Skill1Fireball || currentState == State.Skill2Circle || currentState == State.Skill3Dash ||
+            currentState == State.Death)
             return;
 
         if (moveDirection.magnitude < 0.01f)
@@ -296,8 +307,8 @@ public class EnemyAnimation : MonoBehaviour
             return;
         }
 
-        List<Sprite> targetSprites;
         State targetState;
+        List<Sprite> targetSprites;
 
         if (Mathf.Abs(moveDirection.y) > verticalThreshold * Mathf.Abs(moveDirection.x))
         {
@@ -307,31 +318,64 @@ public class EnemyAnimation : MonoBehaviour
         else
         {
             targetState = State.MoveSide;
-            // moveSideSprites가 없으면 일반 Move Sprites를 사용하도록 폴백
             targetSprites = (moveSideSprites != null && moveSideSprites.Count > 0) ? moveSideSprites : moveSprites;
         }
 
-        // 💡 핵심: 상태 변경이 없으면 StartAnimation 호출을 막아 이동 애니메이션이 끊기거나 빨라지는 것을 방지합니다.
         if (targetState == currentState) return;
 
         currentState = targetState;
 
         if (targetSprites != null && targetSprites.Count > 0)
-        {
             StartAnimation(targetSprites);
-        }
         else
         {
-            Debug.LogWarning($"Enemy Animation: {targetState}에 할당된 스프라이트가 없어 Idle로 대체합니다.");
+            Debug.LogWarning($"EnemyAnimation: {targetState} 스프라이트 없음 → Idle");
             PlayAnimation(State.Idle);
         }
     }
 
-    /// <summary>
-    /// 현재 재생 중인 애니메이션 상태를 반환합니다.
-    /// </summary>
-    public State GetCurrentState()
+    public State GetCurrentState() => currentState;
+
+    // ===== 보스/연출 헬퍼 =====
+    public void PlayPatternStartOnce() => PlayAnimation(State.PatternStart);
+    public void PlayEntryOnce() => PlayAnimation(State.Entry);
+    public void PlayDeathLock() => PlayAnimation(State.Death);
+
+    /// <summary> 상태 길이(초) 근사값 </summary>
+    public float GetEstimatedDuration(State st)
     {
-        return currentState;
+        List<Sprite> list = null;
+        float per = frameRate;
+
+        switch (st)
+        {
+            case State.Entry: list = entrySprites; per = attackFrameRate; break;
+            case State.PatternStart: list = patternStartSprites; per = attackFrameRate; break;
+            case State.Death: list = deathSprites; per = attackFrameRate; break;
+
+            case State.AttackStart:
+                list = (attackStartFrontSprites != null && attackStartFrontSprites.Count > 0)
+                    ? attackStartFrontSprites : attackStartSprites;
+                per = attackFrameRate; break;
+
+            case State.Attack: list = attackSprites; per = attackFrameRate; break;
+            case State.AttackEnd: list = attackEndSprites; per = attackFrameRate; break;
+            case State.FrontAttackEnd: list = attackEndFrontSprites; per = attackFrameRate; break;
+
+            case State.Idle: list = idleSprites; per = frameRate; break;
+            case State.Move:
+            case State.MoveSide: list = (moveSideSprites != null && moveSideSprites.Count > 0) ? moveSideSprites : moveSprites; per = frameRate; break;
+            case State.MoveFront: list = (moveFrontSprites != null && moveFrontSprites.Count > 0) ? moveFrontSprites : moveSprites; per = frameRate; break;
+            case State.MoveBack: list = (moveBackSprites != null && moveBackSprites.Count > 0) ? moveBackSprites : moveSprites; per = frameRate; break;
+
+            case State.Skill1Fireball: list = skill1FireballSprites; per = frameRate; break;
+            case State.Skill2Circle: list = skill2CircleSprites; per = frameRate; break;
+            case State.Skill3Dash: list = skill3DashSprites; per = frameRate; break;
+
+            default: list = idleSprites; per = frameRate; break;
+        }
+
+        if (list == null || list.Count == 0) return 0f;
+        return list.Count * Mathf.Max(0.0001f, per);
     }
 }

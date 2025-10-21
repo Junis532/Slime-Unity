@@ -9023,11 +9023,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 180
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &5956403970714167706
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9286,11 +9300,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 0
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &5100068522609261281
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15394,11 +15422,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 0
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &8505911839374570860
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -16015,11 +16057,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 180
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &2339991091284480835
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -24045,7 +24101,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.16}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 0.16, y: 0.16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -28994,11 +29050,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 180
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &6822417929183784650
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -31619,11 +31689,25 @@ MonoBehaviour:
   laserLength: 20
   angle: 0
   laserDamage: 100
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   laserMaterial: {fileID: 2100000, guid: d98ae12c4adcbed4db2528069daf4810, type: 2}
   scrollSpeed: 2
   useTimer: 1
   activeTime: 2
   inactiveTime: 1
+  startActive: 0
+  startActiveDelay: 0
+  selfActivateOnTrigger: 0
+  triggerTag: Player
+  activateDelay: 3.5
+  useWarning: 1
+  warningPrefab: {fileID: 0}
+  warningDuration: 1
+  warningOffset: {x: 0, y: 0, z: 0}
+  warningScale: 1.5
+  damageCooldown: 0.15
 --- !u!61 &1209895427247977838
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -31796,7 +31880,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.16}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 0.16, y: 0.16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -33405,7 +33489,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.16}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 0.16, y: 0.16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -41097,7 +41181,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.16}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 0.16, y: 0.16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

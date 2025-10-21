@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.37, y: 56.17, z: 0}
-  m_LocalScale: {x: 0.65, y: 0.65, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 30
-  m_Sprite: {fileID: 21300000, guid: e0e88a53fb5dd7541a0fb2b9849ac1a0, type: 3}
+  m_Sprite: {fileID: 3713219614965599903, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -120,7 +120,6 @@ MonoBehaviour:
   warnJumpPattern: 0
   bulletPrefab: {fileID: 6382944771956985129, guid: 52728663e8fc3d643bd125540d7bc77e, type: 3}
   bulletsPerWave: 10
-  bulletAngle: 15
   bulletSpeed: 7
   bulletFireInterval: 0.35
   bulletPatternDuration: 6
@@ -129,42 +128,11 @@ MonoBehaviour:
   spinAdd: 0.15
   gapCount: 2
   gapWidthRatio: 0.15
-  spinCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spinUpSeconds: 1.2
-  spinDownSeconds: 0.8
   mapCollider: {fileID: 0}
   laserDamage: 100
   laserMaterial: {fileID: 2100000, guid: 4eafba37ffceadb46b8be885a1a67bb6, type: 2}
   leftLaserOffsetX: -8
   rightLaserOffsetX: 8
-  laserExtraStartOffset: {x: 0, y: 0}
-  useStartAnchors: 0
-  leftLaserAnchor: {fileID: 0}
-  rightLaserAnchor: {fileID: 0}
-  useRegularCrossing: 1
   crossingHz: 0.9
   crossingAmplitudeUnits: 6
   waveform: 1
@@ -177,12 +145,27 @@ MonoBehaviour:
   laserWidthPulse: 1
   laserWidthBase: 0.18
   laserWidthPulseAmt: 0.12
-  showMagicCircleWarn: 1
+  useLaserColorCycle: 1
+  cycleColors:
+  - {r: 0.37863874, g: 0, b: 1, a: 1}
+  - {r: 0.20277785, g: 0.025453899, b: 0.49056602, a: 1}
+  - {r: 0.237731, g: 0, b: 0.6415094, a: 1}
+  alphaLevels:
+  - 0.35
+  - 0.7
+  - 1
+  alphaCycleSeconds: 1.2
+  colorStops:
+  - 0
+  - 0.5
+  - 1
+  laserOutline: 1
+  outlineWidthAdd: 0.08
+  outlineColor: {r: 1, g: 0.6, b: 1, a: 0.35}
   swordRotateSpeed: 150
   swordStartAngle: 90
   swordWarningDuration: 1
   afterimageCount: 3
-  afterimageFadeSeconds: 0.35
   endShockwaveBullets: 12
   endShockwaveCountScale: 0.6
   endShockwaveStagger: 0.03
@@ -190,99 +173,25 @@ MonoBehaviour:
   jumpDuration: 1
   jumpBulletCount: 15
   jumpBulletSpeed: 8
-  warningPrefab: {fileID: 3800818024053641637, guid: b11d5bd50af026f4dabe7646d52a90c1, type: 3}
-  warningLengthScale: 10
-  warningThicknessScale: 0.5
-  warningOffsetDistance: 5
   preWarnDuration: 1
   warnLineWidth: 0.28
   warnLineColor: {r: 1, g: 0.0039215684, b: 0.20570949, a: 0.95}
   warnLineMaterial: {fileID: 0}
   keepWarnDuringTransition: 0
   warnTransitionTime: 0.15
-  magicCircleSprite: {fileID: 1347456068492712528, guid: db79eb267db335d42812b1b7f07e1268, type: 3}
-  extraMagicRings:
-  - {fileID: -1714001547620959680, guid: 5f7c1b6958bc6024ab6aacfd0a5ff9a4, type: 3}
-  magicCircleResourcesPath: 
-  magicCircleColor: {r: 0.85, g: 0.7, b: 1, a: 0.9}
-  magicCircleBaseScale: 2.2
-  magicCircleSpinSpeed: 120
-  magicCirclePulseScale: 0.12
-  magicCircleFadeOut: 0.15
-  ringsCounterRotate: 1
-  ringScaleStep: 1.12
-  ringSpinMul: -0.6
-  ringSortingOrderBase: 50
-  magicWhipOnStart: 1
-  magicWhipScaleMul: 1.35
-  magicWhipSpinSpeed: 900
-  magicWhipDuration: 0.22
-  magicWhipEase:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  laserOutline: 1
-  outlineWidthAdd: 0.08
-  outlineColor: {r: 1, g: 0.6, b: 1, a: 0.35}
-  addBulletTrail: 1
-  trailPreset: 1
-  trailGradient:
-    serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  addCircleLight: 1
-  lightRadius: 4
-  lightIntensity: 1.6
-  lightColor: {r: 0.95, g: 0.7, b: 1, a: 1}
-  additiveGlowFallback: 1
-  glowSpriteScaleMul: 1.25
-  glowSpriteAlpha: 0.55
+  fxScreenFlash: 1
+  screenFlashColor: {r: 1, g: 1, b: 1, a: 0.35}
+  screenFlashIn: 0.06
+  screenFlashOut: 0.18
+  fxShockwaveRing: 1
+  shockwaveRadiusFrom: 0.4
+  shockwaveRadiusTo: 2.4
+  shockwaveSeconds: 0.22
+  shockwaveColor: {r: 1, g: 0.9, b: 1, a: 0.85}
+  shockwaveSegments: 48
+  fxLaserAfterimageBurst: 1
+  laserAfterimageCount: 2
+  laserAfterimageFade: 0.18
   useHitStop: 1
   hitStopScale: 0.15
   hitStopDuration: 0.06
@@ -311,23 +220,12 @@ MonoBehaviour:
   mobBlockMask:
     serializedVersion: 2
     m_Bits: 1024
-  useLaserColorCycle: 1
-  cycleColors:
-  - {r: 0.37863874, g: 0, b: 1, a: 1}
-  - {r: 0.20277785, g: 0.025453899, b: 0.49056602, a: 1}
-  - {r: 0.237731, g: 0, b: 0.6415094, a: 1}
-  alphaLevels:
-  - 0.35
-  - 0.7
-  - 1
-  alphaCycleSeconds: 1.2
-  colorStops:
-  - 0
-  - 0.5
-  - 1
   debugForceBulletCircle: 0
+  debugForceLaserPatternNow: 0
   debugSpawnOneOnStart: 0
   verboseSpawnLog: 1
+  forceSpawnIfBlocked: 1
+  deathDestroyDelay: 0
 --- !u!114 &6907334164349342496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,7 +266,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650d0e86f40a25f48993789be0bd1ae0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleSprites: []
+  idleSprites:
+  - {fileID: 3713219614965599903, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 8850812538702202974, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 5846837216380773599, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 8850812538702202974, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 3713219614965599903, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
   moveSprites: []
   attackStartSprites: []
   attackSprites: []
@@ -381,9 +284,26 @@ MonoBehaviour:
   skill1FireballSprites: []
   skill2CircleSprites: []
   skill3DashSprites: []
+  entrySprites:
+  - {fileID: -4200419795541352720, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 5721645191469666262, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 3701378633954350243, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  patternStartSprites:
+  - {fileID: -2960336494165534132, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 3096850651442554691, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 4123603183123714085, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 520556416462525903, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: -580482337852342584, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: -7424985502434106660, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  deathSprites:
+  - {fileID: -7956169229568373306, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 1172661316156776261, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
+  - {fileID: 1682658199989020211, guid: b062dee5bd5dd0c4292a2b8970a2254c, type: 3}
   frameRate: 0.1
-  attackFrameRate: 0.05
+  attackFrameRate: 0.1
   verticalThreshold: 0.5
+  bossPatternIdleMode: 0
+  autoPlayEntry: 0
   currentState: 0
 --- !u!114 &2697985199169733603
 MonoBehaviour:
@@ -473,17 +393,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.05315125, y: -0.06827423}
+  m_Offset: {x: 0.002409231, y: 0.002245754}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.12, y: 5.12}
+    oldSize: {x: 0.18, y: 0.3}
     newSize: {x: 5.12, y: 5.12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.2718852, y: 1.6880755}
+  m_Size: {x: 0.20341349, y: 0.3076095}
   m_EdgeRadius: 0
 --- !u!50 &6281061591181826080
 Rigidbody2D:

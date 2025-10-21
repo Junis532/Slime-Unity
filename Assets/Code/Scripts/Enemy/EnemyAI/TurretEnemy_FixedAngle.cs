@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 
 [RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(EnemyAnimation))]
 public class TurretEnemy_FixedAngle : MonoBehaviour
 {
-    [Header("🎯 스프라이트 / 애니메이션")]
-    public TurretEnemyAnimation turretAnim;
+    [Header("🎯 애니메이션 (EnemyAnimation 사용)")]
+    public EnemyAnimation enemyAnim;
 
     private bool isLive = true;
     private SpriteRenderer spriter;
@@ -18,18 +18,18 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     [Header("첫 발사 딜레이")]
     public float firstFireDelay = 0f;
 
-    [Header("프리-와인드(발사 전 예열 연출)")]
+    [Header("발사 전 예열 연출")]
     public float preWindUp = 0.15f;
 
     [Header("Bullet 설정")]
-    public GameObject bulletPrefab;                 // 기존 Bullet
-    public GameObject secondaryBulletPrefab;        // 속도 바꿀 Bullet
-    public float bulletSpeed = 1.5f;               // 초기 속도
+    public GameObject bulletPrefab;
+    public GameObject secondaryBulletPrefab;
+    public float bulletSpeed = 1.5f;
     public float bulletLifetime = 3f;
 
     [Header("두 번째 Bullet 속도 변경")]
-    public float secondaryDelay = 1f;              // 몇 초 후 속도 변경
-    public float secondarySpeed = 2f;              // 바뀔 속도
+    public float secondaryDelay = 1f;
+    public float secondarySpeed = 2f;
 
     [Header("LineRenderer 설정")]
     public bool showLineRenderer = true;
@@ -49,13 +49,16 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     private bool isPrepping = false;
     private bool isShooting = false;
 
+    // 정면 판정 허용 각도
+    private const float VerticalTolerance = 25f;
+
     void Awake()
     {
         spriter = GetComponent<SpriteRenderer>();
-        if (!turretAnim) turretAnim = GetComponent<TurretEnemyAnimation>();
-        if (!turretAnim) Debug.LogError("TurretEnemyAnimation을 지정하세요.");
+        if (!enemyAnim) enemyAnim = GetComponent<EnemyAnimation>();
+        if (!enemyAnim) Debug.LogError("EnemyAnimation을 지정하세요.");
 
-        // LineRenderer 초기화
+        // LineRenderer
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = showLineRenderer;
@@ -95,8 +98,9 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             lineRenderer.SetPosition(1, (Vector2)transform.position + dir * fireRange);
         }
 
-        if (turretAnim != null && !isPrepping && !isShooting)
-            turretAnim.PlayAnimation(TurretEnemyAnimation.State.Idle, fixedAngle);
+        // 준비/사격 중이 아닐 때만 Idle 유지 (EnemyAnimation이 같은 상태면 무시)
+        if (enemyAnim != null && !isPrepping && !isShooting)
+            enemyAnim.PlayAnimation(EnemyAnimation.State.Idle);
     }
 
     private IEnumerator PhaseScheduleLoop()
@@ -110,15 +114,16 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             double now = Time.timeAsDouble;
 
             if (prepStart > now)
-            {
                 yield return new WaitForSeconds((float)(prepStart - now));
-            }
 
-            // 발사 준비
+            // ===== 발사 준비 =====
             isPrepping = true;
-            TurretEnemyAnimation.State prepareState = GetPrepareState(fixedAngle);
-            if (turretAnim != null)
-                turretAnim.PlayAnimation(prepareState);
+
+            // 각도 기반으로 '정면/측면' 자세를 먼저 설정 → AttackStart가 Front용/Side용 선택될 수 있게 함
+            enemyAnim?.PlayDirectionalMoveAnimation(dir);
+
+            // AttackStart 재생 (EnemyAnimation이 이전 Move 상태를 보고 Front/Side 준비 스프라이트를 고름)
+            enemyAnim?.PlayAnimation(EnemyAnimation.State.AttackStart);
 
             if (spriter != null && preWindUp > 0f)
             {
@@ -131,30 +136,31 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             if (nextFireAt > now)
                 yield return new WaitForSeconds((float)(nextFireAt - now));
 
-            // 발사
+            // ===== 발사 =====
             isPrepping = false;
             isShooting = true;
             Shoot(dir);
 
-            TurretEnemyAnimation.State postState = GetPostState(fixedAngle);
+            // 후딜 애니: 각도에 따라 FrontAttackEnd 또는 AttackEnd 선택
+            bool isFront = IsFrontAngle(fixedAngle);
+            var postState = isFront ? EnemyAnimation.State.FrontAttackEnd : EnemyAnimation.State.AttackEnd;
+
             float postDuration = 0f;
-            if (turretAnim != null)
+            if (enemyAnim != null)
             {
-                turretAnim.PlayAnimation(postState);
-                postDuration = turretAnim.GetNonLoopDuration(postState);
+                enemyAnim.PlayAnimation(postState);
+                postDuration = enemyAnim.GetEstimatedDuration(postState);
             }
 
-            if (spriter != null)
-            {
-                spriter.DOKill();
-                spriter.DOColor(Color.white, 0.1f);
-            }
+            spriter?.DOKill();
+            spriter?.DOColor(Color.white, 0.1f);
 
             if (postDuration > 0f)
                 yield return new WaitForSeconds(postDuration);
 
             isShooting = false;
 
+            // 다음 사이클
             phaseIdx++;
             if (phaseIdx >= firePhases.Length)
             {
@@ -170,8 +176,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     void Shoot(Vector2 dir)
     {
         GameObject bulletToShoot = null;
-
-        // 랜덤으로 선택
         if (bulletPrefab && secondaryBulletPrefab)
             bulletToShoot = (Random.value < 0.5f) ? bulletPrefab : secondaryBulletPrefab;
         else if (bulletPrefab)
@@ -186,7 +190,6 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
         if (rb)
             rb.linearVelocity = dir.normalized * bulletSpeed;
 
-        // 두 번째 Bullet이면 일정 시간 후 속도 변경
         if (bulletToShoot == secondaryBulletPrefab && rb != null && secondaryDelay > 0f)
             StartCoroutine(ChangeBulletSpeed(rb, secondaryDelay, secondarySpeed));
 
@@ -200,24 +203,11 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             rb.linearVelocity = rb.linearVelocity.normalized * newSpeed;
     }
 
-    private TurretEnemyAnimation.State GetPrepareState(float angle)
+    private bool IsFrontAngle(float ang)
     {
-        angle = (angle % 360 + 360) % 360;
-        float verticalTolerance = 25f;
-        if ((angle >= 90f - verticalTolerance && angle <= 90f + verticalTolerance) ||
-            (angle >= 270f - verticalTolerance && angle <= 270f + verticalTolerance))
-            return TurretEnemyAnimation.State.FrontShootPrepare;
-        return TurretEnemyAnimation.State.ShootPrepare;
-    }
-
-    private TurretEnemyAnimation.State GetPostState(float angle)
-    {
-        angle = (angle % 360 + 360) % 360;
-        float verticalTolerance = 25f;
-        if ((angle >= 90f - verticalTolerance && angle <= 90f + verticalTolerance) ||
-            (angle >= 270f - verticalTolerance && angle <= 270f + verticalTolerance))
-            return TurretEnemyAnimation.State.FrontShootPost;
-        return TurretEnemyAnimation.State.ShootPost;
+        ang = (ang % 360f + 360f) % 360f;
+        return Mathf.Abs(ang - 90f) <= VerticalTolerance ||
+               Mathf.Abs(ang - 270f) <= VerticalTolerance;
     }
 
     public void ResetCycle(double delay = 0.0)

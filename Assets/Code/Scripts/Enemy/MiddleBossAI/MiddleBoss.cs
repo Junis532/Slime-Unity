@@ -6,16 +6,16 @@ using UnityEngine.UI;
 using DG.Tweening;
 
 /// <summary>
-/// MiddleBoss (무프리팹 이펙트 + 몹 스폰 관리 + 동일 패턴 연속 방지)
-/// 변경점:
-/// 1) 한 패턴이 끝나면, 이 보스가 스폰한 몬스터(중간보스 본체 제외)는 모두 즉시 처치(Kill)됨
-///    - SpawnMobAt 시 BossSpawnedMob(마커) 컴포넌트를 부착하고 _aliveMobs 리스트로 추적
-///    - SkillFinished()에서 KillAllSpawnedMobs() 호출
-/// 2) 같은 패턴이 연속으로 나오지 않도록 패턴 선택 로직 개선 (마지막 패턴 제외하고 랜덤)
+/// MiddleBoss
+/// - 기존 패턴/경고/레이저/몹 스폰 로직 유지
+/// - ★ EnemyAnimation과 연동:
+///     · 시작 시 Entry(등장) 재생
+///     · 각 패턴: PatternStart → PatternLoop(진행 중) → PatternEnd
+///     · SetDead(): Death 재생 후 파괴(옵션)
 /// </summary>
 public class MiddleBoss : MonoBehaviour
 {
-    // ===== 내부 마커 컴포넌트(이 보스가 소환한 몹) =====
+    // 내부 마커(소환 몹 추적)
     private class BossSpawnedMob : MonoBehaviour
     {
         public MiddleBoss owner;
@@ -26,7 +26,7 @@ public class MiddleBoss : MonoBehaviour
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
 
-    // ────────── 스킬/타이밍 ──────────
+    // 패턴/타이밍
     [Header("패턴 타이밍")]
     public float skillInterval = 4f;
     private float skillTimer = 0f;
@@ -37,30 +37,29 @@ public class MiddleBoss : MonoBehaviour
     public float intensityPerSkill = 0.15f;
     public float intensityMax = 2.0f;
 
-    // 리듬(BPM)
+    // 리듬
     [Header("연출 리듬(BPM)")]
-    public float tempoBPM = 120f; // 120BPM = 0.5초 주기
+    public float tempoBPM = 120f;
     private float BeatPeriod => 60f / Mathf.Max(1f, tempoBPM);
 
-    // ────────── 패턴 온/오프 ──────────
+    // 온/오프
     [Header("패턴 온/오프")]
     public bool enableBulletCircle = true;
     public bool enableLaserPattern = true;
     public bool enableSwordPattern = true;
     public bool enableJumpPattern = false;
 
-    // 마지막/현재 패턴 추적(동일 패턴 연속 방지)
     private enum PatternType { None, BulletCircle, Laser, Sword, Jump }
     private PatternType _lastPattern = PatternType.None;
 
-    // ────────── 경고 표시 ──────────
+    // 경고 플래그
     [Header("경고 표시")]
     public bool warnBulletCircle = false;
     public bool warnLaserPattern = true;
     public bool warnSwordPattern = true;
     public bool warnJumpPattern = false;
 
-    // ────────── 탄막 ──────────
+    // 탄막
     [Header("탄막")]
     public GameObject bulletPrefab;
     public int bulletsPerWave = 24;
@@ -73,7 +72,7 @@ public class MiddleBoss : MonoBehaviour
     [Range(0, 6)] public int gapCount = 2;
     [Range(0f, 1f)] public float gapWidthRatio = 0.15f;
 
-    // ────────── 레이저 ──────────
+    // 레이저
     [Header("레이저")]
     public Collider2D mapCollider;
     public int laserDamage = 100;
@@ -118,7 +117,7 @@ public class MiddleBoss : MonoBehaviour
     public float outlineWidthAdd = 0.08f;
     public Color outlineColor = new Color(1f, 0.6f, 1f, 0.35f);
 
-    // ────────── 검 ──────────
+    // 검
     [Header("검")]
     public float swordRotateSpeed = 360f;
     public float swordStartAngle = 180f;
@@ -128,14 +127,14 @@ public class MiddleBoss : MonoBehaviour
     [Range(0f, 1f)] public float endShockwaveCountScale = 0.6f;
     [Range(0f, 0.08f)] public float endShockwaveStagger = 0.03f;
 
-    // ────────── 점프 ──────────
+    // 점프
     [Header("점프 패턴")]
     public float jumpHeight = 5f;
     public float jumpDuration = 0.5f;
     public int jumpBulletCount = 8;
     public float jumpBulletSpeed = 6f;
 
-    // ────────── 경고 라인 공통 ──────────
+    // 경고 라인
     [Header("경고 라인 공통")]
     public float preWarnDuration = 1.0f;
     public float warnLineWidth = 0.28f;
@@ -144,14 +143,14 @@ public class MiddleBoss : MonoBehaviour
     public bool keepWarnDuringTransition = false;
     public float warnTransitionTime = 0.15f;
 
-    // ────────── 전환 FX(경고→본패턴) — 무프리팹 ──────────
+    // 전환 FX
     [Header("전환 FX(경고→본패턴) - 무프리팹")]
     public bool fxScreenFlash = true;
     public Color screenFlashColor = new Color(1f, 1f, 1f, 0.35f);
     [Range(0.05f, 0.6f)] public float screenFlashIn = 0.06f;
     [Range(0.05f, 0.6f)] public float screenFlashOut = 0.18f;
 
-    public bool fxShockwaveRing = true;     // 라인렌더러 원형
+    public bool fxShockwaveRing = true;
     public float shockwaveRadiusFrom = 0.4f;
     public float shockwaveRadiusTo = 2.4f;
     public float shockwaveSeconds = 0.22f;
@@ -162,11 +161,7 @@ public class MiddleBoss : MonoBehaviour
     [Range(1, 4)] public int laserAfterimageCount = 2;
     [Range(0.02f, 0.5f)] public float laserAfterimageFade = 0.18f;
 
-    // 내부: 플래시 UI
-    private Canvas _fxCanvas;
-    private Image _fxFlashImg;
-
-    // ────────── 감각 강화 ──────────
+    // 감각 강화
     [Header("감각 강화")]
     public bool useHitStop = true;
     [Range(0.01f, 1f)] public float hitStopScale = 0.15f;
@@ -185,7 +180,7 @@ public class MiddleBoss : MonoBehaviour
     public float zoomHold = 0.10f;
     public float zoomOutDur = 0.15f;
 
-    // ────────── 레이저 중 몹 스폰 ──────────
+    // 레이저 중 몹 스폰
     [Header("레이저 중 몹 스폰")]
     public bool spawnMobsDuringLaser = true;
     public bool replaceBulletsWithMobs = false;
@@ -199,14 +194,14 @@ public class MiddleBoss : MonoBehaviour
     public LayerMask mobBlockMask;
     private readonly List<GameObject> _aliveMobs = new();
 
-    // 라인 사이클 내부 캐시
+    // 컬러 사이클 캐시
     private Gradient _cycleGradientLaser;
     private Gradient _cycleGradientOutline;
     private GradientColorKey[] _laserColorKeys = new GradientColorKey[3];
     private GradientAlphaKey[] _alphaKeysShared = new GradientAlphaKey[3];
     private GradientColorKey[] _outlineColorKeys = new GradientColorKey[3];
 
-    // ────────── 디버그 ──────────
+    // 디버그
     [Header("디버그")]
     public bool debugForceBulletCircle = false;
     public bool debugForceLaserPatternNow = false;
@@ -222,9 +217,10 @@ public class MiddleBoss : MonoBehaviour
     private Vector3 camOrigin;
     private Camera cam;
 
-    // ===========================================================
-    //                         Unity
-    // ===========================================================
+    // ★ 추가: 죽음 연출 후 파괴 지연
+    [Header("죽음 파괴 지연(초) - 0이면 자동 계산")]
+    public float deathDestroyDelay = 0f;
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -255,6 +251,12 @@ public class MiddleBoss : MonoBehaviour
         {
             var g = new GameObject($"MobParent_{name}");
             mobParent = g.transform;
+        }
+
+        // ★ 시작 시 등장 애니메이션 (EnemyAnimation에서 Entry가 설정되어 있으면 자동 Idle 복귀)
+        if (enemyAnimation != null && enemyAnimation.GetEstimatedDuration(EnemyAnimation.State.Entry) > 0f)
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Entry);
         }
 
         if (debugSpawnOneOnStart)
@@ -300,12 +302,11 @@ public class MiddleBoss : MonoBehaviour
         }
     }
 
-    // ====== 동일 패턴 연속 방지 로직 ======
+    // ====== 동일 패턴 연속 방지 ======
     private void UseRandomSkill_NoRepeat()
     {
         isSkillPlaying = true;
 
-        // 활성화된 패턴 수집
         var options = new List<PatternType>();
         if (enableBulletCircle) options.Add(PatternType.BulletCircle);
         if (enableLaserPattern) options.Add(PatternType.Laser);
@@ -319,12 +320,11 @@ public class MiddleBoss : MonoBehaviour
             return;
         }
 
-        // 마지막 패턴 제외
         var filtered = options.FindAll(p => p != _lastPattern);
-        if (filtered.Count == 0) filtered = options; // 전부 같은 하나뿐이면 허용
+        if (filtered.Count == 0) filtered = options;
 
         var choice = filtered[UnityEngine.Random.Range(0, filtered.Count)];
-        _lastPattern = choice; // 다음 선택 시 중복 방지
+        _lastPattern = choice;
 
         switch (choice)
         {
@@ -336,7 +336,6 @@ public class MiddleBoss : MonoBehaviour
     }
 
     private void StartSafe(IEnumerator routine) => StartCoroutine(CoSafe(routine));
-
     private IEnumerator CoSafe(IEnumerator routine)
     {
         bool finished = false;
@@ -345,10 +344,7 @@ public class MiddleBoss : MonoBehaviour
             object current;
             try
             {
-                if (!routine.MoveNext())
-                {
-                    finished = true; break;
-                }
+                if (!routine.MoveNext()) { finished = true; break; }
                 current = routine.Current;
             }
             catch (Exception e)
@@ -361,15 +357,12 @@ public class MiddleBoss : MonoBehaviour
         if (!finished)
         {
             ClearAllSkillObjects();
-            // 패턴이 비정상 종료되어도 소환몹 정리
             KillAllSpawnedMobs();
             isSkillPlaying = false;
         }
     }
 
-    // ===========================================================
-    //     라인 컬러/알파 사이클: 초기화 & 적용(머티리얼 알파 포함)
-    // ===========================================================
+    // ===================== 사이클/머티리얼 =====================
     private void InitCycleGradients()
     {
         for (int i = 0; i < 3; i++)
@@ -414,17 +407,14 @@ public class MiddleBoss : MonoBehaviour
     private void UpdateCycleGradientAlpha(float t)
     {
         float a = EvalCyclingAlpha(t);
-        for (int i = 0; i < 3; i++)
-            _alphaKeysShared[i].alpha = a;
-
+        for (int i = 0; i < 3; i++) _alphaKeysShared[i].alpha = a;
         _cycleGradientLaser.SetKeys(_laserColorKeys, _alphaKeysShared);
         _cycleGradientOutline.SetKeys(_outlineColorKeys, _alphaKeysShared);
     }
 
     private void SetMaterialAlpha(LineRenderer lr, float a)
     {
-        var m = lr.material;
-        if (m == null) return;
+        var m = lr.material; if (m == null) return;
         if (m.HasProperty("_Color")) { var c = m.color; c.a = a; m.color = c; }
         if (m.HasProperty("_BaseColor")) { var c2 = m.GetColor("_BaseColor"); c2.a = a; m.SetColor("_BaseColor", c2); }
         if (m.HasProperty("_TintColor")) { var c3 = m.GetColor("_TintColor"); c3.a = a; m.SetColor("_TintColor", c3); }
@@ -441,9 +431,7 @@ public class MiddleBoss : MonoBehaviour
         SetMaterialAlpha(lr, a);
     }
 
-    // ===========================================================
-    //                     경고/유틸(라인 기반)
-    // ===========================================================
+    // ===================== 경고/라인 유틸 =====================
     private static Gradient MakeSolidGradient(Color c)
     {
         var g = new Gradient();
@@ -453,7 +441,6 @@ public class MiddleBoss : MonoBehaviour
         );
         return g;
     }
-
     private void ApplyWarnColor(LineRenderer lr, Color c)
     {
         if (lr.material != null)
@@ -464,7 +451,6 @@ public class MiddleBoss : MonoBehaviour
         lr.colorGradient = MakeSolidGradient(c);
         lr.startColor = lr.endColor = c;
     }
-
     private LineRenderer CreateWarnLine(string name, float widthMul = 1f, int order = 9)
     {
         var go = new GameObject(name);
@@ -480,7 +466,6 @@ public class MiddleBoss : MonoBehaviour
         activeSkillObjects.Add(go);
         return lr;
     }
-
     private LineRenderer CreateRingLR(string name, Vector3 center, float radius, int segments, float width, Color color, int order = 100)
     {
         segments = Mathf.Max(8, segments);
@@ -500,34 +485,28 @@ public class MiddleBoss : MonoBehaviour
             Vector3 p = center + new Vector3(Mathf.Cos(ang), Mathf.Sin(ang), 0f) * radius;
             lr.SetPosition(i, p);
         }
-
         ApplyWarnColor(lr, color);
         activeSkillObjects.Add(go);
         return lr;
     }
-
     private void KillAllWarnLines()
     {
         for (int i = _warnLines.Count - 1; i >= 0; i--)
             if (_warnLines[i]) Destroy(_warnLines[i].gameObject);
         _warnLines.Clear();
     }
-
     private void SetLineVertical(LineRenderer lr, Vector3 center, float halfLen)
     {
         lr.SetPosition(0, center + Vector3.up * halfLen);
         lr.SetPosition(1, center + Vector3.down * halfLen);
     }
-
     private void SetLineByDir(LineRenderer lr, Vector3 start, Vector3 dir, float len)
     {
         lr.SetPosition(0, start);
         lr.SetPosition(1, start + dir.normalized * len);
     }
 
-    // ===========================================================
-    //                        탄환 유틸
-    // ===========================================================
+    // ===================== 탄환/스폰 유틸 =====================
     private GameObject SpawnBullet(Vector2 pos, Vector2 vel)
     {
         if (!bulletPrefab)
@@ -547,13 +526,11 @@ public class MiddleBoss : MonoBehaviour
         return go;
     }
 
-    // ===========================================================
-    //                        전환 FX (무프리팹)
-    // ===========================================================
+    // ===================== 전환 FX =====================
+    private Canvas _fxCanvas; private Image _fxFlashImg;
     private void EnsureFXCanvas()
     {
         if (_fxCanvas != null && _fxFlashImg != null) return;
-
         var canvasGO = new GameObject("FXCanvas");
         _fxCanvas = canvasGO.AddComponent<Canvas>();
         _fxCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -570,28 +547,24 @@ public class MiddleBoss : MonoBehaviour
         _fxFlashImg.rectTransform.offsetMin = Vector2.zero;
         _fxFlashImg.rectTransform.offsetMax = Vector2.zero;
     }
-
     private void DoScreenFlash()
     {
         if (!fxScreenFlash) return;
         EnsureFXCanvas();
-
         _fxFlashImg.DOKill();
         _fxFlashImg.color = new Color(screenFlashColor.r, screenFlashColor.g, screenFlashColor.b, 0f);
         _fxFlashImg.DOFade(screenFlashColor.a, screenFlashIn).SetEase(Ease.OutQuad)
             .OnComplete(() => _fxFlashImg.DOFade(0f, screenFlashOut).SetEase(Ease.InQuad));
     }
-
-    // 라인렌더러로 만든 원형 충격파 (확대 + 페이드)
     private void SpawnShockwaveRingLR(Vector3 worldPos)
     {
         if (!fxShockwaveRing) return;
         var ring = CreateRingLR("ShockwaveRingLR", worldPos, shockwaveRadiusFrom, shockwaveSegments, 0.18f, shockwaveColor, 120);
-        var c = shockwaveColor;
-        ring.startColor = ring.endColor = c;
+        var c = shockwaveColor; ring.startColor = ring.endColor = c;
 
         float t = 0f;
-        DOTween.To(() => t, v => {
+        DOTween.To(() => t, v =>
+        {
             t = v;
             float r = Mathf.Lerp(shockwaveRadiusFrom, shockwaveRadiusTo, t);
             for (int i = 0; i <= shockwaveSegments; i++)
@@ -607,11 +580,9 @@ public class MiddleBoss : MonoBehaviour
         }, 1f, shockwaveSeconds).SetEase(Ease.OutCubic)
           .OnComplete(() => { if (ring) Destroy(ring.gameObject); });
     }
-
     private void BurstLaserAfterimages(LineRenderer src)
     {
         if (!fxLaserAfterimageBurst || src == null) return;
-
         for (int i = 0; i < laserAfterimageCount; i++)
         {
             var g = new GameObject($"LaserGhost_{i}");
@@ -632,7 +603,8 @@ public class MiddleBoss : MonoBehaviour
             lr.startColor = sc; lr.endColor = ec;
             SetMaterialAlpha(lr, a0);
 
-            DOTween.To(() => a0, a => {
+            DOTween.To(() => a0, a =>
+            {
                 var cc0 = lr.startColor; cc0.a = a; lr.startColor = cc0;
                 var cc1 = lr.endColor; cc1.a = a; lr.endColor = cc1;
                 SetMaterialAlpha(lr, a);
@@ -640,32 +612,26 @@ public class MiddleBoss : MonoBehaviour
               .OnComplete(() => Destroy(g));
         }
     }
-
     private void TriggerPatternClimaxFX(Vector3 pos, params LineRenderer[] mainLines)
     {
         DoScreenFlash();
         DoHitStop();
         ShakeCamera();
         SpawnShockwaveRingLR(pos);
-        if (mainLines != null)
-            foreach (var lr in mainLines) BurstLaserAfterimages(lr);
+        if (mainLines != null) foreach (var lr in mainLines) BurstLaserAfterimages(lr);
     }
 
-    // ===========================================================
-    //                 감각 유틸(히트/셰이크/줌)
-    // ===========================================================
+    // ===================== 감각 유틸 =====================
     private void DoHitStop()
     {
         if (!useHitStop) return;
         DOTween.Kill("HitStopTS");
-        DOTween.To(() => Time.timeScale, v => Time.timeScale = v, 0.0001f + hitStopScale, 0.0f)
-               .SetId("HitStopTS").SetUpdate(true);
+        DOTween.To(() => Time.timeScale, v => Time.timeScale = v, 0.0001f + hitStopScale, 0.0f).SetId("HitStopTS").SetUpdate(true);
         DOVirtual.DelayedCall(hitStopDuration, () =>
         {
             DOTween.To(() => Time.timeScale, v => Time.timeScale = v, 1f, 0.02f).SetUpdate(true);
         }).SetUpdate(true);
     }
-
     private void ShakeCamera()
     {
         if (!useCameraShake || camT == null) return;
@@ -674,7 +640,6 @@ public class MiddleBoss : MonoBehaviour
         camT.DOShakePosition(shakeDuration, shakeAmplitude, 12, 90f, false, true)
             .OnComplete(() => camT.position = camOrigin);
     }
-
     private IEnumerator CamZoomPunch()
     {
         if (!zoomOnClimax || cam == null) yield break;
@@ -685,7 +650,6 @@ public class MiddleBoss : MonoBehaviour
         yield return DOTween.To(() => cam.orthographicSize, v => cam.orthographicSize = v, orig, zoomOutDur)
                             .SetEase(Ease.InQuad).WaitForCompletion();
     }
-
     private void FlashSprite()
     {
         if (!flashSpriteOnFire || spriter == null) return;
@@ -695,11 +659,12 @@ public class MiddleBoss : MonoBehaviour
             spriter.DOColor(baseC, flashDuration));
     }
 
-    // ===========================================================
-    //                 스킬 1: 회전 탄막
-    // ===========================================================
+    // ===================== 스킬 1: 회전 탄막 =====================
     private IEnumerator SkillBulletCircle()
     {
+        // ★ 패턴 시작 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternStart);
+
         int count = Mathf.Max(1, bulletsPerWave);
         float step = 360f / count;
 
@@ -709,7 +674,7 @@ public class MiddleBoss : MonoBehaviour
         float spinDir = Mathf.Sign(UnityEngine.Random.Range(-1f, 1f) + 0.01f);
         float tElapsed = 0f;
 
-        // 경고 라인 (선택)
+        // 경고
         float warnOffset = 0f;
         if (warnBulletCircle)
         {
@@ -733,15 +698,14 @@ public class MiddleBoss : MonoBehaviour
                 warnTime += Time.deltaTime;
                 yield return null;
             }
-
             if (!keepWarnDuringTransition) KillAllWarnLines();
             else StartCoroutine(_CoDelayedKillWarnLines(Mathf.Max(0f, warnTransitionTime)));
         }
 
-        // 전환 FX
+        // 본 패턴 돌입 FX + ★ 패턴 루프 애니
         TriggerPatternClimaxFX(transform.position);
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternLoop);
 
-        // 본 패턴
         float spinOffset = warnOffset;
         float gapPhase = UnityEngine.Random.Range(0f, 360f);
 
@@ -790,6 +754,9 @@ public class MiddleBoss : MonoBehaviour
             yield return new WaitForSeconds(fireIntervalLocal);
         }
 
+        // ★ 패턴 종료 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
+
         yield return StartCoroutine(SkillFinished());
     }
 
@@ -799,14 +766,17 @@ public class MiddleBoss : MonoBehaviour
         KillAllWarnLines();
     }
 
-    // ===========================================================
-    //             스킬 2: 규칙적 교차 스윕 레이저 (2줄)
-    // ===========================================================
+    // ===================== 스킬 2: 교차 스윕 레이저 =====================
     private IEnumerator SkillLaserPattern()
     {
+        // ★ 패턴 시작 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternStart);
+
         if (mapCollider == null)
         {
             Debug.LogWarning("mapCollider 미지정!");
+            // 종료 애니로 안전하게 마무리
+            enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
             yield return StartCoroutine(SkillFinished());
             yield break;
         }
@@ -871,7 +841,7 @@ public class MiddleBoss : MonoBehaviour
             else StartCoroutine(_CoDelayedKillWarnLines(Mathf.Max(0f, warnTransitionTime)));
         }
 
-        // 본 레이저
+        // 본 레이저 + FX + ★ 패턴 루프 애니
         var leftLaser = new GameObject("LeftLaser");
         var rightLaser = new GameObject("RightLaser");
         var leftLR = leftLaser.AddComponent<LineRenderer>();
@@ -898,7 +868,6 @@ public class MiddleBoss : MonoBehaviour
             activeSkillObjects.Add(rightOutline.gameObject);
         }
 
-        // 컬러/알파 초기 적용 + 전환 FX
         ApplyCycleGradientTo(leftLR, false, 0f);
         ApplyCycleGradientTo(rightLR, false, 0f);
         if (laserOutline)
@@ -908,6 +877,9 @@ public class MiddleBoss : MonoBehaviour
         }
         TriggerPatternClimaxFX(transform.position, leftLR, rightLR);
         StartCoroutine(CamZoomPunch());
+
+        // ★ 루프 진입
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternLoop);
 
         float phase = 0f;
         float elapsed = 0f;
@@ -924,8 +896,7 @@ public class MiddleBoss : MonoBehaviour
             bulletTimer += dt;
             mobTimer += dt;
 
-            phase += dt / period;
-            float wv = Waveform01(phase, waveform);
+            float wv = Waveform01(phase += dt / period, waveform);
             if (edgeHoldRatio > 0f) wv = ApplyEdgeHold(wv, edgeHoldRatio);
 
             float inward = Mathf.Lerp(-amp, amp, wv);
@@ -951,7 +922,6 @@ public class MiddleBoss : MonoBehaviour
                 SetLineVertical(rightOutline, curR, b.extents.y + Mathf.Max(0f, laserOverrun));
             }
 
-            // 폭 펄스
             if (laserWidthPulse)
             {
                 float beat = Mathf.PingPong(elapsed, BeatPeriod) / BeatPeriod;
@@ -965,7 +935,6 @@ public class MiddleBoss : MonoBehaviour
                 }
             }
 
-            // 텍스처 스크롤(머티리얼 있을 때만)
             if (laserMaterial != null)
             {
                 var mat = leftLR.material;
@@ -983,7 +952,6 @@ public class MiddleBoss : MonoBehaviour
                 }
             }
 
-            // 라인 3색/알파 사이클
             if (useLaserColorCycle)
             {
                 ApplyCycleGradientTo(leftLR, false, elapsed);
@@ -998,7 +966,6 @@ public class MiddleBoss : MonoBehaviour
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
 
-            // 보조 탄막 또는 몹 스폰
             if (!replaceBulletsWithMobs)
             {
                 float bulletGate = fireInterval * Mathf.Max(0.6f, 1f - 0.2f * intensity);
@@ -1075,17 +1042,23 @@ public class MiddleBoss : MonoBehaviour
             if (rightOutline) Destroy(rightOutline.gameObject);
         }
         KillAllWarnLines();
+
+        // ★ 패턴 종료 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
+
         yield return StartCoroutine(SkillFinished());
     }
 
-    // ===========================================================
-    //           스킬 3: 검(양방향 회전) — 잔상 + 완화 방사탄
-    // ===========================================================
+    // ===================== 스킬 3: 검 회전 =====================
     private IEnumerator SkillSwordPattern()
     {
+        // ★ 패턴 시작 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternStart);
+
         if (mapCollider == null)
         {
             Debug.LogWarning("mapCollider 미지정!");
+            enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
             yield return StartCoroutine(SkillFinished());
             yield break;
         }
@@ -1118,17 +1091,19 @@ public class MiddleBoss : MonoBehaviour
             else StartCoroutine(_CoDelayedKillWarnLines(Mathf.Max(0f, warnTransitionTime)));
         }
 
+        // 본 패턴 + FX + ★ 루프 진입
         var la = new GameObject("RotLaserA").AddComponent<LineRenderer>();
         var lb = new GameObject("RotLaserB").AddComponent<LineRenderer>();
         SetupLaser(la, Color.red); SetupLaser(lb, Color.red);
         la.sortingLayerName = lb.sortingLayerName = "Foreground";
         la.sortingOrder = lb.sortingOrder = 10;
 
-        // 초기 그라디언트 + 전환 FX
         ApplyCycleGradientTo(la, false, 0f);
         ApplyCycleGradientTo(lb, false, 0f);
         TriggerPatternClimaxFX(transform.position, la, lb);
         StartCoroutine(CamZoomPunch());
+
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternLoop);
 
         float time = 0f;
         float swingDur = 360f / Mathf.Max(1f, swordRotateSpeed * (1f + 0.2f * intensity));
@@ -1168,15 +1143,24 @@ public class MiddleBoss : MonoBehaviour
             FlashSprite(); DoHitStop(); ShakeCamera();
         }
 
+        // ★ 패턴 종료 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
+
         yield return StartCoroutine(SkillFinished());
     }
 
-    // ===========================================================
-    //                 스킬 4: 점프 후 원형탄
-    // ===========================================================
+    // ===================== 스킬 4: 점프 후 원형탄 =====================
     private IEnumerator SkillJumpAndShoot()
     {
-        if (!enableJumpPattern) { yield return StartCoroutine(SkillFinished()); yield break; }
+        // ★ 패턴 시작 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternStart);
+
+        if (!enableJumpPattern)
+        {
+            enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
+            yield return StartCoroutine(SkillFinished());
+            yield break;
+        }
 
         Vector3 s = transform.position;
         Vector3 p = s + Vector3.up * jumpHeight;
@@ -1208,8 +1192,9 @@ public class MiddleBoss : MonoBehaviour
             else StartCoroutine(_CoDelayedKillWarnLines(Mathf.Max(0f, warnTransitionTime)));
         }
 
-        // 전환 FX
+        // 본 패턴 진입 FX + ★ 루프 애니
         TriggerPatternClimaxFX(transform.position);
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternLoop);
 
         yield return transform.DOMove(p, jumpDuration).SetEase(Ease.OutQuad).WaitForCompletion();
         yield return new WaitForSeconds(0.05f);
@@ -1233,12 +1218,13 @@ public class MiddleBoss : MonoBehaviour
             Debug.LogWarning("[MiddleBoss] bulletPrefab 없음 → 점프 후 탄 발사 스킵");
         }
 
+        // ★ 패턴 종료 애니
+        enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
+
         yield return StartCoroutine(SkillFinished());
     }
 
-    // ===========================================================
-    //               파형/레이저 대미지 체크/레이저 셋업
-    // ===========================================================
+    // ===================== 파형/히트/레이저 셋업 =====================
     private float Waveform01(float t, SweepWaveform form)
     {
         float u = t - Mathf.Floor(t);
@@ -1246,7 +1232,6 @@ public class MiddleBoss : MonoBehaviour
             ? 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * u)
             : 1f - Mathf.Abs(1f - 2f * u);
     }
-
     private float ApplyEdgeHold(float wv, float edge)
     {
         float hold = Mathf.Clamp(edge, 0f, 0.45f);
@@ -1257,13 +1242,11 @@ public class MiddleBoss : MonoBehaviour
         float mid = (wv - hold) / range;
         return mid * mid * (3f - 2f * mid);
     }
-
     private void EnsureTransparentSpriteMaterial(LineRenderer lr)
     {
         if (lr.material == null || lr.material.shader == null)
         {
-            lr.material = new Material(Shader.Find("Sprites/Default"));
-            return;
+            lr.material = new Material(Shader.Find("Sprites/Default")); return;
         }
         string sn = lr.material.shader.name;
         if (!sn.Contains("Sprites/Default") &&
@@ -1273,7 +1256,6 @@ public class MiddleBoss : MonoBehaviour
             lr.material = new Material(Shader.Find("Sprites/Default"));
         }
     }
-
     private void SetupLaser(LineRenderer lr, Color c)
     {
         lr.positionCount = 2;
@@ -1284,7 +1266,6 @@ public class MiddleBoss : MonoBehaviour
         EnsureTransparentSpriteMaterial(lr);
         if (useLaserColorCycle) lr.colorGradient = _cycleGradientLaser;
     }
-
     private void CheckLaserHit(LineRenderer lr)
     {
         var hits = Physics2D.LinecastAll(lr.GetPosition(0), lr.GetPosition(1), LayerMask.GetMask("Player"));
@@ -1292,7 +1273,6 @@ public class MiddleBoss : MonoBehaviour
             if (h.collider && h.collider.CompareTag("Player"))
                 GameManager.Instance?.playerDamaged?.TakeDamage(laserDamage, transform.position);
     }
-
     private void CheckLaserDamage(Vector3 start, Vector3 dir, float dist)
     {
         var h = Physics2D.Raycast(start, dir, dist, LayerMask.GetMask("Player"));
@@ -1300,15 +1280,12 @@ public class MiddleBoss : MonoBehaviour
             GameManager.Instance?.playerDamaged?.TakeDamage(laserDamage, transform.position);
     }
 
-    // ===========================================================
-    //                   몹 스폰 유틸 (+ 패턴 종료시 일괄 처치)
-    // ===========================================================
+    // ===================== 몹 스폰/정리 =====================
     private void TrimDeadMobs()
     {
         for (int i = _aliveMobs.Count - 1; i >= 0; i--)
             if (_aliveMobs[i] == null) _aliveMobs.RemoveAt(i);
     }
-
     private bool TryGetSpawnPoint(Bounds b, out Vector3 pos, int maxTries = 10)
     {
         Transform playerT = null;
@@ -1351,7 +1328,6 @@ public class MiddleBoss : MonoBehaviour
             return true;
         }
 
-        // 폴백
         Vector3 fallback = new Vector3(
             Mathf.Clamp(b.center.x, b.min.x + mobSpawnMargin, b.max.x - mobSpawnMargin),
             Mathf.Clamp(b.center.y, b.min.y + mobSpawnMargin, b.max.y - mobSpawnMargin),
@@ -1360,15 +1336,12 @@ public class MiddleBoss : MonoBehaviour
         if (forceSpawnIfBlocked)
         {
             if (verboseSpawnLog) Debug.LogWarning("[MiddleBoss] 모든 체크 실패 → 강제 스폰");
-            pos = fallback;
-            return true;
+            pos = fallback; return true;
         }
 
         if (verboseSpawnLog) Debug.LogWarning("[MiddleBoss] 스폰 실패");
-        pos = Vector3.zero;
-        return false;
+        pos = Vector3.zero; return false;
     }
-
     private GameObject SpawnMobAt(Vector3 pos)
     {
         if (mobPrefabs == null || mobPrefabs.Count == 0)
@@ -1387,7 +1360,6 @@ public class MiddleBoss : MonoBehaviour
         if (!go) return null;
         if (!go.activeSelf) go.SetActive(true);
 
-        // 소환 마커 부착(이 보스가 소환한 개체 식별용)
         var marker = go.GetComponent<BossSpawnedMob>();
         if (!marker) marker = go.AddComponent<BossSpawnedMob>();
         marker.owner = this;
@@ -1398,12 +1370,6 @@ public class MiddleBoss : MonoBehaviour
         if (verboseSpawnLog) Debug.Log($"[MiddleBoss] 몹 스폰: {go.name} @ {pos} (총 {_aliveMobs.Count})");
         return go;
     }
-
-    /// <summary>
-    /// 현재 패턴이 끝날 때, 이 보스가 소환했던 몹을 전부 처치(파괴)한다.
-    /// - 중간보스 본체(this)는 영향 없음
-    /// - 리스트 정리까지 수행
-    /// </summary>
     private void KillAllSpawnedMobs()
     {
         for (int i = _aliveMobs.Count - 1; i >= 0; i--)
@@ -1414,30 +1380,19 @@ public class MiddleBoss : MonoBehaviour
             var marker = go.GetComponent<BossSpawnedMob>();
             if (marker != null && marker.owner == this)
             {
-                // 체력이 있으면 데미지로 처리 가능(여기선 즉시 파괴)
                 Destroy(go);
             }
             _aliveMobs.RemoveAt(i);
         }
     }
 
-    // ===========================================================
-    //                   종료/정리 + 인텐시티
-    // ===========================================================
+    // ===================== 종료/정리/인텐시티 =====================
     private IEnumerator SkillFinished()
     {
-        // 패턴 종료 시: 경고 라인 제거
         KillAllWarnLines();
-
-        // (요청사항) 패턴 종료 시: 이 보스가 소환한 몹 전부 처치
         KillAllSpawnedMobs();
-
-        // 인텐시티 증가
         intensity = Mathf.Min(intensityMax, intensity + intensityPerSkill);
-
-        // 약간의 텀
         yield return new WaitForSeconds(1f);
-
         isSkillPlaying = false;
     }
 
@@ -1451,11 +1406,40 @@ public class MiddleBoss : MonoBehaviour
 
     public void SetDead()
     {
+        if (!isLive) return;
         isLive = false;
+
+        // 스킬/경고 정리
         ClearAllSkillObjects();
-        // 보스가 죽을 때도 소환몹 정리
         KillAllSpawnedMobs();
+
+        // ★ 죽음 애니메이션
+        if (enemyAnimation != null && enemyAnimation.GetEstimatedDuration(EnemyAnimation.State.Death) > 0f)
+        {
+            StartCoroutine(CoDieWithAnim());
+        }
+        else
+        {
+            // 죽음 스프라이트 없으면 즉시 파괴
+            if (mobParent) Destroy(mobParent.gameObject);
+            Destroy(gameObject);
+        }
+    }
+
+    private IEnumerator CoDieWithAnim()
+    {
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Death);
+
+        float wait = deathDestroyDelay;
+        if (wait <= 0f)
+        {
+            // 애니 길이 + 여유 0.1초
+            wait = enemyAnimation.GetEstimatedDuration(EnemyAnimation.State.Death) + 0.1f;
+        }
+        yield return new WaitForSeconds(wait);
+
         if (mobParent) Destroy(mobParent.gameObject);
+        Destroy(gameObject);
     }
 
     void OnDisable()
