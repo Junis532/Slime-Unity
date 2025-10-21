@@ -122,6 +122,11 @@ MonoBehaviour:
   bulletsPerWave: 10
   bulletAngle: 15
   bulletSpeed: 7
+  bulletFireInterval: 0.35
+  bulletPatternDuration: 6
+  useGaps: 0
+  bulletSpeedScale: 1
+  spinAdd: 0.15
   gapCount: 2
   gapWidthRatio: 0.15
   spinCurve:
@@ -191,7 +196,7 @@ MonoBehaviour:
   warningOffsetDistance: 5
   preWarnDuration: 1
   warnLineWidth: 0.28
-  warnLineColor: {r: 0.5498401, g: 0.0047169924, b: 1, a: 0.95}
+  warnLineColor: {r: 1, g: 0.0039215684, b: 0.20570949, a: 0.95}
   warnLineMaterial: {fileID: 0}
   keepWarnDuringTransition: 0
   warnTransitionTime: 0.15
@@ -240,9 +245,7 @@ MonoBehaviour:
   outlineWidthAdd: 0.08
   outlineColor: {r: 1, g: 0.6, b: 1, a: 0.35}
   addBulletTrail: 1
-  trailTime: 0.45
-  trailStartWidth: 0.12
-  trailEndWidth: 0
+  trailPreset: 1
   trailGradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
@@ -294,7 +297,37 @@ MonoBehaviour:
   zoomInDur: 0.12
   zoomHold: 0.1
   zoomOutDur: 0.15
+  spawnMobsDuringLaser: 1
+  replaceBulletsWithMobs: 0
+  mobPrefabs:
+  - {fileID: 4157940147317243271, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+  - {fileID: 4157940147317243271, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+  mobSpawnInterval: 2
+  mobSpawnCountRange: {x: 1, y: 2}
+  mobSpawnMargin: 0.6
+  mobMinDistanceFromPlayer: 2.5
+  mobMaxAlive: 6
+  mobParent: {fileID: 0}
+  mobBlockMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  useLaserColorCycle: 1
+  cycleColors:
+  - {r: 0.37863874, g: 0, b: 1, a: 1}
+  - {r: 0.20277785, g: 0.025453899, b: 0.49056602, a: 1}
+  - {r: 0.237731, g: 0, b: 0.6415094, a: 1}
+  alphaLevels:
+  - 0.35
+  - 0.7
+  - 1
+  alphaCycleSeconds: 1.2
+  colorStops:
+  - 0
+  - 0.5
+  - 1
   debugForceBulletCircle: 0
+  debugSpawnOneOnStart: 0
+  verboseSpawnLog: 1
 --- !u!114 &6907334164349342496
 MonoBehaviour:
   m_ObjectHideFlags: 0
