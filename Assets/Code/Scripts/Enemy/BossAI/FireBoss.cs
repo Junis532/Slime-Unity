@@ -152,6 +152,8 @@ public class FireBoss : EnemyBase
             if (activeSkill1Object != null)
                 activeSkill1Object.transform.position = transform.position + Vector3.up * 1f;
 
+            enemyAnimation?.PlayAnimation(BossAnimation.State.Skill1Fireball);
+
             yield return StartCoroutine(FireballWarningAndCircle(origin, fireballCount360));
             yield return StartCoroutine(FireballWarningToPlayer(origin));
             yield return new WaitForSeconds(fireballRepeatInterval);
