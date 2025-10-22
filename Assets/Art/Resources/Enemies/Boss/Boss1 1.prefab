@@ -82,7 +82,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 30
+  m_SortingOrder: 100
   m_Sprite: {fileID: -2899147822462437439, guid: f70506273100ed148b0686aab3d4d39f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -353,7 +353,7 @@ MonoBehaviour:
   skill3SlashSprites: []
   idleFrameTime: 0.14
   moveFrameTime: 0.1
-  skill1FrameTime: 0.1
+  skill1FrameTime: 0.07
   skill2FrameTime: 0.12
   skill3DashStartFrameTime: 0.2
   skill3DashFrameTime: 0.14
