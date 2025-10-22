@@ -123,57 +123,85 @@ public class FireBoss : EnemyBase
 
         Vector2 origin = transform.position;
 
-        // 3회 반복
-        for (int i = 0; i < 3; i++)
+        // 반복마다 발사 개수 지정
+        int[] shotsPerWave = { 3, 4, 5 };
+
+        for (int i = 0; i < shotsPerWave.Length; i++)
         {
-            yield return StartCoroutine(FireballWarningAndBurstFan(origin));
-            yield return new WaitForSeconds(0.4f); // 각 발사 사이 텀 (조절 가능)
+            yield return StartCoroutine(FireballWarningAndBurstFan(origin, shotsPerWave[i]));
+            yield return new WaitForSeconds(0.4f); // 각 발사 사이 텀
         }
 
         yield return StartCoroutine(SkillEndDelay());
     }
 
-
-    private IEnumerator FireballWarningAndBurstFan(Vector2 origin)
+    // 발사 개수를 인자로 받도록 수정
+    private IEnumerator FireballWarningAndBurstFan(Vector2 origin, int shotCount)
     {
         GameObject player = playerTransform != null ? playerTransform.gameObject : GameObject.FindWithTag("Player");
         if (player == null) yield break;
 
         Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;
-        Vector2 warnPos = origin + directionToPlayer * fireballSpawnRadius;
 
-        GameObject warning = null;
-        if (fireballWarningPrefab != null)
+        // 부채꼴 범위: 예를 들어 총 ±30도
+        float totalSpread = 90f;
+        float angleStep = shotCount > 1 ? totalSpread / (shotCount - 1) : 0f;
+        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - totalSpread / 2f;
+
+        // 1. 경고 표시
+        List<GameObject> warnings = new List<GameObject>();
+        for (int i = 0; i < shotCount; i++)
         {
-            warning = Instantiate(fireballWarningPrefab, warnPos, Quaternion.identity);
-            activeSkillObjects.Add(warning);
+            float currentAngle = baseAngle + i * angleStep;
+            Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
+            Vector2 warnPos = origin + dir * fireballSpawnRadius;
+
+            if (fireballWarningPrefab != null)
+            {
+                GameObject warning = Instantiate(fireballWarningPrefab, warnPos, Quaternion.Euler(0f, 0f, currentAngle));
+                warnings.Add(warning);
+                activeSkillObjects.Add(warning);
+            }
         }
 
+        // 2. 경고 지속 시간
         float elapsed = 0f;
         while (elapsed < warningDuration)
         {
-            if (warning == null) break;
             directionToPlayer = (player.transform.position - transform.position).normalized;
-            warnPos = (Vector2)transform.position + directionToPlayer * fireballSpawnRadius;
-            warning.transform.position = warnPos;
+            baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - totalSpread / 2f;
 
-            float angleDegrees = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
-            warning.transform.rotation = Quaternion.Euler(0f, 0f, angleDegrees);
+            for (int i = 0; i < warnings.Count; i++)
+            {
+                if (warnings[i] == null) continue;
+                float currentAngle = baseAngle + i * angleStep;
+                Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
+                warnings[i].transform.position = (Vector2)origin + dir * fireballSpawnRadius;
+                warnings[i].transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+            }
+
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        if (warning != null) Destroy(warning);
-
-        // 중심 + 좌우 30도 방향으로 3개 발사
-        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - 90f;
-        float[] fanAngles = { baseAngle, baseAngle - 30f, baseAngle + 30f };
-
-        foreach (float angle in fanAngles)
+        // 3. 경고 제거
+        foreach (var w in warnings)
         {
-            FireInDirection(origin, angle);
+            if (w != null)
+            {
+                activeSkillObjects.Remove(w);
+                Destroy(w);
+            }
+        }
+
+        // 4. 발사
+        for (int i = 0; i < shotCount; i++)
+        {
+            float launchAngle = baseAngle + i * angleStep - 90f; // FireInDirection 로직에 맞춤
+            FireInDirection(origin, launchAngle);
         }
     }
+
 
     private void FireInDirection(Vector2 origin, float angle)
     {
