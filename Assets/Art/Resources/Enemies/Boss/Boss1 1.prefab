@@ -110,6 +110,7 @@ MonoBehaviour:
   originalSpeed: 3.4
   spawnDelay: 0.4
   skillInterval: 0.7
+  fireball360Prefab: {fileID: 6833211366613324076, guid: 594ab79a2ff755c4c8abd08cad7af3d1, type: 3}
   fireballPrefab: {fileID: 6833211366613324076, guid: 3f7eaf34515a14f47bb00382cd955534, type: 3}
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: d642b5a613b185e439d3564a0d350e2b, type: 3}
   fireballCount360: 15
@@ -139,7 +140,7 @@ MonoBehaviour:
   - 1
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 1
-  warningCircleDuration: 0.5
+  warningCircleDuration: 0.8
   damageCircleDuration: 0.01
 --- !u!195 &9035533090209629525
 NavMeshAgent:

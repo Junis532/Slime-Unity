@@ -20,6 +20,9 @@ public class FireBoss : EnemyBase
     private bool isSkillPlaying = false;
     private int currentSkillIndex;
 
+    [Header("파이어볼 원형 탄막")]
+    public GameObject fireball360Prefab; // 기존 skill1Prefab과 구분
+
     [Header("파이어볼 360 & 타겟 발사 설정")]
     public GameObject fireballPrefab;
     public GameObject fireballWarningPrefab;
@@ -30,6 +33,7 @@ public class FireBoss : EnemyBase
     private int bossHitCount = 0;
     private bool playerHit = false;
     private Coroutine fireballCoroutine; // 🔹 스킬 1 코루틴 참조
+
 
     [Header("스킬 1 오브젝트")]
     public GameObject skill1Prefab; // y+1에 생성할 프리팹
@@ -234,12 +238,21 @@ public class FireBoss : EnemyBase
             }
         }
 
+        // 🔹 여기서 원형 탄막 발사
         for (int i = 0; i < count; i++)
         {
             float angle = i * angleStep - 90f;
-            FireInDirection(origin, angle);
+
+            if (fireball360Prefab != null)
+            {
+                GameObject fireball = Instantiate(fireball360Prefab, origin, Quaternion.Euler(0f, 0f, angle));
+                Vector2 direction = new Vector2(Mathf.Cos((angle + 90f) * Mathf.Deg2Rad), Mathf.Sin((angle + 90f) * Mathf.Deg2Rad));
+                fireball.GetComponent<BossFireballProjectile>()?.Init(direction);
+                activeSkillObjects.Add(fireball);
+            }
         }
     }
+
 
     private void FireInDirection(Vector2 origin, float angle)
     {
@@ -453,7 +466,9 @@ public class FireBoss : EnemyBase
                 SpriteRenderer sr = hitChild.GetComponent<SpriteRenderer>();
                 if (sr != null)
                 {
-                    sr.DOColor(Color.cyan, 0.5f); // 0.5초 동안 하늘색으로 변경
+                    Sequence seq = DOTween.Sequence();
+                    seq.Append(sr.DOColor(Color.cyan, 0.3f)); // 0.3초 동안 하늘색
+                    seq.Join(hitChild.DOScale(0.5f, 0.15f).SetLoops(2, LoopType.Yoyo)); // 커졌다가 원래 크기로
                 }
             }
         }
