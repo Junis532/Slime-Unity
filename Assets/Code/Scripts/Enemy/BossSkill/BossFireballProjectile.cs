@@ -97,14 +97,23 @@ public class BossFireballProjectile : MonoBehaviour
 
             int damage = GameManager.Instance.boss1Stats.attack;
 
-            // 넉백 방향 계산을 위해 현재 보스의 위치를 '적 위치'로 전달합니다.
+            // 넉백 방향 계산을 위해 현재 보스의 위치를 '적 위치'로 전달
             Vector3 enemyPosition = transform.position;
 
-            // 수정된 PlayerDamaged.TakeDamage(데미지, 적 위치) 형식으로 호출
-            // 기존의 collision과 contactPoint 인수는 제거됩니다.
+            // 플레이어 데미지 처리
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
+
+            // 🔥 FireBoss에 플레이어 히트 알리기
+            FireBoss boss = Object.FindFirstObjectByType<FireBoss>();
+            if (boss != null)
+            {
+                boss.OnPlayerHit();
+                Debug.Log("플레이어 맞아서 스킬 종료");
+            }
+
+            // 화염구 제거
+            Destroy(gameObject);
         }
-        // *참고: 벽에 닿았을 때 파괴하려면 벽에 соответству하는 태그(예: "Wall")를 추가하여
-        // 여기에 검사 로직을 추가해야 합니다.
     }
+
 }

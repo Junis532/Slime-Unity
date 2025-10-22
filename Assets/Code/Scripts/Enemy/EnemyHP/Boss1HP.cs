@@ -31,6 +31,9 @@ public class Boss1HP : MonoBehaviour
     private float criticalChance;
     private bool isDead = false;
 
+    private int playerHitCount = 0; // 플레이어 맞은 횟수
+
+
     // 💡 HP바가 한 번만 생성되었는지 체크
     private static bool hpBarCreated = false;
 
@@ -131,6 +134,14 @@ public class Boss1HP : MonoBehaviour
             AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
             ShowDamageText(damage);
         }
+
+        // FireBoss 스킬 강제 종료
+        FireBoss fireBoss = GetComponent<FireBoss>();
+        if (fireBoss != null)
+        {
+            fireBoss.OnBossTakeDamage(); // 이미 FireBoss 스크립트에 구현되어 있는 강제 종료 로직 호출
+        }
+
 
         if (currentHP <= 0)
             Die();

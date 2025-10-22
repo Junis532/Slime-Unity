@@ -2,16 +2,16 @@
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(BossAnimation))] // BossAnimation 사용
+[RequireComponent(typeof(BossAnimation))]
 public class FireBoss : EnemyBase
 {
     private bool isLive = true;
     private SpriteRenderer spriter;
     private BossAnimation enemyAnimation;
     private NavMeshAgent agent;
-
     private Transform playerTransform;
 
     [Header("패턴 타이밍")]
@@ -20,12 +20,20 @@ public class FireBoss : EnemyBase
     private bool isSkillPlaying = false;
     private int currentSkillIndex;
 
-    [Header("파이어볼")]
+    [Header("파이어볼 360 & 타겟 발사 설정")]
     public GameObject fireballPrefab;
     public GameObject fireballWarningPrefab;
-    public int numberOfFireballs = 36;
+    public int fireballCount360 = 12;
     public float fireballSpawnRadius = 1.5f;
     public float warningDuration = 1f;
+    public float fireballRepeatInterval = 1.5f;
+    private int bossHitCount = 0;
+    private bool playerHit = false;
+    private Coroutine fireballCoroutine; // 🔹 스킬 1 코루틴 참조
+
+    [Header("스킬 1 오브젝트")]
+    public GameObject skill1Prefab; // y+1에 생성할 프리팹
+    private GameObject activeSkill1Object; // 현재 생성된 오브젝트 참조
 
     [Header("검 스킬")]
     public GameObject swordPrefab;
@@ -108,78 +116,115 @@ public class FireBoss : EnemyBase
 
         switch (currentSkillIndex)
         {
-            case 0: StartCoroutine(FireballSkill()); break;
-            case 1: StartCoroutine(WarningCircleSkill()); break;
-            case 2: StartCoroutine(DoubleSwordSkill()); break;
+            case 0:
+                fireballCoroutine = StartCoroutine(FireballSkill());
+                break;
+            case 1:
+                StartCoroutine(WarningCircleSkill());
+                break;
+            case 2:
+                StartCoroutine(DoubleSwordSkill());
+                break;
         }
     }
 
-    // ────────── 스킬 1: 파이어볼 ──────────
+    // ────────── 스킬 1: 파이어볼 360 + 타겟 반복 ──────────
     private IEnumerator FireballSkill()
     {
         enemyAnimation?.PlayAnimation(BossAnimation.State.Skill1Fireball);
         Vector2 origin = transform.position;
 
-        int[] shotsPerWave = { 3, 4, 5, 13 };
+        bossHitCount = 0;
+        playerHit = false;
 
-        for (int i = 0; i < shotsPerWave.Length; i++)
+        // 🔥 스킬 1 오브젝트 생성 (한 번만)
+        if (skill1Prefab != null && activeSkill1Object == null)
         {
-            bool fullCircle = (i == shotsPerWave.Length - 1); // 마지막 wave만 360도
-            yield return StartCoroutine(FireballWarningAndBurstFan(origin, shotsPerWave[i], fullCircle));
-            yield return new WaitForSeconds(0.2f);
+            activeSkill1Object = Instantiate(skill1Prefab, transform.position + Vector3.up * 1f, Quaternion.identity);
+        }
+
+        while (!playerHit && bossHitCount < 6)
+        {
+            if (activeSkill1Object != null)
+                activeSkill1Object.transform.position = transform.position + Vector3.up * 1f;
+
+            yield return StartCoroutine(FireballWarningAndCircle(origin, fireballCount360));
+            yield return StartCoroutine(FireballWarningToPlayer(origin));
+            yield return new WaitForSeconds(fireballRepeatInterval);
         }
 
         yield return StartCoroutine(SkillEndDelay());
-    }
 
-    private IEnumerator FireballWarningAndBurstFan(Vector2 origin, int shotCount, bool fullCircle = false)
-    {
-        GameObject player = playerTransform != null ? playerTransform.gameObject : GameObject.FindWithTag("Player");
-        if (player == null) yield break;
-
-        Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;
-
-        float totalSpread = fullCircle ? 360f : 90f;
-        float angleStep = shotCount > 1 ? totalSpread / (shotCount - 1) : 0f;
-        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - totalSpread / 2f;
-
-        // 1. 경고 표시
-        List<GameObject> warnings = new List<GameObject>();
-        for (int i = 0; i < shotCount; i++)
+        if (activeSkill1Object != null)
         {
-            float currentAngle = baseAngle + i * angleStep;
-            Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
-            Vector2 warnPos = origin + dir * fireballSpawnRadius;
-
-            if (fireballWarningPrefab != null)
-            {
-                GameObject warning = Instantiate(fireballWarningPrefab, warnPos, Quaternion.Euler(0f, 0f, currentAngle));
-                warnings.Add(warning);
-                activeSkillObjects.Add(warning);
-            }
+            Destroy(activeSkill1Object);
+            activeSkill1Object = null;
         }
 
-        // 2. 경고 지속 시간
+        fireballCoroutine = null;
+    }
+
+    private IEnumerator FireballWarningToPlayer(Vector2 origin)
+    {
+        if (playerTransform == null) yield break;
+
+        Vector2 dir = (playerTransform.position - transform.position).normalized;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        GameObject warning = null;
+        if (fireballWarningPrefab != null)
+        {
+            Vector2 warnPos = origin + dir * fireballSpawnRadius;
+            warning = Instantiate(fireballWarningPrefab, warnPos, Quaternion.Euler(0f, 0f, angle));
+            activeSkillObjects.Add(warning);
+        }
+
         float elapsed = 0f;
         while (elapsed < warningDuration)
         {
-            directionToPlayer = (player.transform.position - transform.position).normalized;
-            baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - totalSpread / 2f;
-
-            for (int i = 0; i < warnings.Count; i++)
+            if (warning != null)
             {
-                if (warnings[i] == null) continue;
-                float currentAngle = baseAngle + i * angleStep;
-                Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
-                warnings[i].transform.position = (Vector2)origin + dir * fireballSpawnRadius;
-                warnings[i].transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+                Vector2 warnPos = origin + dir * fireballSpawnRadius;
+                warning.transform.position = warnPos;
             }
-
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // 3. 경고 제거
+        if (warning != null)
+        {
+            activeSkillObjects.Remove(warning);
+            Destroy(warning);
+        }
+
+        FireInDirection(origin, angle - 90f);
+    }
+
+    private IEnumerator FireballWarningAndCircle(Vector2 origin, int count)
+    {
+        List<GameObject> warnings = new List<GameObject>();
+        float angleStep = 360f / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float angle = i * angleStep;
+            Vector2 pos = origin + new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * fireballSpawnRadius;
+
+            if (fireballWarningPrefab != null)
+            {
+                GameObject w = Instantiate(fireballWarningPrefab, pos, Quaternion.Euler(0, 0, angle));
+                warnings.Add(w);
+                activeSkillObjects.Add(w);
+            }
+        }
+
+        float elapsed = 0f;
+        while (elapsed < warningDuration)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
         foreach (var w in warnings)
         {
             if (w != null)
@@ -189,11 +234,10 @@ public class FireBoss : EnemyBase
             }
         }
 
-        // 4. 발사
-        for (int i = 0; i < shotCount; i++)
+        for (int i = 0; i < count; i++)
         {
-            float launchAngle = baseAngle + i * angleStep - 90f;
-            FireInDirection(origin, launchAngle);
+            float angle = i * angleStep - 90f;
+            FireInDirection(origin, angle);
         }
     }
 
@@ -388,5 +432,51 @@ public class FireBoss : EnemyBase
                 transform.localScale = scale;
             }
         }
+    }
+
+    public void OnPlayerHit()
+    {
+        playerHit = true;
+    }
+
+    public void OnBossTakeDamage()
+    {
+        bossHitCount++;
+
+        // ────────── 스킬1 자식 색 변경 ──────────
+        if (activeSkill1Object != null)
+        {
+            string childName = Mathf.Clamp(bossHitCount, 1, 5).ToString();
+            Transform hitChild = activeSkill1Object.transform.Find(childName);
+            if (hitChild != null)
+            {
+                SpriteRenderer sr = hitChild.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.DOColor(Color.cyan, 0.5f); // 0.5초 동안 하늘색으로 변경
+                }
+            }
+        }
+        if (bossHitCount >= 5)
+        {
+            // ────────── 스킬1만 종료 ──────────
+            if (fireballCoroutine != null && currentSkillIndex == 0)
+            {
+                StopCoroutine(fireballCoroutine);
+                fireballCoroutine = null;
+
+                if (activeSkill1Object != null)
+                {
+                    Destroy(activeSkill1Object);
+                    activeSkill1Object = null;
+                }
+
+                ClearAllSkillObjects();
+
+                StartCoroutine(SkillEndDelay());
+                bossHitCount = 0;
+            }
+        }
+   
     }
 }
