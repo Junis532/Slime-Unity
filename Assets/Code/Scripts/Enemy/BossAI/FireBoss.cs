@@ -36,7 +36,8 @@ public class FireBoss : EnemyBase
     [Header("범위/원 스킬")]
     public GameObject[] warningCirclePrefabs = new GameObject[3];
     public GameObject[] damageCirclePrefabs = new GameObject[3];
-    public float[] circleScales = new float[3] { 10f, 7.5f, 5f };
+    public GameObject[] damageCircleEffectPrefabs = new GameObject[3]; // ✅ 원별 이펙트 프리팹
+    public float[] damageCircleEffectDurations = new float[3] { 1f, 1f, 1f }; // ✅ 원별 이펙트 유지 시간
     public Vector3 skillCenterOffset = Vector3.zero;
     public float warningDelay = 1f;
 
@@ -62,7 +63,6 @@ public class FireBoss : EnemyBase
     {
         if (!isLive) return;
 
-        // 스킬 중엔 이동/애니메이션 갱신 중단(스킬만 재생)
         if (isSkillPlaying)
         {
             if (playerTransform != null)
@@ -70,11 +70,9 @@ public class FireBoss : EnemyBase
             return;
         }
 
-        // 이동 & 방향 애니메이션 (스킬 외 구간)
         if (enemyAnimation != null && playerTransform != null)
         {
             agent.SetDestination(playerTransform.position);
-
             bool isActuallyMoving = agent.isStopped == false && agent.velocity.sqrMagnitude > 0.01f;
 
             if (isActuallyMoving)
@@ -114,21 +112,29 @@ public class FireBoss : EnemyBase
         {
             case 0: StartCoroutine(FireballSkill()); break;
             case 1: StartCoroutine(WarningCircleSkill()); break;
-            case 2: StartCoroutine(DoubleSwordSkill()); break; // 대시 2회(준비→대시(루프)→베기)
+            case 2: StartCoroutine(DoubleSwordSkill()); break;
         }
     }
 
-    // ────────── 스킬 1: 파이어볼 ──────────
+    // ────────── 스킬 1: 파이어볼 (부채꼴 3발 × 3회 반복) ──────────
     private IEnumerator FireballSkill()
     {
         enemyAnimation?.PlayAnimation(BossAnimation.State.Skill1Fireball);
 
         Vector2 origin = transform.position;
-        yield return StartCoroutine(FireballWarningAndBurst(origin));
+
+        // 3회 반복
+        for (int i = 0; i < 3; i++)
+        {
+            yield return StartCoroutine(FireballWarningAndBurstFan(origin));
+            yield return new WaitForSeconds(0.4f); // 각 발사 사이 텀 (조절 가능)
+        }
+
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    private IEnumerator FireballWarningAndBurst(Vector2 origin)
+
+    private IEnumerator FireballWarningAndBurstFan(Vector2 origin)
     {
         GameObject player = playerTransform != null ? playerTransform.gameObject : GameObject.FindWithTag("Player");
         if (player == null) yield break;
@@ -153,13 +159,20 @@ public class FireBoss : EnemyBase
 
             float angleDegrees = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
             warning.transform.rotation = Quaternion.Euler(0f, 0f, angleDegrees);
-
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         if (warning != null) Destroy(warning);
-        FireInDirection(origin, Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - 90f);
+
+        // 중심 + 좌우 30도 방향으로 3개 발사
+        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - 90f;
+        float[] fanAngles = { baseAngle, baseAngle - 30f, baseAngle + 30f };
+
+        foreach (float angle in fanAngles)
+        {
+            FireInDirection(origin, angle);
+        }
     }
 
     private void FireInDirection(Vector2 origin, float angle)
@@ -170,9 +183,10 @@ public class FireBoss : EnemyBase
         activeSkillObjects.Add(fireball);
     }
 
+
     // ────────── 스킬 2: 범위 원 ──────────
-    [SerializeField] private float warningCircleDuration = 0.5f; // 경고 원 유지 시간
-    [SerializeField] private float damageCircleDuration = 1.0f;  // 데미지 원 유지 시간
+    [SerializeField] private float warningCircleDuration = 0.5f;
+    [SerializeField] private float damageCircleDuration = 0.5f;
 
     private IEnumerator WarningCircleSkill()
     {
@@ -181,53 +195,72 @@ public class FireBoss : EnemyBase
 
         for (int i = 0; i < 3; i++)
         {
-            // 🔹 애니메이션 각 원마다 재생
             enemyAnimation?.PlayAnimation(BossAnimation.State.Skill2Circle);
 
-            // 🔹 이전 데미지 원 제거
+            // 🔹 이전 데미지 오브젝트 정리
             if (prevDamage != null)
             {
                 Destroy(prevDamage);
                 prevDamage = null;
             }
 
-            // 🔹 경고 원 생성
+            // 🔹 경고 표시
             if (warningCirclePrefabs[i] != null)
             {
                 GameObject warning = Instantiate(warningCirclePrefabs[i], center, Quaternion.identity);
                 activeSkillObjects.Add(warning);
-
                 yield return new WaitForSeconds(warningCircleDuration);
                 Destroy(warning);
             }
 
-            // 🔹 데미지 원 생성
+            // 🔹 데미지 서클 생성
             if (damageCirclePrefabs[i] != null)
             {
                 GameObject damage = Instantiate(damageCirclePrefabs[i], center, Quaternion.identity);
                 activeSkillObjects.Add(damage);
                 prevDamage = damage;
 
-                // 🔹 데미지 원의 Collider 꺼지게
+                // 일정 시간 후 데미지 판정 종료
                 Collider2D col = damage.GetComponent<Collider2D>();
                 if (col != null)
-                {
-                    StartCoroutine(DisableColliderAfterTime(col, damageCircleDuration));
-                }
-            }
+                    StartCoroutine(DisableColliderAfterTime(col, 0.1f)); // 즉시 판정 후 비활성화
 
-            // 🔹 데미지 원 지속 시간만큼 대기
-            yield return new WaitForSeconds(damageCircleDuration);
+                // 🔹 데미지 지속시간과 별도로 이펙트는 따로 작동
+                StartCoroutine(HandleDamageEffect(i, center, damage));
+
+                yield return new WaitForSeconds(damageCircleDuration); // 데미지 판정 지속시간
+                if (damage != null)
+                    Destroy(damage);
+            }
         }
 
-        // 🔹 마지막 원 제거
         if (prevDamage != null)
             Destroy(prevDamage);
 
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // 콜라이더 일정 시간 후 비활성화
+    // 이펙트는 데미지와 별도로 작동하는 코루틴
+    private IEnumerator HandleDamageEffect(int index, Vector3 center, GameObject damage)
+    {
+        if (damageCircleEffectPrefabs != null &&
+            index < damageCircleEffectPrefabs.Length &&
+            damageCircleEffectPrefabs[index] != null)
+        {
+            float duration = damageCircleEffectDurations[index];
+
+            // 프리팹 스케일 그대로 사용
+            GameObject fx = Instantiate(damageCircleEffectPrefabs[index], center, Quaternion.identity);
+
+            yield return new WaitForSeconds(duration);
+
+            if (fx != null)
+                Destroy(fx);
+        }
+    }
+
+
+
     private IEnumerator DisableColliderAfterTime(Collider2D col, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -235,8 +268,7 @@ public class FireBoss : EnemyBase
             col.enabled = false;
     }
 
-
-    // ────────── 스킬 3: 대시 2회 (각각 준비→대시(루프)→베기) ──────────
+    // ────────── 스킬 3: 대시 2회 ──────────
     private IEnumerator DoubleSwordSkill()
     {
         GameObject player = playerTransform != null ? playerTransform.gameObject : GameObject.FindWithTag("Player");
@@ -250,19 +282,16 @@ public class FireBoss : EnemyBase
 
         for (int j = 0; j < 2; j++)
         {
-            // (1) 대시 준비 모션
             enemyAnimation.PlayAnimation(BossAnimation.State.Skill3DashStart);
             float dashStartDur = Mathf.Max(0.05f, enemyAnimation.GetNonLoopDuration(BossAnimation.State.Skill3DashStart));
             yield return new WaitForSeconds(dashStartDur);
 
-            // 목표 지점(플레이어 좌/우)
             float sideOffset = 2.5f;
             float targetX = player.transform.position.x + (Random.value > 0.5f ? sideOffset : -sideOffset);
             Vector3 sideTarget = new Vector3(targetX, player.transform.position.y, transform.position.z);
 
-            // (2) 대시 모션(루프) + 실제 이동
             enemyAnimation.PlaySkill3DashLoop();
-            float dashTime = j == 0 ? 0.20f : 0.25f; // 두 번째 대시는 살짝 느리게
+            float dashTime = j == 0 ? 0.20f : 0.25f;
             float elapsed = 0f;
             Vector3 startPos = transform.position;
             while (elapsed < dashTime)
@@ -273,13 +302,6 @@ public class FireBoss : EnemyBase
             }
             transform.position = sideTarget;
 
-            // 🔹 첫 번째 대시 후 잠깐 대기
-            if (j == 0)
-            {
-                yield return new WaitForSeconds(1f);
-            }
-
-            // (3) 베기 모션 + 히트박스/이펙트
             enemyAnimation.PlayAnimation(BossAnimation.State.Skill3Slash);
 
             Vector3 dir = (player.transform.position - transform.position).normalized;
@@ -302,11 +324,12 @@ public class FireBoss : EnemyBase
             float slashDur = Mathf.Max(0.05f, enemyAnimation.GetNonLoopDuration(BossAnimation.State.Skill3Slash));
             yield return new WaitForSeconds(slashDur);
 
-            // 🔹 각 Slash 직후 Idle로 복귀
             enemyAnimation.PlayAnimation(BossAnimation.State.Idle);
+
+            if (j == 0)
+                yield return new WaitForSeconds(0.7f);
         }
 
-        // 원래 위치로 복귀
         float returnTime = 0.4f;
         float returnElapsed = 0f;
         Vector3 returnStart = transform.position;
@@ -322,12 +345,9 @@ public class FireBoss : EnemyBase
         yield return StartCoroutine(SkillEndDelay());
     }
 
-    // ────────── 스킬 종료 및 상태 복귀 ──────────
     private IEnumerator SkillEndDelay()
     {
-        // 각 스킬 연출 여유시간(필요 시 조절)
         yield return new WaitForSeconds(1f);
-
         isSkillPlaying = false;
         if (agent != null) agent.isStopped = false;
     }

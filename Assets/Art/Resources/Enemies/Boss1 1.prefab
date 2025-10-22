@@ -114,7 +114,7 @@ MonoBehaviour:
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: a1eeda15a1aae7542a2f0bc1ab7212e5, type: 3}
   numberOfFireballs: 36
   fireballSpawnRadius: 1.5
-  warningDuration: 2
+  warningDuration: 1
   swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
   swordSpawnDistance: 1.7
   swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
@@ -124,15 +124,25 @@ MonoBehaviour:
   - {fileID: 2607715763077659899, guid: b26d56315a790274692376ba99dafe7c, type: 3}
   - {fileID: 3707792409990616232, guid: 60bad1bc85da11f42b1ac7a25532099b, type: 3}
   damageCirclePrefabs:
-  - {fileID: 5624923132438207037, guid: 8979e48ef7b7ac9408fe9cc52c987594, type: 3}
-  - {fileID: 2607715763077659899, guid: 0fcc38a115349ca42b42704324b36b40, type: 3}
+  - {fileID: 3707792409990616232, guid: d16293c387fea76428080bd77504ec1d, type: 3}
+  - {fileID: 3707792409990616232, guid: 8df5055fc28a80a4ba04ad06e6791679, type: 3}
   - {fileID: 3707792409990616232, guid: b2187da8952520c4db56c6ba8efcb045, type: 3}
+  damageCircleEffectPrefabs:
+  - {fileID: 5624923132438207037, guid: a543d10366504d14d960259f0dee3b7c, type: 3}
+  - {fileID: 2607715763077659899, guid: b3faf8602963e3347a45b5ad183c19f2, type: 3}
+  - {fileID: 3707792409990616232, guid: 74db38db78129114882f27a475befcee, type: 3}
+  damageCircleEffectDurations:
+  - 1
+  - 1
+  - 1
   circleScales:
   - 12
   - 10
   - 8
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 1
+  warningCircleDuration: 0.7
+  damageCircleDuration: 0.1
 --- !u!195 &9035533090209629525
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -372,5 +382,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathStyle: 0
   potionPrefab: {fileID: 0}
   potionDropChance: 0.1
+  classicBackwardTime: 0.5
+  classicBackwardDistance: 0.5
+  classicShrinkTime: 0.5
+  classicFadeTime: 0.5
+  spBackwardTime: 0.12
+  spBackwardDistance: 0.45
+  spSquishTime: 0.14
+  spSquishScale: {x: 0.62, y: 0.42}
+  spPrePopHold: 0.05
+  spPopTime: 0.08
+  spPopScale: 1.45
+  spCollapseTime: 0.18
+  spFadeTime: 0.2
+  spUseTimeSlow: 1
+  spTimeScale: 0.1
+  spTimeSlowDur: 0.08
+  spUseScreenFlash: 1
+  spFlashAlpha: 0.9
+  spFlashDur: 0.08
+  spUseCameraShake: 1
+  spUseCameraPump: 1
+  spCamPumpZoomDelta: -0.6
+  spCamPumpInTime: 0.08
+  spCamPumpOutTime: 0.35
+  spUseShockwaveRing: 1
+  spRingDuration: 0.35
+  spRingRadius: 2
+  spRingSegments: 48
+  spRingWidth: 0.12
+  spRingColor: {r: 1, g: 1, b: 1, a: 0.85}
+  spUseDebris: 1
+  spDebrisCount: 24
+  spDebrisLifetime: 0.5
+  spDebrisSpeed: 6
+  spDebrisGravity: 0
+  spDebrisStartColor: {r: 1, g: 0.85, b: 0.4, a: 1}
+  spDebrisEndColor: {r: 1, g: 0.85, b: 0.4, a: 0}
+  spDebrisStartSize: 0.08
+  spDebrisEndSize: 0.02
