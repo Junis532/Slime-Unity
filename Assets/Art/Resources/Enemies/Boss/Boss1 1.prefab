@@ -109,12 +109,12 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 3.4
   spawnDelay: 0.4
-  skillInterval: 1
+  skillInterval: 0.7
   fireballPrefab: {fileID: 6833211366613324076, guid: 3f7eaf34515a14f47bb00382cd955534, type: 3}
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: d642b5a613b185e439d3564a0d350e2b, type: 3}
   numberOfFireballs: 36
   fireballSpawnRadius: 1.5
-  warningDuration: 1
+  warningDuration: 0.7
   swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
   swordSpawnDistance: 1.7
   swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
@@ -137,7 +137,7 @@ MonoBehaviour:
   - 1
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 1
-  warningCircleDuration: 1
+  warningCircleDuration: 0.5
   damageCircleDuration: 0.01
 --- !u!195 &9035533090209629525
 NavMeshAgent:

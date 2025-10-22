@@ -126,7 +126,7 @@ public class FireBoss : EnemyBase
         {
             bool fullCircle = (i == shotsPerWave.Length - 1); // 마지막 wave만 360도
             yield return StartCoroutine(FireballWarningAndBurstFan(origin, shotsPerWave[i], fullCircle));
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.2f);
         }
 
         yield return StartCoroutine(SkillEndDelay());
@@ -335,7 +335,7 @@ public class FireBoss : EnemyBase
             enemyAnimation.PlayAnimation(BossAnimation.State.Idle);
 
             if (j == 0)
-                yield return new WaitForSeconds(0.7f);
+                yield return new WaitForSeconds(0.5f);
         }
 
         float returnTime = 0.4f;
