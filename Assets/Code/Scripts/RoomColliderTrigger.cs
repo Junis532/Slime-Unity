@@ -1,185 +1,142 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
-public class TimedSpriteSplit : MonoBehaviour
+public class RoomColliderTrigger : MonoBehaviour
 {
-    [Header("분리(파괴) 연출")]
-    public float splitForce = 2f;
-    public float rotationSpeed = 180f;
-    public float fadeDuration = 1f;
-    public bool destroyOriginal = true;
-
-    [Header("지연(타이머) 설정")]
-    [Tooltip("몇 초 뒤에 부서질지 (유저가 직접 설정 가능)")]
-    public float startDelay = 2f; // 🔸 유저가 인스펙터에서 조정
-    public bool autoStartOnEnable = false;
-    public bool useUnscaledTime = false;
-
-    [Header("경고(깜빡임) 옵션")]
-    public bool flashBeforeSplit = true;
-    public float flashStartAt = 0.7f;
-    public float flashInterval = 0.1f;
-    [Range(0f, 1f)] public float minAlphaOnFlash = 0.3f;
-
-    private SpriteRenderer sr;
-    private Coroutine countdownRoutine;
-    private bool isSplitting;
-
-    void Awake()
+    public enum MoveAxis
     {
-        sr = GetComponent<SpriteRenderer>();
+        Up, Down, Left, Right, CustomVector
     }
 
-    void OnEnable()
+    [Header("트리거 설정")]
+    public string triggerTag = "Player";
+
+    [Header("이동할 오브젝트들")]
+    public List<GameObject> objectsToMove = new List<GameObject>();
+    public MoveAxis moveAxis = MoveAxis.Up;
+    public Vector2 customDirection = Vector2.up;
+    public float moveDistance = 7f;
+    public float moveDuration = 7f;
+    public float moveDelay = 8.5f;
+
+    [Header("레이저 관련")]
+    public List<LaserObject> lasersToActivate = new List<LaserObject>();
+    public bool setLaserAngleFromMove = true;
+
+    [Header("레이저 종료 옵션")]
+    [Tooltip("이 값이 true면 이동이 끝난 시점에 모든 레이저를 자동으로 끕니다.")]
+    public bool turnOffLaserOnArrival = false;
+
+    private bool triggered = false;
+
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (autoStartOnEnable)
-            StartSplitAfter(startDelay);
+        if (triggered) return;
+        if (!other.CompareTag(triggerTag)) return;
+
+        triggered = true;
+        StartCoroutine(DelayedMoveAndLaser());
     }
 
-    /// <summary>
-    /// 외부에서 원하는 시간 설정 후 시작 가능
-    /// </summary>
-    public void StartSplitAfter(float delaySeconds)
+    private System.Collections.IEnumerator DelayedMoveAndLaser()
     {
-        if (isSplitting) return;
-        if (countdownRoutine != null) StopCoroutine(countdownRoutine);
-        countdownRoutine = StartCoroutine(CountdownThenSplit(delaySeconds));
-    }
+        yield return new WaitForSeconds(moveDelay);
 
-    public void CancelScheduledSplit()
-    {
-        if (countdownRoutine != null)
+        Vector2 dir = GetMoveDirection().normalized;
+        if (dir.sqrMagnitude < 0.0001f) yield break;
+
+        // 🔹 레이저 활성화
+        if (lasersToActivate != null && lasersToActivate.Count > 0)
         {
-            StopCoroutine(countdownRoutine);
-            countdownRoutine = null;
-            if (sr)
+            float deg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            foreach (var laser in lasersToActivate)
             {
-                var c = sr.color;
-                c.a = 1f;
-                sr.color = c;
+                if (laser == null) continue;
+                if (!laser.gameObject.activeSelf)
+                    laser.gameObject.SetActive(true);
+
+                if (setLaserAngleFromMove)
+                    laser.transform.rotation = Quaternion.Euler(0f, 0f, deg);
+
+                laser.Activate();
             }
         }
-    }
 
-    [ContextMenu("Split Now")]
-    public void SplitNow()
-    {
-        if (!isSplitting)
-            StartCoroutine(SplitEffect());
-    }
-
-    private IEnumerator CountdownThenSplit(float delay)
-    {
-        float t = 0f;
-        float lastFlash = 0f;
-        bool flashLow = false;
-        float flashStartTime = Mathf.Max(0f, delay - Mathf.Max(0f, flashStartAt));
-
-        while (t < delay)
+        // 🔹 이동 처리
+        int count = objectsToMove.Count;
+        Vector3[] startPos = new Vector3[count];
+        Vector3[] endPos = new Vector3[count];
+        for (int i = 0; i < count; i++)
         {
-            float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-            t += dt;
-
-            if (flashBeforeSplit && t >= flashStartTime && sr)
-            {
-                lastFlash += dt;
-                if (lastFlash >= flashInterval)
-                {
-                    lastFlash = 0f;
-                    flashLow = !flashLow;
-                    var c = sr.color;
-                    c.a = flashLow ? minAlphaOnFlash : 1f;
-                    sr.color = c;
-                }
-            }
-            yield return null;
+            var go = objectsToMove[i];
+            if (go == null) continue;
+            startPos[i] = go.transform.position;
+            endPos[i] = startPos[i] + (Vector3)(dir * moveDistance);
         }
-
-        if (sr)
-        {
-            var c = sr.color; c.a = 1f; sr.color = c;
-        }
-
-        countdownRoutine = null;
-        yield return SplitEffect();
-    }
-
-    private IEnumerator SplitEffect()
-    {
-        isSplitting = true;
-        if (!sr || sr.sprite == null)
-        {
-            Destroy(gameObject);
-            yield break;
-        }
-
-        Sprite original = sr.sprite;
-        Texture2D tex = original.texture;
-        Rect rect = original.textureRect;
-
-        int halfWidth = Mathf.FloorToInt(rect.width / 2f);
-        int height = Mathf.FloorToInt(rect.height);
-
-        Texture2D leftTex = new Texture2D(halfWidth, height, TextureFormat.RGBA32, false);
-        Texture2D rightTex = new Texture2D(halfWidth, height, TextureFormat.RGBA32, false);
-
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < halfWidth; x++)
-            {
-                leftTex.SetPixel(x, y, tex.GetPixel((int)rect.x + x, (int)rect.y + y));
-                rightTex.SetPixel(x, y, tex.GetPixel((int)rect.x + x + halfWidth, (int)rect.y + y));
-            }
-        }
-        leftTex.Apply();
-        rightTex.Apply();
-
-        Sprite leftSprite = Sprite.Create(leftTex, new Rect(0, 0, halfWidth, height), new Vector2(1f, 0.5f), original.pixelsPerUnit);
-        Sprite rightSprite = Sprite.Create(rightTex, new Rect(0, 0, halfWidth, height), new Vector2(0f, 0.5f), original.pixelsPerUnit);
-
-        GameObject leftObj = new GameObject(name + "_LeftHalf");
-        GameObject rightObj = new GameObject(name + "_RightHalf");
-        leftObj.transform.position = transform.position;
-        rightObj.transform.position = transform.position;
-
-        var leftSr = leftObj.AddComponent<SpriteRenderer>();
-        var rightSr = rightObj.AddComponent<SpriteRenderer>();
-        leftSr.sprite = leftSprite;
-        rightSr.sprite = rightSprite;
-
-        leftSr.sortingLayerID = sr.sortingLayerID;
-        rightSr.sortingLayerID = sr.sortingLayerID;
-        leftSr.sortingOrder = sr.sortingOrder;
-        rightSr.sortingOrder = sr.sortingOrder;
-
-        if (destroyOriginal) Destroy(sr);
-
-        Vector3 leftDir = (Vector3.left + Vector3.up * 0.25f).normalized;
-        Vector3 rightDir = (Vector3.right + Vector3.up * 0.25f).normalized;
 
         float elapsed = 0f;
-        Color lc = leftSr.color, rc = rightSr.color;
-
-        while (elapsed < fadeDuration)
+        while (elapsed < moveDuration)
         {
-            float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-            elapsed += dt;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
-
-            leftObj.transform.position += leftDir * splitForce * dt;
-            rightObj.transform.position += rightDir * splitForce * dt;
-            leftObj.transform.Rotate(Vector3.forward, rotationSpeed * dt);
-            rightObj.transform.Rotate(Vector3.forward, -rotationSpeed * dt);
-
-            leftSr.color = new Color(lc.r, lc.g, lc.b, alpha);
-            rightSr.color = new Color(rc.r, rc.g, rc.b, alpha);
+            float t = elapsed / moveDuration;
+            for (int i = 0; i < count; i++)
+            {
+                var go = objectsToMove[i];
+                if (go == null) continue;
+                go.transform.position = Vector3.Lerp(startPos[i], endPos[i], t);
+            }
+            elapsed += Time.deltaTime;
             yield return null;
         }
 
-        Destroy(leftObj);
-        Destroy(rightObj);
-        Destroy(gameObject);
+        // 🔹 최종 위치 고정
+        for (int i = 0; i < count; i++)
+        {
+            var go = objectsToMove[i];
+            if (go == null) continue;
+            go.transform.position = endPos[i];
+        }
+
+        // 🔹 이동 완료 시 레이저 끄기 (옵션)
+        if (turnOffLaserOnArrival && lasersToActivate != null)
+        {
+            foreach (var laser in lasersToActivate)
+            {
+                if (laser == null) continue;
+                // LaserObject 내부에 Deactivate() 메서드가 있으면 사용
+                // 없으면 그냥 비활성화 처리
+                if (laser.gameObject.activeSelf)
+                    laser.gameObject.SetActive(false);
+            }
+        }
     }
+
+    private Vector2 GetMoveDirection()
+    {
+        switch (moveAxis)
+        {
+            case MoveAxis.Up: return Vector2.up;
+            case MoveAxis.Down: return Vector2.down;
+            case MoveAxis.Left: return Vector2.left;
+            case MoveAxis.Right: return Vector2.right;
+            case MoveAxis.CustomVector:
+            default: return customDirection == Vector2.zero ? Vector2.up : customDirection.normalized;
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (objectsToMove == null || objectsToMove.Count == 0) return;
+        Gizmos.color = Color.cyan;
+        Vector2 dir = GetMoveDirection().normalized;
+        foreach (var go in objectsToMove)
+        {
+            if (go == null) continue;
+            Vector3 start = go.transform.position;
+            Vector3 end = start + (Vector3)(dir * moveDistance);
+            Gizmos.DrawLine(start, end);
+            Gizmos.DrawSphere(end, 0.08f);
+        }
+    }
+#endif
 }

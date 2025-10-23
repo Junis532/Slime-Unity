@@ -2,61 +2,58 @@
 using System.Collections;
 using UnityEngine.Tilemaps;
 
-/// 바닥/타일을 "부서지는" 연출로 처리하되,
-/// - 파괴 대신 알파만 낮추고(선택)
-/// - 콜라이더를 꺼서 실제로 '구멍'이 되게 하고(선택)
-/// - 같은 영역에 Trigger를 생성하여 플레이어가 떨어지면 즉사(지금은 Debug.Log)
-/// - 스프라이트와 타일맵을 모두 지원(자동 감지)
+// Debug 충돌 방지
+using Debug = UnityEngine.Debug;
+
+/// 바닥/타일을 "붉게 변하며 꺼지는" 버전으로 처리
 [RequireComponent(typeof(Transform))]
 public class BreakableGround2D : MonoBehaviour
 {
     public enum Outcome { FadeOnlyKeep, DisableObject, DestroyObject }
 
     [Header("지연(타이머) 설정")]
-    [Tooltip("추가 대기시간(항상 먼저 기다림)")]
     public float extraWaitTime = 0f;
-    [Tooltip("시작 후 추가로 기다릴 시간(유저가 조절)")]
     public float startDelay = 1.5f;
     public bool autoStartOnEnable = true;
     public bool useUnscaledTime = false;
 
-    [Header("경고(깜빡임) 옵션")]
-    public bool flashBeforeBreak = true;
-    [Tooltip("끝나기 몇 초 전부터 깜빡임 시작")]
-    public float flashStartAt = 0.5f;
-    public float flashInterval = 0.1f;
-    [Range(0f, 1f)] public float flashMinAlpha = 0.3f;
+    [Header("붉게 변하는 경고 연출")]
+    [Tooltip("빨간색으로 변하는 연출을 사용할지")]
+    public bool useRedWarning = true;
+    [Tooltip("빨간색 전환 시작 시점 (남은 시간 비율 0~1)")]
+    [Range(0f, 1f)] public float redStartRatio = 0.5f;
+    [Tooltip("빨간색 전환 속도 배율")]
+    public float redTransitionSpeed = 2f;
+    [Tooltip("최대 붉은 정도 (1=완전빨강)")]
+    [Range(0f, 1f)] public float redIntensity = 0.8f;
 
     [Header("결과/연출")]
-    public Outcome outcome = Outcome.FadeOnlyKeep;     // 기본: 페이드만
-    [Tooltip("페이드 목표 알파 (FadeOnlyKeep 모드에서 사용)")]
-    [Range(0f, 1f)] public float targetAlphaAfter = 0f; // ✅ 완전 투명 기본값으로 변경
-    [Tooltip("페이드/파괴 연출 시간")]
+    public Outcome outcome = Outcome.FadeOnlyKeep;
+    [Range(0f, 1f)] public float targetAlphaAfter = 0f;
     public float effectDuration = 0.8f;
 
     [Header("구멍 옵션")]
-    [Tooltip("구멍으로 만들기: 콜라이더 비활성 + Trigger 생성")]
     public bool makeHoleAfter = true;
-    [Tooltip("구멍 시 모든 Collider2D 비활성화")]
     public bool disableSolidColliders = true;
-    [Tooltip("구멍 트리거로 죽일 태그")]
     public string killTag = "Player";
 
     [Header("스프라이트 분리 연출(선택)")]
-    public bool splitVisualForSprite = false;  // true면 스프라이트 반쪽 분리(가벼운 버전)
+    public bool splitVisualForSprite = false;
     public float splitForce = 1.5f;
     public float rotationSpeed = 120f;
 
-    // 내부 상태
-    private SpriteRenderer sr;             // 있을 수도
-    private TilemapRenderer tmRenderer;    // 있을 수도
-    private Tilemap tilemap;               // 있을 수도
+    // 내부 컴포넌트
+    private SpriteRenderer sr;
+    private TilemapRenderer tmRenderer;
+    private Tilemap tilemap;
     private Coroutine routine;
     private bool isRunning;
 
+    private Color baseColor;
+    private bool hasColorCache;
+
     void Awake()
     {
-        // 컴포넌트 감지(둘 중 하나만 있어도 됨)
         sr = GetComponent<SpriteRenderer>();
         tmRenderer = GetComponent<TilemapRenderer>();
         tilemap = GetComponent<Tilemap>();
@@ -81,68 +78,64 @@ public class BreakableGround2D : MonoBehaviour
         if (routine != null) StopCoroutine(routine);
         routine = null;
         isRunning = false;
-        // 깜빡임 복구
-        SetAlpha(1f);
+        SetColorAlpha(1f);
+        if (hasColorCache) SetColor(baseColor);
     }
 
     private IEnumerator BreakSequence()
     {
         isRunning = true;
+        CacheColor();
 
-        // 1) 항상 extraWaitTime 먼저
         if (extraWaitTime > 0f)
             yield return WaitForSecondsSmart(extraWaitTime);
 
-        // 2) startDelay 카운트다운 + (선택) 깜빡임
-        float t = 0f, lastFlash = 0f;
-        float delay = Mathf.Max(0f, startDelay);
-        float flashStartTime = Mathf.Max(0f, delay - Mathf.Max(0f, flashStartAt));
-        while (t < delay)
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, startDelay);
+        float redStartTime = duration * (1f - redStartRatio);
+
+        while (elapsed < duration)
         {
             float dt = DeltaTime();
-            t += dt;
+            elapsed += dt;
 
-            if (flashBeforeBreak && t >= flashStartTime)
+            float remain = Mathf.Max(0f, duration - elapsed);
+
+            // 서서히 붉어지는 구간
+            if (useRedWarning && elapsed >= redStartTime)
             {
-                lastFlash += dt;
-                if (lastFlash >= flashInterval)
-                {
-                    lastFlash = 0f;
-                    // 토글식 깜빡임
-                    float current = GetAlpha();
-                    float next = (current < 1f) ? 1f : flashMinAlpha;
-                    SetAlpha(next);
-                }
+                float t = Mathf.InverseLerp(redStartTime, duration, elapsed);
+                t = Mathf.Pow(t, redTransitionSpeed);
+                ApplyRedOverlay(t);
             }
+
             yield return null;
         }
-        // 깜빡임 원상복구
-        SetAlpha(1f);
 
-        // 3) 구멍 동작: 플레이어 즉사(로그), 콜라이더 끄기, 구멍 트리거 생성
+        // 완전 빨갛게
+        if (useRedWarning) ApplyRedOverlay(1f);
+
+        // 1) 구멍 만들기
         if (makeHoleAfter)
         {
-            TryKillPlayerLog();                 // 지금은 로그만
+            TryKillPlayerLog();
             if (disableSolidColliders) ToggleAllColliders(false);
-            CreateHoleTriggerFromBounds();      // 트리거 생성
+            CreateHoleTriggerFromBounds();
         }
 
-        // 4) 결과 연출
+        // 2) 결과 연출
         switch (outcome)
         {
             case Outcome.FadeOnlyKeep:
                 yield return FadeToAlpha(targetAlphaAfter, effectDuration);
                 break;
-
             case Outcome.DisableObject:
                 yield return FadeToAlpha(0f, effectDuration);
                 gameObject.SetActive(false);
                 break;
-
             case Outcome.DestroyObject:
                 if (sr && splitVisualForSprite)
                 {
-                    // 가벼운 반쪽 분리 연출(타일맵은 생략)
                     yield return SpriteQuickSplitAndFade(effectDuration);
                     Destroy(gameObject);
                 }
@@ -157,8 +150,9 @@ public class BreakableGround2D : MonoBehaviour
         isRunning = false;
     }
 
-    // --- Utilities ---
-
+    //───────────────────────────────
+    // 유틸
+    //───────────────────────────────
     private IEnumerator WaitForSecondsSmart(float seconds)
     {
         if (useUnscaledTime)
@@ -166,26 +160,31 @@ public class BreakableGround2D : MonoBehaviour
             float end = Time.unscaledTime + seconds;
             while (Time.unscaledTime < end) yield return null;
         }
-        else
-        {
-            yield return new WaitForSeconds(seconds);
-        }
+        else yield return new WaitForSeconds(seconds);
     }
 
     private float DeltaTime() => useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 
-    private float GetAlpha()
+    private void CacheColor()
     {
-        if (sr) return sr.color.a;
-        if (tilemap) return tilemap.color.a;
-        if (tmRenderer) return tmRenderer.material && tmRenderer.material.HasProperty("_Color")
-            ? tmRenderer.material.color.a : 1f;
-        return 1f;
+        if (sr) baseColor = sr.color;
+        else if (tilemap) baseColor = tilemap.color;
+        else if (tmRenderer && tmRenderer.material && tmRenderer.material.HasProperty("_Color"))
+            baseColor = tmRenderer.material.color;
+        else baseColor = Color.white;
+        hasColorCache = true;
     }
 
-    private void SetAlpha(float a)
+    private void SetColor(Color c)
     {
-        a = Mathf.Clamp01(a);
+        if (sr) sr.color = c;
+        else if (tilemap) tilemap.color = c;
+        else if (tmRenderer && tmRenderer.material && tmRenderer.material.HasProperty("_Color"))
+            tmRenderer.material.color = c;
+    }
+
+    private void SetColorAlpha(float a)
+    {
         if (sr)
         {
             var c = sr.color; c.a = a; sr.color = c;
@@ -200,51 +199,54 @@ public class BreakableGround2D : MonoBehaviour
         }
     }
 
-    // ✅ 완전 0까지 보장: 마지막에 SetAlpha(target)로 고정
+    private void ApplyRedOverlay(float t)
+    {
+        if (!hasColorCache) CacheColor();
+        Color target = Color.Lerp(baseColor, new Color(1f, 0f, 0f, baseColor.a), redIntensity * t);
+        SetColor(target);
+    }
+
     private IEnumerator FadeToAlpha(float target, float duration)
     {
         float start = GetAlpha();
-        if (Mathf.Approximately(duration, 0f))
-        {
-            SetAlpha(target);
-            yield break;
-        }
-
         float t = 0f;
         while (t < duration)
         {
             t += DeltaTime();
             float k = Mathf.Clamp01(t / duration);
-            float a = Mathf.Lerp(start, target, k);
-            SetAlpha(a);
+            SetColorAlpha(Mathf.Lerp(start, target, k));
             yield return null;
         }
+        SetColorAlpha(target);
+    }
 
-        // 💯 완전 0까지 보장
-        SetAlpha(target);
+    private float GetAlpha()
+    {
+        if (sr) return sr.color.a;
+        if (tilemap) return tilemap.color.a;
+        if (tmRenderer) return tmRenderer.material && tmRenderer.material.HasProperty("_Color")
+            ? tmRenderer.material.color.a : 1f;
+        return 1f;
     }
 
     private void ToggleAllColliders(bool enable)
     {
-        var c2d = GetComponentsInChildren<Collider2D>(true);
-        foreach (var c in c2d) c.enabled = enable;
-        // 3D는 거의 없겠지만 방어적으로
-        var c3d = GetComponentsInChildren<Collider>(true);
-        foreach (var c in c3d) c.enabled = enable;
+        foreach (var c in GetComponentsInChildren<Collider2D>(true)) c.enabled = enable;
+        foreach (var c in GetComponentsInChildren<Collider>(true)) c.enabled = enable;
     }
 
     private Bounds GetWorldBounds()
     {
         if (sr) return sr.bounds;
         if (tmRenderer) return tmRenderer.bounds;
-        return new Bounds(transform.position, Vector3.zero);
+        return new Bounds(transform.position, Vector3.one * 1f);
     }
 
     private void CreateHoleTriggerFromBounds()
     {
         Bounds b = GetWorldBounds();
         var hole = new GameObject($"{name}_VoidZone");
-        hole.layer = gameObject.layer; // 동일 레이어로
+        hole.layer = gameObject.layer;
         hole.transform.SetParent(transform, worldPositionStays: true);
         hole.transform.position = b.center;
 
@@ -268,12 +270,9 @@ public class BreakableGround2D : MonoBehaviour
             Debug.Log("[BreakableGround2D] (로그) 플레이어를 찾지 못함. killTag 확인.");
     }
 
-    // 스프라이트 간단 분리(가벼운 버전: 절반 생성 없이 연출만)
     private IEnumerator SpriteQuickSplitAndFade(float duration)
     {
         if (!sr) yield break;
-
-        // 시각적 복제 2개 (왼쪽/오른쪽)
         var leftObj = new GameObject(name + "_L");
         var rightObj = new GameObject(name + "_R");
         leftObj.transform.SetPositionAndRotation(transform.position, transform.rotation);
@@ -287,8 +286,7 @@ public class BreakableGround2D : MonoBehaviour
         lsr.sortingLayerID = rsr.sortingLayerID = sr.sortingLayerID;
         lsr.sortingOrder = rsr.sortingOrder = sr.sortingOrder;
 
-        // 원본 숨김
-        var c = sr.color; c.a = 0f; sr.color = c;
+        var c0 = sr.color; c0.a = 0f; sr.color = c0;
 
         Vector3 leftDir = (Vector3.left + Vector3.up * 0.15f).normalized;
         Vector3 rightDir = (Vector3.right + Vector3.up * 0.15f).normalized;
@@ -316,10 +314,10 @@ public class BreakableGround2D : MonoBehaviour
     }
 }
 
+/// 플레이어 즉사 트리거
 [RequireComponent(typeof(BoxCollider2D))]
 public class VoidKillZone2D : MonoBehaviour
 {
-    [Tooltip("플레이어 태그")]
     public string playerTag = "Player";
 
     void Reset()
@@ -331,7 +329,6 @@ public class VoidKillZone2D : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(playerTag)) return;
-
         Debug.Log($"[VoidKillZone2D] 플레이어 즉사 트리거: {other.name}");
         GameManager.Instance.playerStats.currentHP = 0;
     }
