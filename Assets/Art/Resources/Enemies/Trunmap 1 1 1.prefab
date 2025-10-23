@@ -62,13 +62,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: TurretEnemy_PlayerTracking (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 3138796063724582110, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.x
       value: -5.789999
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 67.13
+      value: 65.78
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.z
@@ -152,13 +156,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: TurretEnemy_PlayerTracking
       objectReference: {fileID: 0}
+    - target: {fileID: 3138796063724582110, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.43
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 67.13
+      value: 65.78
       objectReference: {fileID: 0}
     - target: {fileID: 4465994150681210665, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
       propertyPath: m_LocalPosition.z
@@ -204,7 +212,8 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5839185285267714875, guid: c15743d8894d0b94e91e2034e5a12f82, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -236,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1822604486470973699, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 66.63494
+      value: 65.28494
       objectReference: {fileID: 0}
     - target: {fileID: 1822604486470973699, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_LocalPosition.z

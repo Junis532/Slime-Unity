@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5108878173212133939}
   - component: {fileID: 2597315182798925133}
   - component: {fileID: 4772913357745842079}
+  - component: {fileID: 4517655087012957219}
   m_Layer: 0
   m_Name: Boss1 1
   m_TagString: Enemy
@@ -33,7 +34,7 @@ Transform:
   m_GameObject: {fileID: 9056929667236055254}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 92.665955, y: 67.75853, z: 0}
+  m_LocalPosition: {x: 63.67, y: 92.33, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -113,35 +114,31 @@ MonoBehaviour:
   fireball360Prefab: {fileID: 6833211366613324076, guid: 594ab79a2ff755c4c8abd08cad7af3d1, type: 3}
   fireballPrefab: {fileID: 6833211366613324076, guid: 3f7eaf34515a14f47bb00382cd955534, type: 3}
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: d642b5a613b185e439d3564a0d350e2b, type: 3}
+  fireballWarningDistance: 1
   fireballCount360: 15
   fireballSpawnRadius: 1.5
-  warningDuration: 0.5
-  fireballRepeatInterval: 1
+  warningDuration: 0.7
+  fireballRepeatInterval: 1.7
   skill1Prefab: {fileID: 1461563650131805762, guid: d7bc0699caa2a1449800ba00266be586, type: 3}
   swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
-  swordSpawnDistance: 1.7
+  swordSpawnDistance: 1
   swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
   swordRangeDistance: 2.6
   warningCirclePrefabs:
-  - {fileID: 3707792409990616232, guid: 60bad1bc85da11f42b1ac7a25532099b, type: 3}
-  - {fileID: 2607715763077659899, guid: b26d56315a790274692376ba99dafe7c, type: 3}
-  - {fileID: 5624923132438207037, guid: 24f4da13f21f0764290debedb3c09a45, type: 3}
+  - {fileID: 6294087193304061933, guid: 1400d4dc365a2694b8a51539c76f29cc, type: 3}
+  - {fileID: 6294087193304061933, guid: 1400d4dc365a2694b8a51539c76f29cc, type: 3}
+  - {fileID: 6294087193304061933, guid: 1400d4dc365a2694b8a51539c76f29cc, type: 3}
   damageCirclePrefabs:
-  - {fileID: 3707792409990616232, guid: b2187da8952520c4db56c6ba8efcb045, type: 3}
-  - {fileID: 3707792409990616232, guid: 8df5055fc28a80a4ba04ad06e6791679, type: 3}
-  - {fileID: 3707792409990616232, guid: d16293c387fea76428080bd77504ec1d, type: 3}
-  damageCircleEffectPrefabs:
-  - {fileID: 3707792409990616232, guid: 74db38db78129114882f27a475befcee, type: 3}
-  - {fileID: 2607715763077659899, guid: b3faf8602963e3347a45b5ad183c19f2, type: 3}
-  - {fileID: 5624923132438207037, guid: a543d10366504d14d960259f0dee3b7c, type: 3}
+  - {fileID: 6294087193304061933, guid: bb031e508e2c0d84f99422f9013f869c, type: 3}
+  - {fileID: 6294087193304061933, guid: bb031e508e2c0d84f99422f9013f869c, type: 3}
+  - {fileID: 6294087193304061933, guid: bb031e508e2c0d84f99422f9013f869c, type: 3}
+  damageCircleEffectPrefabs: []
   damageCircleEffectDurations:
   - 1
   - 1
   - 1
   skillCenterOffset: {x: 0, y: 0, z: 0}
-  warningDelay: 1
-  warningCircleDuration: 0.8
-  damageCircleDuration: 0.01
+  warningDelay: 0.5
 --- !u!195 &9035533090209629525
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -329,35 +326,22 @@ MonoBehaviour:
   - {fileID: -6064776853419788102, guid: fb22b1dd418cc16469cc9e4bafc8f8bc, type: 3}
   skill3DashStartSprites: []
   skill3DashSprites:
-  - {fileID: 4584172873381075427, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 5008805403205832874, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -2919252804420293673, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -6922995991336347193, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 3356216123778969231, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -107115241627901762, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -1154471908609473073, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -6660293277488892904, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 8496310049773389575, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -4859614993643779507, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 6567247827628628445, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 1984424167950327556, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 4748722363827722772, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 8638846125523923352, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: -1978564322327828535, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
-  - {fileID: 5528576720022186206, guid: 03a8140ade4f58d409622bd168b18938, type: 3}
+  - {fileID: -6626033180725468996, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
+  skill3SlashSprites:
+  - {fileID: -6626033180725468996, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
+  - {fileID: 4621172356775109352, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
   - {fileID: 4431564243869905416, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
   - {fileID: -3352724784329383960, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
   - {fileID: -1557679702065258538, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
   - {fileID: 6339183134237866120, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
   - {fileID: 5041456313144974949, guid: 5c8058134a93cfd4587dd6b5d471d8a1, type: 3}
-  skill3SlashSprites: []
   idleFrameTime: 0.14
   moveFrameTime: 0.1
   skill1FrameTime: 0.07
   skill2FrameTime: 0.12
   skill3DashStartFrameTime: 0.2
   skill3DashFrameTime: 0.14
-  skill3SlashFrameTime: 0.14
+  skill3SlashFrameTime: 0.25
   globalSpeed: 1
   idleSpeed: 1
   moveSpeed: 1
@@ -423,3 +407,55 @@ MonoBehaviour:
   spDebrisEndColor: {r: 1, g: 0.85, b: 0.4, a: 0}
   spDebrisStartSize: 0.08
   spDebrisEndSize: 0.02
+--- !u!114 &4517655087012957219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9056929667236055254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 2
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.55
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Intensity: 0.5
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0.6
+  m_PointLightOuterRadius: 2.09
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}

@@ -104,12 +104,12 @@ public class BossFireballProjectile : MonoBehaviour
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
 
             // 🔥 FireBoss에 플레이어 히트 알리기
-            FireBoss boss = Object.FindFirstObjectByType<FireBoss>();
-            if (boss != null)
-            {
-                boss.OnPlayerHit();
-                Debug.Log("플레이어 맞아서 스킬 종료");
-            }
+            //FireBoss boss = Object.FindFirstObjectByType<FireBoss>();
+            //if (boss != null)
+            //{
+            //    boss.OnPlayerHit();
+            //    Debug.Log("플레이어 맞아서 스킬 종료");
+            //}
 
             // 화염구 제거
             Destroy(gameObject);

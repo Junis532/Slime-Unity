@@ -289,4 +289,41 @@ public class BossAnimation : MonoBehaviour
         float speed = Mathf.Max(0.05f, globalSpeed * Mathf.Max(0.05f, mult));
         return Mathf.Max(0.005f, baseTime / speed);
     }
+
+    /// <summary>
+    /// 지정된 애니메이션을 재생 후 마지막 프레임에서 정지(Idle로 복귀 안 함)
+    /// </summary>
+    public void PlayAnimationAndPauseLastFrame(State newState)
+    {
+        if (animCo != null) StopCoroutine(animCo);
+
+        var sprites = GetSprites(newState);
+        if (sprites == null || sprites.Count == 0)
+        {
+            if (logDebug) Debug.LogWarning($"[BossAnimation] {newState} 스프라이트 없음");
+            return;
+        }
+
+        currentState = newState;
+        skillPlaying = true;
+        animCo = StartCoroutine(PlayAndPauseLastFrameRoutine(sprites, GetWait(newState)));
+    }
+
+    /// <summary>
+    /// 내부 코루틴: 애니메이션 끝나면 마지막 프레임 유지
+    /// </summary>
+    private IEnumerator PlayAndPauseLastFrameRoutine(List<Sprite> sprites, float wait)
+    {
+        if (sprites == null || sprites.Count == 0) yield break;
+
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            spr.sprite = sprites[i];
+            yield return new WaitForSeconds(wait);
+        }
+
+        // 마지막 프레임 유지 (Idle로 돌아가지 않음)
+        spr.sprite = sprites[sprites.Count - 1];
+    }
+
 }

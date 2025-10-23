@@ -23,6 +23,16 @@ public class AudioManager : MonoBehaviour
     public AudioClip land;
     public AudioClip portalSpawnSound;
 
+    [Header("터렛 발사")]
+    public AudioClip turretShooting;
+
+    [Header("보스 효과음 리스트")]
+    public AudioClip bossSword;
+    public AudioClip bossSkill1;
+    public AudioClip bossSkill2;
+    public AudioClip bossSkill3;
+    public AudioClip bossSkill3Fire;
+
     void Awake()
     {
         // 싱글톤 패턴 적용
@@ -89,4 +99,14 @@ public class AudioManager : MonoBehaviour
     public void PlayPortalSpawnSound(float volume = 1.2f) => PlaySFX(portalSpawnSound, volume);
 
     public void PlayDashSound(float volume = 1f) => PlaySFX(dash, volume);
+
+    // 터렛 공격
+    public void TurretShootingSound(float volume = 1f) => PlaySFX(turretShooting, volume);
+
+    // 보스 스킬
+    public void PlayBossSwordSound(float volume = 1f) => PlaySFX(bossSword, volume);
+    public void PlayBossSkill1Sound(float volume = 1f) => PlaySFX(bossSkill1, volume);
+    public void PlayBossSkill2Sound(float volume = 1f) => PlaySFX(bossSkill2, volume);
+    public void PlayBossSkill3Sound(float volume = 1f) => PlaySFX(bossSkill3, volume);
+    public void PlayBossSkill3FireSound(float volume = 1f) => PlaySFX(bossSkill3Fire, volume);
 }

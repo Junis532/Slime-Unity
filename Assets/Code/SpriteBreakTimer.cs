@@ -6,15 +6,24 @@ using UnityEngine.Tilemaps;
 using Debug = UnityEngine.Debug;
 
 /// 바닥/타일을 "붉게 변하며 꺼지는" 버전으로 처리
+/// - startTrigger가 지정되면: 그 콜라이더가 triggerTag와 트리거된 "그 순간부터" startDelay 카운트 시작
+/// - startTrigger가 비어 있으면: autoStartOnEnable 옵션 그대로 동작
 [RequireComponent(typeof(Transform))]
 public class BreakableGround2D : MonoBehaviour
 {
     public enum Outcome { FadeOnlyKeep, DisableObject, DestroyObject }
 
+    [Header("트리거 시작 설정")]
+    [Tooltip("여기에 지정된 Collider2D가 'triggerTag'와 트리거될 때부터 startDelay 카운트 시작")]
+    public Collider2D startTrigger;
+    public string triggerTag = "Player";
+    [Tooltip("같은 콜라이더를 여러 오브젝트가 공유해도 안전. 개별 오브젝트별 1회만 반응")]
+    public bool triggerOnce = true;
+
     [Header("지연(타이머) 설정")]
     public float extraWaitTime = 0f;
     public float startDelay = 1.5f;
-    public bool autoStartOnEnable = true;
+    public bool autoStartOnEnable = true;  // ※ startTrigger가 비어있을 때만 적용
     public bool useUnscaledTime = false;
 
     [Header("붉게 변하는 경고 연출")]
@@ -48,6 +57,7 @@ public class BreakableGround2D : MonoBehaviour
     private Tilemap tilemap;
     private Coroutine routine;
     private bool isRunning;
+    private bool hasTriggered;   // 지정 콜라이더로부터 이미 트리거되었는지
 
     private Color baseColor;
     private bool hasColorCache;
@@ -57,12 +67,34 @@ public class BreakableGround2D : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         tmRenderer = GetComponent<TilemapRenderer>();
         tilemap = GetComponent<Tilemap>();
+
+        // 지정 콜라이더가 있으면, 그 오브젝트에 포워더를 붙여서 이 스크립트로 전달되게 함(멀티 구독 지원)
+        if (startTrigger != null)
+        {
+            var fwd = startTrigger.GetComponent<BG2D_TriggerForwarder>();
+            if (fwd == null) fwd = startTrigger.gameObject.AddComponent<BG2D_TriggerForwarder>();
+            fwd.Register(this, triggerTag, triggerOnce);
+
+            if (!startTrigger.isTrigger)
+                Debug.LogWarning($"[BreakableGround2D] '{startTrigger.name}'의 isTrigger를 켜주세요.");
+        }
     }
 
     void OnEnable()
     {
-        if (autoStartOnEnable)
+        // 트리거가 없을 때만 자동 시작
+        if (startTrigger == null && autoStartOnEnable)
             StartBreak();
+    }
+
+    /// 포워더가 호출하는 엔트리 포인트
+    public void OnStartTriggerEntered(Collider2D who)
+    {
+        if (hasTriggered && triggerOnce) return;
+        if (who != null && !who.CompareTag(triggerTag)) return;
+
+        hasTriggered = true;
+        StartBreak();   // 👉 여기서부터 'startDelay' 포함 원래 시퀀스 시작
     }
 
     [ContextMenu("Start Break")]
@@ -78,6 +110,7 @@ public class BreakableGround2D : MonoBehaviour
         if (routine != null) StopCoroutine(routine);
         routine = null;
         isRunning = false;
+        hasTriggered = false;
         SetColorAlpha(1f);
         if (hasColorCache) SetColor(baseColor);
     }
@@ -98,8 +131,6 @@ public class BreakableGround2D : MonoBehaviour
         {
             float dt = DeltaTime();
             elapsed += dt;
-
-            float remain = Mathf.Max(0f, duration - elapsed);
 
             // 서서히 붉어지는 구간
             if (useRedWarning && elapsed >= redStartTime)
@@ -151,7 +182,7 @@ public class BreakableGround2D : MonoBehaviour
     }
 
     //───────────────────────────────
-    // 유틸
+    // 유틸 (원본 그대로)
     //───────────────────────────────
     private IEnumerator WaitForSecondsSmart(float seconds)
     {
@@ -311,6 +342,61 @@ public class BreakableGround2D : MonoBehaviour
 
         Destroy(leftObj);
         Destroy(rightObj);
+    }
+}
+
+/// 지정 콜라이더에서 OnTriggerEnter2D를 여러 BreakableGround2D에게 브로드캐스트하는 포워더(멀티 구독)
+[DisallowMultipleComponent]
+public class BG2D_TriggerForwarder : MonoBehaviour
+{
+    // 개별 구독자 정보를 보관
+    private class Entry
+    {
+        public BreakableGround2D target;
+        public string tag;
+        public bool once;
+        public bool fired;
+    }
+
+    private readonly System.Collections.Generic.List<Entry> _subs = new System.Collections.Generic.List<Entry>();
+
+    /// <summary>여러 BreakableGround2D가 동일 콜라이더를 등록할 수 있음</summary>
+    public void Register(BreakableGround2D target, string triggerTag, bool triggerOnce)
+    {
+        if (target == null) return;
+
+        // 중복 방지
+        for (int i = 0; i < _subs.Count; i++)
+            if (_subs[i].target == target) return;
+
+        _subs.Add(new Entry
+        {
+            target = target,
+            tag = string.IsNullOrEmpty(triggerTag) ? "Player" : triggerTag,
+            once = triggerOnce,
+            fired = false
+        });
+
+        var col = GetComponent<Collider2D>();
+        if (col != null && !col.isTrigger)
+            Debug.LogWarning($"[BG2D_TriggerForwarder] '{name}'의 Collider2D.isTrigger를 켜주세요.");
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (_subs.Count == 0 || other == null) return;
+
+        // 모든 구독자에게 브로드캐스트
+        for (int i = 0; i < _subs.Count; i++)
+        {
+            var s = _subs[i];
+            if (s.fired && s.once) continue;
+            if (s.target == null) continue;
+            if (!other.CompareTag(s.tag)) continue;
+
+            s.fired = true;
+            s.target.OnStartTriggerEntered(other);
+        }
     }
 }
 
