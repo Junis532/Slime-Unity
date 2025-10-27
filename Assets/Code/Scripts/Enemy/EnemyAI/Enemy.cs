@@ -26,6 +26,10 @@ public class Enemy : EnemyBase
     public bool disableObstacleAvoid = true;
     public float minMoveSpeedToAnimate = 0.1f;
 
+    [Header("속도 설정")]
+    [Tooltip("이 적의 이동 속도를 설정합니다.")]
+    public float moveSpeed = 3.5f; // 👈 인스펙터에서 직접 설정 가능
+
     [Header("충돌/반전")]
     public string obstacleTag = "AIWall";
 
@@ -37,7 +41,8 @@ public class Enemy : EnemyBase
         enemyAnimation = GetComponent<EnemyAnimation>();
         agent = GetComponent<NavMeshAgent>();
 
-        speed = GameManager.Instance.enemyStats.speed;
+        // 인스펙터에서 설정한 속도 사용
+        speed = moveSpeed;
         originalSpeed = speed;
 
         // 2D 세팅
