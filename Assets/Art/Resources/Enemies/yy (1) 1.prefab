@@ -55,7 +55,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 32.7316
+      value: 31.62
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -95,16 +95,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletSpeed
-      value: 5.7
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: cycleLength
-      value: 2.4
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletPrefab
       value: 
       objectReference: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: bulletLifetime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: firstFireDelay
       value: 1.2
@@ -157,7 +161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 33.771603
+      value: 32.660004
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -197,16 +201,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletSpeed
-      value: 5.7
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: cycleLength
-      value: 2.4
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletPrefab
       value: 
       objectReference: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: bulletLifetime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: firstFireDelay
       value: 0.8
@@ -259,7 +267,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 34.8316
+      value: 33.72
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -299,16 +307,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletSpeed
-      value: 5.7
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: cycleLength
-      value: 2.4
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletPrefab
       value: 
       objectReference: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: bulletLifetime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: firstFireDelay
       value: 0.4
@@ -355,6 +367,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7374072777609712053}
     m_Modifications:
+    - target: {fileID: 329258346120513928, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: moveSpeed
+      value: 2.2
+      objectReference: {fileID: 0}
     - target: {fileID: 989741138225912565, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_Name
       value: Enemy
@@ -365,7 +381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1822604486470973699, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 34.429996
+      value: 33.318398
       objectReference: {fileID: 0}
     - target: {fileID: 1822604486470973699, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_LocalPosition.z
@@ -490,7 +506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 35.27
+      value: 34.1584
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -530,16 +546,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletSpeed
-      value: 5.7
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: cycleLength
-      value: 2.4
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletPrefab
       value: 
       objectReference: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: bulletLifetime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: firstFireDelay
       value: 0
@@ -674,7 +694,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 32.42
+      value: 31.308397
       objectReference: {fileID: 0}
     - target: {fileID: 1513478906134154697, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -714,16 +734,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletSpeed
-      value: 5.7
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: cycleLength
-      value: 2.4
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: bulletPrefab
       value: 
       objectReference: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
+    - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
+      propertyPath: bulletLifetime
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1712296371880641779, guid: ee522297d42a8a6429a84b6f692edd92, type: 3}
       propertyPath: firstFireDelay
       value: 1.6
