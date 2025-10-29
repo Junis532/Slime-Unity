@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    // 다른 스크립트 호환을 위해 그대로 공개
     public Vector2 inputVec;
     public Vector2 InputVector => inputVec;
 
@@ -26,7 +25,9 @@ public class PlayerController : MonoBehaviour
     [Header("Bridge")]
     public Bridge bridge; // Scene에서 연결
 
-    // 내부 상태
+    [Header("Mesh Reflection")]
+    public GameObject meshReflection; // 🔹 물 반사 오브젝트 연결
+
     private Vector2 keyboardInput;
     private Vector2 currentVelocity;
     private Vector2 currentDirection;
@@ -35,7 +36,7 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private GameObject directionIndicatorInstance;
 
-    private bool wasMovingInput = false; // 이전 프레임 “입력 기준” 이동 여부
+    private bool wasMovingInput = false;
 
     void Start()
     {
@@ -53,7 +54,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove) return;
 
-        // 1) 입력 수집 (키보드 + 조이스틱)
         var kb = Keyboard.current;
         float ax = 0f, ay = 0f;
         if (kb != null)
@@ -73,28 +73,30 @@ public class PlayerController : MonoBehaviour
         inputVec = keyboardInput + joystickInput;
         if (inputVec.magnitude > 1f) inputVec = inputVec.normalized;
 
-        // 2) 정지 에지에서 Stop 원샷 트리거
         bool isMovingInput = inputVec.magnitude > stopTriggerThreshold;
         if (wasMovingInput && !isMovingInput && playerAnimation != null)
-        {
-            // 이동 → 정지 순간에만 한 번 호출
             playerAnimation.OnStopMoving();
-        }
         wasMovingInput = isMovingInput;
 
-        // 3) 방향/플립
         currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
 
         float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
         if (spriteRenderer != null)
         {
-            if (flipInput < -0.01f) spriteRenderer.flipX = true;
-            else if (flipInput > 0.01f) spriteRenderer.flipX = false;
+            if (flipInput < -0.01f)
+            {
+                spriteRenderer.flipX = true;
+                FlipMeshReflection(true);  // 🔹 같이 플립
+            }
+            else if (flipInput > 0.01f)
+            {
+                spriteRenderer.flipX = false;
+                FlipMeshReflection(false); // 🔹 같이 플립
+            }
         }
 
         UpdateDirectionIndicator();
 
-        // 4) 애니메이션 전환 — 매 프레임 ‘시도’ (Stop 중엔 PlayerAnimation이 내부적으로 무시)
         if (playerAnimation != null)
         {
             playerAnimation.PlayAnimation(isMovingInput ? PlayerAnimation.State.Move
@@ -140,8 +142,15 @@ public class PlayerController : MonoBehaviour
         return 1f;
     }
 
-    void OnMove(InputValue value)
+    void OnMove(InputValue value) { }
+
+    // 🔹 Mesh Reflection 좌우 반전 처리 함수
+    void FlipMeshReflection(bool flip)
     {
-        // InputSystem 액션 연결 시 사용
+        if (meshReflection == null) return;
+
+        Vector3 scale = meshReflection.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * (flip ? -1 : 1);
+        meshReflection.transform.localScale = scale;
     }
 }
