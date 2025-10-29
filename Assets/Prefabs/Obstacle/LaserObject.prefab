@@ -221,6 +221,7 @@ MonoBehaviour:
   activeTime: 2
   inactiveTime: 1
   startActive: 0
+  startActiveDelay: 0
   selfActivateOnTrigger: 0
   triggerTag: Player
   activateDelay: 3.5
@@ -230,6 +231,16 @@ MonoBehaviour:
   warningOffset: {x: 0, y: 0, z: 0}
   warningScale: 1.5
   damageCooldown: 0.15
+  waveColor: {r: 1, g: 0.9200684, b: 0.2980392, a: 0.7}
+  waveMaxRadius: 0.5
+  waveDuration: 0.5
+  waveSegments: 32
+  startCirclePrefab: {fileID: 0}
+  startCircleSize: 0.3
+  startCircleAlpha: 1
+  startCircleGrowDuration: 0.3
+  laserGrowSpeed: 30
+  delayBeforeLaser: 0.5
 --- !u!61 &8234417129628003444
 BoxCollider2D:
   m_ObjectHideFlags: 0
