@@ -205,7 +205,7 @@ public class EnemyHP : MonoBehaviour
 
         if (effectObj == null) return;
 
-        DOVirtual.DelayedCall(0.3f, () =>
+        DOVirtual.DelayedCall(0.15f, () =>
         {
             PoolManager.Instance.ReturnToPool(effectObj);
         });
