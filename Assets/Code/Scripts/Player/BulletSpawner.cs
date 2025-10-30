@@ -45,6 +45,10 @@ public class BulletSpawner : MonoBehaviour
     [Tooltip("차징 게이지 UI")]
     public Image chargeUI;
 
+    [Header("차지 완료 이펙트")]
+    public GameObject chargeEffectPrefab; // 차지 최대치 시 표시
+    private GameObject activeChargeEffect; // 현재 활성화된 이펙트
+
     [Header("한 번에 발사할 총알 개수")]
     public int bulletsPerShot = 3;
 
@@ -103,24 +107,36 @@ public class BulletSpawner : MonoBehaviour
         bool isMoving = !isStill;
 
         // ================= 차징 처리 =================
-        // 이동 중이거나 정지 중이지만 공격할 적이 없으면 차징
         if (isMoving || closestEnemy == null)
         {
             chargeAmount += chargeSpeed * Time.deltaTime;
             chargeAmount = Mathf.Min(chargeAmount, maxCharge);
+
+            // 차지 완료 시 이펙트 활성화
+            if (chargeAmount >= maxCharge && activeChargeEffect == null && chargeEffectPrefab != null)
+            {
+                activeChargeEffect = Instantiate(chargeEffectPrefab, playerController.transform);
+                activeChargeEffect.transform.localPosition = Vector3.zero;
+            }
         }
 
         if (chargeUI != null)
             chargeUI.fillAmount = chargeAmount / maxCharge;
 
         // ================= 공격 처리 =================
-        // 멈춰있고 적이 있을 때만 공격
         if (isStill && closestEnemy != null && cooldownTimer <= 0f)
         {
             FireArrow(closestEnemy);
 
             // 공격 시 차지 초기화
             chargeAmount = 0f;
+
+            // 차지 완료 이펙트 제거
+            if (activeChargeEffect != null)
+            {
+                Destroy(activeChargeEffect);
+                activeChargeEffect = null;
+            }
 
             float actualCooldown = attackCooldown / Mathf.Max(0.1f, attackSpeedMultiplier);
             cooldownTimer = actualCooldown;
@@ -135,7 +151,6 @@ public class BulletSpawner : MonoBehaviour
 
         wasMoving = isMoving;
     }
-
 
     private void UpdateCooldownUI()
     {
