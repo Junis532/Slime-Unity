@@ -160,7 +160,6 @@ public class BulletSpawner : MonoBehaviour
         float cooldownProgress = Mathf.Clamp01(cooldownTimer / actualCooldown);
         attackCooldownUI.fillAmount = 1f - cooldownProgress;
     }
-
     private void UpdateMarkers(Transform closestEnemy)
     {
         if (targetMarkerPrefab != null)
@@ -172,6 +171,9 @@ public class BulletSpawner : MonoBehaviour
                     currentMarker = Instantiate(targetMarkerPrefab, markerPos, Quaternion.identity);
                 else
                     currentMarker.transform.position = markerPos;
+
+                // target marker는 회전만
+                currentMarker.transform.Rotate(Vector3.up * 90f * Time.deltaTime);
             }
             else if (currentMarker != null)
             {
@@ -186,9 +188,19 @@ public class BulletSpawner : MonoBehaviour
             {
                 Vector3 markerPos = closestEnemy.position + secondTargetMarkerOffset;
                 if (secondMarker == null)
+                {
                     secondMarker = Instantiate(secondTargetMarkerPrefab, markerPos, Quaternion.Euler(0, 0, -90));
+
+                    // 🔹 여기에 스케일 반복 애니메이션 추가
+                    secondMarker.transform.localScale = Vector3.one;
+                    secondMarker.transform.DOScale(new Vector3(1.2f, 1.2f, 1f), 0.5f)
+                        .SetLoops(-1, LoopType.Yoyo)
+                        .SetEase(Ease.InOutSine);
+                }
                 else
+                {
                     secondMarker.transform.position = markerPos;
+                }
             }
             else if (secondMarker != null)
             {
