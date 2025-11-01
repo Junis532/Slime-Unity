@@ -296,7 +296,6 @@ public class BulletSpawner : MonoBehaviour
             return 15f * attackRangeMultiplier;
         }
     }
-
     private void FireArrow(Transform centerTarget)
     {
         if (centerTarget == null) return;
@@ -307,7 +306,6 @@ public class BulletSpawner : MonoBehaviour
         if (playerController != null)
         {
             Transform player = playerController.transform;
-
             player.DOKill();
             Sequence seq = DOTween.Sequence();
             seq.Append(player.DOScale(new Vector3(4.3f * 1.4f, 4.3f * 0.6f, player.localScale.z), 0.08f).SetEase(Ease.OutQuad));
@@ -317,9 +315,11 @@ public class BulletSpawner : MonoBehaviour
         fireCount++;
         bool isFireballShot = (fireCount % 7 == 0) && (fireballPrefab != null) && useFireball;
 
+        // ✅ 게이지가 다 찼으면 이번 공격은 무조건 크리티컬
+        bool forceCritical = (chargeAmount >= maxCharge);
+
         Vector3 dirToTarget = (centerTarget.position - playerController.transform.position).normalized;
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
-
         FlipPlayer(dirToTarget);
 
         int count = Mathf.Max(1, bulletsPerShot);
@@ -336,9 +336,8 @@ public class BulletSpawner : MonoBehaviour
             Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
             Vector3 spawnPos = playerController.transform.position + dir * arrowDistanceFromPlayer;
 
-            GameObject bullet = GameManager.Instance.poolManager.SpawnFromPool(
-                bulletPrefabToUse.name, spawnPos, Quaternion.identity
-            );
+            // 🔹 풀 스폰 말고 그냥 Instantiate 사용
+            GameObject bullet = Instantiate(bulletPrefabToUse, spawnPos, Quaternion.identity);
 
             if (bullet != null)
             {
@@ -346,7 +345,8 @@ public class BulletSpawner : MonoBehaviour
                 if (bulletAI != null)
                 {
                     bulletAI.ResetBullet();
-                    bulletAI.InitializeBullet(spawnPos, angle, isCenter);
+                    // ✅ 크리티컬 여부 전달
+                    bulletAI.InitializeBullet(spawnPos, angle, isCenter, forceCritical);
                 }
 
                 if (isFireballThisShot)
@@ -360,6 +360,7 @@ public class BulletSpawner : MonoBehaviour
             }
         }
     }
+
 
     private void FlipPlayer(Vector3 dir)
     {

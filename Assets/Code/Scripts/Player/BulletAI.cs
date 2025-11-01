@@ -16,6 +16,8 @@ public class BulletAI : MonoBehaviour
     [Header("이펙트 프리팹")]
     public GameObject hitEffectPrefab; // obstacle 충돌 시 생성될 이펙트
 
+    public bool isCritical = false;
+
     public void ResetBullet()
     {
         isDestroying = false;
@@ -26,8 +28,9 @@ public class BulletAI : MonoBehaviour
         }
     }
 
-    public void InitializeBullet(Vector3 startPosition, float startAngle, bool follow = true)
+    public void InitializeBullet(Vector3 startPosition, float startAngle, bool follow = true, bool forceCritical = false)
     {
+        isCritical = forceCritical;
         transform.position = startPosition;
         transform.rotation = Quaternion.Euler(0, 0, startAngle);
         followEnemy = follow;
@@ -132,7 +135,10 @@ public class BulletAI : MonoBehaviour
     {
         if (isDestroying) return;
 
-        if (other.CompareTag("Obstacle"))
+        // ────────────────────────────────
+        // ▣ 장애물 또는 LaserNot 충돌 시
+        // ────────────────────────────────
+        if (other.CompareTag("Obstacle") || other.CompareTag("LaserNot"))
         {
             if (moveCoroutine != null) StopCoroutine(moveCoroutine);
 
@@ -143,47 +149,33 @@ public class BulletAI : MonoBehaviour
                 Destroy(effect, 0.3f); // 0.3초 후 삭제
             }
 
-            Invoke(nameof(DestroySelf), 0.1f); // 화살은 바로 풀로 반환
-            return;
-        }
-        if (other.CompareTag("LaserNot"))
-        {
-            if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-
-            // ✅ 충돌 위치에 이펙트 생성
-            if (hitEffectPrefab != null)
-            {
-                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-                Destroy(effect, 0.3f); // 0.3초 후 삭제
-            }
-
-            Invoke(nameof(DestroySelf), 0.1f); // 화살은 바로 풀로 반환
+            Invoke(nameof(DestroySelf), 0.1f); // 바로 제거
             return;
         }
 
-        //if (other.CompareTag("Obstacle"))
-        //{
-        //    // AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowWall); // Should be a dedicated sound manager call
-        //    if (moveCoroutine != null) StopCoroutine(moveCoroutine);
-
-        //    Invoke(nameof(DestroySelf), 1f);
-        //    return;
-        //}
-
+        // ────────────────────────────────
+        // ▣ 적 충돌 시
+        // ────────────────────────────────
         if (other.CompareTag("Enemy") || other.CompareTag("DashEnemy") ||
             other.CompareTag("LongRangeEnemy") || other.CompareTag("PotionEnemy"))
         {
+            // ✅ 크리티컬 여부 전달
             EnemyHP hp = other.GetComponent<EnemyHP>();
-            if (hp != null) hp.TakeDamage();
+            if (hp != null) hp.TakeDamage(isCritical);
+
             TankerEnemyHP thp = other.GetComponent<TankerEnemyHP>();
             if (thp != null) thp.TakeDamage();
+
             AsuraEnemyHP ahp = other.GetComponent<AsuraEnemyHP>();
             if (ahp != null) ahp.TakeDamage();
+
             Boss1HP bossHP = other.GetComponent<Boss1HP>();
             if (bossHP != null) bossHP.TakeDamage();
+
             MiddleBoss1HP middleBossHP = other.GetComponent<MiddleBoss1HP>();
             if (middleBossHP != null) middleBossHP.TakeDamage();
 
+            // ✅ 슬로우 스킬 적용
             if (bulletSpawner != null && bulletSpawner.slowSkillActive)
             {
                 EnemyBase enemyBase = other.GetComponent<EnemyBase>();
@@ -192,6 +184,15 @@ public class BulletAI : MonoBehaviour
                     Object.FindFirstObjectByType<SlowSkill>()?.ApplySlow(enemyBase);
                 }
             }
+
+            // ✅ 피격 이펙트
+            if (hitEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                Destroy(effect, 0.3f);
+            }
+
+            // ✅ 풀 반환
             DestroySelf();
         }
     }

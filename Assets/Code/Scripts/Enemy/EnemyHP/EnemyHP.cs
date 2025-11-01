@@ -120,7 +120,7 @@ public class EnemyHP : MonoBehaviour
     // ========== 외부 데미지 인터페이스 ==========
 
     // 일반 공격
-    public void TakeDamage()
+    public void TakeDamage(bool forceCritical)
     {
         if (isDead) return;
 
@@ -128,9 +128,10 @@ public class EnemyHP : MonoBehaviour
             ? (transform.position - playerTransform.position).normalized
             : Vector3.zero;
 
-        bool isCritical = Random.Range(0f, 100f) < criticalChance;
+        // 수정 후: 차지 완료시만 강제 크리티컬
         int baseAtk = Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
-        int damage = isCritical ? baseAtk * 2 : baseAtk;
+        int damage = forceCritical ? baseAtk * 2 : baseAtk; // forceCritical = 차지 완료 여부
+        bool isCritical = forceCritical; // 이제 그냥 차지 상태만 체크
 
         ApplyDamage(damage, isCritical, knockDir);
     }

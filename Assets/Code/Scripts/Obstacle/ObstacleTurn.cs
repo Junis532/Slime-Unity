@@ -37,6 +37,8 @@ public class ObstacleTurn : MonoBehaviour
             else
             {
                 rb2D.interpolation = RigidbodyInterpolation2D.Interpolate;
+                // Rigidbody2D X/Y 이동만 허용, Z 회전은 스크립트로 제어
+                rb2D.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
             }
         }
     }
@@ -50,23 +52,25 @@ public class ObstacleTurn : MonoBehaviour
 
         if (useRigidbody2D && rb2D != null)
         {
-            rb2D.MoveRotation(rb2D.rotation + rotationAmount);
+            // Rigidbody2D Z축만 회전
+            float newRotation = rb2D.rotation + rotationAmount;
+            rb2D.MoveRotation(newRotation);
         }
         else
         {
-            transform.Rotate(0f, 0f, rotationAmount);
+            // Transform 회전 시 X/Y 회전 강제 고정, Z축만 회전
+            Vector3 rotation = transform.eulerAngles;
+            rotation.z += rotationAmount;
+            rotation.x = 0f;
+            rotation.y = 0f;
+            transform.eulerAngles = rotation;
         }
     }
 
     // ───────────── 제어 메서드 ─────────────
 
-    /// <summary>회전 시작</summary>
-    public void StartTurning()
-    {
-        isTurning = true;
-    }
+    public void StartTurning() => isTurning = true;
 
-    /// <summary>회전 정지</summary>
     public void StopTurning()
     {
         isTurning = false;
@@ -77,7 +81,6 @@ public class ObstacleTurn : MonoBehaviour
         }
     }
 
-    /// <summary>지정 시간 동안만 회전</summary>
     public void StartTurningForSeconds(float seconds)
     {
         if (timedTurnRoutine != null)
@@ -93,7 +96,6 @@ public class ObstacleTurn : MonoBehaviour
         timedTurnRoutine = null;
     }
 
-    /// <summary>회전 방향 변경</summary>
     public void ToggleDirection()
     {
         turnDirection = (turnDirection == TurnDirection.Clockwise)
@@ -101,15 +103,7 @@ public class ObstacleTurn : MonoBehaviour
             : TurnDirection.Clockwise;
     }
 
-    /// <summary>속도 변경</summary>
-    public void SetSpeed(float speed)
-    {
-        turnSpeed = Mathf.Max(0f, speed);
-    }
+    public void SetSpeed(float speed) => turnSpeed = Mathf.Max(0f, speed);
 
-    /// <summary>방향 지정</summary>
-    public void SetDirection(TurnDirection dir)
-    {
-        turnDirection = dir;
-    }
+    public void SetDirection(TurnDirection dir) => turnDirection = dir;
 }
