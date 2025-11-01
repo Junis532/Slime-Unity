@@ -29,6 +29,5 @@ public class PlayerStats : ScriptableObject
         maxHP = 600;
         currentHP = maxHP;
         attack = 150;
-        criticalChance = 10;
     }
 }

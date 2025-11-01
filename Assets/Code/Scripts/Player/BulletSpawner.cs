@@ -150,6 +150,12 @@ public class BulletSpawner : MonoBehaviour
         UpdateCooldownUI();
 
         wasMoving = isMoving;
+
+        // VignetteEffect와 연동
+        var vignetteObj = FindAnyObjectByType<VignetEffect>();
+        if (vignetteObj != null)
+            vignetteObj.chargeAmount = chargeAmount / maxCharge;
+
     }
 
     private void UpdateCooldownUI()
