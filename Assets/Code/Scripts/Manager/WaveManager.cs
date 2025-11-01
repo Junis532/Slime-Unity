@@ -11,7 +11,7 @@ public class RoomWaveData
     [Header("웨이브 정보")]
     public string waveName = "Wave 1";
     public List<GameObject> enemyPrefabs;
-    public float waveDelay = 2f; // 웨이브 시작 전 대기 시간
+    public float waveDelay = 2f;
 }
 
 [System.Serializable]
@@ -30,8 +30,7 @@ public class RoomData
     public List<RoomWaveData> waves = new List<RoomWaveData>();
     public List<MovingWall> movingWalls;
 
-    [HideInInspector]
-    public bool activated = false;
+    [HideInInspector] public bool activated = false;
 
     [Header("카메라 Follow 설정")]
     public bool CameraFollow = true;
@@ -56,8 +55,7 @@ public class RoomData
     [Header("문 초기 상태")]
     public bool doorsInitiallyOpen = true;
 
-    [HideInInspector]
-    public bool isCleared = false; // 방 클리어 여부
+    [HideInInspector] public bool isCleared = false;
 }
 
 public class WaveManager : MonoBehaviour
@@ -93,12 +91,18 @@ public class WaveManager : MonoBehaviour
     private RoomData currentRoom;
     private bool cleared = false;
     private bool isSpawning = false;
-    private bool isFirstRoom = true;
     private bool isEventRunning = false;
+    private int currentRoomIndex = 0;
 
     [Header("웨이브 진행 상태")]
     private int currentWaveIndex = 0;
     private bool isWaveActive = false;
+
+    // ✅ 추가: 방 인덱스별 문 제어용
+    [Header("클리어 시 올라가는 문 프리팹 부모")]
+    public GameObject specialDoorParentPrefab;
+    private Dictionary<int, List<Transform>> specialDoorsByRoom = new Dictionary<int, List<Transform>>();
+    private Dictionary<Transform, Vector3> originalDoorPositions = new Dictionary<Transform, Vector3>();
 
     void Start()
     {
@@ -107,10 +111,26 @@ public class WaveManager : MonoBehaviour
         if (doorAnimationParentPrefab != null)
             allDoorAnimations.AddRange(doorAnimationParentPrefab.GetComponentsInChildren<DoorAnimation>(true));
 
-        for (int i = 0; i < rooms.Count; i++)
+        // ✅ specialDoorParentPrefab 초기화 (자식 이름 = 방 인덱스)
+        if (specialDoorParentPrefab != null)
         {
-            rooms[i].doorsInitiallyOpen = (i == 0);
+            foreach (Transform childGroup in specialDoorParentPrefab.transform)
+            {
+                if (int.TryParse(childGroup.name, out int index))
+                {
+                    specialDoorsByRoom[index] = new List<Transform>();
+                    foreach (Transform door in childGroup)
+                    {
+                        specialDoorsByRoom[index].Add(door);
+                        originalDoorPositions[door] = door.position;
+                    }
+                }
+            }
         }
+
+        // 첫 번째 방만 문 열기
+        for (int i = 0; i < rooms.Count; i++)
+            rooms[i].doorsInitiallyOpen = (i == 0);
     }
 
     void Update()
@@ -120,10 +140,10 @@ public class WaveManager : MonoBehaviour
             RoomData room = GetPlayerRoom();
             if (room != null && room != currentRoom)
             {
+                currentRoomIndex = rooms.IndexOf(room);
                 ApplyCameraConfiner(room);
 
                 if (cineCamera != null) cineCamera.Follow = null;
-
                 currentRoom = room;
                 StartCoroutine(MoveCameraToRoomAndStart(room));
             }
@@ -161,7 +181,6 @@ public class WaveManager : MonoBehaviour
             yield break;
 
         isEventRunning = true;
-
         GameObject eventObj = Instantiate(room.eventObjectPrefab, room.eventStartPos.position, Quaternion.identity);
         cineCamera.Follow = eventObj.transform;
 
@@ -175,17 +194,13 @@ public class WaveManager : MonoBehaviour
 
         Destroy(eventObj);
         cineCamera.Follow = null;
-
         isEventRunning = false;
     }
 
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
         if (room == null || room.cameraCollider == null)
-        {
-            Debug.LogWarning("Room or cameraCollider is null!");
             yield break;
-        }
 
         Vector3 currentCameraPos = cineCamera.transform.position;
         Vector3 roomCenter = room.cameraCollider.bounds.center;
@@ -195,11 +210,11 @@ public class WaveManager : MonoBehaviour
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
         if (playerCtrl != null) playerCtrl.canMove = false;
 
-        // ✅ 이미 클리어된 방이면 CloseDoors() 호출 안 함
         if (!room.isCleared)
         {
             cleared = false;
             CloseDoors();
+            ResetSpecialDoors(currentRoomIndex);
         }
 
         SetAllEnemiesAI(false);
@@ -210,6 +225,7 @@ public class WaveManager : MonoBehaviour
         if (room.eventSceneEnabled)
             yield return StartCoroutine(RunEventScene(room));
 
+        // 🔍 카메라 줌인 연출
         if (room.enableZoomInSequence)
         {
             Camera cam = Camera.main;
@@ -222,7 +238,6 @@ public class WaveManager : MonoBehaviour
                 float camHalfWidth = targetOrthoSize * screenRatio;
                 if (camHalfWidth < bounds.size.x / 2f)
                     targetOrthoSize = bounds.size.x / 2f / screenRatio;
-
                 targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
 
                 Sequence zoomOutSeq = DOTween.Sequence();
@@ -230,18 +245,17 @@ public class WaveManager : MonoBehaviour
                     new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z),
                     cameraMoveDuration
                 ).SetEase(Ease.InOutSine));
-                zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
-                zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f).SetEase(Ease.InOutSine));
+                zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f));
+                zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f));
                 yield return zoomOutSeq.WaitForCompletion();
 
                 yield return new WaitForSeconds(room.zoomInDelay);
-
                 Vector3 zoomTargetPos = room.zoomInCameraFollow ? playerTransform.position : bounds.center;
                 zoomTargetPos.z = cineCamera.transform.position.z;
 
                 Sequence zoomInSeq = DOTween.Sequence();
                 zoomInSeq.Append(cineCamera.transform.DOMove(zoomTargetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-                zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration).SetEase(Ease.InOutSine));
+                zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration));
                 yield return zoomInSeq.WaitForCompletion();
             }
         }
@@ -258,16 +272,11 @@ public class WaveManager : MonoBehaviour
                 wall.isActive = true;
         }
 
-        // ✅ 이미 클리어된 방이면 웨이브 시작 안 함, 문은 열림 유지
         if (!room.isCleared)
         {
             currentWaveIndex = 0;
             isWaveActive = false;
             StartCoroutine(StartWaveSystem(room));
-        }
-        else
-        {
-            Debug.Log($"Room {room.roomName}는 이미 클리어되어 웨이브 스킵, 문 상태 유지");
         }
     }
 
@@ -275,7 +284,6 @@ public class WaveManager : MonoBehaviour
     {
         if (room.waves == null || room.waves.Count == 0)
         {
-            Debug.LogWarning($"Room {room.roomName}에 웨이브가 설정되지 않았습니다!");
             cleared = true;
             room.isCleared = true;
             OpenDoors();
@@ -286,11 +294,8 @@ public class WaveManager : MonoBehaviour
         {
             RoomWaveData currentWave = room.waves[currentWaveIndex];
             yield return new WaitForSeconds(currentWave.waveDelay);
-
-            Debug.Log($"Starting {currentWave.waveName}");
             yield return StartCoroutine(SpawnWaveEnemies(currentWave));
             yield return StartCoroutine(WaitForWaveCleared());
-            Debug.Log($"{currentWave.waveName} 클리어!");
         }
 
         cleared = true;
@@ -306,6 +311,7 @@ public class WaveManager : MonoBehaviour
         }
 
         OpenDoors();
+        RaiseSpecialDoors(currentRoomIndex);
     }
 
     IEnumerator SpawnWaveEnemies(RoomWaveData wave)
@@ -343,7 +349,6 @@ public class WaveManager : MonoBehaviour
                 isWaveActive = false;
                 yield break;
             }
-
             yield return new WaitForSeconds(0.5f);
         }
     }
@@ -377,7 +382,7 @@ public class WaveManager : MonoBehaviour
         if (sr != null)
         {
             sr.color = new Color(1, 0, 0, 0);
-            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
+            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo);
         }
         Destroy(warning, warningDuration);
     }
@@ -407,41 +412,40 @@ public class WaveManager : MonoBehaviour
     public void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null) return;
-
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
         if (confiner == null) return;
 
         Collider2D col = (room != null && room.cameraCollider != null) ? room.cameraCollider : null;
         Vector3 preservedPos = cineCamera.transform.position;
 
-        if (Mathf.Approximately(preservedPos.x, 0f) && Mathf.Approximately(preservedPos.y, 0f))
-        {
-            Debug.LogError("ApplyCameraConfiner: 카메라가 (0,0) 위치에 있음!");
-            return;
-        }
-
         if (confiner.BoundingShape2D != col)
         {
             confiner.BoundingShape2D = col;
             confiner.InvalidateBoundingShapeCache();
-
-            Vector3 newPos = cineCamera.transform.position;
-            if (Vector3.Distance(preservedPos, newPos) > 0.1f ||
-                (Mathf.Approximately(newPos.x, 0f) && Mathf.Approximately(newPos.y, 0f)))
-            {
-                cineCamera.transform.position = preservedPos;
-                Debug.LogWarning($"카메라 위치 복원: {newPos} → {preservedPos}");
-            }
+            cineCamera.transform.position = preservedPos;
         }
     }
 
-    private void DestroyAllEnemies()
+    // ✅ 인덱스 기반 specialDoor 제어 -----------------------------
+
+    private void RaiseSpecialDoors(int roomIndex)
     {
-        string[] enemyTags = { "Enemy", "DashEnemy", "LongRangeEnemy", "PotionEnemy" };
-        foreach (string tag in enemyTags)
+        if (!specialDoorsByRoom.ContainsKey(roomIndex)) return;
+        foreach (var door in specialDoorsByRoom[roomIndex])
         {
-            foreach (GameObject enemy in GameObject.FindGameObjectsWithTag(tag))
-                Destroy(enemy);
+            if (door == null) continue;
+            Vector3 targetPos = originalDoorPositions[door] + new Vector3(0, 1f, 0);
+            door.DOMove(targetPos, 1f).SetEase(Ease.InOutSine);
+        }
+    }
+
+    private void ResetSpecialDoors(int roomIndex)
+    {
+        if (!specialDoorsByRoom.ContainsKey(roomIndex-1)) return;
+        foreach (var door in specialDoorsByRoom[roomIndex-1])
+        {
+            if (door == null) continue;
+            door.DOMove(originalDoorPositions[door], 0.5f).SetEase(Ease.InOutSine);
         }
     }
 }
