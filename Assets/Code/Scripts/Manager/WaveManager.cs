@@ -131,6 +131,19 @@ public class WaveManager : MonoBehaviour
         // 첫 번째 방만 문 열기
         for (int i = 0; i < rooms.Count; i++)
             rooms[i].doorsInitiallyOpen = (i == 0);
+
+        // ✅ 추가: 0번 방의 special door를 시작 시 위로 올리기
+        if (specialDoorsByRoom.ContainsKey(0))
+        {
+            foreach (var door in specialDoorsByRoom[0])
+            {
+                if (door == null) continue;
+                Vector3 targetPos = originalDoorPositions[door] + new Vector3(0, 1f, 0);
+                door.position = targetPos;
+            }
+
+            Debug.Log("[WaveManager] 0번 방 special door 시작 시 위로 열림");
+        }
     }
 
     void Update()
@@ -234,31 +247,53 @@ public class WaveManager : MonoBehaviour
                 Bounds bounds = room.cameraCollider.bounds;
                 float screenRatio = (float)Screen.width / Screen.height;
 
-                float targetOrthoSize = bounds.size.y / 2f;
-                float camHalfWidth = targetOrthoSize * screenRatio;
-                if (camHalfWidth < bounds.size.x / 2f)
-                    targetOrthoSize = bounds.size.x / 2f / screenRatio;
+                // ✅ 가로 기준으로 OrthographicSize 계산
+                float targetOrthoSize = (bounds.size.x / 2f) / screenRatio;
+
+                // 최소~최대 범위 설정
                 targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
 
+                // 줌 아웃(방으로 이동 + 시야 맞추기)
                 Sequence zoomOutSeq = DOTween.Sequence();
                 zoomOutSeq.Append(cineCamera.transform.DOMove(
                     new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z),
                     cameraMoveDuration
                 ).SetEase(Ease.InOutSine));
-                zoomOutSeq.Join(DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, targetOrthoSize, 0.6f));
-                zoomOutSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, targetOrthoSize, 0.6f));
+
+                zoomOutSeq.Join(DOTween.To(
+                    () => cam.orthographicSize,
+                    x => cam.orthographicSize = x,
+                    targetOrthoSize,
+                    0.6f
+                ));
+
+                zoomOutSeq.Join(DOTween.To(
+                    () => cineCamera.Lens.OrthographicSize,
+                    x => cineCamera.Lens.OrthographicSize = x,
+                    targetOrthoSize,
+                    0.6f
+                ));
+
                 yield return zoomOutSeq.WaitForCompletion();
 
+                // 🔎 잠깐 대기 후 줌인 연출
                 yield return new WaitForSeconds(room.zoomInDelay);
+
                 Vector3 zoomTargetPos = room.zoomInCameraFollow ? playerTransform.position : bounds.center;
                 zoomTargetPos.z = cineCamera.transform.position.z;
 
                 Sequence zoomInSeq = DOTween.Sequence();
                 zoomInSeq.Append(cineCamera.transform.DOMove(zoomTargetPos, room.zoomInDuration).SetEase(Ease.InOutSine));
-                zoomInSeq.Join(DOTween.To(() => cineCamera.Lens.OrthographicSize, x => cineCamera.Lens.OrthographicSize = x, room.zoomInTargetSize, room.zoomInDuration));
+                zoomInSeq.Join(DOTween.To(
+                    () => cineCamera.Lens.OrthographicSize,
+                    x => cineCamera.Lens.OrthographicSize = x,
+                    room.zoomInTargetSize,
+                    room.zoomInDuration
+                ));
                 yield return zoomInSeq.WaitForCompletion();
             }
         }
+
 
         cineCamera.Follow = playerTransform;
         if (playerCtrl != null) playerCtrl.canMove = true;
@@ -441,8 +476,8 @@ public class WaveManager : MonoBehaviour
 
     private void ResetSpecialDoors(int roomIndex)
     {
-        if (!specialDoorsByRoom.ContainsKey(roomIndex-1)) return;
-        foreach (var door in specialDoorsByRoom[roomIndex-1])
+        if (!specialDoorsByRoom.ContainsKey(roomIndex - 1)) return;
+        foreach (var door in specialDoorsByRoom[roomIndex - 1])
         {
             if (door == null) continue;
             door.DOMove(originalDoorPositions[door], 0.5f).SetEase(Ease.InOutSine);

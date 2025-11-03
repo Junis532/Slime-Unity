@@ -38,16 +38,14 @@ public class BulletSpawner : MonoBehaviour
     public Image attackCooldownUI;
 
     [Header("차징 시스템")]
-    [Tooltip("0~1: 차지 상태, 1 = 완전히 차 있음")]
     public float chargeAmount = 0f;
-    public float chargeSpeed = 0.5f; // 초당 충전량
-    public float maxCharge = 1f;      // 최대 차지값
-    [Tooltip("차징 게이지 UI")]
+    public float chargeSpeed = 0.5f;
+    public float maxCharge = 1f;
     public Image chargeUI;
 
     [Header("차지 완료 이펙트")]
-    public GameObject chargeEffectPrefab; // 차지 최대치 시 표시
-    private GameObject activeChargeEffect; // 현재 활성화된 이펙트
+    public GameObject chargeEffectPrefab;
+    private GameObject activeChargeEffect;
 
     [Header("한 번에 발사할 총알 개수")]
     public int bulletsPerShot = 3;
@@ -64,11 +62,9 @@ public class BulletSpawner : MonoBehaviour
     public Vector3 secondTargetMarkerOffset = new Vector3(0, 1f, 0);
 
     [Header("공격 사거리 설정 (카메라 기준)")]
-    [Tooltip("카메라 화면 크기의 몇 배까지 공격할지 (1.0 = 카메라 화면과 동일, 카메라 중심 기준)")]
     public float attackRangeMultiplier = 1.2f;
 
     [Header("사거리 모양 설정")]
-    [Tooltip("Circle: 카메라 중심에서 원형 사거리, Rectangle: 카메라 화면 비율에 맞는 사각형 사거리")]
     public AttackRangeType attackRangeType = AttackRangeType.Rectangle;
 
     [Header("디버그")]
@@ -76,12 +72,12 @@ public class BulletSpawner : MonoBehaviour
 
     private GameObject secondMarker;
     private GameObject currentMarker;
-
     private float cooldownTimer = 0f;
-    private bool wasMoving = false;
     private PlayerController playerController;
-
     private int fireCount = 0;
+
+    // 🔥 화면 플래시용 오버레이
+    private Image screenFlash;
 
     void Start()
     {
@@ -94,6 +90,21 @@ public class BulletSpawner : MonoBehaviour
 
         if (chargeUI != null)
             chargeUI.fillAmount = 0f;
+
+        // ✅ Canvas에 화면 플래시용 Image 추가
+        Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
+        if (mainCanvas != null)
+        {
+            GameObject flashObj = new GameObject("ScreenFlash");
+            flashObj.transform.SetParent(mainCanvas.transform, false);
+
+            screenFlash = flashObj.AddComponent<Image>();
+            screenFlash.color = new Color(1, 1, 1, 0); // 투명
+            screenFlash.rectTransform.anchorMin = Vector2.zero;
+            screenFlash.rectTransform.anchorMax = Vector2.one;
+            screenFlash.rectTransform.offsetMin = Vector2.zero;
+            screenFlash.rectTransform.offsetMax = Vector2.zero;
+        }
     }
 
     void Update()
@@ -112,7 +123,6 @@ public class BulletSpawner : MonoBehaviour
             chargeAmount += chargeSpeed * Time.deltaTime;
             chargeAmount = Mathf.Min(chargeAmount, maxCharge);
 
-            // 차지 완료 시 이펙트 활성화
             if (chargeAmount >= maxCharge && activeChargeEffect == null && chargeEffectPrefab != null)
             {
                 activeChargeEffect = Instantiate(chargeEffectPrefab, playerController.transform);
@@ -128,10 +138,8 @@ public class BulletSpawner : MonoBehaviour
         {
             FireArrow(closestEnemy);
 
-            // 공격 시 차지 초기화
             chargeAmount = 0f;
 
-            // 차지 완료 이펙트 제거
             if (activeChargeEffect != null)
             {
                 Destroy(activeChargeEffect);
@@ -146,26 +154,21 @@ public class BulletSpawner : MonoBehaviour
         if (cooldownTimer > 0f)
             cooldownTimer -= Time.deltaTime;
 
-        // 공격 쿨타임 UI 업데이트
         UpdateCooldownUI();
 
-        wasMoving = isMoving;
-
-        // VignetteEffect와 연동
         var vignetteObj = FindAnyObjectByType<VignetEffect>();
         if (vignetteObj != null)
             vignetteObj.chargeAmount = chargeAmount / maxCharge;
-
     }
 
     private void UpdateCooldownUI()
     {
         if (attackCooldownUI == null) return;
-
         float actualCooldown = attackCooldown / Mathf.Max(0.1f, attackSpeedMultiplier);
         float cooldownProgress = Mathf.Clamp01(cooldownTimer / actualCooldown);
         attackCooldownUI.fillAmount = 1f - cooldownProgress;
     }
+
     private void UpdateMarkers(Transform closestEnemy)
     {
         if (targetMarkerPrefab != null)
@@ -178,7 +181,6 @@ public class BulletSpawner : MonoBehaviour
                 else
                     currentMarker.transform.position = markerPos;
 
-                // target marker는 회전만
                 currentMarker.transform.Rotate(Vector3.up * 90f * Time.deltaTime);
             }
             else if (currentMarker != null)
@@ -196,8 +198,6 @@ public class BulletSpawner : MonoBehaviour
                 if (secondMarker == null)
                 {
                     secondMarker = Instantiate(secondTargetMarkerPrefab, markerPos, Quaternion.Euler(0, 0, -90));
-
-                    // 🔹 여기에 스케일 반복 애니메이션 추가
                     secondMarker.transform.localScale = Vector3.one;
                     secondMarker.transform.DOScale(new Vector3(1.2f, 1.2f, 1f), 0.5f)
                         .SetLoops(-1, LoopType.Yoyo)
@@ -306,6 +306,12 @@ public class BulletSpawner : MonoBehaviour
     {
         if (centerTarget == null) return;
 
+        bool forceCritical = (chargeAmount >= maxCharge);
+
+        // ✅ 차징이 가득 찼을 때만 화면 반짝임
+        if (forceCritical)
+            ScreenFlash();
+
         AudioManager.Instance?.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);
 
@@ -320,9 +326,6 @@ public class BulletSpawner : MonoBehaviour
 
         fireCount++;
         bool isFireballShot = (fireCount % 7 == 0) && (fireballPrefab != null) && useFireball;
-
-        // ✅ 게이지가 다 찼으면 이번 공격은 무조건 크리티컬
-        bool forceCritical = (chargeAmount >= maxCharge);
 
         Vector3 dirToTarget = (centerTarget.position - playerController.transform.position).normalized;
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
@@ -342,7 +345,6 @@ public class BulletSpawner : MonoBehaviour
             Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
             Vector3 spawnPos = playerController.transform.position + dir * arrowDistanceFromPlayer;
 
-            // 🔹 풀 스폰 말고 그냥 Instantiate 사용
             GameObject bullet = Instantiate(bulletPrefabToUse, spawnPos, Quaternion.identity);
 
             if (bullet != null)
@@ -351,7 +353,6 @@ public class BulletSpawner : MonoBehaviour
                 if (bulletAI != null)
                 {
                     bulletAI.ResetBullet();
-                    // ✅ 크리티컬 여부 전달
                     bulletAI.InitializeBullet(spawnPos, angle, isCenter, forceCritical);
                 }
 
@@ -367,6 +368,17 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
+    // 🔆 화면 플래시 효과
+    private void ScreenFlash()
+    {
+        if (screenFlash == null) return;
+
+        screenFlash.DOKill();
+        screenFlash.color = new Color(1, 1, 1, 0);
+        Sequence seq = DOTween.Sequence();
+        seq.Append(screenFlash.DOFade(0.1f, 0.1f));  // 0.1초 동안 밝게
+        seq.Append(screenFlash.DOFade(0f, 0.2f));   // 0.2초 동안 서서히 사라짐
+    }
 
     private void FlipPlayer(Vector3 dir)
     {

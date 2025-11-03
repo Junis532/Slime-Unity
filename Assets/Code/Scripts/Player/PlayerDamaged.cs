@@ -20,18 +20,20 @@ public class PlayerDamaged : MonoBehaviour
     [Header("이펙트 관련")]
     public GameObject hitEffectPrefab; // ✅ 피격 이펙트 프리팹
 
-    void Start()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-            originalColor = spriteRenderer.color;
+   void Start()
+{
+    // playerTransform이 안 들어왔으면 자기 자신 사용
+    if (playerTransform == null)
+        playerTransform = transform;
 
-        playerController = GetComponent<PlayerController>();
+    // playerTransform 기준으로 SpriteRenderer 가져오기
+    spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
+    if (spriteRenderer != null)
+        originalColor = spriteRenderer.color;
 
-        // ✅ 인스펙터에서 안 넣었으면 자동으로 자기 자신 Transform 사용
-        if (playerTransform == null)
-            playerTransform = transform;
-    }
+    playerController = playerTransform.GetComponent<PlayerController>();
+}
+
 
     public void TakeDamage(int damage, Vector3 enemyPosition)
     {
@@ -46,12 +48,13 @@ public class PlayerDamaged : MonoBehaviour
         
         // ✅ 피격 이펙트 재생
         PlayHitEffect();
+        playDamageColor();
 
         // HP 감소
         GameManager.Instance.playerStats.currentHP -= damage;
 
-        // 피격 효과 및 넉백
-        PlayDamageEffect(enemyPosition);
+        //// 피격 효과 및 넉백
+        //PlayDamageEffect(enemyPosition);
 
         // 사망 체크
         if (GameManager.Instance.playerStats.currentHP <= 0)
@@ -67,24 +70,39 @@ public class PlayerDamaged : MonoBehaviour
         isInvincible = false;
     }
 
-    private void PlayDamageEffect(Vector3 enemyPosition)
+    private void playDamageColor()
     {
         if (spriteRenderer == null) return;
 
+        // DOColor 충돌 방지
         spriteRenderer.DOKill();
+
+        // Material 인스턴스화 (공유 마테리얼 문제 해결)
+        spriteRenderer.material = new Material(spriteRenderer.material);
+
         spriteRenderer.color = Color.red;
-        spriteRenderer.DOColor(originalColor, 0.5f);
-
-        // Bridge 위면 넉백 무시
-        if (playerController != null && playerController.bridge != null && playerController.bridge.PlayerOnBridge())
-            return;
-
-        // ✅ playerTransform 기준으로 넉백 계산
-        Vector3 knockbackDir = (playerTransform.position - enemyPosition).normalized;
-
-        playerTransform.DOMove(playerTransform.position + knockbackDir * knockbackDistance, knockbackDuration)
-                       .SetEase(Ease.OutQuad);
+        spriteRenderer.DOColor(originalColor, 0.5f).SetEase(Ease.OutQuad);
     }
+
+
+    //private void PlayDamageEffect(Vector3 enemyPosition)
+    //{
+    //    if (spriteRenderer == null) return;
+
+    //    spriteRenderer.DOKill();
+    //    spriteRenderer.color = Color.red;
+    //    spriteRenderer.DOColor(originalColor, 0.5f);
+
+    //    // Bridge 위면 넉백 무시
+    //    if (playerController != null && playerController.bridge != null && playerController.bridge.PlayerOnBridge())
+    //        return;
+
+    //    // ✅ playerTransform 기준으로 넉백 계산
+    //    Vector3 knockbackDir = (playerTransform.position - enemyPosition).normalized;
+
+    //    playerTransform.DOMove(playerTransform.position + knockbackDir * knockbackDistance, knockbackDuration)
+    //                   .SetEase(Ease.OutQuad);
+    //}
 
     /// <summary>
     /// 플레이어 기준으로 피격 이펙트 재생
