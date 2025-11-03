@@ -4566,9 +4566,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: -0.18750001
-    width: 0
-    height: 0.37500003
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -27112,6 +27112,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage_00
       objectReference: {fileID: 0}
+    - target: {fileID: 5307881319522980019, guid: 4580c11a821537f44a54574f4804eba4, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4638457ca35d4dc468b78c9fda6ad6ce, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
