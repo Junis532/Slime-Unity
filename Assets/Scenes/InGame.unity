@@ -7695,7 +7695,7 @@ MonoBehaviour:
     doorsInitiallyOpen: 1
     isCleared: 0
   - roomName: 8
-    roomPrefab: {fileID: 2121092403949166678, guid: f3b345e0b858e3644a0eaa0d6f21127b, type: 3}
+    roomPrefab: {fileID: 7312213556794915905}
     roomCollider: {fileID: 2448376632105292152}
     cameraCollider: {fileID: 3395542062179899047}
     waves:
@@ -7720,7 +7720,7 @@ MonoBehaviour:
     doorsInitiallyOpen: 1
     isCleared: 0
   - roomName: 9
-    roomPrefab: {fileID: 2121092403949166678, guid: f3b345e0b858e3644a0eaa0d6f21127b, type: 3}
+    roomPrefab: {fileID: 8145119926926250416}
     roomCollider: {fileID: 1231189553054680104}
     cameraCollider: {fileID: 2302204110350222327}
     waves: []
@@ -7741,7 +7741,7 @@ MonoBehaviour:
     doorsInitiallyOpen: 1
     isCleared: 0
   - roomName: 10
-    roomPrefab: {fileID: 2121092403949166678, guid: f3b345e0b858e3644a0eaa0d6f21127b, type: 3}
+    roomPrefab: {fileID: 2816567891431681559}
     roomCollider: {fileID: 269132321}
     cameraCollider: {fileID: 2079639183}
     waves:
@@ -26859,6 +26859,11 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!1 &2816567891431681559 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3674974868784072685, guid: 39248c7e4d74a8542b4449bf569440d4, type: 3}
+  m_PrefabInstance: {fileID: 740163649283796794}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2834829033871156832
 Transform:
   m_ObjectHideFlags: 0
@@ -29987,6 +29992,11 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 1
+--- !u!1 &7312213556794915905 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4983699694014910241, guid: 80f91d12a27a2a144bcddcefd579891e, type: 3}
+  m_PrefabInstance: {fileID: 1959953966117280193}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &7323398676349922889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30483,6 +30493,11 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &8145119926926250416 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2341203892526968764, guid: e0c639a5b51e2f64c8dc41c77de68672, type: 3}
+  m_PrefabInstance: {fileID: 5274477579450455132}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8149172529301844842
 GameObject:
   m_ObjectHideFlags: 0
