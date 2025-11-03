@@ -74,11 +74,11 @@ public class WaveManager : MonoBehaviour
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
 
-    [Header("문 프리팹 부모")]
-    public GameObject doorParentPrefab;
+    //[Header("문 프리팹 부모")]
+    //public GameObject doorParentPrefab;
 
-    [Header("문 애니메이션 프리팹 부모")]
-    public GameObject doorAnimationParentPrefab;
+    //[Header("문 애니메이션 프리팹 부모")]
+    //public GameObject doorAnimationParentPrefab;
 
     [Header("스폰 관련")]
     public float spawnStop = 0f;
@@ -106,12 +106,26 @@ public class WaveManager : MonoBehaviour
 
     void Start()
     {
-        if (doorParentPrefab != null)
-            allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
-        if (doorAnimationParentPrefab != null)
-            allDoorAnimations.AddRange(doorAnimationParentPrefab.GetComponentsInChildren<DoorAnimation>(true));
+        // 기존: 자식에서 DoorController 가져오기
+        // if (doorParentPrefab != null)
+        //     allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
 
-        // ✅ specialDoorParentPrefab 초기화 (자식 이름 = 방 인덱스)
+        //// 변경: DoorController 본체(prefab) 기준
+        //if (doorParentPrefab != null)
+        //{
+        //    DoorController door = doorParentPrefab.GetComponent<DoorController>();
+        //    if (door != null)
+        //        allDoors.Add(door);
+        //}
+
+        //if (doorAnimationParentPrefab != null)
+        //{
+        //    DoorAnimation anim = doorAnimationParentPrefab.GetComponent<DoorAnimation>();
+        //    if (anim != null)
+        //        allDoorAnimations.Add(anim);
+        //}
+
+        // 특수문 초기화는 그대로 유지
         if (specialDoorParentPrefab != null)
         {
             foreach (Transform childGroup in specialDoorParentPrefab.transform)
@@ -132,7 +146,7 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < rooms.Count; i++)
             rooms[i].doorsInitiallyOpen = (i == 0);
 
-        // ✅ 추가: 0번 방의 special door를 시작 시 위로 올리기
+        // 0번 방 special door 시작 시 위로 올리기
         if (specialDoorsByRoom.ContainsKey(0))
         {
             foreach (var door in specialDoorsByRoom[0])
@@ -141,10 +155,10 @@ public class WaveManager : MonoBehaviour
                 Vector3 targetPos = originalDoorPositions[door] + new Vector3(0, 1f, 0);
                 door.position = targetPos;
             }
-
             Debug.Log("[WaveManager] 0번 방 special door 시작 시 위로 열림");
         }
     }
+
 
     void Update()
     {
@@ -227,6 +241,8 @@ public class WaveManager : MonoBehaviour
         {
             cleared = false;
             CloseDoors();
+
+            // 이전 방 specialDoors 안전하게 내리기
             ResetSpecialDoors(currentRoomIndex);
         }
 
@@ -422,27 +438,27 @@ public class WaveManager : MonoBehaviour
         Destroy(warning, warningDuration);
     }
 
-    void CloseDoors()
-    {
-        foreach (var door in allDoors)
-        {
-            door.CloseDoor();
-            if (door.TryGetComponent<Collider2D>(out var col)) col.isTrigger = false;
-        }
-        foreach (var anim in allDoorAnimations)
-            anim.PlayAnimation(DoorAnimation.DoorState.Closed);
-    }
+    //void CloseDoors()
+    //{
+    //    foreach (var door in allDoors)
+    //    {
+    //        door.CloseDoor();
+    //        if (door.TryGetComponent<Collider2D>(out var col)) col.isTrigger = false;
+    //    }
+    //    foreach (var anim in allDoorAnimations)
+    //        anim.PlayAnimation(DoorAnimation.DoorState.Closed);
+    //}
 
-    void OpenDoors()
-    {
-        foreach (var door in allDoors)
-        {
-            door.OpenDoor();
-            if (door.TryGetComponent<Collider2D>(out var col)) col.isTrigger = true;
-        }
-        foreach (var anim in allDoorAnimations)
-            anim.PlayAnimation(DoorAnimation.DoorState.Open);
-    }
+    //void OpenDoors()
+    //{
+    //    foreach (var door in allDoors)
+    //    {
+    //        door.OpenDoor();
+    //        if (door.TryGetComponent<Collider2D>(out var col)) col.isTrigger = true;
+    //    }
+    //    foreach (var anim in allDoorAnimations)
+    //        anim.PlayAnimation(DoorAnimation.DoorState.Open);
+    //}
 
     public void ApplyCameraConfiner(RoomData room)
     {
@@ -461,26 +477,85 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    // ✅ 인덱스 기반 specialDoor 제어 -----------------------------
+    // ========================================
+    // Door 제어 (DoorController 제거, 태그 기반)
+    // ========================================
 
     private void RaiseSpecialDoors(int roomIndex)
     {
         if (!specialDoorsByRoom.ContainsKey(roomIndex)) return;
+
         foreach (var door in specialDoorsByRoom[roomIndex])
         {
             if (door == null) continue;
-            Vector3 targetPos = originalDoorPositions[door] + new Vector3(0, 1f, 0);
-            door.DOMove(targetPos, 1f).SetEase(Ease.InOutSine);
+
+            Vector3 targetPos = originalDoorPositions[door] + Vector3.up * 1f;
+
+            Collider2D col = door.GetComponent<Collider2D>();
+
+            // 시각적 이동 + 완료 시 콜라이더 열기
+            door.DOMove(targetPos, 0.5f)
+                .SetEase(Ease.InOutSine)
+                .OnComplete(() =>
+                {
+                    if (col != null)
+                        col.isTrigger = true; // 이동 끝나면 통로 열기
+                });
+        }
+    }
+    private void ResetSpecialDoors(int roomIndex)
+    {
+        // 이전 방 인덱스 계산
+        int previousRoomIndex = roomIndex - 1;
+
+        // 이전 방이 없으면 종료
+        if (previousRoomIndex < 0) return;
+
+        // 0번 방 특수문은 0번 방에서 시작 시에는 내려가지 않음
+        if (previousRoomIndex == 0 && roomIndex == 0) return;
+
+        if (!specialDoorsByRoom.ContainsKey(previousRoomIndex)) return;
+
+        foreach (var door in specialDoorsByRoom[previousRoomIndex])
+        {
+            if (door == null) continue;
+
+            // Tween 중첩 방지
+            door.DOKill();
+
+            Vector3 originalPos = originalDoorPositions[door];
+            door.DOMove(originalPos, 0.3f).SetEase(Ease.InOutSine);
+
+            // Collider 막기 (통로 막기)
+            Collider2D col = door.GetComponent<Collider2D>();
+            if (col != null) col.isTrigger = false;
         }
     }
 
-    private void ResetSpecialDoors(int roomIndex)
+    private void CloseDoors()
     {
-        if (!specialDoorsByRoom.ContainsKey(roomIndex - 1)) return;
-        foreach (var door in specialDoorsByRoom[roomIndex - 1])
+        GameObject[] doors = GameObject.FindGameObjectsWithTag("Door");
+        foreach (var door in doors)
         {
-            if (door == null) continue;
-            door.DOMove(originalDoorPositions[door], 0.5f).SetEase(Ease.InOutSine);
+            // Tween 중첩 방지
+            door.transform.DOKill();
+
+            Collider2D col = door.GetComponent<Collider2D>();
+            if (col != null) col.isTrigger = false;
         }
     }
+
+    private void OpenDoors()
+    {
+        GameObject[] doors = GameObject.FindGameObjectsWithTag("Door");
+        foreach (var door in doors)
+        {
+            // Tween 중첩 방지
+            door.transform.DOKill();
+
+            Collider2D col = door.GetComponent<Collider2D>();
+            if (col != null) col.isTrigger = true;
+        }
+    }
+
 }
