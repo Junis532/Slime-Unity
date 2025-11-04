@@ -310,7 +310,7 @@ public class BulletSpawner : MonoBehaviour
 
         // ✅ 차징이 가득 찼을 때만 화면 반짝임
         if (forceCritical)
-            ScreenFlash();
+            ScreenFlash(Color.white);
 
         AudioManager.Instance?.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);
@@ -449,6 +449,19 @@ public class BulletSpawner : MonoBehaviour
         Gizmos.DrawLine(bottomRight, bottomLeft);
         Gizmos.DrawLine(bottomLeft, topLeft);
     }
+    // 🔆 화면 플래시 효과 (색상 지정 가능)
+    public void ScreenFlash(Color flashColor, float intensity = 0.1f, float fadeOutTime = 0.2f)
+    {
+        if (screenFlash == null) return;
+
+        screenFlash.DOKill();
+        screenFlash.color = new Color(flashColor.r, flashColor.g, flashColor.b, 0);
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(screenFlash.DOFade(intensity, 0.1f));  // 0.1초 동안 밝게
+        seq.Append(screenFlash.DOFade(0f, fadeOutTime));  // 0.2초 동안 서서히 사라짐
+    }
+
 }
 
 public enum AttackRangeType

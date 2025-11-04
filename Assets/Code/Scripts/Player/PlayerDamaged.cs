@@ -50,6 +50,15 @@ public class PlayerDamaged : MonoBehaviour
         PlayHitEffect();
         playDamageColor();
 
+        //// ✅ 화면 빨간 플래시 (피격 시)
+        //BulletSpawner spawner = Object.FindAnyObjectByType<BulletSpawner>();
+        //if (spawner != null)
+        //    spawner.ScreenFlash(Color.red, 0.3f, 0.4f);
+
+        VignetEffect vignette = Object.FindAnyObjectByType<VignetEffect>();
+        if (vignette != null)
+            vignette.PlayDamageFlash(0.6f, 0.5f);
+
         // HP 감소
         GameManager.Instance.playerStats.currentHP -= damage;
 

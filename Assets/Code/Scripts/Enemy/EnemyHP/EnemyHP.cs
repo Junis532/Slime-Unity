@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -52,23 +53,17 @@ public class EnemyHP : MonoBehaviour
     public bool isDead = false;
 
     // ========== 라이프사이클 ==========
-
-    void Start()
+    private IEnumerator Start()
     {
-        // 1) 최대 체력 결정 순서: GameManager → Inspector
+        // GameManager HP 설정
         if (useGameManagerHP)
-        {
-            maxHP = GameManager.Instance.enemyStats.maxHP; // 예: 1000
-        }
-        // useGameManagerHP=false면 Inspector의 값(예: 15000)을 그대로 사용
+            maxHP = GameManager.Instance.enemyStats.maxHP;
 
-        // 2) 공유 HP 초기화/동기화
+        // 공유 HP 초기화
         if (shareHPByID && !string.IsNullOrEmpty(ID))
         {
             if (initializeSharedToMaxOnStart || !SharedHP.ContainsKey(ID))
-            {
-                SharedHP[ID] = maxHP; // 이 개체의 maxHP로 시작값 고정 (예: 15000)
-            }
+                SharedHP[ID] = maxHP;
             currentHP = Mathf.Clamp(SharedHP[ID], 0f, maxHP);
         }
         else
@@ -76,16 +71,8 @@ public class EnemyHP : MonoBehaviour
             currentHP = maxHP;
         }
 
-        // 3) 기타 레퍼런스
-        criticalChance = GameManager.Instance.playerStats.criticalChance;
+        yield return null; // ✅ 한 프레임 기다림 — Canvas 보장됨
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
-
-        var playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) playerTransform = playerObj.transform;
-
-        // 4) HP 바 생성(월드 캔버스에 붙임)
         Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
         if (worldCanvas != null && hpBarPrefab != null)
         {
@@ -101,6 +88,12 @@ public class EnemyHP : MonoBehaviour
                 }
             }
         }
+
+        criticalChance = GameManager.Instance.playerStats.criticalChance;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) playerTransform = playerObj.transform;
     }
 
     void Update()
