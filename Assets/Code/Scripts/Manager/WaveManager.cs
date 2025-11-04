@@ -101,31 +101,37 @@ public class WaveManager : MonoBehaviour
     // ✅ 추가: 방 인덱스별 문 제어용
     [Header("클리어 시 올라가는 문 프리팹 부모")]
     public GameObject specialDoorParentPrefab;
+
+    [Header("문 프리팹 부모 (일반 문용)")]
+    public GameObject doorParentPrefab; // ✅ 추가
+
+    private Dictionary<int, List<Transform>> doorsByRoom = new Dictionary<int, List<Transform>>(); // ✅ 추가
     private Dictionary<int, List<Transform>> specialDoorsByRoom = new Dictionary<int, List<Transform>>();
     private Dictionary<Transform, Vector3> originalDoorPositions = new Dictionary<Transform, Vector3>();
 
     void Start()
     {
-        // 기존: 자식에서 DoorController 가져오기
-        // if (doorParentPrefab != null)
-        //     allDoors.AddRange(doorParentPrefab.GetComponentsInChildren<DoorController>(true));
+        // ✅ 일반 Door 초기화
+        if (doorParentPrefab != null)
+        {
+            foreach (Transform childGroup in doorParentPrefab.transform)
+            {
+                if (int.TryParse(childGroup.name, out int index))
+                {
+                    doorsByRoom[index] = new List<Transform>();
+                    foreach (Transform door in childGroup)
+                    {
+                        if (door.CompareTag("Door"))
+                        {
+                            doorsByRoom[index].Add(door);
+                            originalDoorPositions[door] = door.position;
+                        }
+                    }
+                }
+            }
+        }
 
-        //// 변경: DoorController 본체(prefab) 기준
-        //if (doorParentPrefab != null)
-        //{
-        //    DoorController door = doorParentPrefab.GetComponent<DoorController>();
-        //    if (door != null)
-        //        allDoors.Add(door);
-        //}
-
-        //if (doorAnimationParentPrefab != null)
-        //{
-        //    DoorAnimation anim = doorAnimationParentPrefab.GetComponent<DoorAnimation>();
-        //    if (anim != null)
-        //        allDoorAnimations.Add(anim);
-        //}
-
-        // 특수문 초기화는 그대로 유지
+        // ✅ 특수문 초기화
         if (specialDoorParentPrefab != null)
         {
             foreach (Transform childGroup in specialDoorParentPrefab.transform)
@@ -146,20 +152,17 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < rooms.Count; i++)
             rooms[i].doorsInitiallyOpen = (i == 0);
 
-        // 0번 방 special door 시작 시 위로 올리기
+        // 0번 방 특수문 시작 시 열기
         if (specialDoorsByRoom.ContainsKey(0))
         {
             foreach (var door in specialDoorsByRoom[0])
             {
                 if (door == null) continue;
-                Vector3 targetPos = originalDoorPositions[door] + new Vector3(0, 1f, 0);
+                Vector3 targetPos = originalDoorPositions[door] + Vector3.up * 1f;
                 door.position = targetPos;
             }
-            Debug.Log("[WaveManager] 0번 방 special door 시작 시 위로 열림");
         }
     }
-
-
     void Update()
     {
         if (!isSpawning && !isEventRunning)
@@ -481,6 +484,46 @@ public class WaveManager : MonoBehaviour
     // Door 제어 (DoorController 제거, 태그 기반)
     // ========================================
 
+    // ========================================
+    // 일반 문 제어 (doorParentPrefab 기반)
+    // ========================================
+
+    private void CloseDoors()
+    {
+        // ✅ 모든 방의 문 전부 닫기
+        foreach (var kvp in doorsByRoom)
+        {
+            foreach (var door in kvp.Value)
+            {
+                if (door == null) continue;
+
+                door.DOKill(); // 트윈 중복 방지
+                Collider2D col = door.GetComponent<Collider2D>();
+                if (col != null) col.isTrigger = false;
+            }
+        }
+    }
+
+    private void OpenDoors()
+    {
+        // ✅ 현재 방 인덱스의 문만 열기
+        if (!doorsByRoom.ContainsKey(currentRoomIndex)) return;
+
+        foreach (var door in doorsByRoom[currentRoomIndex])
+        {
+            if (door == null) continue;
+
+            door.DOKill();
+            Collider2D col = door.GetComponent<Collider2D>();
+            if (col != null) col.isTrigger = true;
+        }
+    }
+
+
+    // ========================================
+    // 특수문 제어 (specialDoorParentPrefab 기반)
+    // ========================================
+
     private void RaiseSpecialDoors(int roomIndex)
     {
         if (!specialDoorsByRoom.ContainsKey(roomIndex)) return;
@@ -490,72 +533,32 @@ public class WaveManager : MonoBehaviour
             if (door == null) continue;
 
             Vector3 targetPos = originalDoorPositions[door] + Vector3.up * 1f;
-
             Collider2D col = door.GetComponent<Collider2D>();
 
-            // 시각적 이동 + 완료 시 콜라이더 열기
             door.DOMove(targetPos, 0.5f)
                 .SetEase(Ease.InOutSine)
                 .OnComplete(() =>
                 {
-                    if (col != null)
-                        col.isTrigger = true; // 이동 끝나면 통로 열기
+                    if (col != null) col.isTrigger = true;
                 });
         }
     }
+
     private void ResetSpecialDoors(int roomIndex)
     {
-        // 이전 방 인덱스 계산
-        int previousRoomIndex = roomIndex - 1;
+        int prev = roomIndex - 1;
+        if (prev < 0 || !specialDoorsByRoom.ContainsKey(prev)) return;
 
-        // 이전 방이 없으면 종료
-        if (previousRoomIndex < 0) return;
-
-        // 0번 방 특수문은 0번 방에서 시작 시에는 내려가지 않음
-        if (previousRoomIndex == 0 && roomIndex == 0) return;
-
-        if (!specialDoorsByRoom.ContainsKey(previousRoomIndex)) return;
-
-        foreach (var door in specialDoorsByRoom[previousRoomIndex])
+        foreach (var door in specialDoorsByRoom[prev])
         {
             if (door == null) continue;
 
-            // Tween 중첩 방지
             door.DOKill();
-
-            Vector3 originalPos = originalDoorPositions[door];
-            door.DOMove(originalPos, 0.3f).SetEase(Ease.InOutSine);
-
-            // Collider 막기 (통로 막기)
-            Collider2D col = door.GetComponent<Collider2D>();
-            if (col != null) col.isTrigger = false;
-        }
-    }
-
-    private void CloseDoors()
-    {
-        GameObject[] doors = GameObject.FindGameObjectsWithTag("Door");
-        foreach (var door in doors)
-        {
-            // Tween 중첩 방지
-            door.transform.DOKill();
+            Vector3 orig = originalDoorPositions[door];
+            door.DOMove(orig, 0.3f).SetEase(Ease.InOutSine);
 
             Collider2D col = door.GetComponent<Collider2D>();
             if (col != null) col.isTrigger = false;
         }
     }
-
-    private void OpenDoors()
-    {
-        GameObject[] doors = GameObject.FindGameObjectsWithTag("Door");
-        foreach (var door in doors)
-        {
-            // Tween 중첩 방지
-            door.transform.DOKill();
-
-            Collider2D col = door.GetComponent<Collider2D>();
-            if (col != null) col.isTrigger = true;
-        }
-    }
-
 }
