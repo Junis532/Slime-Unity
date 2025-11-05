@@ -46,24 +46,14 @@ public class PlayerDamaged : MonoBehaviour
         isInvincible = true;
         StartCoroutine(InvincibleRoutine());
         
-        // ✅ 피격 이펙트 재생
+        //  피격 이펙트 재생
         PlayHitEffect();
         playDamageColor();
 
-        //// ✅ 화면 빨간 플래시 (피격 시)
-        //BulletSpawner spawner = Object.FindAnyObjectByType<BulletSpawner>();
-        //if (spawner != null)
-        //    spawner.ScreenFlash(Color.red, 0.3f, 0.4f);
-
-        VignetEffect vignette = Object.FindAnyObjectByType<VignetEffect>();
-        if (vignette != null)
-            vignette.PlayDamageFlash(0.6f, 0.5f);
+        GameManager.Instance.vignetEffect.PlayDamageFlash(0.6f, 0.5f);
 
         // HP 감소
         GameManager.Instance.playerStats.currentHP -= damage;
-
-        //// 피격 효과 및 넉백
-        //PlayDamageEffect(enemyPosition);
 
         // 사망 체크
         if (GameManager.Instance.playerStats.currentHP <= 0)
@@ -101,10 +91,6 @@ public class PlayerDamaged : MonoBehaviour
     //    spriteRenderer.DOKill();
     //    spriteRenderer.color = Color.red;
     //    spriteRenderer.DOColor(originalColor, 0.5f);
-
-    //    // Bridge 위면 넉백 무시
-    //    if (playerController != null && playerController.bridge != null && playerController.bridge.PlayerOnBridge())
-    //        return;
 
     //    // ✅ playerTransform 기준으로 넉백 계산
     //    Vector3 knockbackDir = (playerTransform.position - enemyPosition).normalized;

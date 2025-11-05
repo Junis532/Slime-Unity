@@ -28,6 +28,7 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("카메라 관련")]
     public CameraShake cameraShake;
     public CinemachineCamera cineCamera;
+    public VignetEffect vignetEffect;
 
     [Header("몬스터 관련")]
     public EnemyStats enemyStats;
