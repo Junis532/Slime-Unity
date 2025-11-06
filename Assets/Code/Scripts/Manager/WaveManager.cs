@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class RoomWaveData
@@ -55,6 +56,10 @@ public class RoomData
 
     [Header("문 초기 상태")]
     public bool doorsInitiallyOpen = true;
+
+    [Header("맵 즉시 클리어 설정")]
+    public bool instantClear = false;
+
 
     [HideInInspector] public bool isCleared = false;
 }
@@ -333,12 +338,96 @@ public class WaveManager : MonoBehaviour
             isWaveActive = false;
             StartCoroutine(StartWaveSystem(room));
         }
-
-
     }
+
+    IEnumerator ContinuousCameraShake()
+    {
+        while (true)
+        {
+            if (GameManager.Instance != null && GameManager.Instance.cameraShake != null)
+                GameManager.Instance.cameraShake.GenerateImpulse();
+
+            yield return new WaitForSeconds(0.1f); // 0.1초 간격으로 흔들림
+        }
+    }
+
 
     IEnumerator StartWaveSystem(RoomData room)
     {
+        // 🟢 맵 즉시 클리어 모드 활성화된 경우
+        if (room.instantClear)
+        {
+            Debug.Log($"🏁 {room.roomName} 은(는) 즉시 클리어 방으로 설정됨.");
+
+            cleared = true;
+            room.isCleared = true;
+
+            if (currentRoomIndex == 7)
+            {
+                Debug.Log("🎬 7번째 방 클리어! 특별 연출 시작");
+
+                // ✅ 페이드용 UI 오브젝트 자동 생성
+                GameObject fadeObj = new GameObject("FullScreenFade_Auto");
+                Canvas canvas = fadeObj.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                fadeObj.AddComponent<GraphicRaycaster>();
+
+                GameObject imgObj = new GameObject("FadeImage");
+                imgObj.transform.SetParent(fadeObj.transform, false);
+                Image fadeImage = imgObj.AddComponent<Image>();
+                fadeImage.color = Color.black; // 검은색 페이드
+                RectTransform rect = fadeImage.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+
+                CanvasGroup fadeGroup = fadeImage.gameObject.AddComponent<CanvasGroup>();
+                fadeGroup.alpha = 0f;
+
+                // ✅ 카메라 흔들림 코루틴 시작 (암전될 때까지 계속)
+                Coroutine shakeCoroutine = StartCoroutine(ContinuousCameraShake());
+                yield return new WaitForSeconds(3f);
+                // ✅ 두 번 깜빡임 (하얗게 번쩍하려면 Color.white로 변경)
+                for (int i = 0; i < 2; i++)
+                {
+                    yield return fadeGroup.DOFade(1f, 0.05f).WaitForCompletion();
+                    yield return fadeGroup.DOFade(0f, 0.05f).WaitForCompletion();
+                    yield return new WaitForSeconds(0.05f);
+                }
+                yield return new WaitForSeconds(1f);
+
+                // ✅ 완전 암전
+                yield return fadeGroup.DOFade(1f, 0.15f).WaitForCompletion();
+
+                if (playerTransform != null)
+                    playerTransform.position = new Vector3(19f, 76.5f, 0f);
+
+                // ✅ 카메라 흔들림 중지
+                StopCoroutine(shakeCoroutine);
+
+                // ✅ 암전 상태 유지 (2초)
+                yield return new WaitForSeconds(2f);
+
+                // ✅ 천천히 화면 다시 밝아짐 (페이드 인)
+                yield return fadeGroup.DOFade(0f, 2f).WaitForCompletion();
+
+
+                // ✅ 자동 생성된 페이드 오브젝트 삭제
+                Destroy(fadeObj);
+            }
+
+            // 즉시 문 열기
+            OpenDoors();
+
+            // 특수문(예: 다음 방으로 가는 문) 상승
+            RaiseSpecialDoors(currentRoomIndex);
+
+            yield break; // 웨이브 루프를 건너뜀
+        }
+
+        // 🟡 기존 로직 유지 (웨이브가 없는 경우)
         if (room.waves == null || room.waves.Count == 0)
         {
             cleared = true;
@@ -347,6 +436,7 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
+        // 🔵 기존 웨이브 실행 루프
         for (currentWaveIndex = 0; currentWaveIndex < room.waves.Count; currentWaveIndex++)
         {
             RoomWaveData currentWave = room.waves[currentWaveIndex];
@@ -367,16 +457,10 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        if (currentRoomIndex == 7)
-        {
-            Debug.Log("🎉 7번째 방 클리어! 특별 이벤트 실행!");
-
-        }
-
-
         OpenDoors();
         RaiseSpecialDoors(currentRoomIndex);
     }
+
 
     IEnumerator SpawnWaveEnemies(RoomWaveData wave)
     {
