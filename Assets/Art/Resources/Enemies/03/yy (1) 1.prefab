@@ -1734,7 +1734,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  moveSpeed: 2.2
+  moveSpeed: 1.9
   obstacleTag: AIWall
 --- !u!114 &1160432315157897473
 MonoBehaviour:
@@ -2616,7 +2616,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 3.5
+  bulletSpeed: 4.2
   bulletLifetime: 5
   secondaryDelay: 0.2
   secondarySpeed: 20
@@ -3004,7 +3004,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 3.5
+  bulletSpeed: 4.2
   bulletLifetime: 5
   secondaryDelay: 0.2
   secondarySpeed: 20
@@ -3978,7 +3978,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 3.5
+  bulletSpeed: 4.2
   bulletLifetime: 5
   secondaryDelay: 0.2
   secondarySpeed: 20
@@ -4666,7 +4666,7 @@ GameObject:
   - component: {fileID: 3087671875985968178}
   m_Layer: 10
   m_Name: Enemy (5)
-  m_TagString: Enemy
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5134,7 +5134,7 @@ GameObject:
   - component: {fileID: 3754081162301281467}
   m_Layer: 10
   m_Name: Enemy (4)
-  m_TagString: Enemy
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6118,7 +6118,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 3.5
+  bulletSpeed: 4.2
   bulletLifetime: 5
   secondaryDelay: 0.2
   secondarySpeed: 20
@@ -6352,7 +6352,7 @@ GameObject:
   - component: {fileID: 950848250779685811}
   m_Layer: 10
   m_Name: Enemy (7)
-  m_TagString: Enemy
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6911,7 +6911,7 @@ GameObject:
   - component: {fileID: 1137501321620199595}
   m_Layer: 10
   m_Name: Enemy (6)
-  m_TagString: Enemy
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8053,7 +8053,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 3.5
+  bulletSpeed: 4.2
   bulletLifetime: 5
   secondaryDelay: 0.2
   secondarySpeed: 20

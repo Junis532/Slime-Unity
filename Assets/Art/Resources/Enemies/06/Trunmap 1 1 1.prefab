@@ -1903,7 +1903,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  moveSpeed: 3.5
+  moveSpeed: 0
   obstacleTag: AIWall
 --- !u!114 &7179131614588887898
 MonoBehaviour:
@@ -1918,7 +1918,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 4200
+  maxHP: 4800
   currentHP: 0
   ID: 123123
   shareHPByID: 1

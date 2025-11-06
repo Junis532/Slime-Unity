@@ -109,11 +109,15 @@ MonoBehaviour:
   originalSpeed: 3.4
   spawnDelay: 0.4
   skillInterval: 1
+  fireball360Prefab: {fileID: 0}
   fireballPrefab: {fileID: 6833211366613324076, guid: 3f7eaf34515a14f47bb00382cd955534, type: 3}
   fireballWarningPrefab: {fileID: 8072637158615232695, guid: a1eeda15a1aae7542a2f0bc1ab7212e5, type: 3}
-  numberOfFireballs: 36
+  fireballWarningDistance: 0
+  fireballCount360: 12
   fireballSpawnRadius: 1.5
   warningDuration: 2
+  fireballRepeatInterval: 1.5
+  skill1Prefab: {fileID: 0}
   swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
   swordSpawnDistance: 1.7
   swordRangePrefab: {fileID: 2628904146178044189, guid: b373a8a1111d6074fa0d025febb28ca3, type: 3}
@@ -126,10 +130,14 @@ MonoBehaviour:
   - {fileID: 5624923132438207037, guid: 8979e48ef7b7ac9408fe9cc52c987594, type: 3}
   - {fileID: 2607715763077659899, guid: 0fcc38a115349ca42b42704324b36b40, type: 3}
   - {fileID: 3707792409990616232, guid: b2187da8952520c4db56c6ba8efcb045, type: 3}
-  circleScales:
-  - 12
-  - 10
-  - 8
+  damageCircleEffectPrefabs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  damageCircleEffectDurations:
+  - 1
+  - 1
+  - 1
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 1
 --- !u!195 &3582479704501740110

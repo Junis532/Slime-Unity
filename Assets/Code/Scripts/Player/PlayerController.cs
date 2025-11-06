@@ -78,7 +78,13 @@ public class PlayerController : MonoBehaviour
             playerAnimation.OnStopMoving();
         wasMovingInput = isMovingInput;
 
-        currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+        //currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
+
+        // 변경
+        if (inputVec.magnitude > 0.05f)
+            currentDirection = inputVec.normalized;
+        else
+            currentDirection = Vector2.zero;
 
         float flipInput = Mathf.Abs(inputVec.x) > 0.05f ? inputVec.x : currentDirection.x;
         if (spriteRenderer != null)
