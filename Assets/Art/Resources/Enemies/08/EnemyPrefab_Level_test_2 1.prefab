@@ -63,6 +63,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3515682299855472118}
     m_Modifications:
+    - target: {fileID: 3729353020629797482, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: ID
       value: TurretWALL
@@ -260,6 +264,10 @@ PrefabInstance:
       propertyPath: initializeSharedToMaxOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -369,6 +377,10 @@ PrefabInstance:
       propertyPath: initializeSharedToMaxOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -414,6 +426,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3515682299855472118}
     m_Modifications:
+    - target: {fileID: 3729353020629797482, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: ID
       value: TurretWALL
@@ -539,6 +555,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3515682299855472118}
     m_Modifications:
+    - target: {fileID: 3729353020629797482, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: ID
       value: TurretWALL
@@ -664,6 +684,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3515682299855472118}
     m_Modifications:
+    - target: {fileID: 3729353020629797482, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: ID
       value: TurretWALL
@@ -849,6 +873,10 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -953,6 +981,10 @@ PrefabInstance:
     - target: {fileID: 3818131844207129269, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: shareHPByID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
@@ -1059,6 +1091,10 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -1163,6 +1199,10 @@ PrefabInstance:
     - target: {fileID: 3818131844207129269, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: shareHPByID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
@@ -1269,6 +1309,10 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -1374,6 +1418,10 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -1419,6 +1467,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3515682299855472118}
     m_Modifications:
+    - target: {fileID: 3729353020629797482, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4373082090364902081, guid: 4e458a17c8d0f6f41b13352f2845d48d, type: 3}
       propertyPath: ID
       value: TurretWALL
@@ -1603,6 +1655,10 @@ PrefabInstance:
     - target: {fileID: 3818131844207129269, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: shareHPByID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
@@ -2056,6 +2112,10 @@ PrefabInstance:
       propertyPath: initializeSharedToMaxOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -2270,6 +2330,10 @@ PrefabInstance:
       propertyPath: shareHPByID
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -2374,6 +2438,10 @@ PrefabInstance:
     - target: {fileID: 3818131844207129269, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: shareHPByID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
@@ -2484,6 +2552,10 @@ PrefabInstance:
       propertyPath: initializeSharedToMaxOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -2593,6 +2665,10 @@ PrefabInstance:
       propertyPath: initializeSharedToMaxOnStart
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -2697,6 +2773,10 @@ PrefabInstance:
     - target: {fileID: 3818131844207129269, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: shareHPByID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6436740360920285420, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7495658667240857974, guid: 2867531b6409d5d48b0ec13d45daaf71, type: 3}
       propertyPath: m_IsTrigger

@@ -75,13 +75,13 @@ public class WaveManager : MonoBehaviour
     public GameObject warningEffectPrefab;
     public float warningDuration = 1f;
 
-    //[Header("문 프리팹 부모")]
-    //public GameObject doorParentPrefab;
+    //[Header("문 프리팹 부모")]
+    //public GameObject doorParentPrefab;
 
-    //[Header("문 애니메이션 프리팹 부모")]
-    //public GameObject doorAnimationParentPrefab;
+    //[Header("문 애니메이션 프리팹 부모")]
+    //public GameObject doorAnimationParentPrefab;
 
-    [Header("스폰 관련")]
+    [Header("스폰 관련")]
     public float spawnStop = 0f;
 
     [Tooltip("방 시작 시 기존 방 적을 모두 제거할지 여부")]
@@ -99,21 +99,21 @@ public class WaveManager : MonoBehaviour
     private int currentWaveIndex = 0;
     private bool isWaveActive = false;
 
-    // ✅ 추가: 방 인덱스별 문 제어용
-    [Header("클리어 시 올라가는 문 프리팹 부모")]
+    // ✅ 추가: 방 인덱스별 문 제어용
+    [Header("클리어 시 올라가는 문 프리팹 부모")]
     public GameObject specialDoorParentPrefab;
 
     [Header("Collider 오브젝트")]
     public GameObject ColliderObject;
 
-    private Dictionary<int, List<Transform>> doorsByRoom = new Dictionary<int, List<Transform>>();
-    private Dictionary<int, List<Transform>> specialDoorsByRoom = new Dictionary<int, List<Transform>>();
+    private Dictionary<int, List<Transform>> doorsByRoom = new Dictionary<int, List<Transform>>();
+    private Dictionary<int, List<Transform>> specialDoorsByRoom = new Dictionary<int, List<Transform>>();
     private Dictionary<Transform, Vector3> originalDoorPositions = new Dictionary<Transform, Vector3>();
 
     void Start()
     {
-        // ✅ 일반 Door 초기화
-        if (ColliderObject != null)
+        // ✅ 일반 Door 초기화
+        if (ColliderObject != null)
         {
             foreach (Transform childGroup in ColliderObject.transform)
             {
@@ -132,8 +132,8 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // ✅ 특수문 초기화
-        if (specialDoorParentPrefab != null)
+        // ✅ 특수문 초기화
+        if (specialDoorParentPrefab != null)
         {
             foreach (Transform childGroup in specialDoorParentPrefab.transform)
             {
@@ -149,12 +149,12 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // 첫 번째 방만 문 열기
-        for (int i = 0; i < rooms.Count; i++)
+        // 첫 번째 방만 문 열기
+        for (int i = 0; i < rooms.Count; i++)
             rooms[i].doorsInitiallyOpen = (i == 0);
 
-        // 0번 방 특수문 시작 시 열기
-        if (specialDoorsByRoom.ContainsKey(0))
+        // 0번 방 특수문 시작 시 열기
+        if (specialDoorsByRoom.ContainsKey(0))
         {
             foreach (var door in specialDoorsByRoom[0])
             {
@@ -246,8 +246,8 @@ public class WaveManager : MonoBehaviour
             cleared = false;
             CloseDoors();
 
-            // 이전 방 specialDoors 안전하게 내리기
-            ResetSpecialDoors(currentRoomIndex);
+            // 이전 방 specialDoors 안전하게 내리기
+            ResetSpecialDoors(currentRoomIndex);
         }
 
         SetAllEnemiesAI(false);
@@ -258,8 +258,8 @@ public class WaveManager : MonoBehaviour
         if (room.eventSceneEnabled)
             yield return StartCoroutine(RunEventScene(room));
 
-        // 🔍 카메라 줌인 연출
-        if (room.enableZoomInSequence)
+        // 🔍 카메라 줌인 연출
+        if (room.enableZoomInSequence)
         {
             Camera cam = Camera.main;
             if (cam != null)
@@ -267,14 +267,14 @@ public class WaveManager : MonoBehaviour
                 Bounds bounds = room.cameraCollider.bounds;
                 float screenRatio = (float)Screen.width / Screen.height;
 
-                // 가로 기준으로 OrthographicSize 계산
-                float targetOrthoSize = (bounds.size.x / 2f) / screenRatio;
+                // 가로 기준으로 OrthographicSize 계산
+                float targetOrthoSize = (bounds.size.x / 2f) / screenRatio;
 
-                // 최소~최대 범위 설정
-                targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
+                // 최소~최대 범위 설정
+                targetOrthoSize = Mathf.Clamp(targetOrthoSize, 3f, 12f);
 
-                // 줌 아웃(방으로 이동 + 시야 맞추기)
-                Sequence zoomOutSeq = DOTween.Sequence();
+                // 줌 아웃(방으로 이동 + 시야 맞추기)
+                Sequence zoomOutSeq = DOTween.Sequence();
                 zoomOutSeq.Append(cineCamera.transform.DOMove(
                   new Vector3(bounds.center.x, bounds.center.y, cineCamera.transform.position.z),
                   cameraMoveDuration
@@ -296,8 +296,8 @@ public class WaveManager : MonoBehaviour
 
                 yield return zoomOutSeq.WaitForCompletion();
 
-                // 잠깐 대기 후 줌인 연출
-                yield return new WaitForSeconds(room.zoomInDelay);
+                // 잠깐 대기 후 줌인 연출
+                yield return new WaitForSeconds(room.zoomInDelay);
 
                 Vector3 zoomTargetPos = room.zoomInCameraFollow ? playerTransform.position : bounds.center;
                 zoomTargetPos.z = cineCamera.transform.position.z;
@@ -366,6 +366,13 @@ public class WaveManager : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
             }
         }
+
+        if (currentRoomIndex == 7)
+        {
+            Debug.Log("🎉 7번째 방 클리어! 특별 이벤트 실행!");
+
+        }
+
 
         OpenDoors();
         RaiseSpecialDoors(currentRoomIndex);
@@ -444,7 +451,7 @@ public class WaveManager : MonoBehaviour
         Destroy(warning, warningDuration);
     }
 
-    public void ApplyCameraConfiner(RoomData room)
+    public void ApplyCameraConfiner(RoomData room)
     {
         if (cineCamera == null) return;
         var confiner = cineCamera.GetComponent<CinemachineConfiner2D>();
@@ -461,17 +468,17 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    private void CloseDoors() // is Trigger 끄기
+    private void CloseDoors() // is Trigger 끄기
     {
-        // 모든 방의 문 전부 닫기
-        foreach (var kvp in doorsByRoom)
+        // 모든 방의 문 전부 닫기
+        foreach (var kvp in doorsByRoom)
         {
             foreach (var door in kvp.Value)
             {
                 if (door == null) continue;
 
                 door.DOKill(); // 트윈 중복 방지
-                Collider2D col = door.GetComponent<Collider2D>();
+                Collider2D col = door.GetComponent<Collider2D>();
                 if (col != null) col.isTrigger = false;
             }
         }
@@ -479,8 +486,8 @@ public class WaveManager : MonoBehaviour
 
     private void OpenDoors() // is Trigger 켜기
     {
-        // 현재 방 인덱스의 문만 열기
-        if (!doorsByRoom.ContainsKey(currentRoomIndex)) return;
+        // 현재 방 인덱스의 문만 열기
+        if (!doorsByRoom.ContainsKey(currentRoomIndex)) return;
 
         foreach (var door in doorsByRoom[currentRoomIndex])
         {
@@ -493,7 +500,7 @@ public class WaveManager : MonoBehaviour
     }
 
 
-    private void RaiseSpecialDoors(int roomIndex)
+    private void RaiseSpecialDoors(int roomIndex)
     {
         if (!specialDoorsByRoom.ContainsKey(roomIndex)) return;
 
