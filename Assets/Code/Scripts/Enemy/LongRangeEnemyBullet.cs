@@ -8,6 +8,10 @@ public class LongRangeEnemyBullet : MonoBehaviour
     public bool destroyOnObstacle = false;
     public bool ignorePlayerWhenUsingSkill = true;
 
+    [Header("이펙트 프리팹")]
+    [Tooltip("장애물 충돌 시 생성될 이펙트")]
+    public GameObject hitEffectPrefab; // ✅ 추가
+
     private Collider2D myCollider;
     private Collider2D playerCollider;
     private Rigidbody2D rb;
@@ -17,36 +21,17 @@ public class LongRangeEnemyBullet : MonoBehaviour
     // Ghost Trail(잔상) – TrailRenderer 없이 구현
     // ─────────────────────────────────────────────
     [Header("Ghost Trail (No TrailRenderer)")]
-    [Tooltip("잔상 트레일 사용 여부")]
     public bool enableGhostTrail = true;
-
-    [Tooltip("잔상 생성 간격(초)")]
     public float ghostSpawnInterval = 0.045f;
-
-    [Tooltip("잔상 생존 시간(초)")]
     public float ghostLifetime = 0.25f;
-
-    [Tooltip("잔상 시작/끝 알파")]
     [Range(0f, 1f)] public float ghostStartAlpha = 0.6f;
     [Range(0f, 1f)] public float ghostEndAlpha = 0.0f;
-
-    [Tooltip("잔상 시작/끝 스케일 배율")]
     public float ghostStartScale = 1.0f;
     public float ghostEndScale = 0.75f;
-
-    [Tooltip("잔상 생성 최소 속도 제곱값(속도가 너무 느리면 생성 X)")]
     public float minVelocitySqrForGhost = 0.01f;
-
-    [Tooltip("동시에 유지할 잔상 최대 개수(풀 크기)")]
     public int maxGhostPool = 24;
-
-    [Tooltip("잔상에 적용할 머티리얼(비워두면 Bullet의 머티리얼/디폴트 사용)")]
     public Material ghostMaterialOverride;
-
-    [Tooltip("TimeScale 영향을 받지 않게 할지")]
     public bool useUnscaledTimeForGhost = false;
-
-    [Tooltip("발사 직후 즉시 잔상 1개 생성할지")]
     public bool burstOnFire = true;
 
     private float ghostTimer = 0f;
@@ -58,33 +43,26 @@ public class LongRangeEnemyBullet : MonoBehaviour
     {
         myCollider = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
-        bulletSR = GetComponentInChildren<SpriteRenderer>(); // 자식에 둘 수도 있으니 InChildren
+        bulletSR = GetComponentInChildren<SpriteRenderer>();
 
-        // Player 태그로 찾아서 Collider 가져오기
+        // Player Collider 찾기
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             playerCollider = playerObj.GetComponent<Collider2D>();
-        }
 
-        // 고스트 풀 준비
         if (enableGhostTrail)
             InitGhostPool();
     }
 
     void OnEnable()
     {
-        // 잔상 타이머 초기화
         ghostTimer = 0f;
         ghostActive = enableGhostTrail;
 
-        // 풀 객체 초기화
         if (enableGhostTrail && ghostPool != null)
         {
             for (int i = 0; i < ghostPool.Count; i++)
-            {
                 ghostPool[i].SetActive(false);
-            }
             ghostPoolIndex = 0;
         }
     }
@@ -92,7 +70,6 @@ public class LongRangeEnemyBullet : MonoBehaviour
     void OnDisable()
     {
         ghostActive = false;
-        // 잔상들 비활성화(풀 유지)
         if (ghostPool != null)
         {
             for (int i = 0; i < ghostPool.Count; i++)
@@ -102,7 +79,7 @@ public class LongRangeEnemyBullet : MonoBehaviour
 
     void Update()
     {
-        // 스킬 사용 중엔 플레이어와 충돌 무시
+        // 스킬 사용 중엔 플레이어 충돌 무시
         if (ignorePlayerWhenUsingSkill && GameManager.Instance.joystickDirectionIndicator != null && playerCollider != null)
         {
             bool usingSkill = GameManager.Instance.joystickDirectionIndicator.IsUsingSkill;
@@ -127,39 +104,39 @@ public class LongRangeEnemyBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // ─────────────────────────────────────────────
+        // ▣ 플레이어 충돌
+        // ─────────────────────────────────────────────
         if (collision.CompareTag("Player"))
         {
-            // 스킬 사용 중이면 충돌 무시
-            if (ignorePlayerWhenUsingSkill &&
-                GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
-            {
+            if (ignorePlayerWhenUsingSkill && GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
                 return;
-            }
 
             int damage = GameManager.Instance.longRangeEnemyStats.attack;
-
-            // 넉백 방향 계산을 위해 적 위치 = 현재 투사체 위치 전달
             Vector3 enemyPosition = transform.position;
 
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
+            Destroy(gameObject);
+            return;
+        }
 
-            Destroy(gameObject);
-        }
-        // 장애물 충돌 시 파괴
-        else if (destroyOnObstacle && collision.CompareTag("Obstacle"))
+        // ─────────────────────────────────────────────
+        // ▣ 장애물 충돌 시 이펙트 생성 후 제거
+        // ─────────────────────────────────────────────
+        if (destroyOnObstacle && (collision.CompareTag("Obstacle") || collision.CompareTag("LaserNot")))
         {
-            Destroy(gameObject);
-        }
-        // LaserNot 태그 충돌 시 파괴
-        else if (destroyOnObstacle && collision.CompareTag("LaserNot"))
-        {
-            Destroy(gameObject);
+            // ✅ 이펙트 생성
+            if (hitEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                Destroy(effect, 0.3f); // 이펙트 0.3초 후 자동 삭제
+            }
+
+            Destroy(gameObject); // 총알 제거
+            return;
         }
     }
 
-    // ─────────────────────────────────────────────
-    // Public: 발사 직후 외부에서 호출하면 즉시 잔상 1개 + 활성화
-    // ─────────────────────────────────────────────
     public void OnFired()
     {
         ghostActive = enableGhostTrail;
@@ -178,13 +155,12 @@ public class LongRangeEnemyBullet : MonoBehaviour
         for (int i = 0; i < maxGhostPool; i++)
         {
             GameObject g = new GameObject("BulletGhost");
-            g.transform.SetParent(null); // 풀은 씬 루트에 둠
+            g.transform.SetParent(null);
             var sr = g.AddComponent<SpriteRenderer>();
 
-            // 기본 설정: 총알 스프라이트 복제될 예정(스폰 때 복사)
             sr.sprite = bulletSR != null ? bulletSR.sprite : null;
             sr.sortingLayerID = bulletSR != null ? bulletSR.sortingLayerID : 0;
-            sr.sortingOrder = (bulletSR != null ? bulletSR.sortingOrder : 0) - 1; // 총알보다 살짝 뒤
+            sr.sortingOrder = (bulletSR != null ? bulletSR.sortingOrder : 0) - 1;
 
             if (ghostMaterialOverride != null)
                 sr.material = ghostMaterialOverride;
@@ -203,28 +179,23 @@ public class LongRangeEnemyBullet : MonoBehaviour
         GameObject ghost = ghostPool[ghostPoolIndex];
         ghostPoolIndex = (ghostPoolIndex + 1) % ghostPool.Count;
 
-        // 위치/회전/스케일 복사
         ghost.transform.position = transform.position;
         ghost.transform.rotation = transform.rotation;
         ghost.transform.localScale = transform.lossyScale * ghostStartScale;
 
-        // 스프라이트/색상 복사
         var gsr = ghost.GetComponent<SpriteRenderer>();
         if (gsr != null)
         {
             if (bulletSR != null)
             {
                 gsr.sprite = bulletSR.sprite;
-                // 컬러 알파만 덮어쓰기
                 Color c = bulletSR.color;
                 c.a = ghostStartAlpha;
                 gsr.color = c;
 
-                // 정렬/레이어 동기화(총알보다 살짝 뒤에 그리려면 -1 유지)
                 gsr.sortingLayerID = bulletSR.sortingLayerID;
                 gsr.sortingOrder = bulletSR.sortingOrder - 1;
 
-                // 머티리얼
                 if (ghostMaterialOverride != null)
                     gsr.material = ghostMaterialOverride;
                 else if (bulletSR.sharedMaterial != null)
@@ -240,17 +211,12 @@ public class LongRangeEnemyBullet : MonoBehaviour
 
         ghost.SetActive(true);
 
-        // 기존에 돌고 있던 페이드 코루틴이 있다면 멈추고 다시 시작
-        //(간단하게 컴포넌트 붙여서 관리)
         var fader = ghost.GetComponent<_GhostFader>();
         if (fader == null) fader = ghost.AddComponent<_GhostFader>();
         fader.Begin(ghostLifetime, ghostStartAlpha, ghostEndAlpha, ghostStartScale, ghostEndScale, useUnscaledTimeForGhost);
     }
 }
 
-/// <summary>
-/// 잔상 페이드/축소를 담당하는 경량 컴포넌트(각 고스트 객체에 붙음)
-/// </summary>
 public class _GhostFader : MonoBehaviour
 {
     private SpriteRenderer sr;
@@ -282,7 +248,6 @@ public class _GhostFader : MonoBehaviour
 
     void OnEnable()
     {
-        // 재활용 시 초기화
         t = 0f;
         running = true;
     }
@@ -296,7 +261,6 @@ public class _GhostFader : MonoBehaviour
 
         float u = Mathf.Clamp01(t / life);
 
-        // 알파/스케일 보간
         if (sr != null)
         {
             Color c = sr.color;
@@ -305,7 +269,7 @@ public class _GhostFader : MonoBehaviour
         }
 
         float s = Mathf.Lerp(s0, s1, u);
-        transform.localScale = Vector3.one * s * 1f; // 스케일은 스폰 시 worldScale 반영했으니 여기선 배율만
+        transform.localScale = Vector3.one * s;
 
         if (u >= 1f)
         {
