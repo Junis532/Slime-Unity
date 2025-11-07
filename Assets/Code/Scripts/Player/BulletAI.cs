@@ -185,12 +185,12 @@ public class BulletAI : MonoBehaviour
                 }
             }
 
-            // ✅ 피격 이펙트
-            if (hitEffectPrefab != null)
-            {
-                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-                Destroy(effect, 0.3f);
-            }
+            //// ✅ 피격 이펙트
+            //if (hitEffectPrefab != null)
+            //{
+            //    GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+            //    Destroy(effect, 0.3f);
+            //}
 
             // ✅ 풀 반환
             DestroySelf();
