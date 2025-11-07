@@ -275,8 +275,8 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  dashSpeed: 8
-  dashDuration: 0.5
+  dashSpeed: 15
+  dashDuration: 0.3
   waitAfterDash: 1
   afterImagePrefab: {fileID: 5045083376037120503}
   afterImageSpawnInterval: 0.05
@@ -288,6 +288,8 @@ MonoBehaviour:
   moveAngle: 0
   obstacleTag: Obstacle
   angleMoveSpeed: 5
+  attackDamage: 50
+  useGameManagerDamage: 0
 --- !u!114 &5443989144971844740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,7 +303,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  maxHP: 15000
   currentHP: 0
+  ID: 
+  shareHPByID: 0
+  initializeSharedToMaxOnStart: 1
+  useGameManagerHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
@@ -309,6 +316,7 @@ MonoBehaviour:
   useKnockback: 0
   knockbackDistance: 0.1
   knockbackDuration: 0.1
+  isDead: 0
 --- !u!114 &5809478642170743082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +338,25 @@ MonoBehaviour:
   - {fileID: 66914582, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
   - {fileID: 1243161592, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
   - {fileID: -1524729577, guid: 3bcb7877229a5334da528f2f0872b5c3, type: 3}
+  attackStartSprites: []
+  attackSprites: []
+  attackEndSprites: []
+  attackStartFrontSprites: []
+  attackEndFrontSprites: []
+  moveSideSprites: []
+  moveFrontSprites: []
+  moveBackSprites: []
+  skill1FireballSprites: []
+  skill2CircleSprites: []
+  skill3DashSprites: []
+  entrySprites: []
+  patternStartSprites: []
+  deathSprites: []
   frameRate: 0.15
+  attackFrameRate: 0.05
+  verticalThreshold: 0.5
+  bossPatternIdleMode: 0
+  autoPlayEntry: 0
   currentState: 0
 --- !u!50 &2641999406311416521
 Rigidbody2D:
@@ -408,8 +434,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 230e19c29a4e8ab40a632b486e09d1cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: 543f0e43233495543ba0b50a764b38fc, type: 3}
   potionDropChance: 0.1
+  classicBackwardTime: 0.5
+  classicBackwardDistance: 0.5
+  classicShrinkTime: 0.5
+  classicFadeTime: 0.5
+  spBackwardTime: 0.12
+  spBackwardDistance: 0.45
+  spSquishTime: 0.14
+  spSquishScale: {x: 0.62, y: 0.42}
+  spPrePopHold: 0.05
+  spPopTime: 0.08
+  spPopScale: 1.45
+  spCollapseTime: 0.18
+  spFadeTime: 0.2
+  spUseTimeSlow: 1
+  spTimeScale: 0.1
+  spTimeSlowDur: 0.08
+  spUseScreenFlash: 1
+  spFlashAlpha: 0.9
+  spFlashDur: 0.08
+  spUseCameraShake: 1
+  spUseCameraPump: 1
+  spCamPumpZoomDelta: -0.6
+  spCamPumpInTime: 0.08
+  spCamPumpOutTime: 0.35
+  spUseShockwaveRing: 1
+  spRingDuration: 0.35
+  spRingRadius: 2
+  spRingSegments: 48
+  spRingWidth: 0.12
+  spRingColor: {r: 1, g: 1, b: 1, a: 0.85}
+  spUseDebris: 1
+  spDebrisCount: 24
+  spDebrisLifetime: 0.5
+  spDebrisSpeed: 6
+  spDebrisGravity: 0
+  spDebrisStartColor: {r: 1, g: 0.85, b: 0.4, a: 1}
+  spDebrisEndColor: {r: 1, g: 0.85, b: 0.4, a: 0}
+  spDebrisStartSize: 0.08
+  spDebrisEndSize: 0.02
 --- !u!195 &954115967608437427
 NavMeshAgent:
   m_ObjectHideFlags: 0

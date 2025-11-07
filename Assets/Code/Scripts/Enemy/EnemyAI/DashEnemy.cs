@@ -96,7 +96,6 @@ public class DashEnemy : EnemyBase
 
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
     }
-
     private IEnumerator DashLoop()
     {
         while (isLive)
@@ -119,6 +118,18 @@ public class DashEnemy : EnemyBase
                 StopCoroutine(afterImageCoroutine);
             afterImageCoroutine = StartCoroutine(SpawnAfterImages());
 
+            // ✅ 대쉬 시작 시점에 방향을 한 번만 결정
+            Vector3 dashDir = Vector3.zero;
+            if (!useAngleMove && player != null)
+            {
+                dashDir = (player.transform.position - transform.position).normalized;
+                FlipSprite(dashDir.x);
+            }
+            else if (useAngleMove)
+            {
+                dashDir = moveDirection; // 각도 이동 모드면 미리 정해둔 방향 사용
+            }
+
             float elapsed = 0f;
             while (elapsed < dashDuration)
             {
@@ -135,16 +146,8 @@ public class DashEnemy : EnemyBase
                     break;
                 }
 
-                if (!useAngleMove && player != null)
-                {
-                    Vector3 dir = (player.transform.position - transform.position).normalized;
-                    transform.position += dir * speed * Time.deltaTime;
-                    FlipSprite(dir.x);
-                }
-                else if (useAngleMove)
-                {
-                    AngleMove();
-                }
+                // ✅ 한 번 정한 방향으로만 쭉 이동
+                transform.position += dashDir * speed * Time.deltaTime;
 
                 elapsed += Time.deltaTime;
                 yield return null;
