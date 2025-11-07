@@ -81,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 13
   m_Sprite: {fileID: -2346302928887187388, guid: e87045417c0580f4fb1717eea98c9f7c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -135,6 +135,7 @@ MonoBehaviour:
   moveSpeed: 18
   followEnemy: 1
   hitEffectPrefab: {fileID: 1507393756564158722, guid: 20085f6618fe68b4e9dbdb100eba9d8a, type: 3}
+  isCritical: 0
 --- !u!58 &3816757129421674644
 CircleCollider2D:
   m_ObjectHideFlags: 0
