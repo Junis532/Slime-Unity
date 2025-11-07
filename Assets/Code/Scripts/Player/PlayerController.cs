@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,11 +23,8 @@ public class PlayerController : MonoBehaviour
     public GameObject directionIndicatorPrefab;
     public float directionIndicatorDistance = 0.3f;
 
-    [Header("Bridge")]
-    public Bridge bridge; // Scene에서 연결
-
     [Header("Mesh Reflection")]
-    public GameObject meshReflection; // 🔹 물 반사 오브젝트 연결
+    public List<GameObject> meshReflections = new List<GameObject>(); // 🔹 여러 반사 오브젝트 리스트
 
     private Vector2 keyboardInput;
     private Vector2 currentVelocity;
@@ -78,9 +76,6 @@ public class PlayerController : MonoBehaviour
             playerAnimation.OnStopMoving();
         wasMovingInput = isMovingInput;
 
-        //currentDirection = Vector2.SmoothDamp(currentDirection, inputVec, ref currentVelocity, smoothTime);
-
-        // 변경
         if (inputVec.magnitude > 0.05f)
             currentDirection = inputVec.normalized;
         else
@@ -92,12 +87,12 @@ public class PlayerController : MonoBehaviour
             if (flipInput < -0.01f)
             {
                 spriteRenderer.flipX = true;
-                FlipMeshReflection(true);  // 🔹 같이 플립
+                FlipMeshReflection(true);  // 🔹 리스트 전체 반전
             }
             else if (flipInput > 0.01f)
             {
                 spriteRenderer.flipX = false;
-                FlipMeshReflection(false); // 🔹 같이 플립
+                FlipMeshReflection(false); // 🔹 리스트 전체 반전
             }
         }
 
@@ -115,9 +110,6 @@ public class PlayerController : MonoBehaviour
         if (!canMove) return;
 
         Vector2 moveDelta = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
-
-        if (bridge != null && bridge.PlayerOnBridge())
-            moveDelta += (Vector2)bridge.bridgeDelta;
 
         transform.Translate(moveDelta);
     }
@@ -150,13 +142,18 @@ public class PlayerController : MonoBehaviour
 
     void OnMove(InputValue value) { }
 
-    // 🔹 Mesh Reflection 좌우 반전 처리 함수
+    // 🔹 리스트 내 모든 Mesh Reflection 좌우 반전
     void FlipMeshReflection(bool flip)
     {
-        if (meshReflection == null) return;
+        if (meshReflections == null || meshReflections.Count == 0) return;
 
-        Vector3 scale = meshReflection.transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * (flip ? -1 : 1);
-        meshReflection.transform.localScale = scale;
+        foreach (GameObject reflection in meshReflections)
+        {
+            if (reflection == null) continue;
+
+            Vector3 scale = reflection.transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * (flip ? -1 : 1);
+            reflection.transform.localScale = scale;
+        }
     }
 }

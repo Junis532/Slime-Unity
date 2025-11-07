@@ -47,8 +47,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
     private Vector3 originalScale;
     private Vector3 lastDashDirection = Vector3.right; // 마지막 이동 방향 저장
 
-    public Bridge currentBridge;
-
     public bool IsUsingSkill => isSkillActive;
 
     private void Start()
@@ -73,9 +71,6 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     public void UseSkillButton()
     {
-        // ✅ 다리 위라면 스킬 사용 금지
-        if (currentBridge != null && currentBridge.PlayerOnBridge())
-            return;
 
         if (hasUsedSkill || isSkillActive) return;
 
@@ -201,7 +196,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
             {
                 elapsedTime += Time.deltaTime;
                 // 쿨타임이 진행될수록 0에서 1로 차오르게 변경
-                if (CooltimeImage != null) CooltimeImage.fillAmount = elapsedTime / waitInterval;
+                if (CooltimeImage != null) CooltimeImage.fillAmount = 1f - (elapsedTime / waitInterval);
                 yield return null;
             }
             hasUsedSkill = false;
