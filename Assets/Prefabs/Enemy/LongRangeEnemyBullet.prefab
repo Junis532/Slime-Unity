@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 12
   m_Sprite: {fileID: 7727865131416500628, guid: 6ca8fda3aee785c488e7ed671a0d172f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -125,8 +125,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.16666667
+  m_Offset: {x: -0.0010787249, y: 0}
+  m_Radius: 0.10194719
 --- !u!114 &4003388990343684644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +141,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyOnObstacle: 1
   ignorePlayerWhenUsingSkill: 0
+  enableGhostTrail: 1
+  ghostSpawnInterval: 0.045
+  ghostLifetime: 0.25
+  ghostStartAlpha: 0.6
+  ghostEndAlpha: 0
+  ghostStartScale: 1
+  ghostEndScale: 0.75
+  minVelocitySqrForGhost: 0.01
+  maxGhostPool: 24
+  ghostMaterialOverride: {fileID: 0}
+  useUnscaledTimeForGhost: 0
+  burstOnFire: 1
 --- !u!50 &8837218477310367084
 Rigidbody2D:
   serializedVersion: 5
