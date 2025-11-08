@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -364,7 +365,7 @@ public class WaveManager : MonoBehaviour
             if (currentRoomIndex == 7)
             {
                 Debug.Log("🎬 7번째 방 클리어! 특별 연출 시작");
-
+                GameManager.Instance.audioManager.StoneFalling(1.2f);
                 // ✅ 페이드용 UI 오브젝트 자동 생성
                 GameObject fadeObj = new GameObject("FullScreenFade_Auto");
                 Canvas canvas = fadeObj.AddComponent<Canvas>();

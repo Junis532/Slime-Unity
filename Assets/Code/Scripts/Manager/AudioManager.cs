@@ -21,7 +21,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip dash;
     public AudioClip jumpSound;
     public AudioClip land;
-    public AudioClip portalSpawnSound;
+    public AudioClip stoneFalling;
 
     [Header("터렛 발사")]
     public AudioClip turretShooting;
@@ -96,7 +96,7 @@ public class AudioManager : MonoBehaviour
     public void PlayLandSound(float volume = 0.8f) => PlaySFX(land, volume);
 
     // 🌀 포탈 생성
-    public void PlayPortalSpawnSound(float volume = 1.2f) => PlaySFX(portalSpawnSound, volume);
+    public void StoneFalling(float volume = 1.2f) => PlaySFX(stoneFalling, volume);
 
     public void PlayDashSound(float volume = 1f) => PlaySFX(dash, volume);
 
