@@ -51,7 +51,7 @@ public class ShopPortal : MonoBehaviour
         if (player != null)
         {
             player.transform.position = new Vector3(-31.5f, 0f, 0);
-            GameManager.Instance.ChangeStateToShop();
+            //GameManager.Instance.ChangeStateToShop();
             Debug.Log("플레이어가 3초간 포탈 안에 머물러 상점 지역으로 이동!");
         }
 

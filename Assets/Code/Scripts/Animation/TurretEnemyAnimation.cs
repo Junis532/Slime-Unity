@@ -160,6 +160,16 @@ public class TurretEnemyAnimation : MonoBehaviour
     /// </summary>
     public void PlayAnimation(State newState)
     {
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer == null)
+            {
+                Debug.LogError("[TurretEnemyAnimation] spriteRenderer가 null입니다. SpriteRenderer가 붙어있는지 확인하세요.");
+                return;
+            }
+        }
+
         // 1. 액션 상태 중 보호 로직
         if (IsActionState(currentState))
         {

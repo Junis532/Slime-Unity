@@ -7,6 +7,7 @@ using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoSingleTone<GameManager>
 {
@@ -46,7 +47,6 @@ public class GameManager : MonoSingleTone<GameManager>
     public List<ItemStats> buffs;
     public List<ItemStats> debuffs;
 
-
     [Header("이벤트 버프 & 디버프 UI")]
     public BuffEvent buffEvent;
     public deBuffEvent debuffEvent;
@@ -62,19 +62,24 @@ public class GameManager : MonoSingleTone<GameManager>
     public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);
     public Vector3 fixedPosition = new Vector3(-100, 0, 0);
 
-    private enum GameState // 게임 상태 열거형
-    {
-        Lobby,
-        Game,
-        Clear,
-        Shop,
-        EventBuff,
-        EventDebuff,
-        End
-    }
+    [Header("자동 비활성화할 오브젝트 리스트")]
+    public List<GameObject> setActiveFObject;
 
-    private GameState currentState = GameState.Lobby; // 초기 상태는 Lobby
-    public string CurrentState => currentState.ToString(); // 현재 상태를 문자열로 반환
+    [Header("자동 활성화할 UI 리스트")]
+    public List<GameObject> setActiveTUI;
+
+    //private enum GameState // 게임 상태 열거형
+    //{
+    //    Game,
+    //    Clear,
+    //    Shop,
+    //    EventBuff,
+    //    EventDebuff,
+    //    End
+    //}
+
+    //private GameState currentState = GameState.Game; // 초기 상태는 Game
+    //public string CurrentState => currentState.ToString(); // 현재 상태를 문자열로 반환
 
     protected new void Awake()
     {
@@ -95,11 +100,11 @@ public class GameManager : MonoSingleTone<GameManager>
     {
         string sceneName = SceneManager.GetActiveScene().name; // 현재 씬 이름 가져오기
 
-        if (sceneName == "Lobby") // 로비 씬일 경우
-        {
-            ChangeStateToLobby();
-            return;
-        }
+        //if (sceneName == "Lobby") // 로비 씬일 경우
+        //{
+        //    ChangeStateToLobby();
+        //    return;
+        //}
         //else if (sceneName == "InGame") // 게임 씬일 경우
         //{
         //    ChangeStateToGame();
@@ -116,6 +121,21 @@ public class GameManager : MonoSingleTone<GameManager>
         boss1Stats.ResetStats();
         middleBoss1Stats.ResetStats();
 
+        foreach (GameObject fObject in setActiveFObject)
+        {
+            if (fObject != null)
+            {
+                fObject.SetActive(false);
+            }
+        }
+
+        foreach (GameObject panel in setActiveTUI)
+        {
+            if (panel != null)
+            {
+                panel.SetActive(true);
+            }
+        }
     }
 
     //private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
@@ -156,68 +176,56 @@ public class GameManager : MonoSingleTone<GameManager>
     //    }
     //}
 
+    //public void ChangeStateToGame()
+    //{
+    //    currentState = GameState.Game;
+    //    Debug.Log("상태: Game - 웨이브 진행 중");
+
+    //    GameObject[] zaces = GameObject.FindGameObjectsWithTag("HPPotion");
+    //    foreach (GameObject zac in zaces)
+    //    {
+    //        PoolManager.Instance.ReturnToPool(zac);
+    //    }
+
+    //    joystickDirectionIndicator.StartRollingLoop();
+
+    //    if (!isGameStarted)
+    //    {
+    //        isGameStarted = true; 
+
+    //        GameObject player = GameObject.FindGameObjectWithTag("Player"); // 플레이어 위치 초기화
+    //        if (player != null)
+    //        {
+    //            playerController.canMove = true;
+    //        }
+    //    }
+
+    //    //if (cineCamera != null)
+    //    //{
+    //    //    var followComponent = cineCamera.GetComponent<CinemachineFollow>();
+    //    //    if (followComponent != null)
+    //    //    {
+    //    //        followComponent.TrackerSettings.PositionDamping = gPositionDamping;
+    //    //    }
+    //    //}
+    //}
 
 
+    //public void ChangeStateToShop()
+    //{
+    //    currentState = GameState.Shop;
+    //    Debug.Log("상태: Shop - 상점 상태");
+    //    playerController.canMove = true;
 
-    public void ChangeStateToLobby()
-    {
-        currentState = GameState.Lobby;
-        Debug.Log("상태: Lobby - 게임 대기 중");
-    }
+    //    //    if (cineCamera != null)
+    //    //    {
+    //    //        cineCamera.Follow = null;
+    //    //        cineCamera.LookAt = null;
 
-    public void ChangeStateToGame()
-    {
-        currentState = GameState.Game;
-        Debug.Log("상태: Game - 웨이브 진행 중");
-
-        GameObject[] zaces = GameObject.FindGameObjectsWithTag("HPPotion");
-        foreach (GameObject zac in zaces)
-        {
-            PoolManager.Instance.ReturnToPool(zac);
-        }
-
-        joystickDirectionIndicator.StartRollingLoop();
-
-        //waveManager.StartSpawnLoop();
-
-        if (!isGameStarted)
-        {
-            isGameStarted = true; 
-
-            GameObject player = GameObject.FindGameObjectWithTag("Player"); // 플레이어 위치 초기화
-            if (player != null)
-            {
-                //player.transform.position = new Vector3(-9, 0, 0);
-                playerController.canMove = true;
-            }
-        }
-
-        //if (cineCamera != null)
-        //{
-        //    var followComponent = cineCamera.GetComponent<CinemachineFollow>();
-        //    if (followComponent != null)
-        //    {
-        //        followComponent.TrackerSettings.PositionDamping = gPositionDamping;
-        //    }
-        //}
-    }
-
-
-    public void ChangeStateToShop()
-    {
-        currentState = GameState.Shop;
-        Debug.Log("상태: Shop - 상점 상태");
-        playerController.canMove = true;
-
-        //    if (cineCamera != null)
-        //    {
-        //        cineCamera.Follow = null;
-        //        cineCamera.LookAt = null;
-
-        //        // 위치 고정
-        //        cineCamera.transform.position = fixedPosition;
-        //    }
-    }
+    //    //        // 위치 고정
+    //    //        cineCamera.transform.position = fixedPosition;
+    //    //    }
+    //}
 
     //public void ChangeStateToEventBuff()
     //{
@@ -292,36 +300,35 @@ public class GameManager : MonoSingleTone<GameManager>
     //    }
     //}
 
-    public void ChangeStateToClear()
-    {
-        currentState = GameState.Clear;
-        Debug.Log("상태: Clear - 웨이브 클리어");
+    //public void ChangeStateToClear()
+    //{
+    //    currentState = GameState.Clear;
+    //    Debug.Log("상태: Clear - 웨이브 클리어");
 
-        //waveManager.StopSpawnLoop();
+    //    //waveManager.StopSpawnLoop();
 
-        isGameStarted = false;
+    //    isGameStarted = false;
 
-        //// 코인 자동 수집
-        //AutoCollectItems();
+    //    //// 코인 자동 수집
+    //    //AutoCollectItems();
 
-        GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
-        foreach (GameObject skill in skills)
-        {
-            Destroy(skill);
-        }
-    }
+    //    GameObject[] skills = GameObject.FindGameObjectsWithTag("Skill");
+    //    foreach (GameObject skill in skills)
+    //    {
+    //        Destroy(skill);
+    //    }
+    //}
 
-    public void ChangeStateToEnd()
-    {
-        currentState = GameState.End;
-        Debug.Log("상태: End - 게임 오버");
-    }
+    //public void ChangeStateToEnd()
+    //{
+    //    currentState = GameState.End;
+    //    Debug.Log("상태: End - 게임 오버");
+    //}
 
-    public bool IsLobby() => currentState == GameState.Lobby;
-    public bool IsGame() => currentState == GameState.Game;
-    public bool IsShop() => currentState == GameState.Shop;
-    public bool IsEventBuff() => currentState == GameState.EventBuff;
-    public bool IsEventDebuff() => currentState == GameState.EventDebuff;
-    public bool IsClear() => currentState == GameState.Clear;
-    public bool IsEnd() => currentState == GameState.End;
+    //public bool IsGame() => currentState == GameState.Game;
+    //public bool IsShop() => currentState == GameState.Shop;
+    //public bool IsEventBuff() => currentState == GameState.EventBuff;
+    //public bool IsEventDebuff() => currentState == GameState.EventDebuff;
+    //public bool IsClear() => currentState == GameState.Clear;
+    //public bool IsEnd() => currentState == GameState.End;
 }

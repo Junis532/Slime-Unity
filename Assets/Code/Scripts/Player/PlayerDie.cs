@@ -43,7 +43,7 @@ public class PlayerDie : MonoBehaviour
                     .OnComplete(() =>
                     {
                         // 위치 애니메이션 끝난 뒤 상태 변경
-                        GameManager.Instance.ChangeStateToEnd();
+                        //GameManager.Instance.ChangeStateToEnd();
                     });
 
                 // 페이드 인
@@ -52,7 +52,7 @@ public class PlayerDie : MonoBehaviour
             else
             {
                 // UI가 연결되지 않았으면 바로 상태 전환
-                GameManager.Instance.ChangeStateToEnd();
+                //GameManager.Instance.ChangeStateToEnd();
             }
         });
     }
