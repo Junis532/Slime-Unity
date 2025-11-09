@@ -115,6 +115,9 @@ public class WaveManager : MonoBehaviour
     private Dictionary<int, List<Transform>> specialDoorsByRoom = new Dictionary<int, List<Transform>>();
     private Dictionary<Transform, Vector3> originalDoorPositions = new Dictionary<Transform, Vector3>();
 
+    [Header("7스테이지 클리어 오브젝트")]
+    public GameObject stg7ClearObject;
+
     void Start()
     {
         // ✅ 일반 Door 초기화
@@ -351,6 +354,67 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    public void Stage7ClearSequence()
+    {
+        StartCoroutine(Stage7ClearRoutine());
+    }
+
+    private IEnumerator Stage7ClearRoutine()
+    {
+        Debug.Log("🎬 7번째 방 클리어! 특별 연출 시작");
+        GameManager.Instance.audioManager.StoneFalling(1.2f);
+
+        // ✅ 페이드용 UI 오브젝트 자동 생성
+        GameObject fadeObj = new GameObject("FullScreenFade_Auto");
+        Canvas canvas = fadeObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        fadeObj.AddComponent<GraphicRaycaster>();
+
+        GameObject imgObj = new GameObject("FadeImage");
+        imgObj.transform.SetParent(fadeObj.transform, false);
+        Image fadeImage = imgObj.AddComponent<Image>();
+        fadeImage.color = Color.black; // 검은색 페이드
+        RectTransform rect = fadeImage.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        CanvasGroup fadeGroup = fadeImage.gameObject.AddComponent<CanvasGroup>();
+        fadeGroup.alpha = 0f;
+
+        // ✅ 카메라 흔들림 코루틴 시작
+        Coroutine shakeCoroutine = StartCoroutine(ContinuousCameraShake());
+        yield return new WaitForSeconds(3f);
+
+        // ✅ 두 번 깜빡임
+        for (int i = 0; i < 2; i++)
+        {
+            yield return fadeGroup.DOFade(1f, 0.05f).WaitForCompletion();
+            yield return fadeGroup.DOFade(0f, 0.05f).WaitForCompletion();
+            yield return new WaitForSeconds(0.05f);
+        }
+        yield return new WaitForSeconds(1f);
+
+        // ✅ 완전 암전
+        yield return fadeGroup.DOFade(1f, 0.15f).WaitForCompletion();
+
+        if (playerTransform != null)
+            playerTransform.position = new Vector3(19f, 76.5f, 0f);
+
+        // ✅ 카메라 흔들림 중지
+        StopCoroutine(shakeCoroutine);
+
+        // ✅ 암전 상태 유지 (2초)
+        yield return new WaitForSeconds(2f);
+
+        // ✅ 천천히 화면 다시 밝아짐 (페이드 인)
+        yield return fadeGroup.DOFade(0f, 2f).WaitForCompletion();
+
+        // ✅ 자동 생성된 페이드 오브젝트 삭제
+        Destroy(fadeObj);
+    }
 
     IEnumerator StartWaveSystem(RoomData room)
     {
@@ -362,60 +426,18 @@ public class WaveManager : MonoBehaviour
             cleared = true;
             room.isCleared = true;
 
-            if (currentRoomIndex == 7)
+            // 🟢 맵 즉시 클리어 모드 활성화된 경우
+            if (room.instantClear && currentRoomIndex == 7)
             {
-                Debug.Log("🎬 7번째 방 클리어! 특별 연출 시작");
-                GameManager.Instance.audioManager.StoneFalling(1.2f);
-                // ✅ 페이드용 UI 오브젝트 자동 생성
-                GameObject fadeObj = new GameObject("FullScreenFade_Auto");
-                Canvas canvas = fadeObj.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                fadeObj.AddComponent<GraphicRaycaster>();
+                Debug.Log($"🏁 {room.roomName} 은(는) 즉시 클리어 방으로 설정됨.");
+                cleared = true;
+                room.isCleared = true;
 
-                GameObject imgObj = new GameObject("FadeImage");
-                imgObj.transform.SetParent(fadeObj.transform, false);
-                Image fadeImage = imgObj.AddComponent<Image>();
-                fadeImage.color = Color.black; // 검은색 페이드
-                RectTransform rect = fadeImage.GetComponent<RectTransform>();
-                rect.anchorMin = Vector2.zero;
-                rect.anchorMax = Vector2.one;
-                rect.offsetMin = Vector2.zero;
-                rect.offsetMax = Vector2.zero;
+                // ✅ 이제 클리어 오브젝트를 통한 트리거로만 작동
+                if (stg7ClearObject != null)
+                    stg7ClearObject.SetActive(true); // 오브젝트 활성화 (트리거 가능)
 
-                CanvasGroup fadeGroup = fadeImage.gameObject.AddComponent<CanvasGroup>();
-                fadeGroup.alpha = 0f;
-
-                // ✅ 카메라 흔들림 코루틴 시작 (암전될 때까지 계속)
-                Coroutine shakeCoroutine = StartCoroutine(ContinuousCameraShake());
-                yield return new WaitForSeconds(3f);
-                // ✅ 두 번 깜빡임 (하얗게 번쩍하려면 Color.white로 변경)
-                for (int i = 0; i < 2; i++)
-                {
-                    yield return fadeGroup.DOFade(1f, 0.05f).WaitForCompletion();
-                    yield return fadeGroup.DOFade(0f, 0.05f).WaitForCompletion();
-                    yield return new WaitForSeconds(0.05f);
-                }
-                yield return new WaitForSeconds(1f);
-
-                // ✅ 완전 암전
-                yield return fadeGroup.DOFade(1f, 0.15f).WaitForCompletion();
-
-                if (playerTransform != null)
-                    playerTransform.position = new Vector3(19f, 76.5f, 0f);
-
-                // ✅ 카메라 흔들림 중지
-                StopCoroutine(shakeCoroutine);
-
-                // ✅ 암전 상태 유지 (2초)
-                yield return new WaitForSeconds(2f);
-
-                // ✅ 천천히 화면 다시 밝아짐 (페이드 인)
-                yield return fadeGroup.DOFade(0f, 2f).WaitForCompletion();
-
-
-                // ✅ 자동 생성된 페이드 오브젝트 삭제
-                Destroy(fadeObj);
+                yield break;
             }
 
             // 즉시 문 열기
