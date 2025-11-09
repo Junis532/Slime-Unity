@@ -2,96 +2,196 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Collections;
+using System.Reflection;
 
+[DisallowMultipleComponent]
 public class Boss1HP : MonoBehaviour
 {
-    [Header("체력 관련")]
-    public GameObject hpBarPrefab; // 하이어라키에 소환할 프리팹
-    private GameObject hpBarUI;    // 런타임에 생성될 오브젝트
-    private Image hpBarFill;
+    private const string BossHpViewTag = "LastBossHPView"; // 있으면 최우선
+    private const string BossHpViewName = "BossHP_UI";  // 2순위
+    private const float ResolveTimeout = 2f;           // UI 로딩 대기 최대 2초
+
+    // 인터페이스 없이 덕 타이핑(리플렉션)으로 바인딩
+    private struct ViewInvoker
+    {
+        public Component target;
+        public Action<float, float> Init;   // (max, current)
+        public Action<float, float> SetHP;  // (current, max)
+        public Action Show;
+        public Action Hide;
+        public bool IsValid => target && Init != null && SetHP != null && Show != null && Hide != null;
+    }
+
+    private static ViewInvoker s_cachedView;
+    private ViewInvoker hpView;
+
+    [Header("스탯/전투")]
     public float currentHP;
     private float maxHP;
-
-    private BulletSpawner bulletSpawner;
-
-    [Header("데미지 텍스트")]
-    public GameObject damageTextPrefab;
-    public GameObject cDamageTextPrefab;
-
-    [Header("이펙트 프리팹")]
-    public GameObject hitEffectPrefab;
+    private float criticalChance;
+    private bool isDead = false;
 
     [Header("넉백 옵션")]
     public bool useKnockback = true;
     public float knockbackDistance = 0.3f;
     public float knockbackDuration = 0.1f;
 
+    [Header("데미지 텍스트(풀 명)")]
+    public GameObject damageTextPrefab;
+    public GameObject cDamageTextPrefab;
+
+    [Header("히트 이펙트(풀 명)")]
+    public GameObject hitEffectPrefab;
+
     private Transform playerTransform;
     private SpriteRenderer spriteRenderer;
-    private float criticalChance;
-    private bool isDead = false;
+    private BulletSpawner bulletSpawner;
 
-    private int playerHitCount = 0; // 플레이어 맞은 횟수
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        bulletSpawner = FindFirstObjectByType<BulletSpawner>();
 
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) playerTransform = playerObj.transform;
+    }
 
-    // 💡 HP바가 한 번만 생성되었는지 체크
-    private static bool hpBarCreated = false;
-
-    void Start()
+    private void Start()
     {
         maxHP = GameManager.Instance.boss1Stats.maxHP;
         currentHP = maxHP;
         criticalChance = GameManager.Instance.playerStats.criticalChance;
 
-        // 💡 HP바 한 번만 생성
-        if (!hpBarCreated && hpBarPrefab != null)
-        {
-            hpBarUI = Instantiate(hpBarPrefab);
-            hpBarUI.SetActive(true);
-
-            hpBarFill = hpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
-            if (hpBarFill == null)
-                Debug.LogError("'HPBar/HPFilled' Image 컴포넌트를 찾을 수 없습니다.");
-
-            hpBarCreated = true;
-        }
-        else if (hpBarCreated)
-        {
-            // 이미 생성된 경우, 기존 HP바 찾아 연결
-            hpBarUI = GameObject.FindWithTag("HP"); // prefab에 태그 BossHPBar 추가 필요
-            if (hpBarUI != null)
-                hpBarFill = hpBarUI.transform.Find("HPBar/HPFilled")?.GetComponent<Image>();
-        }
-
-        UpdateHPBar();
-
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        bulletSpawner = FindFirstObjectByType<BulletSpawner>();
-
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-            playerTransform = playerObj.transform;
+        StartCoroutine(EnsureBindHpViewAndInit());
     }
 
-    private void Update()
+    private IEnumerator EnsureBindHpViewAndInit()
     {
-        if (hpBarUI != null && !isDead)
+        hpView = s_cachedView;
+        if (!hpView.IsValid)
         {
-            hpBarUI.transform.position = transform.position + Vector3.up * 2f;
+            float end = Time.realtimeSinceStartup + ResolveTimeout;
+            while (!hpView.IsValid && Time.realtimeSinceStartup < end)
+            {
+                hpView = TryResolveViewOnce();
+                if (hpView.IsValid) { s_cachedView = hpView; break; }
+                yield return null;
+            }
+        }
+
+        if (hpView.IsValid)
+        {
+            // 위치 인자 호출 (named argument 사용 금지)
+            hpView.Init(maxHP, currentHP);
+            hpView.Show();
+        }
+        else
+        {
+            Debug.LogError("[Boss1HP] 씬에서 Boss HP UI(Init/SetHP/Show/Hide 포함 컴포넌트)를 찾지 못했습니다. Tag=BossHPView 또는 이름 BossHP_UI 권장.");
         }
     }
 
-    private void UpdateHPBar()
+    private ViewInvoker TryResolveViewOnce()
     {
-        if (hpBarFill != null)
-            hpBarFill.fillAmount = currentHP / maxHP;
+        // 1) Tag 우선
+        var tagged = GameObject.FindWithTag(BossHpViewTag);
+        var v = GetViewFrom(tagged);
+        if (v.IsValid) return v;
+
+        // 2) 이름
+        var named = GameObject.Find(BossHpViewName);
+        v = GetViewFrom(named);
+        if (v.IsValid) return v;
+
+        // 3) 씬 전역
+        var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            v = TryBuildInvoker(all[i]);
+            if (v.IsValid) return v;
+        }
+
+        return default;
     }
 
+    private ViewInvoker GetViewFrom(GameObject go)
+    {
+        if (go == null) return default;
+
+        // 자신
+        var self = go.GetComponents<MonoBehaviour>();
+        for (int i = 0; i < self.Length; i++)
+        {
+            var v = TryBuildInvoker(self[i]);
+            if (v.IsValid) return v;
+        }
+        // 자식
+        var children = go.GetComponentsInChildren<MonoBehaviour>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            var v = TryBuildInvoker(children[i]);
+            if (v.IsValid) return v;
+        }
+        // 부모
+        var p = go.transform.parent;
+        while (p != null)
+        {
+            var parents = p.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < parents.Length; i++)
+            {
+                var v = TryBuildInvoker(parents[i]);
+                if (v.IsValid) return v;
+            }
+            p = p.parent;
+        }
+        return default;
+    }
+
+    private ViewInvoker TryBuildInvoker(Component comp)
+    {
+        if (comp == null) return default;
+
+        var t = comp.GetType();
+
+        MethodInfo mInit = t.GetMethod("Init", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        MethodInfo mSetHP = t.GetMethod("SetHP", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        MethodInfo mShow = t.GetMethod("Show", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        MethodInfo mHide = t.GetMethod("Hide", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (mInit == null || mSetHP == null || mShow == null || mHide == null) return default;
+
+        if (!CheckSig(mInit, typeof(float), typeof(float))) return default;
+        if (!CheckSig(mSetHP, typeof(float), typeof(float))) return default;
+        if (!CheckSig(mShow)) return default;
+        if (!CheckSig(mHide)) return default;
+
+        var inv = new ViewInvoker { target = comp };
+        inv.Init = (a, b) => mInit.Invoke(comp, new object[] { a, b });   // (max, current)
+        inv.SetHP = (a, b) => mSetHP.Invoke(comp, new object[] { a, b });   // (current, max)
+        inv.Show = () => mShow.Invoke(comp, null);
+        inv.Hide = () => mHide.Invoke(comp, null);
+
+        return inv;
+    }
+
+    private bool CheckSig(MethodInfo m, params Type[] paramTypes)
+    {
+        if (m.ReturnType != typeof(void)) return false;
+        var ps = m.GetParameters();
+        if (ps.Length != paramTypes.Length) return false;
+        for (int i = 0; i < ps.Length; i++)
+            if (ps[i].ParameterType != paramTypes[i]) return false;
+        return true;
+    }
+
+    // ====== 데미지 처리 ======
     public void TakeDamage()
     {
-        Vector3 knockbackDir = playerTransform != null ? (transform.position - playerTransform.position).normalized : Vector3.zero;
+        if (isDead) return;
 
-        bool isCritical = Random.Range(0f, 100f) < criticalChance;
+        bool isCritical = UnityEngine.Random.Range(0f, 100f) < criticalChance; // ← 모호성 제거
         int damage = isCritical
             ? Mathf.RoundToInt(GameManager.Instance.playerStats.attack * 2f)
             : Mathf.RoundToInt(GameManager.Instance.playerStats.attack);
@@ -100,7 +200,8 @@ public class Boss1HP : MonoBehaviour
 
         if (useKnockback && playerTransform != null)
         {
-            transform.DOMove(transform.position + knockbackDir * knockbackDistance, knockbackDuration)
+            var dir = (transform.position - playerTransform.position).normalized;
+            transform.DOMove(transform.position + dir * knockbackDistance, knockbackDuration)
                      .SetEase(Ease.OutQuad);
         }
     }
@@ -110,89 +211,33 @@ public class Boss1HP : MonoBehaviour
 
     private void ApplyDamage(int damage, bool isCritical)
     {
-        if (isDead) return;
+        if (isDead || damage <= 0) return;
 
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        currentHP = Mathf.Clamp(currentHP - damage, 0, maxHP);
+        if (hpView.IsValid) hpView.SetHP(currentHP, maxHP);
 
-        UpdateHPBar();
-
-        if (!bulletSpawner.slowSkillActive)
+        if (bulletSpawner == null || !bulletSpawner.slowSkillActive)
         {
-            PlayDamageEffect();
+            PlayDamageFlash();
             PlayHitEffect();
         }
 
         if (isCritical)
         {
             AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-            ShowCDamageText(damage);
+            ShowDamageText(damage, true);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
             AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-            ShowDamageText(damage);
+            ShowDamageText(damage, false);
         }
 
-        // FireBoss 스킬 강제 종료
-        FireBoss fireBoss = GetComponent<FireBoss>();
-        if (fireBoss != null)
-        {
-            fireBoss.OnBossTakeDamage(); // 이미 FireBoss 스크립트에 구현되어 있는 강제 종료 로직 호출
-        }
+        var fireBoss = GetComponent<FireBoss>();
+        if (fireBoss != null) fireBoss.OnBossTakeDamage();
 
-
-        if (currentHP <= 0)
-            Die();
-    }
-
-    private void PlayHitEffect()
-    {
-        if (hitEffectPrefab == null) return;
-
-        GameObject effectObj = PoolManager.Instance.SpawnFromPool(hitEffectPrefab.name, transform.position, Quaternion.identity);
-        if (effectObj == null) return;
-
-        DOVirtual.DelayedCall(0.3f, () => PoolManager.Instance.ReturnToPool(effectObj));
-    }
-
-    private void ShowDamageText(int damage)
-    {
-        if (damageTextPrefab == null || damage <= 0) return;
-
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(damageTextPrefab.name, transform.position, Quaternion.identity);
-        if (textObj == null) return;
-
-        TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null) text.text = damage.ToString();
-
-        Transform t = textObj.transform;
-        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
-        DOVirtual.DelayedCall(0.6f, () => PoolManager.Instance.ReturnToPool(textObj));
-    }
-
-    private void ShowCDamageText(int damage)
-    {
-        if (cDamageTextPrefab == null) return;
-
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(cDamageTextPrefab.name, transform.position, Quaternion.identity);
-        if (textObj == null) return;
-
-        TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null) text.text = damage.ToString();
-
-        Transform t = textObj.transform;
-        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
-        DOVirtual.DelayedCall(0.6f, () => PoolManager.Instance.ReturnToPool(textObj));
-    }
-
-    private void PlayDamageEffect()
-    {
-        if (spriteRenderer == null) return;
-        spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() => spriteRenderer.DOColor(Color.white, 0.1f));
+        if (currentHP <= 0) Die();
     }
 
     private void Die()
@@ -200,13 +245,11 @@ public class Boss1HP : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        if (hpBarUI != null)
-            hpBarUI.SetActive(false);
+        if (hpView.IsValid) hpView.Hide();
 
         GameManager.Instance.cameraShake.GenerateImpulse();
 
-        // 플레이어 HP 회복
-        PlayerHeal playerHeal = FindFirstObjectByType<PlayerHeal>();
+        var playerHeal = FindFirstObjectByType<PlayerHeal>();
         if (playerHeal != null && playerHeal.hpHeal)
         {
             GameManager.Instance.playerStats.currentHP += playerHeal.hpHealAmount;
@@ -214,8 +257,42 @@ public class Boss1HP : MonoBehaviour
                 Mathf.Clamp(GameManager.Instance.playerStats.currentHP, 0, GameManager.Instance.playerStats.maxHP);
         }
 
-        EnemiesDie enemiesDie = GetComponent<EnemiesDie>();
-        if (enemiesDie != null)
-            enemiesDie.Die();
+        var enemiesDie = GetComponent<EnemiesDie>(); // ← null-prop 금지
+        if (enemiesDie != null) enemiesDie.Die();
+    }
+
+    // ====== 이펙트/텍스트 ======
+    private void PlayHitEffect()
+    {
+        if (!hitEffectPrefab) return;
+        var fx = PoolManager.Instance.SpawnFromPool(hitEffectPrefab.name, transform.position, Quaternion.identity);
+        if (!fx) return;
+        DOVirtual.DelayedCall(0.3f, () => PoolManager.Instance.ReturnToPool(fx));
+    }
+
+    private void ShowDamageText(int damage, bool critical)
+    {
+        var prefab = critical ? cDamageTextPrefab : damageTextPrefab;
+        if (!prefab) return;
+
+        var obj = PoolManager.Instance.SpawnFromPool(prefab.name, transform.position, Quaternion.identity);
+        if (!obj) return;
+
+        var t = obj.transform;
+        var txt = obj.GetComponent<TMP_Text>();
+        if (txt != null) txt.text = damage.ToString();
+
+        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
+        DOVirtual.DelayedCall(0.6f, () => PoolManager.Instance.ReturnToPool(obj));
+    }
+
+    private void PlayDamageFlash()
+    {
+        if (!spriteRenderer) return;
+        spriteRenderer.DOComplete();
+        DOTween.Sequence()
+               .Append(spriteRenderer.DOColor(Color.red, 0.1f))
+               .Append(spriteRenderer.DOColor(Color.white, 0.1f));
     }
 }
