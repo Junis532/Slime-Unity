@@ -32,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 6294087193304061933}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 86.96778, y: 55.184246, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -61,7 +61,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 08a32409bc548294d9f8bc54addcb420, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -230,10 +230,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ComponentVersion: 2
-  m_LightType: 3
+  m_LightType: 1
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.41
-  m_Color: {r: 1, g: 0.78079355, b: 0, a: 1}
+  m_FalloffIntensity: 0.652
+  m_Color: {r: 0.9339623, g: 0.05049737, b: 0, a: 1}
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
@@ -253,8 +253,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: -0.00000011920929, z: 0}
-    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+    m_Center: {x: -0.00029999018, y: -0.0047500134, z: 0}
+    m_Extent: {x: 0.6052, y: 0.66155, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 1.63
@@ -265,10 +265,16 @@ MonoBehaviour:
   m_ShapeLightFalloffSize: 0.5
   m_ShapeLightFalloffOffset: {x: 0, y: 0}
   m_ShapePath:
-  - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: 0.5, z: 0}
-  - {x: -0.5, y: 0.5, z: 0}
+  - {x: -0.06449244, y: -0.16531129, z: 0}
+  - {x: 0.053412605, y: -0.16556, z: 0}
+  - {x: 0.10489271, y: -0.10215135, z: 0}
+  - {x: 0.10577314, y: -0.03403917, z: 0}
+  - {x: 0.08537214, y: 0.05333266, z: 0}
+  - {x: 0.055177286, y: 0.15651564, z: 0}
+  - {x: -0.06071322, y: 0.15536512, z: 0}
+  - {x: -0.08326533, y: 0.05605254, z: 0}
+  - {x: -0.1057049, y: -0.041866165, z: 0}
+  - {x: -0.10502475, y: -0.11326509, z: 0}
 --- !u!114 &-3687492310289513661
 MonoBehaviour:
   m_ObjectHideFlags: 0
