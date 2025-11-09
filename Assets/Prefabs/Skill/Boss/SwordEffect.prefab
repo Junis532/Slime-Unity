@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8803386916502858406}
   - component: {fileID: 5644873692190165154}
   - component: {fileID: 6222409685235223280}
+  - component: {fileID: 7468786401559021977}
   m_Layer: 0
   m_Name: SwordEffect
   m_TagString: Untagged
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 4162590138607052791}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.555, y: -1.4739, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 7, y: 7, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -111,7 +112,7 @@ MonoBehaviour:
   - {fileID: -311532477498474431, guid: ba9ae5440f176e845abf5124f89a3033, type: 3}
   - {fileID: 2077771622289352294, guid: ba9ae5440f176e845abf5124f89a3033, type: 3}
   frameRate: 0.07
-  playOnce: 1
+  playOnce: 0
 --- !u!60 &5644873692190165154
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -182,3 +183,78 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e532a28309886343b106cecd7951dc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7468786401559021977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4162590138607052791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 2
+  m_LightType: 1
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.652
+  m_Color: {r: 1, g: 0.5062072, b: 0.17924517, a: 1}
+  m_Intensity: 1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0.008549988, y: -0.014800012, z: 0}
+    m_Extent: {x: 0.63185, y: 0.6957, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 0.5
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: 0.012294971, y: -0.2105737, z: 0}
+  - {x: 0.05914218, y: -0.20835355, z: 0}
+  - {x: 0.09078891, y: -0.19952197, z: 0}
+  - {x: 0.14009497, y: -0.14968568, z: 0}
+  - {x: 0.14032602, y: -0.114268936, z: 0}
+  - {x: 0.13020019, y: -0.050523166, z: 0}
+  - {x: 0.11316551, y: -0.035234794, z: 0}
+  - {x: 0.087900095, y: -0.014926588, z: 0}
+  - {x: 0.02177613, y: 0.07720926, z: 0}
+  - {x: 0.019174507, y: 0.108363345, z: 0}
+  - {x: 0.031636033, y: 0.15696368, z: 0}
+  - {x: 0.0029745759, y: 0.18001753, z: 0}
+  - {x: -0.013848784, y: 0.16444048, z: 0}
+  - {x: -0.037526067, y: 0.18313359, z: 0}
+  - {x: -0.05516183, y: 0.17862804, z: 0}
+  - {x: -0.071172245, y: 0.17191729, z: 0}
+  - {x: -0.09235689, y: 0.17814833, z: 0}
+  - {x: -0.10357265, y: 0.1407643, z: 0}
+  - {x: -0.12039601, y: 0.13764822, z: 0}
+  - {x: -0.124134414, y: 0.11023255, z: 0}
+  - {x: -0.09372842, y: 0.074591435, z: 0}
+  - {x: -0.074800566, y: 0.066616386, z: 0}
+  - {x: -0.061826233, y: 0.0522862, z: 0}
+  - {x: -0.062339585, y: 0.023002403, z: 0}
+  - {x: -0.038741864, y: 0.008757234, z: 0}
+  - {x: -0.04904536, y: -0.07882277, z: 0}
+  - {x: -0.051252984, y: -0.13917238, z: 0}

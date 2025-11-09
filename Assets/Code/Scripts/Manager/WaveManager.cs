@@ -266,6 +266,29 @@ public class WaveManager : MonoBehaviour
         if (room.eventSceneEnabled)
             yield return StartCoroutine(RunEventScene(room));
 
+        // 📌 카메라 이동 (줌인 Sequence와 상관없이)
+        Sequence camMoveSeq = DOTween.Sequence();
+        camMoveSeq.Append(cineCamera.transform.DOMove(
+            new Vector3(roomCenter.x, roomCenter.y, cineCamera.transform.position.z),
+            cameraMoveDuration
+        ).SetEase(Ease.InOutSine));
+        yield return camMoveSeq.WaitForCompletion();
+
+        float smoothDuration = 0.8f; // 부드럽게 바뀌는 시간
+
+        Camera mainCam = Camera.main;
+        if (mainCam != null)
+            DOTween.To(() => mainCam.orthographicSize,
+                       x => mainCam.orthographicSize = x,
+                       room.zoomInTargetSize,
+                       smoothDuration);
+
+        if (cineCamera != null)
+            DOTween.To(() => cineCamera.Lens.OrthographicSize,
+                       x => cineCamera.Lens.OrthographicSize = x,
+                       room.zoomInTargetSize,
+                       smoothDuration);
+
         // 🔍 카메라 줌인 연출
         if (room.enableZoomInSequence)
         {
