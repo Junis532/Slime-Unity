@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2272605966743861645}
   - component: {fileID: 8514234659467740069}
   - component: {fileID: 3127000710772927844}
+  - component: {fileID: -9003971129953711413}
   m_Layer: 20
   m_Name: DialogueBox
   m_TagString: Untagged
@@ -34,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -963.74, y: -535.54}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8514234659467740069
@@ -72,3 +73,18 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &-9003971129953711413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6990358143368511376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be492a58d40742b41bbd8fa22a702fca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capWidthPx: 8
+  centerTiled: 0
+  useRawImageUvRect: 1

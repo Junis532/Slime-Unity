@@ -1,67 +1,171 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;            // 조이스틱 리셋용(리플렉션)
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using System.Collections;
 using Unity.Cinemachine;
-using UnityEngine.EventSystems; // ⬅ UI 터치 차단용(필요시)
+using UnityEngine.EventSystems;
+
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;      // 새 입력 시스템
+#endif
+
+#if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
+using UnityEngine.AI;
+#endif
 
 public class DialogueManager : MonoBehaviour
 {
     [Header("출력해줄 다이얼로그 말풍선 스프라이트")]
     public GameObject dialogueBox;
+
     [Header("텍스트")]
     public TextMeshProUGUI usedText;
+
     [Header("대화할 데이터")]
     public TalkData NPCTalkDatable;
-    bool isTalk = false; //대화 다 했는가?
+
     [Header("플레이어 태그")]
     public string usedTag = "";
+
     [Header("다이얼로그 캔버스")]
     public GameObject usedCanvas;
+
+    [Header("시네머신 (있으면 사용, 없으면 런타임 생성)")]
+    public CinemachineCamera cinemachineCamera;
+
+    [Header("플레이어(자동 바인딩됨)")]
+    public GameObject playerSet;
+
+    [Header("원샷(한 번만 실행) 설정")]
+    public bool oneShot = true;
+
+    [Tooltip("원샷 차단용으로 끌 콜라이더. 비우면 자동으로 자기 자신/자식에서 찾아요.")]
+    public Collider2D triggerCollider;
+
+    [Tooltip("콜라이더를 끄는 대신 이 스크립트를 파괴해서 완전히 막고 싶으면 체크 (대화 종료 후 파괴)")]
+    public bool destroyComponentInstead = false;
+
+    // 내부 UI 상태
     GameObject dialgoueSet;
     GameObject dialTextSet;
     TextMeshProUGUI usedMesh;
+    GameObject[] temp;
 
-    [Header("시네머신 (있으면 사용, 없으면 런타임 생성)")]
-    public CinemachineCamera cinemachineCamera;   // 인스펙터에 지정 안 해도 됨
-    [Header("플레이어")]
-    public GameObject playerSet;
-    public GameObject[] temp;
+    bool isTalk = false;
+    bool _consumed = false;
+    int currentLine = 0;
 
-    int currentLine = 0; // 현재 대화 인덱스
     [Header("타이핑 속도 (글자당 딜레이)")]
     public float typingSpeed = 0.05f;
 
-    // ==== 카메라 복구용 ====
+    // 카메라 복구용
     float _origOrthoSize = -1f;
     int _origPriority = 0;
     bool _origEnabled = true;
-
-    // 대화 전용 VCam을 만들었는지 여부
     bool _createdRuntimeVCam = false;
-
-    // 대화 중 보정(보수) 추적 코루틴
     Coroutine _hardTrackRoutine;
+
+    // 플레이어/입력 관련
+    [Header("플레이어 제어 차단 옵션")]
+    public bool blockPlayerInput = true;
+
+    [Tooltip("대화 중 비활성화할 추가 스크립트(오토런/대시/패스 등).")]
+    public Behaviour[] movementScriptsToDisable;
+
+#if ENABLE_INPUT_SYSTEM
+    PlayerInput _playerInput;
+    bool _playerInputWasEnabled = false;
+#endif
+
+    PlayerController _pc;          // 대상 플레이어 컨트롤러
+    Rigidbody2D _rb;               // 선택: 물리 사용 시만
+    bool _rbHad;
+    RigidbodyConstraints2D _rbPrevConstraints;
+    Vector2 _rbPrevVelocity;
+
+#if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
+    NavMeshAgent _agent;
+    bool _hadAgent = false;
+    bool _agentPrevStopped = false;
+    float _agentPrevSpeed, _agentPrevAccel, _agentPrevAngSpeed;
+#endif
+
+    bool[] _movementPrevEnabled;
+
+    // 파괴를 대화 종료 후로 미루기
+    bool _destroyAfterDialogue = false;
 
     // ─────────────────────────────────────────────────────────────────────────────
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void Awake()
     {
-        if (collision.CompareTag(usedTag) && !isTalk)
+        if (triggerCollider == null)
         {
-            isTalk = true;
-            DialogueStart();
+            triggerCollider = GetComponent<Collider2D>();
+            if (triggerCollider == null)
+                triggerCollider = GetComponentInChildren<Collider2D>();
         }
     }
 
-    // 필요한 최소 구성 보장:
-    // - Main Camera에 CinemachineBrain
-    // - 대화용 VCam 존재(없으면 새로 생성)
-    // - VCam에 Position Composer(Body)
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (_consumed) return;
+        if (!collision.CompareTag(usedTag)) return;
+        if (isTalk) return;
+
+        // 충돌한 객체 기준으로 PlayerController 찾기
+        _pc = collision.GetComponentInParent<PlayerController>();
+        if (_pc != null) playerSet = _pc.gameObject;
+        else playerSet = collision.transform.root.gameObject;
+
+#if ENABLE_INPUT_SYSTEM
+        _playerInput = playerSet ? playerSet.GetComponentInParent<PlayerInput>() : null;
+#endif
+        _rb = playerSet ? playerSet.GetComponentInParent<Rigidbody2D>() : null;
+        _rbHad = _rb != null;
+
+#if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
+        _agent = playerSet ? playerSet.GetComponentInParent<NavMeshAgent>() : null;
+        _hadAgent = _agent != null;
+#endif
+
+        if (movementScriptsToDisable != null && movementScriptsToDisable.Length > 0)
+            _movementPrevEnabled = new bool[movementScriptsToDisable.Length];
+
+        // 원샷 처리 (즉시 파괴 금지)
+        if (oneShot)
+        {
+            if (destroyComponentInstead)
+            {
+                _destroyAfterDialogue = true; // 종료 후 파괴
+                DisableTriggerCollider();
+                _consumed = true;
+            }
+            else
+            {
+                DisableTriggerCollider();
+                _consumed = true;
+            }
+        }
+
+        // 하드 스톱(조이스틱은 끄지 않고 중립화만)
+        FreezePlayer();
+
+        isTalk = true;
+        DialogueStart();
+    }
+
+    void DisableTriggerCollider()
+    {
+        if (triggerCollider != null && triggerCollider.enabled)
+            triggerCollider.enabled = false;
+    }
+
     void EnsureCameraRig()
     {
-        // 1) 메인 카메라 + 브레인 보장
         var mainCam = Camera.main;
         if (mainCam == null)
         {
@@ -72,7 +176,6 @@ public class DialogueManager : MonoBehaviour
         if (mainCam.GetComponent<CinemachineBrain>() == null)
             mainCam.gameObject.AddComponent<CinemachineBrain>();
 
-        // 2) VCam 없으면 생성(루트에)
         if (cinemachineCamera == null)
         {
             var vgo = new GameObject("DialogueVCam");
@@ -80,73 +183,57 @@ public class DialogueManager : MonoBehaviour
             _createdRuntimeVCam = true;
         }
 
-        // 3) VCam 레이어가 UI면 꺼지므로 Default로
-        cinemachineCamera.gameObject.layer = LayerMask.NameToLayer("Default");
-
-        // 4) Body(위치 구동) 보장
         if (!cinemachineCamera.TryGetComponent<CinemachinePositionComposer>(out _))
             cinemachineCamera.gameObject.AddComponent<CinemachinePositionComposer>();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-
     void DialogueStart()
     {
-        // (기존 UI 끄기 로직)
+        // UI 전역 비활성
         temp = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         foreach (GameObject t in temp)
             if (t.layer == LayerMask.NameToLayer("UI"))
                 t.gameObject.SetActive(false);
 
-        // === 카메라 파트 시작 : “확실히” 동작하도록 구성 ===
+        // 카메라 설정
         EnsureCameraRig();
 
-        // 원본 값 백업
         if (_origOrthoSize < 0f) _origOrthoSize = cinemachineCamera.Lens.OrthographicSize;
         _origPriority = cinemachineCamera.Priority;
         _origEnabled = cinemachineCamera.enabled;
 
-        // 이 VCam을 라이브로 보장
         cinemachineCamera.enabled = true;
         cinemachineCamera.Priority = 10000;
 
-        // CM3 방식: TrackingTarget만 바꾸면 Body가 따라감
-        var ct = cinemachineCamera.Target;  // 구조체 복사
+        var ct = cinemachineCamera.Target;
         ct.TrackingTarget = transform;      // NPC
-        cinemachineCamera.Target = ct;      // 다시 대입
+        cinemachineCamera.Target = ct;
 
-        // 즉시 재계산
         cinemachineCamera.PreviousStateIsValid = false;
-
-        // 줌 인
         cinemachineCamera.Lens.OrthographicSize = 3f;
 
-        // 보수 추적(혹시라도 Body/채널 세팅 이슈가 남아있을 때 대비)
         _hardTrackRoutine = StartCoroutine(HardTrackRoutine(transform));
-        // === 카메라 파트 끝 ===
 
-        // (이하 기존 UI 생성/애니메이션)
+        // 말풍선/UI 생성
         dialgoueSet = Instantiate(dialogueBox);
         dialgoueSet.transform.position = transform.position;
         dialTextSet = Instantiate(usedText.gameObject);
         dialTextSet.transform.position = transform.position;
 
-        dialTextSet.GetComponent<TextMeshProUGUI>().text = "";
+        dialgoueSet.transform.SetParent(usedCanvas.transform, false);
+        dialTextSet.transform.SetParent(usedCanvas.transform, false);
 
-        dialgoueSet.transform.parent = usedCanvas.transform;
-        dialTextSet.transform.parent = usedCanvas.transform;
-
-        dialTextSet.GetComponent<TextMeshProUGUI>().DOFade(1f, 0.5f);
-        dialTextSet.transform.DOMoveY(4.5f, 0.5f);
-        dialgoueSet.GetComponent<Image>().DOFade(1f, 0.5f);
-        dialgoueSet.transform.DOMoveY(4.5f, 0.5f);
         usedMesh = dialTextSet.GetComponent<TextMeshProUGUI>();
+        usedMesh.text = "";
+
+        usedMesh.DOFade(1f, 0.5f);
+        dialTextSet.transform.DOMoveY(transform.position.y + 1f, 0.5f);
+        dialgoueSet.GetComponent<Image>().DOFade(1f, 0.5f);
+        dialgoueSet.transform.DOMoveY(transform.position.y + 1f, 0.5f);
 
         StartCoroutine(DialogueRoutine());
     }
 
-    // “혹시라도” CM 파이프라인이 안 움직일 때를 위해,
-    // 대화 중엔 VCam Transform을 타깃 XY로 강제 스냅(메인카메라 Z 유지)
     IEnumerator HardTrackRoutine(Transform target)
     {
         var mc = Camera.main;
@@ -158,7 +245,7 @@ public class DialogueManager : MonoBehaviour
                 cinemachineCamera.transform.position = new Vector3(p.x, p.y, mc.transform.position.z);
                 cinemachineCamera.transform.rotation = mc.transform.rotation;
             }
-            yield return null; // 매 프레임
+            yield return null;
         }
     }
 
@@ -169,9 +256,8 @@ public class DialogueManager : MonoBehaviour
             yield return StartCoroutine(DialTyping(NPCTalkDatable.talks[currentLine].talkString));
             currentLine++;
 
-            // ▼▼▼ 스페이스바 → 터치/클릭(모바일/PC 겸용)로 변경 ▼▼▼
+            // 입력 대기(스페이스/클릭/터치)
             yield return new WaitUntil(AdvanceTapped);
-            // ▲▲▲
 
             var rt = dialgoueSet.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(150, 150);
@@ -186,21 +272,20 @@ public class DialogueManager : MonoBehaviour
         foreach (char c in line)
         {
             usedMesh.text += c;
-            rt.sizeDelta = new Vector2(rt.sizeDelta.x + 40f, rt.sizeDelta.y);
+            rt.sizeDelta = new Vector2(rt.sizeDelta.x + 30f, rt.sizeDelta.y);
             yield return new WaitForSeconds(typingSpeed);
         }
     }
 
     void EndDialogue()
     {
-        Debug.Log("다이얼로그 종료");
-        // 말풍선 및 텍스트 제거
-        Destroy(dialgoueSet);
-        Destroy(dialTextSet);
+        if (dialgoueSet) Destroy(dialgoueSet);
+        if (dialTextSet) Destroy(dialTextSet);
+
         isTalk = false;
         currentLine = 0;
 
-        // === 카메라 복귀 ===
+        // 카메라 복귀
         if (_hardTrackRoutine != null)
         {
             StopCoroutine(_hardTrackRoutine);
@@ -209,19 +294,16 @@ public class DialogueManager : MonoBehaviour
 
         if (cinemachineCamera != null)
         {
-            // 플레이어로 타깃 되돌리기
             var ct = cinemachineCamera.Target;
             ct.TrackingTarget = playerSet != null ? playerSet.transform : null;
             cinemachineCamera.Target = ct;
 
             cinemachineCamera.PreviousStateIsValid = false;
 
-            // 원래 세팅 복구
             cinemachineCamera.Lens.OrthographicSize = (_origOrthoSize > 0f) ? _origOrthoSize : 5.6f;
             cinemachineCamera.Priority = _origPriority;
             cinemachineCamera.enabled = _origEnabled;
 
-            // 런타임에 만든 VCam은 정리(원한다면 남겨도 무방)
             if (_createdRuntimeVCam)
             {
                 Destroy(cinemachineCamera.gameObject);
@@ -230,49 +312,251 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
-        foreach (GameObject t in temp)
+        // 플레이어/조이스틱 복구 (중립 리셋 포함)
+        UnfreezePlayer();
+
+        // UI 복구
+        if (temp != null)
         {
-            if (t != null)
-            {
-                if (t.layer == LayerMask.NameToLayer("UI"))
+            foreach (GameObject t in temp)
+                if (t != null && t.layer == LayerMask.NameToLayer("UI"))
                     t.gameObject.SetActive(true);
-            }
         }
-        // ===============
+
+        // 대화 끝난 뒤에만 파괴
+        if (_destroyAfterDialogue)
+            Destroy(this);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // 입력 유틸: 모바일 터치/PC 클릭/스페이스바 중 하나라도 '이번 프레임'에 발생하면 true
+    void OnDisable()
+    {
+        // 예외 상황에서도 반드시 풀기
+        if (isTalk)
+        {
+            try { UnfreezePlayer(); } catch { }
+            isTalk = false;
+        }
+    }
+
+    // 입력 체크(모호성 완전 차단)
     bool AdvanceTapped()
     {
-        // 1) 키보드(PC 테스트 편의)
-        if (Input.GetKeyDown(KeyCode.Space)) return true;
+#if ENABLE_INPUT_SYSTEM
+        if (global::UnityEngine.InputSystem.Keyboard.current != null &&
+            global::UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
+            return true;
 
-        // 2) 마우스 클릭(에디터/PC)
-        if (Input.GetMouseButtonDown(0))
+        if (global::UnityEngine.InputSystem.Mouse.current != null &&
+            global::UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            return true;
+
+        if (global::UnityEngine.InputSystem.Touchscreen.current != null)
         {
-            // ※ UI 위 클릭도 허용하려면 아래 if 블록을 주석 처리하세요.
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                return true; // UI 클릭도 통과(허용)
-            return true;     // 화면 아무 곳이나 클릭
+            var t = global::UnityEngine.InputSystem.Touchscreen.current.primaryTouch;
+            if (t.press.wasPressedThisFrame) return true;
+        }
+        return false;
+#else
+        if (global::UnityEngine.Input.GetKeyDown(global::UnityEngine.KeyCode.Space)) return true;
+
+        if (global::UnityEngine.Input.GetMouseButtonDown(0))
+        {
+            if (UnityEngine.EventSystems.EventSystem.current != null &&
+                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+                return true;
+            return true;
         }
 
-        // 3) 모바일 터치
-        if (Input.touchCount > 0)
+        if (global::UnityEngine.Input.touchCount > 0)
         {
-            for (int i = 0; i < Input.touchCount; i++)
+            for (int i = 0; i < global::UnityEngine.Input.touchCount; i++)
             {
-                var t = Input.GetTouch(i);
-                if (t.phase == TouchPhase.Began)
+                global::UnityEngine.Touch t = global::UnityEngine.Input.GetTouch(i);
+                if (t.phase == global::UnityEngine.TouchPhase.Began)
                 {
-                    // ※ UI 위 터치도 허용하려면 fingerId 검사 부분을 제거/변경하세요.
-                    if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(t.fingerId))
-                        return true; // UI 터치도 통과(허용)
-                    return true;     // 화면 아무 곳이나 터치
+                    if (UnityEngine.EventSystems.EventSystem.current != null &&
+                        UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(i))
+                        return true;
+                    return true;
                 }
             }
         }
-
         return false;
+#endif
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 하드 스톱 / 복구 (조이스틱은 끄지 않고 중립화만)
+    void FreezePlayer()
+    {
+        if (playerSet == null) return;
+
+        if (_pc == null)
+            _pc = playerSet.GetComponentInParent<PlayerController>();
+
+        // 1) PlayerController 잠금 (컴포넌트 Enabled는 건드리지 않음)
+        if (_pc != null)
+        {
+            _pc.LockMovement(true);            // canMove=false + 입력/방향 0
+            _pc.inputVec = Vector2.zero;       // 한 번 더 0
+            // 조이스틱 중립 강제 (있는 경우)
+            if (_pc.joystick != null && _pc.joystick.gameObject != null)
+                ResetJoystickObject(_pc.joystick.gameObject);
+        }
+
+        // 2) PlayerInput 비활성(옵션)
+#if ENABLE_INPUT_SYSTEM
+        if (blockPlayerInput && _playerInput != null)
+        {
+            _playerInputWasEnabled = _playerInput.enabled;
+            if (_playerInput.actions != null) _playerInput.actions.Disable();
+            _playerInput.enabled = false;
+        }
+#endif
+
+        // 3) Rigidbody2D(있으면) 안전 정지 — simulated는 건드리지 않음
+        if (_rbHad && _rb != null)
+        {
+            _rbPrevVelocity = _rb.linearVelocity;
+            _rbPrevConstraints = _rb.constraints;
+
+            _rb.linearVelocity = Vector2.zero;
+            _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+
+        // 4) NavMeshAgent(있으면) 정지
+#if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
+        if (_hadAgent && _agent != null)
+        {
+            _agentPrevStopped = _agent.isStopped;
+            _agentPrevSpeed = _agent.speed;
+            _agentPrevAccel = _agent.acceleration;
+            _agentPrevAngSpeed = _agent.angularSpeed;
+
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+            _agent.speed = 0f;
+            _agent.acceleration = 0f;
+            _agent.angularSpeed = 0f;
+        }
+#endif
+
+        // 5) 기타 이동 스크립트 off
+        if (movementScriptsToDisable != null)
+        {
+            for (int i = 0; i < movementScriptsToDisable.Length; i++)
+            {
+                if (movementScriptsToDisable[i] == null) continue;
+                _movementPrevEnabled[i] = movementScriptsToDisable[i].enabled;
+                movementScriptsToDisable[i].enabled = false;
+            }
+        }
+
+        // 6) 혹시 남아있을 트윈 이동 제거
+        if (_pc != null) DOTween.Kill(_pc.transform, complete: false);
+        if (_rb != null) DOTween.Kill(_rb, complete: false);
+    }
+
+    void UnfreezePlayer()
+    {
+        // A) 물리/AI부터 복구
+        if (_rbHad && _rb != null)
+        {
+            _rb.constraints = _rbPrevConstraints;
+            _rb.linearVelocity = _rbPrevVelocity;
+        }
+
+#if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
+        if (_hadAgent && _agent != null)
+        {
+            _agent.isStopped = _agentPrevStopped;
+            _agent.speed = _agentPrevSpeed;
+            _agent.acceleration = _agentPrevAccel;
+            _agent.angularSpeed = _agentPrevAngSpeed;
+        }
+#endif
+
+        // B) PlayerController 중립 상태에서 해제
+        if (_pc != null)
+        {
+            _pc.inputVec = Vector2.zero;               // 입력 0
+            if (_pc.joystick != null && _pc.joystick.gameObject != null)
+                ResetJoystickObject(_pc.joystick.gameObject);   // 조이스틱 0,0
+
+            _pc.UnlockMovement();                      // canMove=true
+        }
+
+        // C) PlayerInput 켜기(옵션)
+#if ENABLE_INPUT_SYSTEM
+        if (blockPlayerInput && _playerInput != null)
+        {
+            _playerInput.enabled = _playerInputWasEnabled;
+            if (_playerInput.actions != null) _playerInput.actions.Enable();
+        }
+#endif
+
+        // D) 기타 이동 스크립트 복구
+        if (movementScriptsToDisable != null)
+        {
+            for (int i = 0; i < movementScriptsToDisable.Length; i++)
+            {
+                if (movementScriptsToDisable[i] == null) continue;
+                movementScriptsToDisable[i].enabled = _movementPrevEnabled[i];
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 조이스틱 중립 강제 리셋(패키지 불문)
+    void ResetJoystickObject(GameObject go)
+    {
+        if (go == null) return;
+
+        // 1) PointerUp 강제 → "손 뗀" 상태
+        try
+        {
+            var ped = new PointerEventData(EventSystem.current);
+            var ups = go.GetComponentsInChildren<MonoBehaviour>(true);
+            foreach (var m in ups)
+            {
+                if (m is IPointerUpHandler up)
+                    up.OnPointerUp(ped);
+            }
+        }
+        catch { }
+
+        // 2) 패키지별 메서드 호출 시도(Reset/Release/OnRelease/OnPointerUp(매개변수X))
+        try
+        {
+            var monos = go.GetComponentsInChildren<MonoBehaviour>(true);
+            foreach (var mb in monos)
+            {
+                var t = mb.GetType();
+                string[] cand = { "Reset", "Release", "OnRelease", "OnPointerUp" };
+                foreach (var name in cand)
+                {
+                    var mi = t.GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, System.Type.EmptyTypes, null);
+                    if (mi != null)
+                    {
+                        mi.Invoke(mb, null);
+                        break;
+                    }
+                }
+            }
+        }
+        catch { }
+
+        // 3) 핸들 UI 중앙 스냅
+        try
+        {
+            var rts = go.GetComponentsInChildren<RectTransform>(true);
+            foreach (var rt in rts)
+            {
+                var n = rt.name.ToLowerInvariant();
+                if (n.Contains("handle") || n.Contains("knob"))
+                    rt.anchoredPosition = Vector2.zero;
+            }
+        }
+        catch { }
     }
 }

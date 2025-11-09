@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     public float directionIndicatorDistance = 0.3f;
 
     [Header("Mesh Reflection")]
-    public List<GameObject> meshReflections = new List<GameObject>(); // 🔹 여러 반사 오브젝트 리스트
+    public List<GameObject> meshReflections = new List<GameObject>();
 
     private Vector2 keyboardInput;
     private Vector2 currentVelocity;
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!canMove) return;
+        if (!canMove) return;  // ← 잠금 시 전부 무시
 
         var kb = Keyboard.current;
         float ax = 0f, ay = 0f;
@@ -87,12 +87,12 @@ public class PlayerController : MonoBehaviour
             if (flipInput < -0.01f)
             {
                 spriteRenderer.flipX = true;
-                FlipMeshReflection(true);  // 🔹 리스트 전체 반전
+                FlipMeshReflection(true);
             }
             else if (flipInput > 0.01f)
             {
                 spriteRenderer.flipX = false;
-                FlipMeshReflection(false); // 🔹 리스트 전체 반전
+                FlipMeshReflection(false);
             }
         }
 
@@ -107,10 +107,9 @@ public class PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!canMove) return;
+        if (!canMove) return;  // ← 잠금 시 이동 계산도 안 함
 
         Vector2 moveDelta = currentDirection * GameManager.Instance.playerStats.speed * Time.deltaTime;
-
         transform.Translate(moveDelta);
     }
 
@@ -142,7 +141,7 @@ public class PlayerController : MonoBehaviour
 
     void OnMove(InputValue value) { }
 
-    // 🔹 리스트 내 모든 Mesh Reflection 좌우 반전
+    // 좌우 반전(리스트 전부)
     void FlipMeshReflection(bool flip)
     {
         if (meshReflections == null || meshReflections.Count == 0) return;
@@ -155,5 +154,33 @@ public class PlayerController : MonoBehaviour
             scale.x = Mathf.Abs(scale.x) * (flip ? -1 : 1);
             reflection.transform.localScale = scale;
         }
+    }
+
+    // ===== 잠금/해제 공개 API =====
+    public void LockMovement(bool resetImmediate = true)
+    {
+        canMove = false;
+
+        if (resetImmediate)
+        {
+            // 입력/방향 즉시 초기화
+            inputVec = Vector2.zero;
+            keyboardInput = Vector2.zero;
+            currentDirection = Vector2.zero;
+            currentVelocity = Vector2.zero;
+
+            // 방향표시 숨김
+            if (directionIndicatorInstance != null)
+                directionIndicatorInstance.SetActive(false);
+
+            // 애니메이션 정지
+            if (playerAnimation != null)
+                playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
+        }
+    }
+
+    public void UnlockMovement()
+    {
+        canMove = true;
     }
 }

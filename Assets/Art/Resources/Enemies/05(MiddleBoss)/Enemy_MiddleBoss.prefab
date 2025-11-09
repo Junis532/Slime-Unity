@@ -118,9 +118,9 @@ MonoBehaviour:
   warnLaserPattern: 1
   warnSwordPattern: 1
   warnJumpPattern: 0
-  bulletPrefab: {fileID: 6382944771956985129, guid: 52728663e8fc3d643bd125540d7bc77e, type: 3}
+  bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   bulletsPerWave: 10
-  bulletSpeed: 7
+  bulletSpeed: 3.5
   bulletFireInterval: 0.35
   bulletPatternDuration: 6
   useGaps: 0
@@ -238,14 +238,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d391532107c46774bb62e2499fbf864b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bossHpBarPrefab: {fileID: 3485047932090325068, guid: 1aa5a6a6c8b8daf48a2b7939886d4ace, type: 3}
+  bossHpBarPrefab: {fileID: 2859532901931173174, guid: 22dab1affc5386d4fa82f56ae2d4dce2, type: 3}
+  targetCanvas: {fileID: 0}
   hpBarRootPath: HPBar
   hpFillPath: HPBar/HPFilled
-  currentHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
-  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
-  enableKnockback: 0
+  usePrefabLayout: 0
+  anchorPreset: 2
+  offset: {x: -60, y: -60}
+  sizeOverride: {x: 0, y: 0}
+  siblingIndex: 9999
   playIntroOnSpawn: 1
   useScaleGrow: 1
   useWidthGrow: 0
@@ -253,7 +254,10 @@ MonoBehaviour:
   introDelay: 0.1
   introDuration: 0.6
   scaleBounce: 1
-  hpBarHeightOffset: 2
+  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
+  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  currentHP: 0
 --- !u!114 &3532882702406882615
 MonoBehaviour:
   m_ObjectHideFlags: 0

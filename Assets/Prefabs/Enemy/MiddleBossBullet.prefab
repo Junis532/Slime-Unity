@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3.5, y: -3.19, z: 0}
-  m_LocalScale: {x: 1.15, y: 1.15, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -143,6 +143,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyOnObstacle: 1
   ignorePlayerWhenUsingSkill: 0
+  hitEffectPrefab: {fileID: 0}
+  enableGhostTrail: 1
+  ghostSpawnInterval: 0.045
+  ghostLifetime: 0.25
+  ghostStartAlpha: 0.6
+  ghostEndAlpha: 0
+  ghostStartScale: 1
+  ghostEndScale: 0.75
+  minVelocitySqrForGhost: 0.01
+  maxGhostPool: 24
+  ghostMaterialOverride: {fileID: 0}
+  useUnscaledTimeForGhost: 0
+  burstOnFire: 1
 --- !u!50 &8837218477310367084
 Rigidbody2D:
   serializedVersion: 5
@@ -260,3 +273,4 @@ MonoBehaviour:
   - {fileID: 6970771568504488577, guid: c34bc270cec186a408e702523941460f, type: 3}
   - {fileID: -8960821889920869107, guid: c34bc270cec186a408e702523941460f, type: 3}
   frameRate: 0.07
+  playOnce: 0
