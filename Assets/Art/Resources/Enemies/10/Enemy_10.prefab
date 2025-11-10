@@ -1168,7 +1168,7 @@ MonoBehaviour:
   maxHP: 15000
   currentHP: 0
   ID: 5511
-  shareHPByID: 0
+  shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
@@ -1396,7 +1396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackPrepareDuration: 0.5
   fireIntervals:
-  - 3
+  - 1.5
   firstFireDelay: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   bulletSpeed: 5.5
@@ -1909,7 +1909,7 @@ MonoBehaviour:
   maxHP: 15000
   currentHP: 0
   ID: 5511
-  shareHPByID: 0
+  shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
@@ -2137,7 +2137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackPrepareDuration: 0.5
   fireIntervals:
-  - 2
+  - 1
   firstFireDelay: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   bulletSpeed: 5.5
@@ -2345,7 +2345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 1800
+  maxHP: 1400
   currentHP: 0
   ID: 5511
   shareHPByID: 1
@@ -2534,8 +2534,8 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 3
-  spawnPrefab: {fileID: 989741138225912565, guid: 9f88e4b0b8fb16740b91750100505059, type: 3}
-  spawnInterval: 3
+  spawnPrefab: {fileID: 989741138225912565, guid: 10d90c16d9943a544948be5e0543d3f4, type: 3}
+  spawnInterval: 2
 --- !u!1 &1812162029448384368
 GameObject:
   m_ObjectHideFlags: 0
@@ -2647,7 +2647,7 @@ MonoBehaviour:
   maxHP: 15000
   currentHP: 0
   ID: 5511
-  shareHPByID: 0
+  shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
@@ -2875,7 +2875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackPrepareDuration: 0.5
   fireIntervals:
-  - 1
+  - 0.5
   firstFireDelay: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   bulletSpeed: 5.5
@@ -4568,7 +4568,7 @@ MonoBehaviour:
   maxHP: 15000
   currentHP: 0
   ID: 5511
-  shareHPByID: 0
+  shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
@@ -4796,7 +4796,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackPrepareDuration: 0.5
   fireIntervals:
-  - 4
+  - 2
   firstFireDelay: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   bulletSpeed: 5.5

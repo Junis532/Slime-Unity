@@ -397,7 +397,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 900
+  maxHP: 600
   currentHP: 0
   ID: 
   shareHPByID: 0
@@ -586,7 +586,7 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 2
-  spawnPrefab: {fileID: 989741138225912565, guid: 95f5d76ff1320d94692caac6681988b6, type: 3}
+  spawnPrefab: {fileID: 989741138225912565, guid: 10d90c16d9943a544948be5e0543d3f4, type: 3}
   spawnInterval: 2
 --- !u!1 &2770623031975052239
 GameObject:
@@ -1086,9 +1086,9 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  dashSpeed: 15
+  dashSpeed: 12
   dashDuration: 0.3
-  waitAfterDash: 1
+  waitAfterDash: 1.3
   afterImagePrefab: {fileID: 4681627789293941660}
   afterImageSpawnInterval: 0.05
   afterImageFadeDuration: 0.3
@@ -1114,7 +1114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 15000
+  maxHP: 1200
   currentHP: 0
   ID: 
   shareHPByID: 0
@@ -2287,7 +2287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackPrepareDuration: 0.5
   fireIntervals:
-  - 0.7
+  - 0.6
   firstFireDelay: 1
   bulletPrefab: {fileID: 6382944771956985129, guid: d939d81b51266814b8601a3db8872449, type: 3}
   bulletSpeed: 5.5
@@ -2445,9 +2445,9 @@ MonoBehaviour:
   speed: 0
   originalSpeed: 0
   spawnDelay: 0.4
-  dashSpeed: 15
+  dashSpeed: 12
   dashDuration: 0.3
-  waitAfterDash: 1
+  waitAfterDash: 1.3
   afterImagePrefab: {fileID: 6607409365366850926}
   afterImageSpawnInterval: 0.05
   afterImageFadeDuration: 0.3
@@ -2473,7 +2473,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 15000
+  maxHP: 1200
   currentHP: 0
   ID: 
   shareHPByID: 0
