@@ -98,6 +98,16 @@ public class DialogueManager : MonoBehaviour
     // 파괴를 대화 종료 후로 미루기
     bool _destroyAfterDialogue = false;
 
+    // ===== [추가: 스프라이트 교체 전용 옵션/캐시] ==========================
+    [Header("스프라이트 교체(이 오브젝트의 SpriteRenderer만)")]
+    [Min(0.50f)] public float popDownScaleY = 0.85f;  // 살짝 앉기
+    [Min(0.01f)] public float popDurDown = 0.06f;
+    [Min(0.01f)] public float popDurUp = 0.12f;
+
+    SpriteRenderer _selfSR;        // 이 스크립트가 붙은 GO의 SR
+    Sprite _lastAppliedSprite;     // 마지막 적용 스프라이트
+    // =====================================================================
+
     // ─────────────────────────────────────────────────────────────────────────────
 
     void Awake()
@@ -108,6 +118,11 @@ public class DialogueManager : MonoBehaviour
             if (triggerCollider == null)
                 triggerCollider = GetComponentInChildren<Collider2D>();
         }
+
+        // ===== [추가] 이 오브젝트의 SpriteRenderer 캐시 ====================
+        _selfSR = GetComponent<SpriteRenderer>();
+        if (_selfSR == null) _selfSR = GetComponentInChildren<SpriteRenderer>(true);
+        // ===================================================================
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -253,6 +268,10 @@ public class DialogueManager : MonoBehaviour
     {
         while (currentLine < NPCTalkDatable.talks.Count)
         {
+            // ===== [추가] 이 줄 시작 전에 초상화/스프라이트 교체 시도 =====
+            TrySwapPortrait(currentLine);
+            // ============================================================
+
             yield return StartCoroutine(DialTyping(NPCTalkDatable.talks[currentLine].talkString));
             currentLine++;
 
@@ -559,4 +578,45 @@ public class DialogueManager : MonoBehaviour
         }
         catch { }
     }
+
+    // ===== [추가 메서드] 현재 줄 인덱스의 talkSprite로 교체 시도 ==============
+    void TrySwapPortrait(int lineIndex)
+    {
+        if (_selfSR == null) return;
+        if (NPCTalkDatable == null || NPCTalkDatable.talks == null) return;
+        if (lineIndex < 0 || lineIndex >= NPCTalkDatable.talks.Count) return;
+
+        var next = NPCTalkDatable.talks[lineIndex].talkSprite;
+        if (next == null) return;                // 비어있으면 패스
+        if (_selfSR.sprite == next || _lastAppliedSprite == next) return; // 같으면 스킵
+
+        StartCoroutine(SwapSpriteWithPop(next));
+    }
+
+    IEnumerator SwapSpriteWithPop(Sprite next)
+    {
+        if (_selfSR == null) yield break;
+
+        var t = transform;
+        var baseScale = t.localScale;
+
+        DOTween.Kill(t, false);
+
+        // 1) 살짝 앉기
+        yield return t.DOScaleY(baseScale.y * popDownScaleY, popDurDown)
+                      .SetEase(Ease.InQuad)
+                      .WaitForCompletion();
+
+        // 2) 스프라이트 교체
+        _selfSR.sprite = next;
+        _lastAppliedSprite = next;
+
+        // 3) 튕기며 원복
+        yield return t.DOScaleY(baseScale.y, popDurUp)
+                      .SetEase(Ease.OutBack)
+                      .WaitForCompletion();
+
+        t.localScale = baseScale;
+    }
+    // =====================================================================
 }
