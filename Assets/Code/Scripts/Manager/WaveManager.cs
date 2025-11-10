@@ -188,12 +188,12 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        if (playerTransform != null)
-        {
-            PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
-            if (playerCtrl != null)
-                playerCtrl.canMove = !isEventRunning;
-        }
+        //if (playerTransform != null)
+        //{
+        //    PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
+        //    if (playerCtrl != null)
+        //        playerCtrl.canMove = !isEventRunning;
+        //}
     }
 
     public void SetAllEnemiesAI(bool enabled)
@@ -224,7 +224,7 @@ public class WaveManager : MonoBehaviour
         cineCamera.Follow = eventObj.transform;
 
         PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
-        if (playerCtrl != null) playerCtrl.canMove = false;
+        //if (playerCtrl != null) playerCtrl.canMove = false;
 
         eventObj.transform.DOMove(room.eventEndPos.position, room.eventMoveDuration)
           .SetEase(Ease.InOutSine);
@@ -246,8 +246,8 @@ public class WaveManager : MonoBehaviour
         roomCenter.z = currentCameraPos.z;
         cineCamera.Follow = null;
 
-        PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
-        if (playerCtrl != null) playerCtrl.canMove = false;
+        //PlayerController playerCtrl = playerTransform.GetComponent<PlayerController>();
+        //if (playerCtrl != null) playerCtrl.canMove = false;
 
         if (!room.isCleared)
         {
@@ -347,7 +347,7 @@ public class WaveManager : MonoBehaviour
 
 
         cineCamera.Follow = playerTransform;
-        if (playerCtrl != null) playerCtrl.canMove = true;
+        //if (playerCtrl != null) playerCtrl.canMove = true;
         SetAllEnemiesAI(true);
         SetAllBulletSpawnersActive(true);
 
@@ -441,53 +441,42 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator StartWaveSystem(RoomData room)
     {
+
         // 🟢 맵 즉시 클리어 모드 활성화된 경우
         if (room.instantClear)
         {
-            Debug.Log($"🏁 {room.roomName} 은(는) 즉시 클리어 방으로 설정됨.");
-
             cleared = true;
             room.isCleared = true;
 
-            // 🟢 맵 즉시 클리어 모드 활성화된 경우
-            if (room.instantClear && currentRoomIndex == 7)
-            {
-                Debug.Log($"🏁 {room.roomName} 은(는) 즉시 클리어 방으로 설정됨.");
-                cleared = true;
-                room.isCleared = true;
-
-                // ✅ 이제 클리어 오브젝트를 통한 트리거로만 작동
-                if (stg7ClearObject != null)
-                    stg7ClearObject.SetActive(true); // 오브젝트 활성화 (트리거 가능)
-
-                yield break;
-            }
-
-            // 즉시 문 열기
             OpenDoors();
-
-            // 특수문(예: 다음 방으로 가는 문) 상승
             RaiseSpecialDoors(currentRoomIndex);
 
-            yield break; // 웨이브 루프를 건너뜀
+            yield break;
         }
 
-        // 🟡 기존 로직 유지 (웨이브가 없는 경우)
         if (room.waves == null || room.waves.Count == 0)
         {
             cleared = true;
             room.isCleared = true;
             OpenDoors();
+
             yield break;
         }
 
-        // 🔵 기존 웨이브 실행 루프
+        // 🔵 웨이브 루프
         for (currentWaveIndex = 0; currentWaveIndex < room.waves.Count; currentWaveIndex++)
         {
+
+            GameManager.Instance.playerController.LockMovement();
+
             RoomWaveData currentWave = room.waves[currentWaveIndex];
             yield return new WaitForSeconds(currentWave.waveDelay);
             yield return StartCoroutine(SpawnWaveEnemies(currentWave));
+
+            GameManager.Instance.playerController.UnLockMovement();
+
             yield return StartCoroutine(WaitForWaveCleared());
+
         }
 
         cleared = true;

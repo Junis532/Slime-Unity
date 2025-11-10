@@ -502,7 +502,7 @@ public class DialogueManager : MonoBehaviour
             if (_pc.joystick != null && _pc.joystick.gameObject != null)
                 ResetJoystickObject(_pc.joystick.gameObject);   // 조이스틱 0,0
 
-            _pc.UnlockMovement();                      // canMove=true
+            _pc.UnLockMovement();                      // canMove=true
         }
 
         // C) PlayerInput 켜기(옵션)

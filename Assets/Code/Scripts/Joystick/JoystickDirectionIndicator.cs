@@ -71,16 +71,21 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     public void UseSkillButton()
     {
-
         if (hasUsedSkill || isSkillActive) return;
 
-        UseSlimeJump();
-        hasUsedSkill = true;
+        // ✅ 플레이어 이동 불가 상태일 때 스킬 사용 금지
+        if (playerController != null && !playerController.canMove) return;
 
-        if (slimeJumpButton != null) slimeJumpButton.transform.SetSiblingIndex(1);
-        if (CooltimeImage != null) CooltimeImage.transform.SetSiblingIndex(2);
+        else if (playerController != null && playerController.canMove)
+        {
+            UseSlimeJump();
+            hasUsedSkill = true;
 
-        OnSkillUsed();
+            if (slimeJumpButton != null) slimeJumpButton.transform.SetSiblingIndex(1);
+            if (CooltimeImage != null) CooltimeImage.transform.SetSiblingIndex(2);
+
+            OnSkillUsed();
+        }
     }
 
     private void UseSlimeJump()
