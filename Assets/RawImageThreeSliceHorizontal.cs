@@ -79,6 +79,7 @@ public class RawImageThreeSliceHorizontal : MonoBehaviour
     {
         if (_src.texture == null) return;
 
+
         // 자식들 공통 속성 동기화
         _left.texture = _center.texture = _right.texture = _src.texture;
         _left.color = _center.color = _right.color = _src.color;

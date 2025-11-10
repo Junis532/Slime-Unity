@@ -67,24 +67,9 @@ public class TurretSpecial_PlayerTracking : MonoBehaviour
         if (enemyAnimation != null)
             enemyAnimation.PlayAnimation(TurretEnemyAnimation.State.Idle);
     }
-
     void Update()
     {
         if (!isLive) return;
-
-        // Crystal 레이어 존재 체크
-        int crystalLayer = LayerMask.NameToLayer("Crystal");
-        bool crystalExists = false;
-        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-        foreach (GameObject obj in allObjects)
-        {
-            if (obj.layer == crystalLayer)
-            {
-                crystalExists = true;
-                break;
-            }
-        }
-        gameObject.tag = crystalExists ? "Untagged" : "Enemy";
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)

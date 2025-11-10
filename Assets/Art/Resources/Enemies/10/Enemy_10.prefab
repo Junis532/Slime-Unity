@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7236137041602777764}
   - component: {fileID: 2830825933260482380}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 5236949174255683094}
   - component: {fileID: 6599209756127195099}
   - component: {fileID: 6051475053801932896}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 9082762307385681237}
   - component: {fileID: 1271383217135628600}
   - component: {fileID: 2279442448657991763}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHPCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -568,7 +568,7 @@ GameObject:
   - component: {fileID: 7160337675388513523}
   - component: {fileID: 5327578721854795389}
   - component: {fileID: 6550696478646095769}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -641,7 +641,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1731424807178904494}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -754,7 +754,7 @@ GameObject:
   - component: {fileID: 7981734381608982081}
   - component: {fileID: 4932897976107799759}
   - component: {fileID: 6301327190833886507}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -903,7 +903,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7634054645298767894}
   - component: {fileID: 3085930274862128638}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1073,7 +1073,7 @@ GameObject:
   - component: {fileID: 6998749172020476470}
   - component: {fileID: 13758939515639826}
   - component: {fileID: 1320229045994986824}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: TurretSpecial_PlayerTracking 1 (4)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1140,7 +1140,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -1167,7 +1167,7 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   maxHP: 15000
   currentHP: 0
-  ID: 5511
+  ID: 3000
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
@@ -1419,7 +1419,7 @@ GameObject:
   - component: {fileID: 8328849225625657319}
   - component: {fileID: 2035253476538223498}
   - component: {fileID: 1312874987090572001}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHPCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1520,7 +1520,7 @@ GameObject:
   - component: {fileID: 8617908468988850607}
   - component: {fileID: 6712909521135366945}
   - component: {fileID: 5633695854508610245}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1682,7 +1682,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 919040581974064882}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1719,7 +1719,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8119351820902354936}
   - component: {fileID: 3715269626183924240}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1814,7 +1814,7 @@ GameObject:
   - component: {fileID: 8682001632255057368}
   - component: {fileID: 1832057508830298108}
   - component: {fileID: 796647184829610662}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: TurretSpecial_PlayerTracking 1 (1)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1881,7 +1881,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -1908,7 +1908,7 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   maxHP: 15000
   currentHP: 0
-  ID: 5511
+  ID: 3000
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
@@ -2347,7 +2347,7 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   maxHP: 1400
   currentHP: 0
-  ID: 5511
+  ID: 3000
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
@@ -2552,7 +2552,7 @@ GameObject:
   - component: {fileID: 8495717921851385706}
   - component: {fileID: 1510595475220792654}
   - component: {fileID: 474059287218798612}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: TurretSpecial_PlayerTracking 1 (2)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -2619,7 +2619,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -2646,7 +2646,7 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   maxHP: 15000
   currentHP: 0
-  ID: 5511
+  ID: 3000
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
@@ -2898,7 +2898,7 @@ GameObject:
   - component: {fileID: 7444541462512763579}
   - component: {fileID: 646543050171569878}
   - component: {fileID: 503862070728372157}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHPCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2997,7 +2997,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 97784542773429312}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3106,7 +3106,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6591404581155261187}
   - component: {fileID: 7323196135898481940}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3342,7 +3342,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4766348535750601965}
   - component: {fileID: 9006389067931476730}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3429,7 +3429,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5746321206977336927}
   - component: {fileID: 8171622299111774280}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3516,7 +3516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3514936552676869452}
   - component: {fileID: 1017804398313409371}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4473,7 +4473,7 @@ GameObject:
   - component: {fileID: 765122562687890553}
   - component: {fileID: 7750182648540288605}
   - component: {fileID: 8785584930732905223}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: TurretSpecial_PlayerTracking 1 (3)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -4540,7 +4540,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 7
   m_Sprite: {fileID: 4146515316815078269, guid: 52e4daa522b36d7478b1d9acc73cb63e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -4567,7 +4567,7 @@ MonoBehaviour:
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
   maxHP: 15000
   currentHP: 0
-  ID: 5511
+  ID: 3000
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
@@ -4818,7 +4818,7 @@ GameObject:
   - component: {fileID: 2527555301746018393}
   - component: {fileID: 3471103164062884244}
   - component: {fileID: 4054901984849004079}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4891,7 +4891,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8338852386768530913}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5094,7 +5094,7 @@ GameObject:
   - component: {fileID: 931854403991670004}
   - component: {fileID: 7153463170198821017}
   - component: {fileID: 7872534328922448370}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHPCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5195,7 +5195,7 @@ GameObject:
   - component: {fileID: 4201727685698809783}
   - component: {fileID: 2988123894340748922}
   - component: {fileID: 2385149586076983745}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5345,7 +5345,7 @@ GameObject:
   - component: {fileID: 2028372140454723552}
   - component: {fileID: 3933828322474032494}
   - component: {fileID: 2706706425385622666}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5594,7 +5594,7 @@ GameObject:
   - component: {fileID: 4023395748081292549}
   - component: {fileID: 2660926808689097928}
   - component: {fileID: 3207601858830556019}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5668,7 +5668,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1951031527189856695}
   - component: {fileID: 6355007517232116831}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EnemyHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
