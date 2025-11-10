@@ -24,7 +24,7 @@ public class PlayerStats : ScriptableObject
     public void ResetStats()
     {
         //size = new Vector3(1f, 1f, 1f);
-        speed = 8f;
+        speed = 5.5f;
         coin = 0;
         maxHP = 60000;
         currentHP = maxHP;
