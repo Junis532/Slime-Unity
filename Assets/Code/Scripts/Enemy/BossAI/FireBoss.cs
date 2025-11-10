@@ -13,45 +13,71 @@ public class FireBoss : EnemyBase
     private BossAnimation enemyAnimation;
     private NavMeshAgent agent;
     private Transform playerTransform;
-
-    [Header("패턴 타이밍")]
-    public float skillInterval = 4f;
     private float skillTimer = 0f;
     private bool isSkillPlaying = false;
     private int currentSkillIndex;
     private int previousSkillIndex = -1;
 
+    [Header("패턴 타이밍")]
+    public float skillInterval = 4f;
+
     [Header("파이어볼 원형 탄막")]
     public GameObject fireball360Prefab;
 
-    [Header("파이어볼 360 & 타겟 발사 설정")]
+    [Header("파이어볼 프리팹")]
     public GameObject fireballPrefab;
+
+    [Header("파이어볼 경고 프리팹")]
     public GameObject fireballWarningPrefab;
+
+    [Header("파이어볼 경고 거리")]
     public float fireballWarningDistance;
+
+    [Header("파이어볼 부채꼴 각도")]
     public int fireballCount360 = 12;
+
+    [Header("파이어볼 소환 거리")]
     public float fireballSpawnRadius = 1.5f;
+
+    [Header("파이어볼 경고 시간")]
     public float warningDuration = 1f;
+
+    [Header("파이어볼 반복 소환 시간")]
     public float fireballRepeatInterval = 1.5f;
+
     private int bossHitCount = 0;
-    private bool playerHit = false;
+
     private Coroutine fireballCoroutine;
 
     [Header("스킬 1 오브젝트")]
     public GameObject skill1Prefab;
+
     private GameObject activeSkill1Object;
 
-    [Header("검 스킬")]
+    [Header("검 스킬 프리팹")]
     public GameObject swordPrefab;
+
+    [Header("검 소환 거리")]
     public float swordSpawnDistance = 1f;
+
+    [Header("검 경고 표시 프리팹")]
     public GameObject swordRangePrefab;
+
+    [Header("검 경고 표시 소환 거리")]
     public float swordRangeDistance = 1.5f;
 
-    [Header("범위/원 스킬")]
+    [Header("원 스킬 경고 프리팹")]
     public GameObject[] warningCirclePrefabs = new GameObject[3];
+
+    [Header("원 스킬 프리팹")]
     public GameObject[] damageCirclePrefabs = new GameObject[3];
-    public GameObject[] damageCircleEffectPrefabs = new GameObject[3];
+
+    [Header("원 스킬 이펙트 시간")]
     public float[] damageCircleEffectDurations = new float[3] { 1f, 1f, 1f };
+
     public Vector3 skillCenterOffset = Vector3.zero;
+
+    [Header("원 스킬 경고 시간")]
     public float warningDelay = 1f;
 
     private List<GameObject> activeSkillObjects = new List<GameObject>();
@@ -258,14 +284,13 @@ public class FireBoss : EnemyBase
         Vector2 origin = transform.position;
 
         bossHitCount = 0;
-        playerHit = false;
 
         if (skill1Prefab != null && activeSkill1Object == null)
         {
             activeSkill1Object = Instantiate(skill1Prefab, transform.position + Vector3.up * 1f, Quaternion.identity);
         }
 
-        while (!playerHit && bossHitCount < 6)
+        while (bossHitCount < 6)
         {
             // 🧭 매번 플레이어 위치에 따라 방향 갱신
             if (playerTransform != null)
