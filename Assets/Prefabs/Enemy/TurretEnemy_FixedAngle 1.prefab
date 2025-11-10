@@ -489,8 +489,8 @@ MonoBehaviour:
   shareHPByID: 0
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  damageTextPrefab: {fileID: 0}
+  cDamageTextPrefab: {fileID: 0}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -709,6 +709,9 @@ MonoBehaviour:
   fireRange: 50
   firstFireDelay: 2
   preWindUp: 0.15
+  extraPreWindUp: 0.25
+  ringPulseCount: 2
+  ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
   bulletSpeed: 10
@@ -720,6 +723,38 @@ MonoBehaviour:
   cycleLength: 1.2
   firePhases:
   - 0
+  fxSpeedMultiplier: 1.25
+  usePreScale: 1
+  preScale: 0.86
+  shootPopScale: 1.12
+  shootPopDuration: 0.15
+  settleDuration: 0.12
+  flashWhiteOnShoot: 1
+  flashDuration: 0.05
+  useHDRGlow: 1
+  glowIntensity: 2
+  useChargeRingFX: 1
+  ringAbsoluteEndRadius: 0.22
+  ringAbsoluteStartRadius: 0.12
+  ringMaxRadius: 0.4
+  ringWidthCore: 0.06
+  ringWidthHalo: 0.1
+  ringSegments: 48
+  ringColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  ringAlphaStart: 0.25
+  ringAlphaEnd: 0.9
+  useShockwaveFX: 1
+  shockwaveAutoSize: 1
+  shockwaveBodyMultiplier: 0.8
+  shockwaveMaxRadius: 1.1
+  shockwaveRadiusEnd: 1.1
+  shockwaveRadiusStart: 0.22
+  shockwaveWidth: 0.1
+  shockwaveDuration: 0.25
+  shockwaveSegments: 56
+  shockwaveColor: {r: 1, g: 0.95, b: 0.9, a: 1}
+  shockwaveAlphaStart: 0.9
+  shockwaveAlphaEnd: 0
 --- !u!1 &9104117937638011886
 GameObject:
   m_ObjectHideFlags: 0

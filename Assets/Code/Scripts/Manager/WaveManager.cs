@@ -34,6 +34,10 @@ public class RoomData
 
     [HideInInspector] public bool activated = false;
 
+    [Header("클리어 시 사라질 오브젝트들")]
+    public List<GameObject> objectsToDisappear = new List<GameObject>();
+
+
     [Header("카메라 Follow 설정")]
     public bool CameraFollow = true;
 
@@ -481,6 +485,38 @@ public class WaveManager : MonoBehaviour
 
         cleared = true;
         room.isCleared = true;
+
+        // ✅ 클리어 시 오브젝트 DOTween으로 사라지기
+        if (room.objectsToDisappear != null && room.objectsToDisappear.Count > 0)
+        {
+            foreach (var obj in room.objectsToDisappear)
+            {
+                if (obj != null)
+                {
+                    CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+                    SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+
+                    // CanvasGroup이 있으면 UI 페이드 아웃
+                    if (cg != null)
+                    {
+                        cg.DOFade(0f, 1f).OnComplete(() => Destroy(obj));
+                    }
+                    // SpriteRenderer면 시각적 오브젝트 페이드 아웃
+                    else if (sr != null)
+                    {
+                        sr.DOFade(0f, 1f).OnComplete(() => Destroy(obj));
+                    }
+                    // 그 외엔 그냥 스케일 축소
+                    else
+                    {
+                        obj.transform.DOScale(Vector3.zero, 0.6f)
+                            .SetEase(Ease.InBack)
+                            .OnComplete(() => Destroy(obj));
+                    }
+                }
+            }
+        }
+
 
         if (GameManager.Instance.cameraShake != null)
         {
