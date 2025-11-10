@@ -102,7 +102,7 @@ public class DashEnemy : EnemyBase
         {
             yield return new WaitForSeconds(waitAfterDash);
 
-            if (!CanMove || !AIEnabled)
+            if (!CanMove || !AIEnabled || player == null)
             {
                 enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
                 continue;
@@ -111,56 +111,46 @@ public class DashEnemy : EnemyBase
             isDashing = true;
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
 
-            float originalSpeed = speed;
-            speed = dashSpeed;
-
             if (afterImageCoroutine != null)
                 StopCoroutine(afterImageCoroutine);
             afterImageCoroutine = StartCoroutine(SpawnAfterImages());
 
-            // ✅ 대쉬 시작 시점에 방향을 한 번만 결정
-            Vector3 dashDir = Vector3.zero;
-            if (!useAngleMove && player != null)
+            // NavMesh 경로 계산
+            NavMeshPath path = new NavMeshPath();
+            if (!navMesh.CalculatePath(player.transform.position, path) || path.corners.Length < 2)
             {
-                dashDir = (player.transform.position - transform.position).normalized;
-                FlipSprite(dashDir.x);
-            }
-            else if (useAngleMove)
-            {
-                dashDir = moveDirection; // 각도 이동 모드면 미리 정해둔 방향 사용
+                isDashing = false;
+                continue;
             }
 
+            // 코너를 따라 대쉬
             float elapsed = 0f;
-            while (elapsed < dashDuration)
+            int cornerIndex = 1; // 첫 번째 코너부터 이동
+            while (elapsed < dashDuration && cornerIndex < path.corners.Length)
             {
-                if (!CanMove)
-                {
-                    isDashing = false;
-                    speed = originalSpeed;
-                    if (afterImageCoroutine != null)
-                    {
-                        StopCoroutine(afterImageCoroutine);
-                        afterImageCoroutine = null;
-                    }
-                    enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
-                    break;
-                }
+                Vector3 targetPos = path.corners[cornerIndex];
+                Vector3 dir = (targetPos - transform.position).normalized;
 
-                // ✅ 한 번 정한 방향으로만 쭉 이동
-                transform.position += dashDir * speed * Time.deltaTime;
+                transform.position += dir * dashSpeed * Time.deltaTime;
+
+                if (dir.x != 0)
+                    FlipSprite(dir.x);
+
+                if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+                    cornerIndex++; // 다음 코너로 이동
 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            speed = originalSpeed;
             isDashing = false;
-
             if (afterImageCoroutine != null)
             {
                 StopCoroutine(afterImageCoroutine);
                 afterImageCoroutine = null;
             }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
         }
     }
 
