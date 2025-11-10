@@ -334,6 +334,9 @@ public class DialogueManager : MonoBehaviour
         // 플레이어/조이스틱 복구 (중립 리셋 포함)
         UnfreezePlayer();
 
+        // 3초 뒤에 움직임 풀기
+        StartCoroutine(DelayedUnlockPlayer(2.3f));
+
         // UI 복구
         if (temp != null)
         {
@@ -352,8 +355,15 @@ public class DialogueManager : MonoBehaviour
         {
             waveManager.RestoreCameraAndRoom();
         }
-
     }
+
+    IEnumerator DelayedUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (GameManager.Instance != null && GameManager.Instance.playerController != null)
+            GameManager.Instance.playerController.UnLockMovement();
+    }
+
 
     void OnDisable()
     {
@@ -510,7 +520,7 @@ public class DialogueManager : MonoBehaviour
             if (_pc.joystick != null && _pc.joystick.gameObject != null)
                 ResetJoystickObject(_pc.joystick.gameObject);   // 조이스틱 0,0
 
-            _pc.UnLockMovement();                      // canMove=true
+            //_pc.UnLockMovement();                      // canMove=true
         }
 
         // C) PlayerInput 켜기(옵션)
