@@ -345,6 +345,14 @@ public class DialogueManager : MonoBehaviour
         // 대화 끝난 뒤에만 파괴
         if (_destroyAfterDialogue)
             Destroy(this);
+
+        // WaveManager 복귀 처리
+        var waveManager = FindFirstObjectByType<WaveManager>();
+        if (waveManager != null)
+        {
+            waveManager.RestoreCameraAndRoom();
+        }
+
     }
 
     void OnDisable()

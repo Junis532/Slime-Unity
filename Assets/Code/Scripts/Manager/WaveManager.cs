@@ -655,4 +655,50 @@ public class WaveManager : MonoBehaviour
             if (col != null) col.isTrigger = false;
         }
     }
+    public void RestoreCameraAndRoom()
+    {
+        StartCoroutine(RestoreCameraRoutine());
+    }
+
+    private IEnumerator RestoreCameraRoutine()
+    {
+        if (cineCamera != null)
+        {
+            // 🔹 1️⃣ 우선 트래킹 완전히 해제
+            var ct = cineCamera.Target;
+            ct.TrackingTarget = null;
+            cineCamera.Target = ct;
+
+            // 🔹 2️⃣ 한 프레임 기다려서 카메라 업데이트 반영
+            yield return null;
+
+            // 🔹 3️⃣ 카메라 크기, 우선순위 복원
+            cineCamera.Lens.OrthographicSize = 5.6f;
+            cineCamera.Priority = 10;
+            cineCamera.enabled = true;
+
+            // 🔹 4️⃣ 방 중심으로 이동
+            RoomData currentRoom = GetPlayerRoom();
+            if (currentRoom != null)
+            {
+                Vector3 roomCenter = currentRoom.roomCollider.bounds.center;
+                DOTween.Kill(cineCamera.transform);
+                cineCamera.transform.DOMove(
+                    new Vector3(roomCenter.x, roomCenter.y, cineCamera.transform.position.z),
+                    0.8f
+                ).SetEase(Ease.OutQuad);
+            }
+        }
+
+        // 🔹 5️⃣ 룸 및 이벤트 상태 복원
+        if (currentRoom != null)
+        {
+            currentRoom.activated = true;
+            isEventRunning = false;
+        }
+
+        Debug.Log("[WaveManager] Dialogue ended — camera tracking disabled and centered on room.");
+    }
+
+
 }
