@@ -561,10 +561,10 @@ public class WaveManager : MonoBehaviour
         if (warningEffectPrefab == null) return;
         GameObject warning = Instantiate(warningEffectPrefab, pos, Quaternion.identity);
         SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
-        if (sr != null)
         {
+            // ✅ 깜빡임 제거 — 단일 페이드 인 효과만 적용
             sr.color = new Color(1, 0, 0, 0);
-            sr.DOFade(1f, 0.3f).SetLoops(-1, LoopType.Yoyo);
+            sr.DOFade(1f, 0.3f);
         }
         Destroy(warning, warningDuration);
     }

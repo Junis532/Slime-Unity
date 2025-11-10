@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6777678756903405639}
   - component: {fileID: 6634061269834813170}
   - component: {fileID: 5951134540910319092}
+  - component: {fileID: 2190961655061271682}
   m_Layer: 0
   m_Name: Warning
   m_TagString: Untagged
@@ -152,3 +153,36 @@ MonoBehaviour:
   - {x: -0.22637278, y: 0.1839943, z: 0}
   - {x: -0.0679425, y: 0.016915321, z: 0}
   - {x: -0.26556468, y: -0.23123169, z: 0}
+--- !u!114 &2190961655061271682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222272227696880193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f69a50df6f1f0f24482d5e7ef9cb5118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSprites:
+  - {fileID: -967721478552989434, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 7510671765489772093, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 7165145566554267094, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: -3758071745911111066, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 2173985584485352566, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 3228676037565958352, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: -2698250861570454507, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: -1431758130663963615, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 3951008256775979438, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 764894454257272116, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 3445398089748366849, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 447359361028808564, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 3199031880461590965, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 5854439060925351910, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 3203097565697920993, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: -7550633745888546427, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: 1779506724674480068, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  - {fileID: -4060708384142428707, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
+  frameRate: 0.05
+  playOnce: 1
