@@ -33,9 +33,9 @@ public class EnemyHP : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private float criticalChance;
 
-    [Header("데미지 텍스트")]
-    public GameObject damageTextPrefab;
-    public GameObject cDamageTextPrefab;
+    //[Header("데미지 텍스트")]
+    //public GameObject damageTextPrefab;
+    //public GameObject cDamageTextPrefab;
 
     [Header("이펙트 프리팹")]
     public GameObject hitEffectPrefab;
@@ -73,21 +73,28 @@ public class EnemyHP : MonoBehaviour
 
         yield return null; // ✅ 한 프레임 기다림 — Canvas 보장됨
 
-        Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-        if (worldCanvas != null && hpBarPrefab != null)
+        if (hpBar == null)
         {
-            GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(hpBarPrefab.name, Vector3.zero, Quaternion.identity);
-            if (hpBarObj != null)
+            // 혹시 풀에 반환되었거나 아직 생성 안 됐을 때 다시 복구
+            Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
+            if (worldCanvas != null && hpBarPrefab != null)
             {
-                hpBarObj.transform.SetParent(worldCanvas.transform, false);
-                hpBar = hpBarObj.GetComponent<EnemyHPBar>();
-                if (hpBar != null)
+                GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(hpBarPrefab.name, Vector3.zero, Quaternion.identity);
+                if (hpBarObj != null)
                 {
+                    hpBarObj.transform.SetParent(worldCanvas.transform, false);
+                    hpBar = hpBarObj.GetComponent<EnemyHPBar>();
                     hpBar.Init(transform, maxHP);
-                    hpBar.gameObject.SetActive(false);
                 }
             }
         }
+
+        if (hpBar != null)
+        {
+            hpBar.SetHP(currentHP);
+            hpBar.gameObject.SetActive(true);
+        }
+
 
         criticalChance = GameManager.Instance.playerStats.criticalChance;
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -172,13 +179,13 @@ public class EnemyHP : MonoBehaviour
         AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
         if (isCritical)
         {
-            ShowCriticalDamageText(damage);
+            //ShowCriticalDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
-        else
-        {
-            ShowDamageText(damage);
-        }
+        //else
+        //{
+        //    ShowDamageText(damage);
+        //}
 
         // 넉백
         if (useKnockback && knockbackDir != Vector3.zero)
@@ -215,55 +222,55 @@ public class EnemyHP : MonoBehaviour
         });
     }
 
-    private void ShowDamageText(int damage)
-    {
-        if (damageTextPrefab == null || damage <= 0) return;
+    //private void ShowDamageText(int damage)
+    //{
+    //    if (damageTextPrefab == null || damage <= 0) return;
 
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            damageTextPrefab.name, transform.position, Quaternion.identity);
+    //    GameObject textObj = PoolManager.Instance.SpawnFromPool(
+    //        damageTextPrefab.name, transform.position, Quaternion.identity);
 
-        if (textObj == null) return;
+    //    if (textObj == null) return;
 
-        TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null) text.text = damage.ToString();
+    //    TMP_Text text = textObj.GetComponent<TMP_Text>();
+    //    if (text != null) text.text = damage.ToString();
 
-        Transform t = textObj.transform;
-        t.position = transform.position;
-        t.localScale = Vector3.one;
+    //    Transform t = textObj.transform;
+    //    t.position = transform.position;
+    //    t.localScale = Vector3.one;
 
-        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
+    //    t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+    //    t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
-        DOVirtual.DelayedCall(0.6f, () =>
-        {
-            PoolManager.Instance.ReturnToPool(textObj);
-        });
-    }
+    //    DOVirtual.DelayedCall(0.6f, () =>
+    //    {
+    //        PoolManager.Instance.ReturnToPool(textObj);
+    //    });
+    //}
 
-    private void ShowCriticalDamageText(int damage)
-    {
-        if (cDamageTextPrefab == null) return;
+    //private void ShowCriticalDamageText(int damage)
+    //{
+    //    if (cDamageTextPrefab == null) return;
 
-        GameObject textObj = PoolManager.Instance.SpawnFromPool(
-            cDamageTextPrefab.name, transform.position, Quaternion.identity);
+    //    GameObject textObj = PoolManager.Instance.SpawnFromPool(
+    //        cDamageTextPrefab.name, transform.position, Quaternion.identity);
 
-        if (textObj == null) return;
+    //    if (textObj == null) return;
 
-        TMP_Text text = textObj.GetComponent<TMP_Text>();
-        if (text != null) text.text = damage.ToString();
+    //    TMP_Text text = textObj.GetComponent<TMP_Text>();
+    //    if (text != null) text.text = damage.ToString();
 
-        Transform t = textObj.transform;
-        t.position = transform.position;
-        t.localScale = Vector3.one;
+    //    Transform t = textObj.transform;
+    //    t.position = transform.position;
+    //    t.localScale = Vector3.one;
 
-        t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
-        t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
+    //    t.DOMoveY(t.position.y + 0.5f, 0.5f).SetEase(Ease.OutCubic);
+    //    t.DOScale(1.2f, 0.2f).OnComplete(() => t.DOScale(1f, 0.3f));
 
-        DOVirtual.DelayedCall(0.6f, () =>
-        {
-            PoolManager.Instance.ReturnToPool(textObj);
-        });
-    }
+    //    DOVirtual.DelayedCall(0.6f, () =>
+    //    {
+    //        PoolManager.Instance.ReturnToPool(textObj);
+    //    });
+    //}
 
     public void Die()
     {

@@ -37,6 +37,9 @@ public class RoomData
     [Header("클리어 시 사라질 오브젝트들")]
     public List<GameObject> objectsToDisappear = new List<GameObject>();
 
+    [Header("방 안 회전 장애물")]
+    public List<ObstacleTurn> obstacleTurns = new List<ObstacleTurn>();
+
 
     [Header("카메라 Follow 설정")]
     public bool CameraFollow = true;
@@ -478,6 +481,8 @@ public class WaveManager : MonoBehaviour
             yield return StartCoroutine(SpawnWaveEnemies(currentWave));
 
             GameManager.Instance.playerController.UnLockMovement();
+            // 현재 방의 장애물 회전 시작
+            StartObstacleTurns(room);
 
             yield return StartCoroutine(WaitForWaveCleared());
 
@@ -531,6 +536,17 @@ public class WaveManager : MonoBehaviour
         RaiseSpecialDoors(currentRoomIndex);
     }
 
+    private void StartObstacleTurns(RoomData room)
+    {
+        if (room != null && room.obstacleTurns != null)
+        {
+            foreach (var obstacle in room.obstacleTurns)
+            {
+                if (obstacle != null)
+                    obstacle.StartTurning();
+            }
+        }
+    }
 
     IEnumerator SpawnWaveEnemies(RoomWaveData wave)
     {
