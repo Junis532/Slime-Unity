@@ -82,6 +82,8 @@ public class FireBoss : EnemyBase
 
     private List<GameObject> activeSkillObjects = new List<GameObject>();
 
+    private Coroutine redWaveCoroutine;
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -108,18 +110,9 @@ public class FireBoss : EnemyBase
             agent.SetDestination(playerTransform.position);
             bool isActuallyMoving = agent.isStopped == false && agent.velocity.sqrMagnitude > 0.01f;
 
-            if (isActuallyMoving)
-            {
-                Vector2 moveDir = agent.velocity.normalized;
-                enemyAnimation.PlayDirectionalMoveAnimation(moveDir);
-                FlipSprite(moveDir.x);
-            }
-            else
-            {
-                Vector2 dirToPlayer = (playerTransform.position - transform.position).normalized;
-                enemyAnimation.PlayDirectionalMoveAnimation(dirToPlayer);
-                FlipSprite(dirToPlayer.x);
-            }
+            Vector2 moveDir = isActuallyMoving ? agent.velocity.normalized : (playerTransform.position - transform.position).normalized;
+            enemyAnimation.PlayDirectionalMoveAnimation(moveDir);
+            FlipSprite(moveDir.x);
         }
         else if (playerTransform == null)
         {
@@ -127,7 +120,9 @@ public class FireBoss : EnemyBase
         }
 
         skillTimer += Time.deltaTime;
-        if (skillTimer >= skillInterval)
+
+        // 🔹 skillTimer 체크 시 isSkillPlaying도 함께 체크
+        if (skillTimer >= skillInterval && !isSkillPlaying)
         {
             skillTimer = 0f;
 
@@ -141,6 +136,7 @@ public class FireBoss : EnemyBase
             UseRandomSkill();
         }
     }
+
     private IEnumerator RedScreenWaveEffect(float duration = 0.5f, float maxScale = 3f, int ringCount = 3, float delayBetweenRings = 0.1f)
     {
         AudioManager.Instance?.PlayBossSwordSound(2f);
@@ -244,20 +240,21 @@ public class FireBoss : EnemyBase
         return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
     }
 
-
     private void UseRandomSkill()
     {
         if (isSkillPlaying) return; // 안전 장치
         isSkillPlaying = true;
         if (agent != null) agent.isStopped = true;
 
-        // 🔴 먼저 붉은 화면 파동 실행
-        StartCoroutine(RedScreenWaveEffectAndSkill());
+        // 🔴 붉은 화면 코루틴 중복 실행 방지
+        if (redWaveCoroutine == null)
+            redWaveCoroutine = StartCoroutine(RedScreenWaveEffectAndSkill());
     }
     private IEnumerator RedScreenWaveEffectAndSkill()
     {
         yield return StartCoroutine(RedScreenWaveEffect());
 
+        // 스킬 실행
         switch (currentSkillIndex)
         {
             case 0:
@@ -270,9 +267,10 @@ public class FireBoss : EnemyBase
                 StartCoroutine(DoubleSwordSkill());
                 break;
         }
+
+        // 🔹 코루틴 종료 시 null로 초기화
+        redWaveCoroutine = null;
     }
-
-
 
     // ────────── 스킬 1: 파이어볼 360 + 타겟 반복 ──────────
     private IEnumerator FireballSkill()
