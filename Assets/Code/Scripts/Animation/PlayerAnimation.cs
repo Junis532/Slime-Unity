@@ -5,14 +5,16 @@ using System.Collections.Generic;
 public class PlayerAnimation : MonoBehaviour
 {
     [System.Serializable]
-    public enum State { Idle, Move, Stop }
+    public enum State { Start, Idle, Move, Stop }
 
     [Header("애니메이션 스프라이트")]
+    public List<Sprite> startSprites;
     public List<Sprite> idleSprites;
     public List<Sprite> moveSprites;
     public List<Sprite> stopSprites;
 
     [Header("속도 설정")]
+    public float startFrameRate = 0.1f;
     public float frameRate = 0.1f;
     public float stopFrameRate = 0.05f;
 
@@ -60,6 +62,10 @@ public class PlayerAnimation : MonoBehaviour
     private float moveBurstUntil = 0f;
     private float effectTimer;
 
+    [Header("Start 애니메이션 개별 프레임 시간")]
+    public List<float> startFrameTimes; // startSprites와 같은 길이
+
+    private bool isPlayingStartOnce = false;
     void Reset()
     {
         targetRenderer = GetComponent<SpriteRenderer>();
@@ -79,11 +85,18 @@ public class PlayerAnimation : MonoBehaviour
 
     void Start()
     {
-        PlayAnimation(State.Idle, true);
+        if (startSprites != null && startSprites.Count > 0)
+            PlayAnimation(State.Start, true);
+            
+        else
+            PlayAnimation(State.Idle, true);
     }
 
     void Update()
     {
+        if (isPlayingStartOnce)
+            return; // Start 애니메이션 재생 중에는 아무것도 하지 않음
+
         if (isPlayingStopOnce)
         {
             if (Time.unscaledTime >= stopHardTimeoutAt)
@@ -117,6 +130,27 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
+    private IEnumerator PlayStartOnce()
+    {
+        isPlayingStartOnce = true;
+        GameManager.Instance.playerController.LockMovement();
+        for (int i = 0; i < startSprites.Count; i++)
+        {
+            SetSprite(startSprites[i]);
+
+            // 개별 프레임 시간 적용: 리스트가 없거나 길이가 맞지 않으면 기본 startFrameRate 사용
+            float waitTime = startFrameRate;
+            if (startFrameTimes != null && i < startFrameTimes.Count)
+                waitTime = Mathf.Max(0.0001f, startFrameTimes[i]);
+
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        isPlayingStartOnce = false;
+        PlayAnimation(State.Idle, true);
+        GameManager.Instance.playerController.UnLockMovement();
+    }
+
     public void PlayAnimation(State newState, bool force = false)
     {
         if (isPlayingStopOnce && !force && newState != State.Stop)
@@ -125,24 +159,36 @@ public class PlayerAnimation : MonoBehaviour
         if (!force && newState == currentState && newState != State.Stop)
             return;
 
-        if (newState == State.Stop)
-        {
-            StartStopOnce();
-            return;
-        }
-
         currentState = newState;
         currentFrame = 0;
         timer = 0f;
 
         switch (newState)
         {
+            case State.Start: currentSprites = startSprites; break;
             case State.Idle: currentSprites = idleSprites; break;
             case State.Move: currentSprites = moveSprites; break;
         }
 
         if (currentSprites != null && currentSprites.Count > 0)
-            SetSprite(currentSprites[0]);
+        {
+            // Start 애니메이션이면 첫 프레임 바로 세팅
+            if (newState == State.Start)
+            {
+                SetSprite(currentSprites[0]);
+                if (!isPlayingStartOnce)
+                    StartCoroutine(PlayStartOnce());
+            }
+            else
+            {
+                SetSprite(currentSprites[0]);
+            }
+        }
+    }
+
+    public bool IsPlayingStart()
+    {
+        return isPlayingStartOnce;
     }
 
     public void OnStopMoving()
@@ -168,17 +214,15 @@ public class PlayerAnimation : MonoBehaviour
         if (disableAnimatorDuringStop && optionalAnimator != null)
             optionalAnimator.enabled = false;
 
-        // Stop 첫 프레임 바로 세팅
         if (targetRenderer != null)
             targetRenderer.sprite = stopSprites[0];
 
         stopCo = StartCoroutine(StopOnceRoutine_Tick());
     }
 
-
     private IEnumerator StopOnceRoutine_Tick()
     {
-        int frameIndex = 1; // 첫 프레임은 이미 세팅됨
+        int frameIndex = 1;
         float nextAt = (stopUseUnscaledTimeAlways ? Time.unscaledTime : Time.time) + GetStopIntervalForIndex(frameIndex);
 
         while (frameIndex < stopSprites.Count)

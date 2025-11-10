@@ -49,7 +49,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -128,19 +128,19 @@ TextureImporter:
       name: SLIMEaLIVE-Sheet_0
       rect:
         serializedVersion: 2
-        x: 1
-        y: 6
-        width: 31
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d1d55d91185de2a50800000000000000
+      spriteID: b9e8788494cce884da948a4c1aad7b5a
       internalID: 6498366062803115293
       vertices: []
       indices: 
@@ -150,19 +150,19 @@ TextureImporter:
       name: SLIMEaLIVE-Sheet_1
       rect:
         serializedVersion: 2
-        x: 34
-        y: 7
-        width: 29
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 32
+        y: 0
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 54d63817cf320d7a0800000000000000
+      spriteID: 6df9391376c838348900b38dd407c8b4
       internalID: -6354539507076600507
       vertices: []
       indices: 
@@ -172,19 +172,19 @@ TextureImporter:
       name: SLIMEaLIVE-Sheet_2
       rect:
         serializedVersion: 2
-        x: 66
-        y: 7
-        width: 28
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 64
+        y: 0
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 70a005a829598e050800000000000000
+      spriteID: c1464445223e4b74389f31114b2b407a
       internalID: 5830074174249372167
       vertices: []
       indices: 
@@ -194,19 +194,19 @@ TextureImporter:
       name: SLIMEaLIVE-Sheet_3
       rect:
         serializedVersion: 2
-        x: 98
-        y: 7
-        width: 26
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 96
+        y: 0
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 85942739fc4604b40800000000000000
+      spriteID: edcfb413be70b894f8be60491aaccca7
       internalID: 5422444794048825688
       vertices: []
       indices: 
@@ -216,19 +216,19 @@ TextureImporter:
       name: SLIMEaLIVE-Sheet_4
       rect:
         serializedVersion: 2
-        x: 130
-        y: 7
-        width: 26
-        height: 19
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 427651b0aeb922530800000000000000
+      spriteID: 35b8ff11f05377e43868f3e0f03e7f06
       internalID: 3828794062728947492
       vertices: []
       indices: 
@@ -238,7 +238,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 6b0c342e14c0e3b40bf1cddfc1bfe3e9
     internalID: 0
     vertices: []
     indices: 
@@ -247,7 +247,12 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      SLIMEaLIVE-Sheet_0: 6498366062803115293
+      SLIMEaLIVE-Sheet_1: -6354539507076600507
+      SLIMEaLIVE-Sheet_2: 5830074174249372167
+      SLIMEaLIVE-Sheet_3: 5422444794048825688
+      SLIMEaLIVE-Sheet_4: 3828794062728947492
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

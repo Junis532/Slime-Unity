@@ -100,9 +100,14 @@ public class PlayerController : MonoBehaviour
 
         if (playerAnimation != null)
         {
-            playerAnimation.PlayAnimation(isMovingInput ? PlayerAnimation.State.Move
-                                                        : PlayerAnimation.State.Idle);
+            // Start 애니메이션 재생 중이면 Idle/Move 재생 금지
+            if (!playerAnimation.IsPlayingStart())
+            {
+                playerAnimation.PlayAnimation(isMovingInput ? PlayerAnimation.State.Move
+                                                            : PlayerAnimation.State.Idle);
+            }
         }
+
     }
 
     void LateUpdate()
