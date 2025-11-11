@@ -11,6 +11,9 @@ public class BulletSpawner : MonoBehaviour
     [Header("총알 프리팹")]
     public GameObject bulletPrefab;
 
+    [Header("차징 완료용 총알")]
+    public GameObject chargingBulletPrefab;
+
     [Header("Fireball 프리팹")]
     public GameObject fireballPrefab;
 
@@ -308,9 +311,9 @@ public class BulletSpawner : MonoBehaviour
 
         bool forceCritical = (chargeAmount >= maxCharge);
 
-        // ✅ 차징이 가득 찼을 때만 화면 반짝임
+        // 🔥 차징 완료 시 화면 반짝임
         if (forceCritical)
-            ScreenFlash(Color.white);
+            ScreenFlash(Color.red, 0.2f, 0.3f);  // 빨강색으로 강조
 
         AudioManager.Instance?.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);
@@ -339,7 +342,11 @@ public class BulletSpawner : MonoBehaviour
         {
             bool isCenter = (i == count / 2);
             bool isFireballThisShot = isCenter && isFireballShot;
-            GameObject bulletPrefabToUse = isFireballThisShot ? fireballPrefab : bulletPrefab;
+
+            // 🔹 크리티컬 발사 우선
+            GameObject bulletPrefabToUse = (forceCritical && isCenter && chargingBulletPrefab != null)
+                                            ? chargingBulletPrefab
+                                            : (isFireballThisShot ? fireballPrefab : bulletPrefab);
 
             float angle = centerAngle + startOffset + i * spreadAngle;
             Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);

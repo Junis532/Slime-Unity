@@ -389,9 +389,17 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(Stage7ClearRoutine());
     }
 
+
+
+    public void Stage8ClearSequence()
+    {
+        StartCoroutine(Stage8ClearRoutine());
+    }
+
     private IEnumerator Stage7ClearRoutine()
     {
         Debug.Log("🎬 7번째 방 클리어! 특별 연출 시작");
+        GameManager.Instance.playerController.LockMovement();
         GameManager.Instance.audioManager.StoneFalling(1.2f);
 
         // ✅ 페이드용 UI 오브젝트 자동 생성
@@ -441,10 +449,93 @@ public class WaveManager : MonoBehaviour
 
         // ✅ 천천히 화면 다시 밝아짐 (페이드 인)
         yield return fadeGroup.DOFade(0f, 2f).WaitForCompletion();
-
+        GameManager.Instance.playerController.UnLockMovement();
         // ✅ 자동 생성된 페이드 오브젝트 삭제
         Destroy(fadeObj);
     }
+    private IEnumerator Stage8ClearRoutine()
+    {
+        GameManager.Instance.playerController.LockMovement();
+        // ✅ 페이드용 UI 오브젝트 자동 생성
+        GameObject fadeObj = new GameObject("FullScreenFade_Auto");
+        Canvas canvas = fadeObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        fadeObj.AddComponent<GraphicRaycaster>();
+
+        GameObject imgObj = new GameObject("FadeImage");
+        imgObj.transform.SetParent(fadeObj.transform, false);
+        Image fadeImage = imgObj.AddComponent<Image>();
+        fadeImage.color = Color.black;
+        RectTransform rect = fadeImage.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        CanvasGroup fadeGroup = fadeImage.gameObject.AddComponent<CanvasGroup>();
+        fadeGroup.alpha = 0f;
+
+        // ✅ 완전 암전
+        yield return fadeGroup.DOFade(1f, 0.15f).WaitForCompletion();
+
+        // 플레이어 위치 세팅 (높은 곳에 배치)
+        if (playerTransform != null)
+        {
+            playerTransform.position = new Vector3(65.77f, 72f, 0f); // 살짝 위에서 시작
+        }
+
+        // ✅ 암전 상태 유지 (2초)
+        yield return new WaitForSeconds(2f);
+        // ✅ 화면 서서히 밝아짐
+        fadeGroup.DOFade(0f, 1.5f).WaitForCompletion();
+
+        if (playerTransform != null)
+        {
+            Vector3 groundPos = new Vector3(65.77f, 67.74f, 0f);
+            float originalX = playerTransform.position.x;
+
+            // 1️⃣ 바닥까지 떨어짐 (X축 고정)
+            yield return playerTransform.DOMoveY(groundPos.y, 1.0f)
+                .SetEase(Ease.InQuad)
+                .OnUpdate(() =>
+                {
+                    Vector3 pos = playerTransform.position;
+                    pos.x = originalX;
+                    playerTransform.position = pos;
+                })
+                .WaitForCompletion();
+
+            // 2️⃣ 첫 번째 튕김: 높게, X 앞으로
+            float bounce1Height = 0.6f;
+            float forward1 = 0.3f;
+            Tween moveX1 = playerTransform.DOMoveX(originalX + forward1, 0.4f).SetEase(Ease.Linear);
+            Tween moveY1 = playerTransform.DOMoveY(groundPos.y + bounce1Height, 0.2f)
+                .SetEase(Ease.OutSine)
+                .OnComplete(() =>
+                {
+                    playerTransform.DOMoveY(groundPos.y, 0.2f).SetEase(Ease.InSine);
+                });
+            yield return DOTween.Sequence().Join(moveX1).Join(moveY1).WaitForCompletion();
+
+            // 3️⃣ 두 번째 튕김: 낮게, 조금 앞으로
+            float bounce2Height = 0.3f;
+            float forward2 = 0.2f;
+            Tween moveX2 = playerTransform.DOMoveX(originalX + forward1 + forward2, 0.35f).SetEase(Ease.Linear);
+            Tween moveY2 = playerTransform.DOMoveY(groundPos.y + bounce2Height, 0.15f)
+                .SetEase(Ease.OutSine)
+                .OnComplete(() =>
+                {
+                    playerTransform.DOMoveY(groundPos.y, 0.15f).SetEase(Ease.InSine);
+                });
+            yield return DOTween.Sequence().Join(moveX2).Join(moveY2).WaitForCompletion();
+        }
+
+        GameManager.Instance.playerController.UnLockMovement();
+        // ✅ 자동 생성된 페이드 오브젝트 삭제
+        Destroy(fadeObj);
+    }
+
 
     IEnumerator StartWaveSystem(RoomData room)
     {

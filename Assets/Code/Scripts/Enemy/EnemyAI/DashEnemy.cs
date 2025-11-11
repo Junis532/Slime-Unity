@@ -36,7 +36,6 @@ public class DashEnemy : EnemyBase
     public bool AIEnabled = true;
     public bool useAngleMove = false;
     public float moveAngle = 0f;
-    public string obstacleTag = "AIWall";
     private Vector2 moveDirection;
     public float angleMoveSpeed = 5f;
 
@@ -45,9 +44,12 @@ public class DashEnemy : EnemyBase
     public bool useGameManagerDamage = false;
 
     [Header("대시 경고")]
-    public GameObject warningPrefab;    // Inspector에서 연결
+    public GameObject warningPrefab;
     public float warningDuration = 0.5f;
 
+    [Header("충돌 레이어")]
+    public LayerMask obstacleLayer;
+    public LayerMask playerLayer;
 
     private void Awake()
     {
@@ -126,35 +128,36 @@ public class DashEnemy : EnemyBase
                 continue;
             }
 
-            // ─── 경고 표시 ───
             if (warningPrefab != null)
                 yield return StartCoroutine(ShowWarning());
 
-            // ─── 대시 시작 ───
             StartDash();
 
             // NavMesh 경로 계산
+            navMesh.SetDestination(player.transform.position);
             NavMeshPath path = new NavMeshPath();
-            if (!navMesh.CalculatePath(player.transform.position, path) || path.corners.Length < 2)
-            {
-                EndDash();
-                continue;
-            }
+            navMesh.CalculatePath(player.transform.position, path);
 
             float elapsed = 0f;
-            int cornerIndex = 1;
-            while (elapsed < dashDuration && cornerIndex < path.corners.Length)
-            {
-                Vector3 targetPos = path.corners[cornerIndex];
-                Vector3 dir = (targetPos - transform.position).normalized;
+            int cornerIndex = 0;
 
+            while (elapsed < dashDuration && cornerIndex < path.corners.Length - 1)
+            {
+                if (!CanMove) break;
+
+                Vector3 start = path.corners[cornerIndex];
+                Vector3 end = path.corners[cornerIndex + 1];
+                Vector3 dir = (end - start).normalized;
+
+                // 각 코너까지 이동
                 transform.position += dir * dashSpeed * Time.deltaTime;
+
+                // 코너 도착 시 다음 코너로
+                if (Vector3.Distance(transform.position, end) < 0.1f)
+                    cornerIndex++;
 
                 if (dir.x != 0)
                     FlipSprite(dir.x);
-
-                if (Vector3.Distance(transform.position, targetPos) < 0.1f)
-                    cornerIndex++;
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -163,31 +166,32 @@ public class DashEnemy : EnemyBase
             EndDash();
         }
     }
+
     private IEnumerator ShowWarning()
     {
-        // 경고 오브젝트 생성
         GameObject warning = Instantiate(warningPrefab, transform.position, Quaternion.identity);
-
-        // 적 자식으로 붙이면 이동 따라감
         warning.transform.SetParent(transform);
 
-        // 방향 설정 (플레이어 방향 기준)
-        if (player != null)
-        {
-            Vector3 dir = (player.transform.position - transform.position).normalized;
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            warning.transform.rotation = Quaternion.Euler(0, 0, angle);
-        }
-
-        // DOTween으로 깜빡이거나, 투명도 변화를 줄 수도 있음
         SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
         if (sr != null)
         {
             sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0);
-            sr.DOFade(0.5f, 0.2f).SetLoops(-1, LoopType.Yoyo); // 깜빡임
+            sr.DOFade(0.5f, 0.2f).SetLoops(-1, LoopType.Yoyo);
         }
 
-        yield return new WaitForSeconds(warningDuration);
+        float elapsed = 0f;
+        while (elapsed < warningDuration)
+        {
+            if (player != null)
+            {
+                Vector3 dir = (player.transform.position - transform.position).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                warning.transform.rotation = Quaternion.Euler(0, 0, angle);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
         Destroy(warning);
     }
@@ -197,7 +201,6 @@ public class DashEnemy : EnemyBase
         isDashing = true;
         enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
 
-        // 대시 중 Enemy 레이어 충돌 무시
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int myLayer = gameObject.layer;
         Physics2D.IgnoreLayerCollision(myLayer, enemyLayer, true);
@@ -282,7 +285,8 @@ public class DashEnemy : EnemyBase
     {
         if (!isLive) return;
 
-        if (collision.CompareTag("Player"))
+        // 플레이어 충돌
+        if (((1 << collision.gameObject.layer) & playerLayer) != 0)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Attack);
 
@@ -295,7 +299,8 @@ public class DashEnemy : EnemyBase
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
         }
 
-        if (useAngleMove && collision.CompareTag(obstacleTag))
+        // 장애물 충돌
+        if (useAngleMove && ((1 << collision.gameObject.layer) & obstacleLayer) != 0)
         {
             moveDirection = -moveDirection;
         }
