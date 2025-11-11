@@ -42,7 +42,6 @@ public class CutScene : MonoBehaviour
 
     void Start()
     {
-        // 메시지 초기화
         if (usedMessage != null)
         {
             usedMessage.gameObject.SetActive(true);
@@ -50,12 +49,10 @@ public class CutScene : MonoBehaviour
             usedMessage.text = string.Empty;
             usedMessage.maxVisibleCharacters = 0;
         }
-        // 페이드 시작값
         if (fadeBlack != null)
         {
             var fc = fadeBlack.color; fc.a = 1f; fadeBlack.color = fc;
         }
-        // 눈꺼풀 자동 준비(비활성)
         if (autoSetupEyelidsOnly) EnsureEyelidsExist();
 
         StartCoroutine(cutSceneStart());
@@ -63,19 +60,39 @@ public class CutScene : MonoBehaviour
 
     public IEnumerator cutSceneStart()
     {
+        bool isMobile = Application.isMobilePlatform;
+        bool allowClickSkip = !isMobile; // PC/에디터에서 클릭으로 스킵
+
+        // 모바일은 자동 스킵이므로 바로 투명
+        if (isMobile && fadeBlack != null)
+        {
+            var fc = fadeBlack.color; fc.a = 0f; fadeBlack.color = fc;
+        }
+
         // 컷씬 루프
         for (int i = 0; i < cutScene.Count; i++)
         {
             if (usedCutImage) usedCutImage.sprite = cutScene[i];
 
-            if (fadeBlack) fadeBlack.DOFade(0f, 1f);
-            yield return new WaitForSeconds(3f);
-
-            if (fadeBlack) fadeBlack.DOFade(1f, 1f);
-            yield return new WaitForSeconds(2f);
+            if (!isMobile)
+            {
+                // 페이드아웃(보이기) 1초
+                yield return DOFadeSkippable(fadeBlack, 0f, 1f, allowClickSkip);
+                // 유지 3초
+                yield return DelaySkippable(3f, allowClickSkip);
+                // 페이드인(가리기) 1초
+                yield return DOFadeSkippable(fadeBlack, 1f, 1f, allowClickSkip);
+                // 대기 2초
+                yield return DelaySkippable(2f, allowClickSkip);
+            }
+            else
+            {
+                // 모바일: 즉시 다음 스프라이트로
+                yield return null; // 한 프레임 갱신
+            }
         }
 
-        // 메시지 타이핑
+        // 메시지 타이핑(스킵 없음)
         yield return new WaitForSeconds(afterCutDelay);
 
         if (usedMessage != null)
@@ -83,17 +100,56 @@ public class CutScene : MonoBehaviour
             usedMessage.DOFade(1f, 0.25f);
             yield return StartCoroutine(TypeText(finalLine, typeSpeed));
             yield return new WaitForSeconds(keepAfterTyping);
-
-            // ⌫ 백스페이스 삭제 연출
             yield return StartCoroutine(BackspaceDelete(backspaceSpeed));
-
-            // 텍스트 페이드아웃
             usedMessage.DOFade(0f, 0.2f);
         }
 
-        // 눈 떠지기
+        // 마지막은 스킵 금지: 눈 떠지는 연출
         yield return new WaitForSeconds(eyeOpenDelay);
         yield return StartCoroutine(EyeOpenReveal(awakeningSprite));
+    }
+
+    // ----- 스킵 가능한 유틸 -----
+    private IEnumerator DOFadeSkippable(Image img, float to, float duration, bool allowSkip)
+    {
+        if (img == null)
+        {
+            yield break;
+        }
+        img.DOKill();
+        if (duration <= 0f || !img.gameObject.activeInHierarchy)
+        {
+            var c = img.color; c.a = to; img.color = c;
+            yield break;
+        }
+
+        Tween tw = img.DOFade(to, duration);
+        while (tw.IsActive() && tw.IsPlaying())
+        {
+            if (allowSkip && IsSkipInput())
+            {
+                tw.Complete(); // 즉시 목표값
+                break;
+            }
+            yield return null;
+        }
+    }
+
+    private IEnumerator DelaySkippable(float seconds, bool allowSkip)
+    {
+        float t = 0f;
+        while (t < seconds)
+        {
+            if (allowSkip && IsSkipInput()) break;
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private bool IsSkipInput()
+    {
+        // PC/에디터용 스킵 입력
+        return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space);
     }
 
     // ----- 타이핑 & 백스페이스 -----
@@ -121,7 +177,6 @@ public class CutScene : MonoBehaviour
             usedMessage.maxVisibleCharacters = i;
             yield return new WaitForSeconds(perCharDelay);
         }
-        // 텍스트 정리
         usedMessage.text = string.Empty;
         usedMessage.maxVisibleCharacters = 0;
     }
@@ -170,14 +225,12 @@ public class CutScene : MonoBehaviour
             if (fadeBlack) yield return fadeBlack.DOFade(0f, eyeOpenDuration).WaitForCompletion();
         }
 
-        // 포커스 스냅
         if (useFocusSnap && usedCutImage && newSprite)
             yield return StartCoroutine(PlayFocusSnap(newSprite));
     }
 
     private IEnumerator PlayFocusSnap(Sprite baseSprite)
     {
-        // 메인 살짝 크게 → 원래대로
         var mainRT = usedCutImage.rectTransform;
         mainRT.DOKill();
         mainRT.localScale = Vector3.one * startScale;
@@ -242,7 +295,6 @@ public class CutScene : MonoBehaviour
         topLid.raycastTarget = false;
         bottomLid.raycastTarget = false;
 
-        // 초기에는 비활성(기존 컷씬/페이드 가리지 않게)
         topLid.gameObject.SetActive(false);
         bottomLid.gameObject.SetActive(false);
     }

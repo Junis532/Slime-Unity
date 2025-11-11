@@ -18,6 +18,10 @@ public class FireBoss : EnemyBase
     private int currentSkillIndex;
     private int previousSkillIndex = -1;
 
+    // ▶ 파이어볼 스킬 진행중/인터럽트 중복방지 플래그
+    private bool isInFireballSkill = false;
+    private bool isInterrupting = false;
+
     [Header("패턴 타이밍")]
     public float skillInterval = 4f;
 
@@ -102,7 +106,6 @@ public class FireBoss : EnemyBase
     void Update()
     {
         if (!isLive) return;
-
         if (isSkillPlaying) return;
 
         if (enemyAnimation != null && playerTransform != null)
@@ -121,7 +124,6 @@ public class FireBoss : EnemyBase
 
         skillTimer += Time.deltaTime;
 
-        // 🔹 skillTimer 체크 시 isSkillPlaying도 함께 체크
         if (skillTimer >= skillInterval && !isSkillPlaying)
         {
             skillTimer = 0f;
@@ -141,10 +143,8 @@ public class FireBoss : EnemyBase
     {
         AudioManager.Instance?.PlayBossSwordSound(2f);
 
-        // 🔴 화면 전체 붉은 깜빡임 시작 (원 크기와 별개)
         StartCoroutine(RedScreenFlash(duration));
 
-        // 🔴 기존 링 효과 그대로
         for (int i = 0; i < ringCount; i++)
         {
             StartCoroutine(SingleRingEffect(duration, maxScale));
@@ -156,21 +156,18 @@ public class FireBoss : EnemyBase
 
     private IEnumerator RedScreenFlash(float duration = 0.3f)
     {
-        // 화면 전체를 덮는 오브젝트 생성
         GameObject redScreen = new GameObject("RedScreenFlash");
         redScreen.transform.position = Camera.main.transform.position + Vector3.forward * 1f;
 
-        // 카메라 뷰포트에 맞춘 충분히 큰 스케일
         float camHeight = 2f * Camera.main.orthographicSize * 100f;
         float camWidth = camHeight * Camera.main.aspect;
         redScreen.transform.localScale = new Vector3(camWidth, camHeight, 1f);
 
         SpriteRenderer sr = redScreen.AddComponent<SpriteRenderer>();
         sr.sprite = TextureToSprite(Texture2D.whiteTexture);
-        sr.color = new Color(1f, 0f, 0f, 0f); // 초기 투명
+        sr.color = new Color(1f, 0f, 0f, 0f);
         sr.sortingOrder = 500;
 
-        // 투명→붉게→투명 깜빡임
         Sequence seq = DOTween.Sequence();
         seq.Append(sr.DOFade(0.6f, duration / 2f));
         seq.Append(sr.DOFade(0f, duration / 2f));
@@ -179,7 +176,6 @@ public class FireBoss : EnemyBase
         yield return seq.WaitForCompletion();
     }
 
-    // 흰색 텍스처를 스프라이트로 변환
     private Sprite TextureToSprite(Texture2D tex)
     {
         return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
@@ -192,8 +188,8 @@ public class FireBoss : EnemyBase
         redEffect.transform.localScale = Vector3.zero;
 
         SpriteRenderer sr = redEffect.AddComponent<SpriteRenderer>();
-        sr.sprite = CreateRingSprite(256, Color.red, 8); // 링 두께 8
-        sr.color = new Color(1f, 0f, 0f, 0.6f); // 초기 반투명
+        sr.sprite = CreateRingSprite(256, Color.red, 8);
+        sr.color = new Color(1f, 0f, 0f, 0.6f);
         sr.sortingOrder = 100;
 
         float elapsed = 0f;
@@ -211,7 +207,6 @@ public class FireBoss : EnemyBase
         Destroy(redEffect);
     }
 
-    // 링 스프라이트 생성 (두께 ringThickness)
     private Sprite CreateRingSprite(int size, Color color, int ringThickness)
     {
         Texture2D tex = new Texture2D(size, size, TextureFormat.ARGB32, false);
@@ -242,19 +237,18 @@ public class FireBoss : EnemyBase
 
     private void UseRandomSkill()
     {
-        if (isSkillPlaying) return; // 안전 장치
+        if (isSkillPlaying) return;
         isSkillPlaying = true;
         if (agent != null) agent.isStopped = true;
 
-        // 🔴 붉은 화면 코루틴 중복 실행 방지
         if (redWaveCoroutine == null)
             redWaveCoroutine = StartCoroutine(RedScreenWaveEffectAndSkill());
     }
+
     private IEnumerator RedScreenWaveEffectAndSkill()
     {
         yield return StartCoroutine(RedScreenWaveEffect());
 
-        // 스킬 실행
         switch (currentSkillIndex)
         {
             case 0:
@@ -268,29 +262,26 @@ public class FireBoss : EnemyBase
                 break;
         }
 
-        // 🔹 코루틴 종료 시 null로 초기화
         redWaveCoroutine = null;
     }
 
     // ────────── 스킬 1: 파이어볼 360 + 타겟 반복 ──────────
     private IEnumerator FireballSkill()
     {
-  
+        isInFireballSkill = true;      // ▶ 인터럽트 대상 시작
+        bossHitCount = 0;              // ▶ 카운터 리셋
 
         yield return new WaitForSeconds(1f);
         enemyAnimation?.PlayAnimation(BossAnimation.State.Skill1Fireball);
-        Vector2 origin = transform.position;
-
-        bossHitCount = 0;
 
         if (skill1Prefab != null && activeSkill1Object == null)
-        {
             activeSkill1Object = Instantiate(skill1Prefab, transform.position + Vector3.up * 1f, Quaternion.identity);
-        }
 
         while (bossHitCount < 6)
         {
-            // 🧭 매번 플레이어 위치에 따라 방향 갱신
+            // 매 사이클마다 보스 현재 위치 기준으로 경고/발사 (이탈 방지)
+            Vector2 origin = transform.position;
+
             if (playerTransform != null)
             {
                 Vector2 dirToPlayer = (playerTransform.position - transform.position).normalized;
@@ -302,17 +293,19 @@ public class FireBoss : EnemyBase
 
             enemyAnimation?.PlayAnimation(BossAnimation.State.Skill1Fireball);
 
-            // 🔥 1️⃣ 360도 탄막 경고 + 발사
+            // 1) 360도 경고 + 발사
             yield return StartCoroutine(FireballWarningAndCircle(origin, fireballCount360));
             AudioManager.Instance?.PlayBossSkill1Sound(2f);
 
-            // 🔥 2️⃣ 플레이어 타겟 탄막 (약간 늦게 나감)
+            // 2) 타겟 경고 + 발사
             yield return StartCoroutine(FireballWarningToPlayer(origin));
             AudioManager.Instance?.PlayBossSkill1Sound(2f);
 
+            // 라운드 간 텀
             yield return new WaitForSeconds(fireballRepeatInterval);
         }
 
+        // 여기 도달 = bossHitCount >= 6 (루프 탈출)
         yield return StartCoroutine(SkillEndDelay());
 
         if (activeSkill1Object != null)
@@ -322,18 +315,15 @@ public class FireBoss : EnemyBase
         }
 
         fireballCoroutine = null;
+        isInFireballSkill = false;     // ▶ 정상 종료
     }
-
 
     private IEnumerator FireballWarningToPlayer(Vector2 origin)
     {
         if (playerTransform == null) yield break;
 
         Vector2 dir = (playerTransform.position - transform.position).normalized;
-
-        // 보스 중심에서 고정된 거리만큼
         Vector2 warnPos = origin + dir * fireballSpawnRadius;
-
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
         GameObject warning = null;
@@ -348,7 +338,6 @@ public class FireBoss : EnemyBase
         {
             if (warning != null)
             {
-                // 계속해서 보스 중심 기준으로 고정
                 warnPos = origin + dir * fireballSpawnRadius;
                 warning.transform.position = warnPos;
             }
@@ -365,11 +354,10 @@ public class FireBoss : EnemyBase
         FireInDirection(origin, angle - 90f);
     }
 
-
     private IEnumerator FireballWarningAndCircle(Vector2 origin, int count)
     {
         List<GameObject> warnings = new List<GameObject>();
-        float angleStep = 360f / count;
+        float angleStep = Mathf.Max(1, 360f / Mathf.Max(1, count));
 
         for (int i = 0; i < count; i++)
         {
@@ -387,7 +375,6 @@ public class FireBoss : EnemyBase
         float elapsed = 0f;
         while (elapsed < warningDuration)
         {
-            // 경고 위치 유지
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -416,7 +403,6 @@ public class FireBoss : EnemyBase
         }
     }
 
-
     private void FireInDirection(Vector2 origin, float angle)
     {
         GameObject fireball = Instantiate(fireballPrefab, origin, Quaternion.Euler(0f, 0f, angle));
@@ -428,8 +414,6 @@ public class FireBoss : EnemyBase
     // ────────── 스킬 2: 불기둥 원형 ──────────
     private IEnumerator FirePillarCircleSkill()
     {
-       
-
         yield return new WaitForSeconds(1f);
         Vector3 center = transform.position + skillCenterOffset;
         enemyAnimation?.PlayAnimationAndPauseLastFrame(BossAnimation.State.Skill2Circle);
@@ -444,11 +428,11 @@ public class FireBoss : EnemyBase
         {
             float radius = radii[i];
             int pillarCount = Mathf.RoundToInt(radius * 3f);
-            float angleStep = 360f / pillarCount;
+            float angleStep = 360f / Mathf.Max(1, pillarCount);
 
             List<GameObject> pillars = new List<GameObject>();
 
-            // 1️⃣ 경고 원 표시
+            // 1) 경고
             List<GameObject> warnings = new List<GameObject>();
             for (int j = 0; j < pillarCount; j++)
             {
@@ -465,7 +449,6 @@ public class FireBoss : EnemyBase
 
             yield return new WaitForSeconds(warningDelay);
 
-            // 경고 제거
             foreach (var w in warnings)
             {
                 if (w != null)
@@ -475,7 +458,7 @@ public class FireBoss : EnemyBase
                 }
             }
 
-            // 2️⃣ 불기둥 소환 (좌표는 그대로, Y축 스케일 + 약간 위 튀는 위치)
+            // 2) 소환
             for (int j = 0; j < pillarCount; j++)
             {
                 float angle = j * angleStep * Mathf.Deg2Rad;
@@ -498,26 +481,19 @@ public class FireBoss : EnemyBase
                     pillars.Add(pillar);
                 }
 
-                // 🎵 불기둥 2개마다 소리 재생
-                if (j % 3 == 1)  // 짝수번째(0,1 → 1에서 재생)
-                {
+                if (j % 3 == 1)
                     AudioManager.Instance?.PlayBossSkill3FireSound(2f);
-                }
 
                 yield return new WaitForSeconds(0.02f);
             }
 
-
-            // 3️⃣ 잠시 유지
             yield return new WaitForSeconds(0.3f);
 
-            // 4️⃣ 중앙으로 이동하면서 사라짐 → 그 자리에서 사라지도록 수정
             foreach (var p in pillars)
             {
                 if (p != null)
                 {
                     Sequence seq = DOTween.Sequence();
-                    // transform.DOMove(center, 0.5f).SetEase(Ease.InBack) 제거
                     seq.Append(p.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack));
                     seq.OnComplete(() => {
                         if (p != null)
@@ -529,7 +505,6 @@ public class FireBoss : EnemyBase
                 }
             }
 
-
             yield return new WaitForSeconds(0.3f);
         }
 
@@ -540,8 +515,6 @@ public class FireBoss : EnemyBase
     // ────────── 스킬 3: 대시 2회 ──────────
     private IEnumerator DoubleSwordSkill()
     {
-    
-
         yield return new WaitForSeconds(1f);
         GameObject player = playerTransform != null ? playerTransform.gameObject : GameObject.FindWithTag("Player");
         if (player == null)
@@ -582,7 +555,7 @@ public class FireBoss : EnemyBase
             transform.position = sideTarget;
 
             enemyAnimation.PlayAnimation(BossAnimation.State.Skill3Slash);
- 
+
             Vector3 slashDir = new Vector3(-dashDirX, 0f, 0f);
             Vector3 slashPos = transform.position + slashDir * (swordSpawnDistance + 1.0f);
             float angle = -dashDirX > 0 ? 0f : 180f;
@@ -644,37 +617,29 @@ public class FireBoss : EnemyBase
     {
         isLive = false;
 
-        // 모든 스킬 오브젝트 삭제
         ClearAllSkillObjects();
 
-        // 스킬 1 오브젝트 삭제
         if (activeSkill1Object != null)
         {
             Destroy(activeSkill1Object);
             activeSkill1Object = null;
         }
 
-        // 🔥 추가: Fireball 관련 경고 오브젝트 싹 정리
         GameObject[] warnings = GameObject.FindGameObjectsWithTag("FireballWarning");
         foreach (var w in warnings)
-        {
             if (w != null) Destroy(w);
-        }
 
-        // NavMeshAgent 정지
         if (agent != null) agent.isStopped = true;
 
-        // 애니메이션 초기화
         enemyAnimation?.PlayAnimation(BossAnimation.State.Idle);
 
-        // 🔥 모든 코루틴 정지 (Fireball 포함)
         StopAllCoroutines();
 
-        // 필드 초기화
         fireballCoroutine = null;
         isSkillPlaying = false;
+        isInFireballSkill = false;
+        isInterrupting = false;
     }
-
 
     private void FlipSprite(float dirX)
     {
@@ -711,32 +676,42 @@ public class FireBoss : EnemyBase
             }
         }
 
+        // ▶ 파이어볼 스킬 진행중일 때만 인터럽트, 중복 방지
+        if (!isInFireballSkill || isInterrupting) return;
+
         if (bossHitCount >= 5)
         {
-            if (fireballCoroutine != null && currentSkillIndex == 0)
-            {
-                // 남은 반복 횟수만큼 효과음 재생
-                int remainingLoops = 6 - bossHitCount;
-                for (int i = 0; i < remainingLoops; i++)
-                {
-                    AudioManager.Instance?.PlayBossSkill1Sound(2f);
-                }
+            isInterrupting = true; // 중복 트리거 방지
 
+            if (fireballCoroutine != null)
+            {
                 StopCoroutine(fireballCoroutine);
                 fireballCoroutine = null;
-
-                if (activeSkill1Object != null)
-                {
-                    Destroy(activeSkill1Object);
-                    activeSkill1Object = null;
-                }
-
-                ClearAllSkillObjects();
-
-                StartCoroutine(SkillEndDelay());
-                bossHitCount = 0;
             }
+
+            // 연출 오브젝트/발사체/경고 정리
+            if (activeSkill1Object != null)
+            {
+                Destroy(activeSkill1Object);
+                activeSkill1Object = null;
+            }
+            ClearAllSkillObjects();
+
+            // 상태 리셋
+            bossHitCount = 0;
+            isInFireballSkill = false;
+
+            // 스킬 종료 루틴 호출(쿨타임/이동 재개)
+            StartCoroutine(SkillEndDelay());
+
+            // 약간의 완충 후 인터럽트 플래그 해제
+            StartCoroutine(ResetInterruptFlagSoon());
         }
     }
 
+    private IEnumerator ResetInterruptFlagSoon()
+    {
+        yield return null;            // 다음 프레임까지 보장
+        isInterrupting = false;
+    }
 }

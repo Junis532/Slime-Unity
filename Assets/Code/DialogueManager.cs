@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;            // 조이스틱 리셋용(리플렉션)
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,7 +9,7 @@ using Unity.Cinemachine;
 using UnityEngine.EventSystems;
 
 #if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;      // 새 입력 시스템
+using UnityEngine.InputSystem;
 #endif
 
 #if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
@@ -21,14 +21,14 @@ public class DialogueManager : MonoBehaviour
     [Header("출력해줄 다이얼로그 말풍선 스프라이트")]
     public GameObject dialogueBox;
 
-    [Header("텍스트")]
+    [Header("텍스트 (프리팹 안의 TMP 참조)")]
     public TextMeshProUGUI usedText;
 
     [Header("대화할 데이터")]
     public TalkData NPCTalkDatable;
 
     [Header("플레이어 태그")]
-    public string usedTag = "";
+    public string usedTag = "Player";
 
     [Header("다이얼로그 캔버스")]
     public GameObject usedCanvas;
@@ -52,7 +52,7 @@ public class DialogueManager : MonoBehaviour
     GameObject dialgoueSet;
     GameObject dialTextSet;
     TextMeshProUGUI usedMesh;
-    GameObject[] temp;
+    GameObject[] _allUI;
 
     bool isTalk = false;
     bool _consumed = false;
@@ -60,6 +60,47 @@ public class DialogueManager : MonoBehaviour
 
     [Header("타이핑 속도 (글자당 딜레이)")]
     public float typingSpeed = 0.05f;
+
+    // === 말풍선 자동 리사이즈 ===
+    [Header("토크박스 리사이즈 & 기본 크기")]
+    public bool autoResize = true;                         // 글자에 맞춰 박스 커짐
+    public bool overrideBaseSize = true;                   // 줄 시작 시 기본 크기로 초기화
+    public Vector2 baseSize = new Vector2(380f, 180f);     // 기본 크기
+    public Vector2 dialogMinSize = new Vector2(300f, 140f);
+    public Vector2 dialogMaxSize = new Vector2(900f, 480f);
+    public Vector2 dialogPadding = new Vector2(40f, 30f);  // 글자 주변 여백
+    [Min(0.25f)] public float boxScale = 1f;
+
+    RectTransform _bubbleRT;
+    Vector2 _dialogBaseSize;
+
+    // ── 홀드 스킵(꾹 눌러 빠르게) ─────────────────────────────────────────────
+    [Header("홀드 스킵(꾹 눌러 빠르게 넘기기)")]
+    public bool allowHoldSkip = true;
+    public float holdThreshold = 0.25f;
+    public float fastLineDelay = 0.03f;
+
+    float _holdStartUnscaled = -1f;
+    bool _pressingNow = false;
+    bool _pressingPrev = false;
+    bool _fastForward = false;
+
+    // ── 스킵 힌트 TMP (우상단 고정) ──────────────────────────────────────────
+    [Header("스킵 힌트(TMP)")]
+    public bool showSkipHint = true;
+    public string holdHintText = "꾹 누르면 빠르게 넘김";
+    public string fastHintText = "빠르게 넘기는 중...";
+    public TMP_FontAsset uiFont;
+    [Min(8)] public int hintFontSize = 26;
+    public Color hintColor = new Color(1f, 1f, 1f, 0.9f);
+    public float hintFadeIn = 0.25f;
+    public float hintFadeOut = 0.15f;
+
+    [Header("스킵 힌트(화면 우상단 고정)")]
+    public Vector2 skipHintScreenOffset = new Vector2(32f, 32f); // (오른쪽/위에서 안쪽으로)
+    public float skipHintMaxWidth = 700f;
+
+    TextMeshProUGUI _hintTMP;
 
     // 카메라 복구용
     float _origOrthoSize = -1f;
@@ -95,20 +136,18 @@ public class DialogueManager : MonoBehaviour
 
     bool[] _movementPrevEnabled;
 
-    // 파괴를 대화 종료 후로 미루기
     bool _destroyAfterDialogue = false;
 
-    // ===== [추가: 스프라이트 교체 전용 옵션/캐시] ==========================
+    // ===== 스프라이트 교체(초상화) + 원상복구 ==================================
     [Header("스프라이트 교체(이 오브젝트의 SpriteRenderer만)")]
-    [Min(0.50f)] public float popDownScaleY = 0.85f;  // 살짝 앉기
+    [Min(0.50f)] public float popDownScaleY = 0.85f;
     [Min(0.01f)] public float popDurDown = 0.06f;
     [Min(0.01f)] public float popDurUp = 0.12f;
 
-    SpriteRenderer _selfSR;        // 이 스크립트가 붙은 GO의 SR
-    Sprite _lastAppliedSprite;     // 마지막 적용 스프라이트
-    // =====================================================================
-
-    // ─────────────────────────────────────────────────────────────────────────────
+    SpriteRenderer _selfSR;
+    Sprite _lastAppliedSprite;
+    Sprite _origSprite;
+    // ==========================================================================
 
     void Awake()
     {
@@ -119,10 +158,9 @@ public class DialogueManager : MonoBehaviour
                 triggerCollider = GetComponentInChildren<Collider2D>();
         }
 
-        // ===== [추가] 이 오브젝트의 SpriteRenderer 캐시 ====================
         _selfSR = GetComponent<SpriteRenderer>();
         if (_selfSR == null) _selfSR = GetComponentInChildren<SpriteRenderer>(true);
-        // ===================================================================
+        if (_selfSR != null) _origSprite = _selfSR.sprite;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -131,7 +169,6 @@ public class DialogueManager : MonoBehaviour
         if (!collision.CompareTag(usedTag)) return;
         if (isTalk) return;
 
-        // 충돌한 객체 기준으로 PlayerController 찾기
         _pc = collision.GetComponentInParent<PlayerController>();
         if (_pc != null) playerSet = _pc.gameObject;
         else playerSet = collision.transform.root.gameObject;
@@ -150,7 +187,6 @@ public class DialogueManager : MonoBehaviour
         if (movementScriptsToDisable != null && movementScriptsToDisable.Length > 0)
             _movementPrevEnabled = new bool[movementScriptsToDisable.Length];
 
-        // 원샷 처리 (즉시 파괴 금지)
         if (oneShot)
         {
             if (destroyComponentInstead)
@@ -166,7 +202,6 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
-        // 하드 스톱(조이스틱은 끄지 않고 중립화만)
         FreezePlayer();
 
         isTalk = true;
@@ -204,11 +239,16 @@ public class DialogueManager : MonoBehaviour
 
     void DialogueStart()
     {
-        // UI 전역 비활성
-        temp = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-        foreach (GameObject t in temp)
-            if (t.layer == LayerMask.NameToLayer("UI"))
-                t.gameObject.SetActive(false);
+        // UI 전역 비활성 (⚠ usedCanvas는 살려둠)
+        _allUI = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        int uiLayer = LayerMask.NameToLayer("UI");
+        foreach (GameObject t in _allUI)
+        {
+            if (t == null) continue;
+            if (t.layer == uiLayer && (usedCanvas == null || t != usedCanvas))
+                t.SetActive(false);
+        }
+        if (usedCanvas != null) usedCanvas.SetActive(true);
 
         // 카메라 설정
         EnsureCameraRig();
@@ -229,22 +269,30 @@ public class DialogueManager : MonoBehaviour
 
         _hardTrackRoutine = StartCoroutine(HardTrackRoutine(transform));
 
-        // 말풍선/UI 생성
-        dialgoueSet = Instantiate(dialogueBox);
+        // 말풍선/UI 생성 (✅ 기존 방식 그대로)
+        dialgoueSet = Instantiate(dialogueBox, usedCanvas.transform, false);
         dialgoueSet.transform.position = transform.position;
-        dialTextSet = Instantiate(usedText.gameObject);
-        dialTextSet.transform.position = transform.position;
 
-        dialgoueSet.transform.SetParent(usedCanvas.transform, false);
-        dialTextSet.transform.SetParent(usedCanvas.transform, false);
+        dialTextSet = Instantiate(usedText.gameObject, usedCanvas.transform, false);
+        dialTextSet.transform.position = transform.position;
 
         usedMesh = dialTextSet.GetComponent<TextMeshProUGUI>();
         usedMesh.text = "";
 
+        // 말풍선 RT 캐시 + 기본 크기
+        _bubbleRT = dialgoueSet.GetComponent<RectTransform>();
+        _dialogBaseSize = (_bubbleRT != null)
+            ? (overrideBaseSize ? baseSize : _bubbleRT.sizeDelta)
+            : baseSize;
+
         usedMesh.DOFade(1f, 0.5f);
         dialTextSet.transform.DOMoveY(transform.position.y + 1f, 0.5f);
-        dialgoueSet.GetComponent<Image>().DOFade(1f, 0.5f);
+        var img = dialgoueSet.GetComponent<Image>();
+        if (img) img.DOFade(1f, 0.5f);
         dialgoueSet.transform.DOMoveY(transform.position.y + 1f, 0.5f);
+
+        // 🔵 스킵 힌트: 화면 우상단 고정
+        SetupSkipHint();
 
         StartCoroutine(DialogueRoutine());
     }
@@ -260,46 +308,182 @@ public class DialogueManager : MonoBehaviour
                 cinemachineCamera.transform.position = new Vector3(p.x, p.y, mc.transform.position.z);
                 cinemachineCamera.transform.rotation = mc.transform.rotation;
             }
+            UpdateHoldState();
+            UpdateSkipHintText();
+
+            // 움직이는 NPC라면 위치 갱신이 필요하면 아래 2줄 활성
+            // dialgoueSet.transform.position = target.position + Vector3.up * 1f;
+            // dialTextSet.transform.position = target.position + Vector3.up * 1f;
+
             yield return null;
         }
     }
 
+    // 🔵 스킵 힌트: 화면 우상단 고정만 담당 (본문 위치 변경 X)
+    void SetupSkipHint()
+    {
+        if (!showSkipHint) return;
+
+        if (_hintTMP != null && _hintTMP.gameObject != null)
+            Destroy(_hintTMP.gameObject);
+
+        var screenCanvas = FindScreenSpaceCanvas();
+        if (screenCanvas == null) screenCanvas = CreateOverlayCanvas("_Runtime_UI_Overlay");
+
+        var go = new GameObject("SkipHintTMP", typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.transform.SetParent(screenCanvas.GetComponent<RectTransform>(), false);
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = new Vector2(-Mathf.Abs(skipHintScreenOffset.x),
+                                          -Mathf.Abs(skipHintScreenOffset.y));
+        rt.sizeDelta = new Vector2(skipHintMaxWidth, 80f);
+
+        _hintTMP = go.GetComponent<TextMeshProUGUI>();
+        if (uiFont != null) _hintTMP.font = uiFont;
+        _hintTMP.fontSize = hintFontSize;
+        _hintTMP.color = hintColor;
+        _hintTMP.enableWordWrapping = true;
+        _hintTMP.alignment = TextAlignmentOptions.TopRight;
+        _hintTMP.text = holdHintText;
+        _hintTMP.alpha = 0f;
+        _hintTMP.DOFade(1f, hintFadeIn);
+    }
+
+    void UpdateSkipHintText()
+    {
+        if (!showSkipHint || _hintTMP == null) return;
+
+        string want = _fastForward ? fastHintText : holdHintText;
+        if (_hintTMP.text != want)
+        {
+            _hintTMP.DOKill();
+            Sequence s = DOTween.Sequence();
+            s.Append(_hintTMP.DOFade(0f, 0.08f));
+            s.AppendCallback(() => _hintTMP.text = want);
+            s.Append(_hintTMP.DOFade(1f, 0.12f));
+        }
+    }
+
+    Canvas FindScreenSpaceCanvas()
+    {
+        var canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+        Canvas fallback = null;
+        foreach (var c in canvases)
+        {
+            if (!c.isActiveAndEnabled) continue;
+            if (c.renderMode == RenderMode.ScreenSpaceOverlay) return c;
+            if (c.renderMode == RenderMode.ScreenSpaceCamera && fallback == null) fallback = c;
+        }
+        return fallback;
+    }
+
+    Canvas CreateOverlayCanvas(string name)
+    {
+        var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        var c = go.GetComponent<Canvas>();
+        c.renderMode = RenderMode.ScreenSpaceOverlay;
+        var scaler = go.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        return c;
+    }
+
     IEnumerator DialogueRoutine()
     {
+        Coroutine holdWatcher = StartCoroutine(HoldWatcher());
+
         while (currentLine < NPCTalkDatable.talks.Count)
         {
-            // ===== [추가] 이 줄 시작 전에 초상화/스프라이트 교체 시도 =====
+            // 표정 스왑
             TrySwapPortrait(currentLine);
-            // ============================================================
 
-            yield return StartCoroutine(DialTyping(NPCTalkDatable.talks[currentLine].talkString));
-            currentLine++;
+            // 줄 시작: 말풍선 기본 크기로 초기화
+            if (_bubbleRT != null)
+            {
+                var init = _dialogBaseSize * Mathf.Max(0.25f, boxScale);
+                _bubbleRT.sizeDelta = init;
+            }
+
+            // 한 줄 타이핑 (홀드 시 즉시 완타)
+            yield return StartCoroutine(TypeLineWithHold(NPCTalkDatable.talks[currentLine].talkString));
+
+            if (allowHoldSkip && _fastForward)
+            {
+                yield return new WaitForSeconds(fastLineDelay);
+                currentLine++;
+                continue;
+            }
 
             // 입력 대기(스페이스/클릭/터치)
             yield return new WaitUntil(AdvanceTapped);
 
-            var rt = dialgoueSet.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(150, 150);
+            currentLine++;
         }
+
+        if (holdWatcher != null) StopCoroutine(holdWatcher);
         EndDialogue();
     }
 
-    IEnumerator DialTyping(string line)
+    IEnumerator TypeLineWithHold(string line)
     {
         usedMesh.text = "";
-        var rt = dialgoueSet.GetComponent<RectTransform>();
-        foreach (char c in line)
+
+        // 홀드 중이면 즉시 완타
+        if (allowHoldSkip && _fastForward)
         {
-            usedMesh.text += c;
-            rt.sizeDelta = new Vector2(rt.sizeDelta.x + 30f, rt.sizeDelta.y);
+            usedMesh.text = line;
+            ResizeBubbleToTextInstant();
+            yield break;
+        }
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            usedMesh.text += line[i];
+
+            // 글자 몇 개마다 한 번 리사이즈(오버헤드 최소화)
+            if (autoResize && (i % 2 == 0 || i == line.Length - 1))
+                ResizeBubbleToTextInstant();
+
+            UpdateHoldState();
+            if (allowHoldSkip && _fastForward)
+            {
+                if (i < line.Length - 1)
+                {
+                    usedMesh.text += line.Substring(i + 1);
+                    ResizeBubbleToTextInstant(); // 최종 보정
+                }
+                break;
+            }
+
             yield return new WaitForSeconds(typingSpeed);
         }
     }
 
+    void ResizeBubbleToTextInstant()
+    {
+        if (!autoResize || _bubbleRT == null || usedMesh == null) return;
+
+        float maxTextWidth = Mathf.Max(1f, dialogMaxSize.x - dialogPadding.x);
+        Vector2 pref = usedMesh.GetPreferredValues(usedMesh.text, maxTextWidth, 0f);
+
+        float w = Mathf.Clamp(pref.x + dialogPadding.x, dialogMinSize.x, dialogMaxSize.x);
+        float h = Mathf.Clamp(pref.y + dialogPadding.y, dialogMinSize.y, dialogMaxSize.y);
+
+        _bubbleRT.sizeDelta = new Vector2(w, h) * Mathf.Max(0.25f, boxScale);
+    }
+
     void EndDialogue()
     {
+        if (_hintTMP != null) _hintTMP.DOFade(0f, hintFadeOut);
+
         if (dialgoueSet) Destroy(dialgoueSet);
         if (dialTextSet) Destroy(dialTextSet);
+
+        // 표정/스프라이트 원상복구
+        if (_selfSR != null) _selfSR.sprite = _origSprite;
 
         isTalk = false;
         currentLine = 0;
@@ -331,30 +515,25 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
-        // 플레이어/조이스틱 복구 (중립 리셋 포함)
+        // 플레이어/조이스틱 복구
         UnfreezePlayer();
 
-        // 3초 뒤에 움직임 풀기
-        StartCoroutine(DelayedUnlockPlayer(2.3f));
+        // 2초 뒤에 움직임 풀기
+        StartCoroutine(DelayedUnlockPlayer(2.0f));
 
-        // UI 복구
-        if (temp != null)
+        // UI 복구 (usedCanvas 포함)
+        if (_allUI != null)
         {
-            foreach (GameObject t in temp)
+            foreach (GameObject t in _allUI)
                 if (t != null && t.layer == LayerMask.NameToLayer("UI"))
-                    t.gameObject.SetActive(true);
+                    t.SetActive(true);
         }
 
-        // 대화 끝난 뒤에만 파괴
         if (_destroyAfterDialogue)
             Destroy(this);
 
-        // WaveManager 복귀 처리
         var waveManager = FindFirstObjectByType<WaveManager>();
-        if (waveManager != null)
-        {
-            waveManager.RestoreCameraAndRoom();
-        }
+        if (waveManager != null) waveManager.RestoreCameraAndRoom();
     }
 
     IEnumerator DelayedUnlockPlayer(float delay)
@@ -364,14 +543,13 @@ public class DialogueManager : MonoBehaviour
             GameManager.Instance.playerController.UnLockMovement();
     }
 
-
     void OnDisable()
     {
-        // 예외 상황에서도 반드시 풀기
         if (isTalk)
         {
             try { UnfreezePlayer(); } catch { }
             isTalk = false;
+            if (_selfSR != null) _selfSR.sprite = _origSprite;
         }
     }
 
@@ -379,46 +557,85 @@ public class DialogueManager : MonoBehaviour
     bool AdvanceTapped()
     {
 #if ENABLE_INPUT_SYSTEM
-        if (global::UnityEngine.InputSystem.Keyboard.current != null &&
-            global::UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
-            return true;
-
-        if (global::UnityEngine.InputSystem.Mouse.current != null &&
-            global::UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
-            return true;
-
-        if (global::UnityEngine.InputSystem.Touchscreen.current != null)
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) return true;
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) return true;
+        if (Touchscreen.current != null)
         {
-            var t = global::UnityEngine.InputSystem.Touchscreen.current.primaryTouch;
+            var t = Touchscreen.current.primaryTouch;
             if (t.press.wasPressedThisFrame) return true;
         }
         return false;
 #else
-        if (global::UnityEngine.Input.GetKeyDown(global::UnityEngine.KeyCode.Space)) return true;
+        if (Input.GetKeyDown(KeyCode.Space)) return true;
+        if (Input.GetMouseButtonDown(0)) return true;
 
-        if (global::UnityEngine.Input.GetMouseButtonDown(0))
+        if (Input.touchCount > 0)
         {
-            if (UnityEngine.EventSystems.EventSystem.current != null &&
-                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-                return true;
-            return true;
-        }
-
-        if (global::UnityEngine.Input.touchCount > 0)
-        {
-            for (int i = 0; i < global::UnityEngine.Input.touchCount; i++)
+            for (int i = 0; i < Input.touchCount; i++)
             {
-                global::UnityEngine.Touch t = global::UnityEngine.Input.GetTouch(i);
-                if (t.phase == global::UnityEngine.TouchPhase.Began)
-                {
-                    if (UnityEngine.EventSystems.EventSystem.current != null &&
-                        UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(i))
-                        return true;
-                    return true;
-                }
+                var t = Input.GetTouch(i);
+                if (t.phase == TouchPhase.Began) return true;
             }
         }
         return false;
+#endif
+    }
+
+    // 홀드 스킵 상태 갱신
+    void UpdateHoldState()
+    {
+        _pressingPrev = _pressingNow;
+        _pressingNow = IsPressingNow();
+
+        if (_pressingNow && !_pressingPrev)
+            _holdStartUnscaled = Time.unscaledTime;
+
+        if (allowHoldSkip && _pressingNow && _holdStartUnscaled > 0f)
+            _fastForward = (Time.unscaledTime - _holdStartUnscaled) >= holdThreshold;
+
+        if (!_pressingNow && _pressingPrev)
+        {
+            _fastForward = false;
+            _holdStartUnscaled = -1f;
+        }
+    }
+
+    IEnumerator HoldWatcher()
+    {
+        while (isTalk)
+        {
+            UpdateHoldState();
+            yield return null;
+        }
+    }
+
+    bool IsPressingNow()
+    {
+#if ENABLE_INPUT_SYSTEM
+        bool k = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+        bool m = Mouse.current != null && Mouse.current.leftButton.isPressed;
+        bool t = false;
+        if (Touchscreen.current != null)
+        {
+            var ts = Touchscreen.current;
+            for (int i = 0; i < ts.touches.Count; i++)
+                if (ts.touches[i].press.isPressed) { t = true; break; }
+        }
+        return k || m || t;
+#else
+        bool k = Input.GetKey(KeyCode.Space);
+        bool m = Input.GetMouseButton(0);
+        bool t = false;
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                var touch = Input.GetTouch(i);
+                if (touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Began)
+                { t = true; break; }
+            }
+        }
+        return k || m || t;
 #endif
     }
 
@@ -431,12 +648,11 @@ public class DialogueManager : MonoBehaviour
         if (_pc == null)
             _pc = playerSet.GetComponentInParent<PlayerController>();
 
-        // 1) PlayerController 잠금 (컴포넌트 Enabled는 건드리지 않음)
+        // 1) PlayerController 잠금
         if (_pc != null)
         {
-            _pc.LockMovement(true);            // canMove=false + 입력/방향 0
-            _pc.inputVec = Vector2.zero;       // 한 번 더 0
-            // 조이스틱 중립 강제 (있는 경우)
+            _pc.LockMovement(true);
+            _pc.inputVec = Vector2.zero;
             if (_pc.joystick != null && _pc.joystick.gameObject != null)
                 ResetJoystickObject(_pc.joystick.gameObject);
         }
@@ -451,7 +667,7 @@ public class DialogueManager : MonoBehaviour
         }
 #endif
 
-        // 3) Rigidbody2D(있으면) 안전 정지 — simulated는 건드리지 않음
+        // 3) Rigidbody2D 정지
         if (_rbHad && _rb != null)
         {
             _rbPrevVelocity = _rb.linearVelocity;
@@ -461,7 +677,7 @@ public class DialogueManager : MonoBehaviour
             _rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        // 4) NavMeshAgent(있으면) 정지
+        // 4) NavMeshAgent 정지
 #if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
         if (_hadAgent && _agent != null)
         {
@@ -516,11 +732,9 @@ public class DialogueManager : MonoBehaviour
         // B) PlayerController 중립 상태에서 해제
         if (_pc != null)
         {
-            _pc.inputVec = Vector2.zero;               // 입력 0
+            _pc.inputVec = Vector2.zero;
             if (_pc.joystick != null && _pc.joystick.gameObject != null)
-                ResetJoystickObject(_pc.joystick.gameObject);   // 조이스틱 0,0
-
-            //_pc.UnLockMovement();                      // canMove=true
+                ResetJoystickObject(_pc.joystick.gameObject);
         }
 
         // C) PlayerInput 켜기(옵션)
@@ -543,13 +757,12 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
     // 조이스틱 중립 강제 리셋(패키지 불문)
     void ResetJoystickObject(GameObject go)
     {
         if (go == null) return;
 
-        // 1) PointerUp 강제 → "손 뗀" 상태
+        // 1) PointerUp 강제
         try
         {
             var ped = new PointerEventData(EventSystem.current);
@@ -562,7 +775,7 @@ public class DialogueManager : MonoBehaviour
         }
         catch { }
 
-        // 2) 패키지별 메서드 호출 시도(Reset/Release/OnRelease/OnPointerUp(매개변수X))
+        // 2) 패키지별 메서드 호출 시도
         try
         {
             var monos = go.GetComponentsInChildren<MonoBehaviour>(true);
@@ -597,7 +810,7 @@ public class DialogueManager : MonoBehaviour
         catch { }
     }
 
-    // ===== [추가 메서드] 현재 줄 인덱스의 talkSprite로 교체 시도 ==============
+    // ===== 초상화 스왑 =========================================================
     void TrySwapPortrait(int lineIndex)
     {
         if (_selfSR == null) return;
@@ -605,8 +818,8 @@ public class DialogueManager : MonoBehaviour
         if (lineIndex < 0 || lineIndex >= NPCTalkDatable.talks.Count) return;
 
         var next = NPCTalkDatable.talks[lineIndex].talkSprite;
-        if (next == null) return;                // 비어있으면 패스
-        if (_selfSR.sprite == next || _lastAppliedSprite == next) return; // 같으면 스킵
+        if (next == null) return;
+        if (_selfSR.sprite == next || _lastAppliedSprite == next) return;
 
         StartCoroutine(SwapSpriteWithPop(next));
     }
@@ -636,5 +849,4 @@ public class DialogueManager : MonoBehaviour
 
         t.localScale = baseScale;
     }
-    // =====================================================================
 }
