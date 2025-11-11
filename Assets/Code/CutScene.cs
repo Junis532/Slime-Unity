@@ -39,6 +39,7 @@ public class CutScene : MonoBehaviour
 
     // 내부
     private readonly List<Image> _blurGhosts = new List<Image>();
+    private CutsceneContainFitter _fitter;
 
     void Start()
     {
@@ -54,6 +55,11 @@ public class CutScene : MonoBehaviour
             var fc = fadeBlack.color; fc.a = 1f; fadeBlack.color = fc;
         }
         if (autoSetupEyelidsOnly) EnsureEyelidsExist();
+
+        if (usedCutImage)
+        {
+            _fitter = usedCutImage.GetComponent<CutsceneContainFitter>();
+        }
 
         StartCoroutine(cutSceneStart());
     }
@@ -72,7 +78,11 @@ public class CutScene : MonoBehaviour
         // 컷씬 루프
         for (int i = 0; i < cutScene.Count; i++)
         {
-            if (usedCutImage) usedCutImage.sprite = cutScene[i];
+            if (usedCutImage)
+            {
+                usedCutImage.sprite = cutScene[i];
+                _fitter?.Fit(); // ★ 스프라이트 바뀔 때마다 화면비 피팅
+            }
 
             if (!isMobile)
             {
@@ -188,7 +198,11 @@ public class CutScene : MonoBehaviour
     // ----- 눈꺼풀 & 포커스 스냅 -----
     private IEnumerator EyeOpenReveal(Sprite newSprite)
     {
-        if (newSprite && usedCutImage) usedCutImage.sprite = newSprite;
+        if (newSprite && usedCutImage)
+        {
+            usedCutImage.sprite = newSprite;
+            _fitter?.Fit(); // ★ 눈뜨기 컷에도 적용
+        }
 
         if (fadeBlack) fadeBlack.DOFade(0f, eyeOpenDuration * 0.8f);
 
