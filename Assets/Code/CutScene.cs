@@ -107,6 +107,10 @@ public class CutScene : MonoBehaviour
         // 마지막은 스킵 금지: 눈 떠지는 연출
         yield return new WaitForSeconds(eyeOpenDelay);
         yield return StartCoroutine(EyeOpenReveal(awakeningSprite));
+
+        yield return new WaitForSeconds(3f);
+        // 화면 페이드아웃 후 씬 전환
+        yield return StartCoroutine(FadeOutAndLoadScene("InGame", 1f));
     }
 
     // ----- 스킵 가능한 유틸 -----
@@ -343,5 +347,27 @@ public class CutScene : MonoBehaviour
         rt.sizeDelta = Vector2.zero;
 
         return img;
+    }
+
+    private IEnumerator FadeOutAndLoadScene(string sceneName, float duration = 1f)
+    {
+        // fadeBlack이 없으면 생성
+        if (fadeBlack == null)
+        {
+            var canvas = GetTargetCanvas();
+            if (canvas != null)
+            {
+                fadeBlack = CreateFullScreenImage("FadeBlack", canvas.transform, Color.black);
+            }
+        }
+
+        fadeBlack.gameObject.SetActive(true);
+        fadeBlack.DOKill();
+
+        // 알파 0 → 1로 페이드
+        yield return fadeBlack.DOFade(1f, duration).WaitForCompletion();
+
+        // 씬 로드
+        LoadingManager.LoadScene(sceneName);
     }
 }
