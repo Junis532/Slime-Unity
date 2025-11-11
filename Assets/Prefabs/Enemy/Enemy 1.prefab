@@ -142,8 +142,6 @@ MonoBehaviour:
   shareHPByID: 0
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -282,7 +280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.5
+  potionDropChance: 0
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5

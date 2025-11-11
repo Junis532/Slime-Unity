@@ -191,6 +191,7 @@ public class TurretSpecial_PlayerTracking : MonoBehaviour
             Vector2 shotDir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad),
                                           Mathf.Sin(currentAngle * Mathf.Deg2Rad));
             SpawnBullet(shotDir, bulletToShoot);
+            GameManager.Instance.audioManager.PlayerTurretShootingSound(1.5f);
         }
 
         // 다음 순서로 이동 (0→1→2→0...)
