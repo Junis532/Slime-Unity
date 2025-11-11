@@ -216,11 +216,15 @@ public class EnemyHP : MonoBehaviour
     {
         if (spriteRenderer == null) return;
 
+        // 현재 색을 저장
+        Color originalColor = spriteRenderer.color;
+
         spriteRenderer.DOColor(Color.red, 0.1f).OnComplete(() =>
         {
-            spriteRenderer.DOColor(Color.white, 0.1f);
+            spriteRenderer.DOColor(originalColor, 0.1f); // 원래 색으로 복구
         });
     }
+
 
     //private void ShowDamageText(int damage)
     //{

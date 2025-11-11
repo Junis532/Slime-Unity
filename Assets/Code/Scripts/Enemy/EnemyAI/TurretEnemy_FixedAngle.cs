@@ -124,6 +124,8 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     private Sequence ringSeq;
     private float ringCurrentRadius;
 
+    private Color originalColor; // 인스펙터에서 설정한 색 저장
+
     void Awake()
     {
         spriter = GetComponent<SpriteRenderer>();
@@ -131,6 +133,11 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
         if (!enemyAnim) UDebug.LogError("EnemyAnimation을 지정하세요.");
 
         baseScale = transform.localScale;
+
+
+        // 원래 스프라이트 색 저장
+        if (spriter != null)
+            originalColor = spriter.color;
 
         // 메인 조준 라인
         lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -206,7 +213,7 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             if (spriter != null)
             {
                 spriter.DOKill();
-                spriter.color = Color.white;
+                spriter.color = originalColor;
             }
 
             // 붉어짐 + 스케일 축소
@@ -270,7 +277,7 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             }
 
             if (spriter != null)
-                spriter.DOColor(Color.white, 0.1f * fxSpeedMultiplier);
+                spriter.DOColor(originalColor, 0.1f * fxSpeedMultiplier);
 
             if (postDuration > 0f)
                 yield return new WaitForSeconds(postDuration);

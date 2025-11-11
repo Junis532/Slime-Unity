@@ -326,8 +326,8 @@ public class EnemiesDie : MonoBehaviour
     {
         isLive = true;
         DOTween.Kill(transform);
-        if (spriter != null)
-            spriter.color = new Color(1, 1, 1, 1);
+        //if (spriter != null)
+        //    spriter.color = new Color(1, 1, 1, 1);
         transform.localScale = originalScale;
         gameObject.tag = originalTag;
         if (cachedCols != null)

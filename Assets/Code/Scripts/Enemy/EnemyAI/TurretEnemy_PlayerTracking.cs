@@ -40,11 +40,17 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     private LineRenderer lineRenderer;
     private bool isPreparingToFire = false;
 
+    private Color originalColor; // 인스펙터에서 설정한 색 저장
+
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<TurretEnemyAnimation>();
         if (!enemyAnimation) Debug.LogError("TurretEnemyAnimation 컴포넌트를 지정하세요.");
+
+        // 원래 스프라이트 색 저장
+        if (spriter != null)
+            originalColor = spriter.color;
 
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
@@ -167,7 +173,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
         if (spriter != null)
         {
             spriter.DOKill();
-            spriter.DOColor(Color.white, 0.1f);
+            spriter.DOColor(originalColor, 0.1f);
         }
 
         lastFireTime = Time.time;
