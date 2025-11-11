@@ -138,43 +138,43 @@ public class GameManager : MonoSingleTone<GameManager>
         }
     }
 
-    //private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
-    //{
-    //    float elapsed = 0f;
-    //    Transform coinTransform = coin.transform;
-    //    Vector3 startPos = coinTransform.position;
+    private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
+    {
+        float elapsed = 0f;
+        Transform coinTransform = coin.transform;
+        Vector3 startPos = coinTransform.position;
 
-    //    while (elapsed < duration)
-    //    {
-    //        if (GameManager.Instance.playerController != null)
-    //        {
-    //            Vector3 playerPos = GameManager.Instance.playerController.transform.position;
-    //            coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
-    //        }
+        while (elapsed < duration)
+        {
+            if (GameManager.Instance.playerController != null)
+            {
+                Vector3 playerPos = GameManager.Instance.playerController.transform.position;
+                coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
+            }
 
-    //        elapsed += Time.deltaTime;
-    //        yield return null;
-    //    }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    //    coinTransform.position = GameManager.Instance.playerController.transform.position;
+        coinTransform.position = GameManager.Instance.playerController.transform.position;
 
-    //    PoolManager.Instance.ReturnToPool(coin);
-    //}
+        PoolManager.Instance.ReturnToPool(coin);
+    }
 
-    //private void AutoCollectItems() // 코인 및 아이템 자동 수집 처리 함수
-    //{
-    //    GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-    //    foreach (GameObject coin in coins)
-    //    {
-    //        StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
-    //    }
+    private void AutoCollectItems() // 코인 및 아이템 자동 수집 처리 함수
+    {
+        GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+        foreach (GameObject coin in coins)
+        {
+            StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
+        }
 
-    //    GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
-    //    foreach (GameObject zac in zacs)
-    //    {
-    //        StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
-    //    }
-    //}
+        GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
+        foreach (GameObject zac in zacs)
+        {
+            StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
+        }
+    }
 
     //public void ChangeStateToGame()
     //{

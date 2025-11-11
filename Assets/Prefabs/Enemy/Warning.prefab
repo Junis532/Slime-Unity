@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6634061269834813170}
   - component: {fileID: 5951134540910319092}
   - component: {fileID: 2190961655061271682}
+  - component: {fileID: 5689399959062254723}
   m_Layer: 0
   m_Name: Warning
   m_TagString: Untagged
@@ -186,3 +187,17 @@ MonoBehaviour:
   - {fileID: -4060708384142428707, guid: 796417b9bd3ae8341a08e94d09541f68, type: 3}
   frameRate: 0.05
   playOnce: 1
+--- !u!114 &5689399959062254723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222272227696880193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3f1e27c661a59438d34b3a2fb25b28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  light2D: {fileID: 5951134540910319092}
+  fadeDuration: 1
