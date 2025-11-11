@@ -491,6 +491,9 @@ public class WaveManager : MonoBehaviour
         cleared = true;
         room.isCleared = true;
 
+        // HPPotion 자석 이동 호출
+        AutoCollectItems();
+
         // ✅ 클리어 시 오브젝트 DOTween으로 사라지기
         if (room.objectsToDisappear != null && room.objectsToDisappear.Count > 0)
         {
@@ -751,6 +754,33 @@ public class WaveManager : MonoBehaviour
 
         Debug.Log("[WaveManager] Dialogue ended — camera tracking disabled and centered on room.");
     }
+    private IEnumerator MoveCoinToPlayer(GameObject zac, float duration) // 플레이어 위치로 이동시키는 코루틴
+    {
+        float elapsed = 0f;
+        Transform coinTransform = zac.transform;
+        Vector3 startPos = coinTransform.position;
 
+        while (elapsed < duration)
+        {
+            if (GameManager.Instance.playerController != null)
+            {
+                Vector3 playerPos = GameManager.Instance.playerController.transform.position;
+                coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
+            }
 
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        coinTransform.position = GameManager.Instance.playerController.transform.position;
+    }
+
+    private void AutoCollectItems() // 아이템 자동 수집 처리 함수
+    {
+        GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
+        foreach (GameObject zac in zacs)
+        {
+            StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
+        }
+    }
 }
