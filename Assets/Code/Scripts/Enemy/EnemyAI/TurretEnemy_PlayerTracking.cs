@@ -68,19 +68,19 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
     {
         if (!isLive || !AIEnabled) return;  // 🔹 AI 꺼져 있으면 전체 동작 멈춤
 
-        // Crystal 레이어 존재 체크
-        int crystalLayer = LayerMask.NameToLayer("Crystal");
-        bool crystalExists = false;
-        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-        foreach (GameObject obj in allObjects)
-        {
-            if (obj.layer == crystalLayer)
-            {
-                crystalExists = true;
-                break;
-            }
-        }
-        gameObject.tag = crystalExists ? "Untagged" : "Enemy";
+        //// Crystal 레이어 존재 체크
+        //int crystalLayer = LayerMask.NameToLayer("Crystal");
+        //bool crystalExists = false;
+        //GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        //foreach (GameObject obj in allObjects)
+        //{
+        //    if (obj.layer == crystalLayer)
+        //    {
+        //        crystalExists = true;
+        //        break;
+        //    }
+        //}
+        //gameObject.tag = crystalExists ? "Untagged" : "Enemy";
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)

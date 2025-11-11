@@ -69,18 +69,18 @@ public class VignetEffect : MonoBehaviour
         // 기존 트윈 중단
         flashTween?.Kill();
 
-        // 현재 상태 저장
-        Color originalColor = vignette.color.value;
-        float originalIntensity = vignette.intensity.value; // 현재 어두운 정도 유지용
+        // 현재 intensity 저장
+        float originalIntensity = vignette.intensity.value;
 
+        // 붉은색 잠깐 적용
         vignette.color.value = Color.red;
 
-        // 🔥 트윈 시퀀스: 현재 강도에서 살짝 더 진해졌다가 원래 강도로 복귀
+        // DOTween으로 intensity 살짝 올리고 다시 원래 intensity로
         flashTween = DOTween.Sequence()
             .Append(DOTween.To(
                 () => vignette.intensity.value,
                 x => vignette.intensity.value = x,
-                Mathf.Min(originalIntensity + redBoost, 1f), // 너무 밝아지지 않게 제한
+                Mathf.Min(originalIntensity + redBoost, 1f),
                 0.1f
             ))
             .Append(DOTween.To(
@@ -89,9 +89,17 @@ public class VignetEffect : MonoBehaviour
                 originalIntensity,
                 duration
             ))
+            .OnUpdate(() =>
+            {
+                // intensity가 변하는 동안 색상은 붉은색 → 현재 intensity 기반 어두움으로 Lerp
+                float t = (vignette.intensity.value - originalIntensity) / redBoost; // 0~1
+                t = Mathf.Clamp01(t);
+                vignette.color.value = Color.Lerp(defaultColor, Color.red, t);
+            })
             .OnComplete(() =>
             {
-                vignette.color.value = originalColor; // 색상 복귀
+                // 완료 시 intensity 기반 색으로 강제 복귀
+                vignette.color.value = defaultColor;
             });
     }
 

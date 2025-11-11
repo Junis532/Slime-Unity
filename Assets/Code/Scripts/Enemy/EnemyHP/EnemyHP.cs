@@ -177,11 +177,11 @@ public class EnemyHP : MonoBehaviour
 
         // 사운드 & 텍스트 & 카메라 셰이크
         AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
-        if (isCritical)
-        {
-            //ShowCriticalDamageText(damage);
-            GameManager.Instance.cameraShake.GenerateImpulse();
-        }
+        //if (isCritical)
+        //{
+        //    //ShowCriticalDamageText(damage);
+        //    GameManager.Instance.cameraShake.GenerateImpulse();
+        //}
         //else
         //{
         //    ShowDamageText(damage);

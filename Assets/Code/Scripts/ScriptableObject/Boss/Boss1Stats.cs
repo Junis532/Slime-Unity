@@ -18,7 +18,7 @@ public class Boss1Stats : ScriptableObject
     public void ResetStats()
     {
         speed = 2.5f;
-        maxHP = 10000;
+        maxHP = 99999999;
         currentHP = maxHP;
         attack = 100;
     }
