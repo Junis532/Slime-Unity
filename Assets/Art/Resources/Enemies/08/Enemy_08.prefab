@@ -1377,8 +1377,8 @@ GameObject:
   - component: {fileID: 4399704315413577913}
   - component: {fileID: 4863140955633899030}
   - component: {fileID: 9206796405942500678}
-  - component: {fileID: 7828714563894483914}
   - component: {fileID: 5350255534573825919}
+  - component: {fileID: 1282510077816742052}
   m_Layer: 10
   m_Name: Enemy (1)
   m_TagString: Enemy
@@ -1504,8 +1504,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -1706,8 +1704,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &7828714563894483914
-CapsuleCollider2D:
+--- !u!114 &5350255534573825919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656549045005213769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &1282510077816742052
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1741,23 +1754,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &5350255534573825919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 656549045005213769}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &673843618944286032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1774,8 +1781,8 @@ GameObject:
   - component: {fileID: 4416796554237894048}
   - component: {fileID: 4843663446317222671}
   - component: {fileID: 9187451396104233055}
-  - component: {fileID: 7845359310080411347}
   - component: {fileID: 1740625055901628552}
+  - component: {fileID: 6874885253253235895}
   m_Layer: 10
   m_Name: Enemy (5)
   m_TagString: Enemy
@@ -1901,8 +1908,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -2103,8 +2108,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &7845359310080411347
-CapsuleCollider2D:
+--- !u!114 &1740625055901628552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673843618944286032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &6874885253253235895
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2137,24 +2157,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1740625055901628552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673843618944286032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: -0.07169117}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.59338224}
+  m_EdgeRadius: 0
 --- !u!1 &686515938691330842
 GameObject:
   m_ObjectHideFlags: 0
@@ -4132,8 +4146,8 @@ GameObject:
   - component: {fileID: 1654198653203329957}
   - component: {fileID: 7532094199061128458}
   - component: {fileID: 6070601229533990490}
-  - component: {fileID: 5142874656083830998}
   - component: {fileID: 7961428034543689015}
+  - component: {fileID: 3728200852806733324}
   m_Layer: 10
   m_Name: Enemy (18)
   m_TagString: Enemy
@@ -4259,8 +4273,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -4461,8 +4473,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5142874656083830998
-CapsuleCollider2D:
+--- !u!114 &7961428034543689015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2514839047840437077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &3728200852806733324
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4495,24 +4522,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &7961428034543689015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2514839047840437077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: -0.09261727}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6352347}
+  m_EdgeRadius: 0
 --- !u!1 &2562560900547952998
 GameObject:
   m_ObjectHideFlags: 0
@@ -5160,8 +5181,8 @@ GameObject:
   - component: {fileID: 1428659951207041159}
   - component: {fileID: 7899355000731164200}
   - component: {fileID: 5843528159331661176}
-  - component: {fileID: 4789669468553122804}
   - component: {fileID: 7361470875689452113}
+  - component: {fileID: 8078216802728552895}
   m_Layer: 10
   m_Name: Enemy (19)
   m_TagString: Enemy
@@ -5287,8 +5308,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -5489,8 +5508,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &4789669468553122804
-CapsuleCollider2D:
+--- !u!114 &7361470875689452113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864846313316903031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &8078216802728552895
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5524,23 +5558,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &7361470875689452113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2864846313316903031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &2875194543341007204
 GameObject:
   m_ObjectHideFlags: 0
@@ -6256,8 +6284,8 @@ GameObject:
   - component: {fileID: 1789692665779614350}
   - component: {fileID: 7396591544207598625}
   - component: {fileID: 6493553709817728881}
-  - component: {fileID: 5295545237157652989}
   - component: {fileID: 1290066532223522052}
+  - component: {fileID: 2010510753444918679}
   m_Layer: 10
   m_Name: Enemy (16)
   m_TagString: Enemy
@@ -6383,8 +6411,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -6585,8 +6611,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5295545237157652989
-CapsuleCollider2D:
+--- !u!114 &1290066532223522052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3225747060178866814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &2010510753444918679
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -6620,23 +6661,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1290066532223522052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3225747060178866814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &3260610861601429571
 GameObject:
   m_ObjectHideFlags: 0
@@ -6728,8 +6763,8 @@ GameObject:
   - component: {fileID: 1887333270075846043}
   - component: {fileID: 7224509037527251764}
   - component: {fileID: 6411675418198593636}
-  - component: {fileID: 5447924213946316520}
   - component: {fileID: 4826013317156143808}
+  - component: {fileID: 2950840499525929608}
   m_Layer: 10
   m_Name: Enemy (15)
   m_TagString: Enemy
@@ -6855,8 +6890,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -7057,8 +7090,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5447924213946316520
-CapsuleCollider2D:
+--- !u!114 &4826013317156143808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3324575437924273515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &2950840499525929608
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7092,23 +7140,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &4826013317156143808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3324575437924273515}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &3343789782005800226
 GameObject:
   m_ObjectHideFlags: 0
@@ -7125,8 +7167,8 @@ GameObject:
   - component: {fileID: 1906679830441360850}
   - component: {fileID: 7207545119863958397}
   - component: {fileID: 6394579833953353773}
-  - component: {fileID: 5466858251297138337}
   - component: {fileID: 1060739768901541823}
+  - component: {fileID: 1948371087839352493}
   m_Layer: 10
   m_Name: Enemy (20)
   m_TagString: Enemy
@@ -7252,8 +7294,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -7454,8 +7494,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5466858251297138337
-CapsuleCollider2D:
+--- !u!114 &1060739768901541823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3343789782005800226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &1948371087839352493
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7489,23 +7544,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1060739768901541823
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3343789782005800226}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &3493342764820910626
 GameObject:
   m_ObjectHideFlags: 0
@@ -8546,8 +8595,8 @@ GameObject:
   - component: {fileID: 963863200290370228}
   - component: {fileID: 8292234483322348571}
   - component: {fileID: 5740870406383963979}
-  - component: {fileID: 6686607190683396551}
   - component: {fileID: 1201139036397038025}
+  - component: {fileID: 6431817544652675772}
   m_Layer: 10
   m_Name: Enemy (21)
   m_TagString: Enemy
@@ -8673,8 +8722,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -8875,8 +8922,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &6686607190683396551
-CapsuleCollider2D:
+--- !u!114 &1201139036397038025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4139424171831743044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &6431817544652675772
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -8910,23 +8972,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1201139036397038025
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4139424171831743044}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &4186151473851499728
 GameObject:
   m_ObjectHideFlags: 0
@@ -8940,10 +8996,10 @@ GameObject:
   - component: {fileID: 8925488541040112944}
   - component: {fileID: 2833325523092604287}
   - component: {fileID: 8628457583026070968}
-  - component: {fileID: 4209802127812839050}
   - component: {fileID: 5720800854105997470}
   - component: {fileID: 1289574115889741709}
   - component: {fileID: 5877651195416301715}
+  - component: {fileID: 3686690347512485738}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1
   m_TagString: Enemy
@@ -9042,8 +9098,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -9155,43 +9209,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &4209802127812839050
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4186151473851499728}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &5720800854105997470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9324,6 +9341,52 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &3686690347512485738
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4186151473851499728}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0.10152325}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6430464}
+  m_EdgeRadius: 0
 --- !u!1 &4235335207279182205
 GameObject:
   m_ObjectHideFlags: 0
@@ -9340,8 +9403,8 @@ GameObject:
   - component: {fileID: 1068631626801897869}
   - component: {fileID: 8117511692483229474}
   - component: {fileID: 5485232080758971506}
-  - component: {fileID: 6881297251531438846}
   - component: {fileID: 3421265621379990772}
+  - component: {fileID: 9113128192679908571}
   m_Layer: 10
   m_Name: Enemy (14)
   m_TagString: Enemy
@@ -9467,8 +9530,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -9669,8 +9730,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &6881297251531438846
-CapsuleCollider2D:
+--- !u!114 &3421265621379990772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4235335207279182205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &9113128192679908571
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -9704,23 +9780,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &3421265621379990772
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4235335207279182205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &4362403560040020788
 GameObject:
   m_ObjectHideFlags: 0
@@ -10448,8 +10518,8 @@ GameObject:
   - component: {fileID: 8333717027052883616}
   - component: {fileID: 996690068662917135}
   - component: {fileID: 3561415151241261919}
-  - component: {fileID: 2453479736274179539}
   - component: {fileID: 4139063477060441310}
+  - component: {fileID: 5169431763356878606}
   m_Layer: 10
   m_Name: Enemy (12)
   m_TagString: Enemy
@@ -10575,8 +10645,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -10777,8 +10845,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &2453479736274179539
-CapsuleCollider2D:
+--- !u!114 &4139063477060441310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5167083806209748560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &5169431763356878606
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10811,24 +10894,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &4139063477060441310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5167083806209748560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: 0.09439728}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6387945}
+  m_EdgeRadius: 0
 --- !u!1 &5258506028778395330
 GameObject:
   m_ObjectHideFlags: 0
@@ -11143,10 +11220,10 @@ GameObject:
   - component: {fileID: 833563902382344018}
   - component: {fileID: 6277213000402138909}
   - component: {fileID: 572710381749671898}
-  - component: {fileID: 5341521775528424680}
   - component: {fileID: 4551031919431135996}
   - component: {fileID: 7037333641939127791}
   - component: {fileID: 6385790753699664369}
+  - component: {fileID: 4276040641641989725}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1 (1)
   m_TagString: Enemy
@@ -11245,8 +11322,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -11358,43 +11433,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &5341521775528424680
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5356169654051075762}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &4551031919431135996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11526,6 +11564,52 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &4276040641641989725
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5356169654051075762}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.44}
+  m_EdgeRadius: 0
 --- !u!1 &5367082892442651979
 GameObject:
   m_ObjectHideFlags: 0
@@ -12252,8 +12336,8 @@ GameObject:
   - component: {fileID: 7044816337921006269}
   - component: {fileID: 2285449332577192978}
   - component: {fileID: 2526458286100129602}
-  - component: {fileID: 3490283711705317838}
   - component: {fileID: 8772442195092377133}
+  - component: {fileID: 4941212578889042847}
   m_Layer: 10
   m_Name: Enemy (3)
   m_TagString: Enemy
@@ -12379,8 +12463,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -12581,8 +12663,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &3490283711705317838
-CapsuleCollider2D:
+--- !u!114 &8772442195092377133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6185222404020959821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &4941212578889042847
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -12616,23 +12713,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &8772442195092377133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6185222404020959821}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &6196639976249475016
 GameObject:
   m_ObjectHideFlags: 0
@@ -13138,8 +13229,8 @@ GameObject:
   - component: {fileID: 8059567732780530221}
   - component: {fileID: 1273090478574267522}
   - component: {fileID: 3247844546517927890}
-  - component: {fileID: 4499830018523013470}
   - component: {fileID: 5475853351932407959}
+  - component: {fileID: 5739484670864747924}
   m_Layer: 10
   m_Name: Enemy (23)
   m_TagString: Enemy
@@ -13265,8 +13356,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -13467,8 +13556,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &4499830018523013470
-CapsuleCollider2D:
+--- !u!114 &5475853351932407959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6614435478307855069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &5739484670864747924
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -13501,24 +13605,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &5475853351932407959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6614435478307855069}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: 0.08371104}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.617422}
+  m_EdgeRadius: 0
 --- !u!1 &6637278967658568404
 GameObject:
   m_ObjectHideFlags: 0
@@ -14113,10 +14211,10 @@ GameObject:
   - component: {fileID: 2726403895383186403}
   - component: {fileID: 8744420240705072044}
   - component: {fileID: 3005560221721873259}
-  - component: {fileID: 7234942466128504921}
   - component: {fileID: 1256446559574355533}
   - component: {fileID: 5759797981279211870}
   - component: {fileID: 6344980221438420409}
+  - component: {fileID: 3898621647122071947}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1 (3)
   m_TagString: Enemy
@@ -14215,8 +14313,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -14328,43 +14424,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &7234942466128504921
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7211292121270594051}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &1256446559574355533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14496,6 +14555,52 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &3898621647122071947
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7211292121270594051}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.44}
+  m_EdgeRadius: 0
 --- !u!1 &7244793039211583047
 GameObject:
   m_ObjectHideFlags: 0
@@ -14690,8 +14795,8 @@ GameObject:
   - component: {fileID: 5855791777393554300}
   - component: {fileID: 3400297664783230419}
   - component: {fileID: 1407388997508091523}
-  - component: {fileID: 65370578564114447}
   - component: {fileID: 1503290430429344955}
+  - component: {fileID: 8885224130151793225}
   m_Layer: 10
   m_Name: Enemy
   m_TagString: Enemy
@@ -14817,8 +14922,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -15019,8 +15122,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &65370578564114447
-CapsuleCollider2D:
+--- !u!114 &1503290430429344955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7300783303511020428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &8885224130151793225
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -15053,24 +15171,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1503290430429344955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7300783303511020428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: 0.08214573}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6142915}
+  m_EdgeRadius: 0
 --- !u!1 &7396062778816201636
 GameObject:
   m_ObjectHideFlags: 0
@@ -15087,8 +15199,8 @@ GameObject:
   - component: {fileID: 5960078469668184916}
   - component: {fileID: 3226205602942957051}
   - component: {fileID: 1188260378907762347}
-  - component: {fileID: 224544889154041895}
   - component: {fileID: 2938912209425640318}
+  - component: {fileID: 8985544886605287028}
   m_Layer: 10
   m_Name: Enemy (17)
   m_TagString: Enemy
@@ -15214,8 +15326,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -15416,8 +15526,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &224544889154041895
-CapsuleCollider2D:
+--- !u!114 &2938912209425640318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7396062778816201636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &8985544886605287028
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -15450,24 +15575,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &2938912209425640318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7396062778816201636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_Offset: {x: 0, y: -0.09796044}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6459208}
+  m_EdgeRadius: 0
 --- !u!1 &7432614642468377534
 GameObject:
   m_ObjectHideFlags: 0
@@ -15645,10 +15764,10 @@ GameObject:
   - component: {fileID: 2765967842067332968}
   - component: {fileID: 8858293615465320231}
   - component: {fileID: 3026830054649442272}
-  - component: {fileID: 7481390656655953106}
   - component: {fileID: 1358780317941172934}
   - component: {fileID: 5501843220775384533}
   - component: {fileID: 5046199448279595933}
+  - component: {fileID: 2263630819478761532}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1 (2)
   m_TagString: Enemy
@@ -15747,8 +15866,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -15860,43 +15977,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &7481390656655953106
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7468999010355105416}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &1358780317941172934
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16028,6 +16108,52 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &2263630819478761532
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7468999010355105416}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.44}
+  m_EdgeRadius: 0
 --- !u!1 &7502873383105624172
 GameObject:
   m_ObjectHideFlags: 0
@@ -16638,8 +16764,8 @@ GameObject:
   - component: {fileID: 5137183138011595465}
   - component: {fileID: 4123410453005227110}
   - component: {fileID: 396615379578765110}
-  - component: {fileID: 1648666497749326266}
   - component: {fileID: 2440834592209558966}
+  - component: {fileID: 9144151824907356413}
   m_Layer: 10
   m_Name: Enemy (13)
   m_TagString: Enemy
@@ -16765,8 +16891,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -16967,8 +17091,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &1648666497749326266
-CapsuleCollider2D:
+--- !u!114 &2440834592209558966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8311556920462565945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &9144151824907356413
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -17002,23 +17141,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &2440834592209558966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8311556920462565945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &8325817637364021629
 GameObject:
   m_ObjectHideFlags: 0
@@ -17299,8 +17432,8 @@ GameObject:
   - component: {fileID: 4658037240371644719}
   - component: {fileID: 4528113366134693760}
   - component: {fileID: 175450712691832016}
-  - component: {fileID: 1229308535582872156}
   - component: {fileID: 7812386610219249626}
+  - component: {fileID: 6775032080400033570}
   m_Layer: 10
   m_Name: Enemy (4)
   m_TagString: Enemy
@@ -17426,8 +17559,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -17628,8 +17759,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &1229308535582872156
-CapsuleCollider2D:
+--- !u!114 &7812386610219249626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8410129341567347167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &6775032080400033570
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -17663,23 +17809,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &7812386610219249626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8410129341567347167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &8445071195296392162
 GameObject:
   m_ObjectHideFlags: 0
@@ -17846,8 +17986,8 @@ GameObject:
   - component: {fileID: 4753950090640267501}
   - component: {fileID: 4578708670132522562}
   - component: {fileID: 230408318273578258}
-  - component: {fileID: 1176180310525461406}
   - component: {fileID: 1982940654183923583}
+  - component: {fileID: 7431697248079894754}
   m_Layer: 10
   m_Name: Enemy (2)
   m_TagString: Enemy
@@ -17973,8 +18113,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -18175,8 +18313,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &1176180310525461406
-CapsuleCollider2D:
+--- !u!114 &1982940654183923583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8496894229868328989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &7431697248079894754
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -18210,23 +18363,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &1982940654183923583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8496894229868328989}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &8551285960952463967
 GameObject:
   m_ObjectHideFlags: 0
@@ -18846,10 +18993,10 @@ GameObject:
   - component: {fileID: 4236889472382050737}
   - component: {fileID: 7367957719092089342}
   - component: {fileID: 3940562244884246841}
-  - component: {fileID: 8898541890943095307}
   - component: {fileID: 1041912740724216863}
   - component: {fileID: 5833495072297593612}
   - component: {fileID: 6341407822128432115}
+  - component: {fileID: 4159299193168683535}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1 (4)
   m_TagString: Enemy
@@ -18948,8 +19095,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -19061,43 +19206,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &8898541890943095307
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8865884080542765137}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &1041912740724216863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19229,6 +19337,52 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &4159299193168683535
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8865884080542765137}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.44}
+  m_EdgeRadius: 0
 --- !u!1 &8867671866482959049
 GameObject:
   m_ObjectHideFlags: 0
@@ -19467,8 +19621,8 @@ GameObject:
   - component: {fileID: 5740826228106413141}
   - component: {fileID: 3591682432485282554}
   - component: {fileID: 963906965731686826}
-  - component: {fileID: 2161814272582491942}
   - component: {fileID: 3419160798874798414}
+  - component: {fileID: 211020225897919497}
   m_Layer: 10
   m_Name: Enemy (22)
   m_TagString: Enemy
@@ -19594,8 +19748,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 1
@@ -19796,8 +19948,23 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &2161814272582491942
-CapsuleCollider2D:
+--- !u!114 &3419160798874798414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8915411108460094629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockOnStart: 1
+  mode: 0
+  enforceEveryFrame: 1
+--- !u!61 &211020225897919497
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -19831,23 +19998,17 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!114 &3419160798874798414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8915411108460094629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1c9cd0785ba44aa0d6b521882354c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lockOnStart: 1
-  mode: 0
-  enforceEveryFrame: 1
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.45}
+  m_EdgeRadius: 0
 --- !u!1 &8958465359231252636
 GameObject:
   m_ObjectHideFlags: 0
@@ -20331,10 +20492,10 @@ GameObject:
   - component: {fileID: 4520137644669178291}
   - component: {fileID: 7076996945165214204}
   - component: {fileID: 3663966094339080507}
-  - component: {fileID: 9154495397787640329}
   - component: {fileID: 721468356374176797}
   - component: {fileID: 6089439986976168718}
   - component: {fileID: 3519826722453410904}
+  - component: {fileID: 2947460473729148769}
   m_Layer: 15
   m_Name: TurretEnemy_FixedAngle 1 (5)
   m_TagString: Enemy
@@ -20433,8 +20594,6 @@ MonoBehaviour:
   shareHPByID: 1
   initializeSharedToMaxOnStart: 0
   useGameManagerHP: 0
-  damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
-  cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
   useKnockback: 0
@@ -20546,43 +20705,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!70 &9154495397787640329
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9187139979686895699}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.28, y: 0.42}
-  m_Direction: 0
 --- !u!114 &721468356374176797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20715,3 +20837,49 @@ MonoBehaviour:
   lockOnStart: 1
   mode: 0
   enforceEveryFrame: 1
+--- !u!61 &2947460473729148769
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9187139979686895699}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.11220973}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.44}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.3, y: 0.6644193}
+  m_EdgeRadius: 0
