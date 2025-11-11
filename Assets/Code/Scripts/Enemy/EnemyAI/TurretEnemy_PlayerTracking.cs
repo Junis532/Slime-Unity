@@ -163,6 +163,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
         Shoot(finalDir, finalAngle);
 
+
         if (spriter != null)
         {
             spriter.DOKill();
@@ -198,6 +199,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
             Vector2 shotDir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad),
                                           Mathf.Sin(currentAngle * Mathf.Deg2Rad));
             SpawnBullet(shotDir);
+            GameManager.Instance.audioManager.PlayerTurretShootingSound(1.2f);
         }
     }
 

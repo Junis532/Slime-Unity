@@ -229,6 +229,8 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
             isPrepping = false;
             isShooting = true;
 
+            GameManager.Instance.audioManager.FixedTurretShootingSound(1.2f);
+
             KillAllSequences();
 
             if (usePreScale)

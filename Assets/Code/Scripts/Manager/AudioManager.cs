@@ -11,8 +11,6 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
 
     [Header("효과음 리스트")]
-    public AudioClip clickSound;
-    public AudioClip attackSound;
     public AudioClip hitSound;
     public AudioClip arrowHit;
     public AudioClip arrowSound;
@@ -24,7 +22,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip stoneFalling;
 
     [Header("터렛 발사")]
-    public AudioClip turretShooting;
+    public AudioClip playerTurretShooting;
+    public AudioClip fixedTurretShooting;
 
     [Header("보스 효과음 리스트")]
     public AudioClip bossSword;
@@ -75,10 +74,6 @@ public class AudioManager : MonoBehaviour
     }
 
     // ────────────── 편의 함수 ──────────────
-    public void PlayClickSound(float volume = 1f) => PlaySFX(clickSound, volume);
-
-    // 🔊 공격 사운드 (기본 1.3배 크게)
-    public void PlayAttackSound(float volume = 1.3f) => PlaySFX(attackSound, volume);
 
     // 💥 피격 사운드
     public void PlayHitSound(float volume = 1f) => PlaySFX(hitSound, volume);
@@ -96,12 +91,14 @@ public class AudioManager : MonoBehaviour
     public void PlayLandSound(float volume = 0.8f) => PlaySFX(land, volume);
 
     // 🌀 포탈 생성
-    public void StoneFalling(float volume = 1.2f) => PlaySFX(stoneFalling, volume);
+    public void StoneFalling
+        (float volume = 1.2f) => PlaySFX(stoneFalling, volume);
 
     public void PlayDashSound(float volume = 1f) => PlaySFX(dash, volume);
 
     // 터렛 공격
-    public void TurretShootingSound(float volume = 1f) => PlaySFX(turretShooting, volume);
+    public void PlayerTurretShootingSound(float volume = 1f) => PlaySFX(playerTurretShooting, volume);
+    public void FixedTurretShootingSound(float volume = 1f) => PlaySFX(fixedTurretShooting, volume);
 
     // 보스 스킬
     public void PlayBossSwordSound(float volume = 1f) => PlaySFX(bossSword, volume);
