@@ -25,7 +25,9 @@ public class CameraShake : MonoBehaviour
 
     public void GenerateImpulse()
     {
+        if (GameManager.Instance.camreaisShake) return;
         impulseSource.GenerateImpulse();
+        GameManager.Instance.camreaisShake = true;
     }
 
     public void ShakeForSeconds(float duration = 2f)

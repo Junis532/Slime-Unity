@@ -319,6 +319,13 @@ public class EnemyHP : MonoBehaviour
                 }
             }
         }
+        if (GameManager.Instance.camreaisShake) StartCoroutine(lateCamera());
+    }
+
+    IEnumerator lateCamera()
+    {
+        yield return new WaitForEndOfFrame();
+        GameManager.Instance.camreaisShake = false;
     }
 
     // ========== 유틸(테스트/초기화) ==========
