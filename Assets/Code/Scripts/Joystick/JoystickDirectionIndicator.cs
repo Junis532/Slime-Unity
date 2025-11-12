@@ -277,50 +277,49 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     private void CreateAfterImage()
     {
-        GameObject afterImage = new GameObject("AfterImage");
-        afterImage.transform.position = transform.position;
-        afterImage.transform.rotation = transform.rotation;
-        afterImage.transform.localScale = transform.localScale;
-
-        SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
-
-        SpriteRenderer playerSR = GetComponent<SpriteRenderer>();
-        if (playerSR != null)
+        // 🎯 플레이어의 SpriteRenderer를 자식까지 포함해서 찾기
+        SpriteRenderer playerSR = GetComponentInChildren<SpriteRenderer>();
+        if (playerSR == null)
         {
-            sr.sprite = playerSR.sprite;
-            sr.flipX = playerSR.flipX;
-
-            // 플레이어 색상을 가져오되, 알파를 낮춰서 투명하게
-            Color c = playerSR.color;
-            c.a = 0.5f;  // 50% 투명
-            sr.color = c;
-
-            sr.sortingLayerID = playerSR.sortingLayerID;
-            sr.sortingOrder = playerSR.sortingOrder - 1; // 플레이어보다 뒤에 표시
+            Debug.LogWarning("❌ 플레이어 SpriteRenderer를 찾을 수 없습니다!");
+            return;
         }
 
-        afterImages.Add(afterImage);
+        // 🎯 잔상 오브젝트 생성 (부모 없음, 월드 공간에 직접 생성)
+        GameObject afterImage = new GameObject("AfterImage");
+        afterImage.transform.position = playerSR.transform.position; // 자식 기준 좌표
+        afterImage.transform.rotation = playerSR.transform.rotation;
+        afterImage.transform.localScale = playerSR.transform.lossyScale; // ✅ 월드 스케일 유지
+        afterImage.transform.parent = null; // 🔥 반드시 부모 해제 (월드에 존재하도록)
 
+        // 🎯 SpriteRenderer 추가
+        SpriteRenderer sr = afterImage.AddComponent<SpriteRenderer>();
+        sr.sprite = playerSR.sprite;
+        sr.flipX = playerSR.flipX;
+
+        // 색상 설정 (투명도는 필요에 따라 조절)
+        Color c = playerSR.color;
+        c.a = 0.6f;
+        sr.color = c;
+
+        // 🔥 자식 SpriteRenderer와 동일한 Layer / Order 유지
+        sr.sortingLayerID = playerSR.sortingLayerID;
+        sr.sortingOrder = playerSR.sortingOrder - 1;
+
+        // 🔥 잔상 Fade 및 파괴 루틴
+        float delay = Mathf.Max(0f, afterImageLifeTime - afterImageFadeDuration);
+        sr.DOFade(0f, afterImageFadeDuration)
+          .SetDelay(delay)
+          .OnComplete(() => Destroy(afterImage));
+
+        // 🔥 리스트 관리
+        afterImages.Add(afterImage);
         if (afterImages.Count > maxAfterImageCount)
         {
             GameObject oldest = afterImages[0];
             afterImages.RemoveAt(0);
-
-            if (oldest != null)
-            {
-                SpriteRenderer osr = oldest.GetComponent<SpriteRenderer>();
-                if (osr != null)
-                    osr.DOFade(0f, afterImageFadeDuration).OnComplete(() => Destroy(oldest));
-                else Destroy(oldest);
-            }
+            if (oldest != null) Destroy(oldest);
         }
-
-        sr.DOFade(0f, afterImageFadeDuration)
-          .SetDelay(afterImageLifeTime - afterImageFadeDuration)
-          .OnComplete(() =>
-          {
-              afterImages.Remove(afterImage);
-              Destroy(afterImage);
-          });
     }
+
 }
