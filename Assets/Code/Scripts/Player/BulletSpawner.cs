@@ -73,6 +73,12 @@ public class BulletSpawner : MonoBehaviour
     [Header("디버그")]
     public bool showAttackRange = false;
 
+    [Header("전환 FX(경고→본패턴) - 무프리팹")]
+    public bool fxScreenFlash = true;
+    public Color screenFlashColor = new Color(1f, 1f, 1f, 0.35f);
+    [Range(0.05f, 0.6f)] public float screenFlashIn = 0.06f;
+    [Range(0.05f, 0.6f)] public float screenFlashOut = 0.18f;
+
     private GameObject secondMarker;
     private GameObject currentMarker;
     private float cooldownTimer = 0f;
@@ -80,7 +86,7 @@ public class BulletSpawner : MonoBehaviour
     private int fireCount = 0;
 
     // 🔥 화면 플래시용 오버레이
-    private Image screenFlash;
+    private Image _fxFlashImg;
 
     void Start()
     {
@@ -94,22 +100,7 @@ public class BulletSpawner : MonoBehaviour
         if (chargeUI != null)
             chargeUI.fillAmount = 0f;
 
-        // ✅ Canvas에 화면 플래시용 Image 추가
-        Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
-        if (mainCanvas != null)
-        {
-            GameObject flashObj = new GameObject("ScreenFlash");
-            flashObj.transform.SetParent(mainCanvas.transform, false);
-
-            screenFlash = flashObj.AddComponent<Image>();
-            screenFlash.color = new Color(1, 1, 1, 0); // 투명
-            screenFlash.rectTransform.anchorMin = Vector2.zero;
-            screenFlash.rectTransform.anchorMax = Vector2.one;
-            screenFlash.rectTransform.offsetMin = Vector2.zero;
-            screenFlash.rectTransform.offsetMax = Vector2.zero;
-        }
-
-        InitializeScreenFlash();
+        EnsureFXCanvas();
     }
 
     void Update()
@@ -155,7 +146,6 @@ public class BulletSpawner : MonoBehaviour
             cooldownTimer = actualCooldown;
         }
 
-        // 쿨타임 감소
         if (cooldownTimer > 0f)
             cooldownTimer -= Time.deltaTime;
 
@@ -308,28 +298,6 @@ public class BulletSpawner : MonoBehaviour
         }
     }
 
-    private void InitializeScreenFlash()
-    {
-        Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
-        if (mainCanvas == null) return;
-
-        if (screenFlash == null)
-        {
-            GameObject flashObj = new GameObject("ScreenFlash");
-            flashObj.transform.SetParent(mainCanvas.transform, false);
-
-            screenFlash = flashObj.AddComponent<Image>();
-            screenFlash.color = new Color(1, 1, 1, 0);
-
-            RectTransform rt = flashObj.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            rt.localPosition = Vector3.zero;
-        }
-    }
-
     private void FireArrow(Transform centerTarget)
     {
         if (centerTarget == null) return;
@@ -338,7 +306,7 @@ public class BulletSpawner : MonoBehaviour
 
         // 🔥 차징 완료 시 화면 반짝임
         if (forceCritical)
-            ScreenFlash(Color.white, 0.2f, 0.3f);
+            DoScreenFlash();
 
         GameManager.Instance.audioManager.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);
@@ -368,7 +336,6 @@ public class BulletSpawner : MonoBehaviour
             bool isCenter = (i == count / 2);
             bool isFireballThisShot = isCenter && isFireballShot;
 
-            // 🔹 크리티컬 발사 우선
             GameObject bulletPrefabToUse = (forceCritical && isCenter && chargingBulletPrefab != null)
                                             ? chargingBulletPrefab
                                             : (isFireballThisShot ? fireballPrefab : bulletPrefab);
@@ -398,18 +365,6 @@ public class BulletSpawner : MonoBehaviour
                 }
             }
         }
-    }
-
-    // 🔆 화면 플래시 효과
-    private void ScreenFlash()
-    {
-        if (screenFlash == null) return;
-
-        screenFlash.DOKill();
-        screenFlash.color = new Color(1, 1, 1, 0);
-        Sequence seq = DOTween.Sequence();
-        seq.Append(screenFlash.DOFade(0.1f, 0.1f));  // 0.1초 동안 밝게
-        seq.Append(screenFlash.DOFade(0f, 0.2f));   // 0.2초 동안 서서히 사라짐
     }
 
     private void FlipPlayer(Vector3 dir)
@@ -481,19 +436,48 @@ public class BulletSpawner : MonoBehaviour
         Gizmos.DrawLine(bottomRight, bottomLeft);
         Gizmos.DrawLine(bottomLeft, topLeft);
     }
-    // 🔆 화면 플래시 효과 (색상 지정 가능)
-    public void ScreenFlash(Color flashColor, float intensity = 0.1f, float fadeOutTime = 0.2f)
+
+    // ================= 화면 플래시 통합 =================
+    private void EnsureFXCanvas()
     {
-        if (screenFlash == null) return;
+        if (!fxScreenFlash) return;
 
-        screenFlash.DOKill();
-        screenFlash.color = new Color(flashColor.r, flashColor.g, flashColor.b, 0);
+        if (_fxFlashImg == null)
+        {
+            Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
+            if (mainCanvas != null)
+            {
+                GameObject flashObj = new GameObject("FXScreenFlash");
+                flashObj.transform.SetParent(mainCanvas.transform, false);
 
-        Sequence seq = DOTween.Sequence();
-        seq.Append(screenFlash.DOFade(intensity, 0.1f));  // 0.1초 동안 밝게
-        seq.Append(screenFlash.DOFade(0f, fadeOutTime));  // 0.2초 동안 서서히 사라짐
+                _fxFlashImg = flashObj.AddComponent<Image>();
+                _fxFlashImg.color = new Color(screenFlashColor.r, screenFlashColor.g, screenFlashColor.b, 0f);
+
+                // 🔹 Canvas 추가 및 Order in Layer 설정
+                Canvas flashCanvas = flashObj.AddComponent<Canvas>();
+                flashCanvas.overrideSorting = true;
+                flashCanvas.sortingOrder = 300;
+
+                RectTransform rt = flashObj.GetComponent<RectTransform>();
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.one;
+                rt.offsetMin = Vector2.zero;
+                rt.offsetMax = Vector2.zero;
+                rt.localPosition = Vector3.zero;
+            }
+        }
     }
 
+
+    private void DoScreenFlash()
+    {
+        if (!fxScreenFlash || _fxFlashImg == null) return;
+
+        _fxFlashImg.DOKill();
+        _fxFlashImg.color = new Color(screenFlashColor.r, screenFlashColor.g, screenFlashColor.b, 0f);
+        _fxFlashImg.DOFade(screenFlashColor.a, screenFlashIn).SetEase(Ease.OutQuad)
+            .OnComplete(() => _fxFlashImg.DOFade(0f, screenFlashOut).SetEase(Ease.InQuad));
+    }
 }
 
 public enum AttackRangeType
