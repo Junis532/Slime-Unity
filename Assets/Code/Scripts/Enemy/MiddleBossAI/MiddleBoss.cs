@@ -995,39 +995,6 @@ public class MiddleBoss : MonoBehaviour
                 }
             }
 
-            // ===== 몹 스폰(랜덤 스폰만 사용) =====
-            if (spawnMobsDuringLaser && mobTimer >= mobSpawnInterval)
-            {
-                mobTimer = 0f;
-                TrimDeadMobs();
-
-                if (_aliveMobs.Count < mobMaxAlive && mobPrefabs != null && mobPrefabs.Count > 0)
-                {
-                    int minC = Mathf.Max(0, mobSpawnCountRange.x);
-                    int maxC = Mathf.Max(minC, mobSpawnCountRange.y);
-                    int spawnCount = UnityEngine.Random.Range(minC, maxC + 1);
-
-                    for (int i = 0; i < spawnCount; i++)
-                    {
-                        if (_aliveMobs.Count >= mobMaxAlive) break;
-
-                        if (TryGetSpawnPoint(b, out var pos))   // ← 뒤 스폰 안 씀
-                        {
-                            var mob = SpawnMobAt(pos);
-                            if (mob != null)
-                            {
-                                var t = mob.transform;
-                                t.localScale = Vector3.one * 0.8f;
-                                t.DOScale(1f, 0.18f).SetEase(Ease.OutBack, overshoot: 1.6f);
-                            }
-                        }
-                    }
-
-                    FlashSprite();
-                    ShakeCamera();
-                }
-            }
-
             yield return null;
         }
 
