@@ -23,6 +23,11 @@ public class VignetteEffect : MonoBehaviour
 
     private Color defaultColor = Color.black; // 원래 색상 저장용
 
+    private Volume redVignetteVolume;
+    private Vignette redVignette;
+    private Tween redTween;
+
+
     void Start()
     {
         volume = GetComponent<Volume>();
@@ -43,6 +48,18 @@ public class VignetteEffect : MonoBehaviour
 
         volume.isGlobal = true;
         volume.priority = 10;
+
+        // 🔴 피격 전용 Vignette
+        redVignetteVolume = gameObject.AddComponent<Volume>();
+        redVignetteVolume.isGlobal = true;
+        redVignetteVolume.priority = 11;
+        redVignetteVolume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+
+        redVignette = redVignetteVolume.profile.Add<Vignette>(true);
+        redVignette.color.value = Color.red;
+        redVignette.center.value = new Vector2(0.5f, 0.5f);
+        redVignette.intensity.value = 0f;
+        redVignette.smoothness.value = 0.9f;
     }
 
     void Update()
@@ -64,43 +81,18 @@ public class VignetteEffect : MonoBehaviour
     /// </summary>
     public void PlayDamageFlash(float redBoost = 0.25f, float duration = 0.5f)
     {
-        if (vignette == null) return;
+        if (redVignette == null) return;
 
-        // 기존 트윈 중단
-        flashTween?.Kill();
+        redTween?.Kill();
 
-        // 현재 intensity 저장
-        float originalIntensity = vignette.intensity.value;
-
-        // 붉은색 잠깐 적용
-        vignette.color.value = Color.red;
-
-        // DOTween으로 intensity 살짝 올리고 다시 원래 intensity로
-        flashTween = DOTween.Sequence()
-            .Append(DOTween.To(
-                () => vignette.intensity.value,
-                x => vignette.intensity.value = x,
-                Mathf.Min(originalIntensity + redBoost, 1f),
-                0.1f
-            ))
-            .Append(DOTween.To(
-                () => vignette.intensity.value,
-                x => vignette.intensity.value = x,
-                originalIntensity,
-                duration
-            ))
-            .OnUpdate(() =>
-            {
-                // intensity가 변하는 동안 색상은 붉은색 → 현재 intensity 기반 어두움으로 Lerp
-                float t = (vignette.intensity.value - originalIntensity) / redBoost; // 0~1
-                t = Mathf.Clamp01(t);
-                vignette.color.value = Color.Lerp(defaultColor, Color.red, t);
-            })
-            .OnComplete(() =>
-            {
-                // 완료 시 intensity 기반 색으로 강제 복귀
-                vignette.color.value = defaultColor;
-            });
+        redTween = DOTween.Sequence()
+            .Append(DOTween.To(() => redVignette.intensity.value,
+                               x => redVignette.intensity.value = x,
+                               redBoost,
+                               0.1f))
+            .Append(DOTween.To(() => redVignette.intensity.value,
+                               x => redVignette.intensity.value = x,
+                               0f,
+                               duration));
     }
-
 }
