@@ -253,12 +253,13 @@ public class MiddleBoss : MonoBehaviour
             mobParent = g.transform;
         }
 
-        // ★ 시작 시 등장 애니메이션 (EnemyAnimation에서 Entry가 설정되어 있으면 자동 Idle 복귀)
+        // 시작 연출
         if (enemyAnimation != null && enemyAnimation.GetEstimatedDuration(EnemyAnimation.State.Entry) > 0f)
         {
             enemyAnimation.PlayAnimation(EnemyAnimation.State.Entry);
         }
 
+        // ★ 테스트 스폰: 항상 기존 랜덤 스폰만 사용
         if (debugSpawnOneOnStart)
         {
             debugSpawnOneOnStart = false;
@@ -273,6 +274,7 @@ public class MiddleBoss : MonoBehaviour
             }
         }
     }
+
 
     void Update()
     {
@@ -334,6 +336,8 @@ public class MiddleBoss : MonoBehaviour
             case PatternType.Jump: StartSafe(SkillJumpAndShoot()); break;
         }
     }
+
+
 
     private void StartSafe(IEnumerator routine) => StartCoroutine(CoSafe(routine));
     private IEnumerator CoSafe(IEnumerator routine)
@@ -767,6 +771,7 @@ public class MiddleBoss : MonoBehaviour
     }
 
     // ===================== 스킬 2: 교차 스윕 레이저 =====================
+
     private IEnumerator SkillLaserPattern()
     {
         // ★ 패턴 시작 애니
@@ -775,7 +780,6 @@ public class MiddleBoss : MonoBehaviour
         if (mapCollider == null)
         {
             Debug.LogWarning("mapCollider 미지정!");
-            // 종료 애니로 안전하게 마무리
             enemyAnimation?.PlayAnimation(EnemyAnimation.State.PatternEnd);
             yield return StartCoroutine(SkillFinished());
             yield break;
@@ -795,7 +799,7 @@ public class MiddleBoss : MonoBehaviour
         float hz = Mathf.Max(0.1f, crossingHz * (1f + 0.12f * intensity));
         float period = 1f / hz;
 
-        // 경고
+        // ===== 경고 표시 =====
         float tWarn = 0f;
         if (warnLaserPattern)
         {
@@ -841,17 +845,17 @@ public class MiddleBoss : MonoBehaviour
             else StartCoroutine(_CoDelayedKillWarnLines(Mathf.Max(0f, warnTransitionTime)));
         }
 
-        // 본 레이저 + FX + ★ 패턴 루프 애니
-        var leftLaser = new GameObject("LeftLaser");
-        var rightLaser = new GameObject("RightLaser");
-        var leftLR = leftLaser.AddComponent<LineRenderer>();
-        var rightLR = rightLaser.AddComponent<LineRenderer>();
+        // ===== 레이저 생성 =====
+        var leftLaserGO = new GameObject("LeftLaser");
+        var rightLaserGO = new GameObject("RightLaser");
+        var leftLR = leftLaserGO.AddComponent<LineRenderer>();
+        var rightLR = rightLaserGO.AddComponent<LineRenderer>();
         SetupLaser(leftLR, Color.red);
         SetupLaser(rightLR, Color.red);
         leftLR.sortingLayerName = rightLR.sortingLayerName = "Foreground";
         leftLR.sortingOrder = rightLR.sortingOrder = 10;
-        activeSkillObjects.Add(leftLaser);
-        activeSkillObjects.Add(rightLaser);
+        activeSkillObjects.Add(leftLaserGO);
+        activeSkillObjects.Add(rightLaserGO);
 
         LineRenderer leftOutline = null, rightOutline = null;
         if (laserOutline)
@@ -868,6 +872,7 @@ public class MiddleBoss : MonoBehaviour
             activeSkillObjects.Add(rightOutline.gameObject);
         }
 
+        // 초기 그라디언트/FX/줌
         ApplyCycleGradientTo(leftLR, false, 0f);
         ApplyCycleGradientTo(rightLR, false, 0f);
         if (laserOutline)
@@ -896,6 +901,7 @@ public class MiddleBoss : MonoBehaviour
             bulletTimer += dt;
             mobTimer += dt;
 
+            // ===== 레이저 위치/폭 업데이트 =====
             float wv = Waveform01(phase += dt / period, waveform);
             if (edgeHoldRatio > 0f) wv = ApplyEdgeHold(wv, edgeHoldRatio);
 
@@ -963,59 +969,49 @@ public class MiddleBoss : MonoBehaviour
                 }
             }
 
+            // ===== 히트 체크 =====
             CheckLaserHit(leftLR);
             CheckLaserHit(rightLR);
 
+            // ===== 보조 탄막(선택) =====
             if (!replaceBulletsWithMobs)
             {
                 float bulletGate = fireInterval * Mathf.Max(0.6f, 1f - 0.2f * intensity);
-                if (bulletTimer >= bulletGate)
+                if (bulletTimer >= bulletGate && bulletPrefab)
                 {
                     bulletTimer = 0f;
-                    if (bulletPrefab)
-                    {
-                        string p = patSeq[patIdx % patSeq.Length];
-                        Vector2[] dirs = p == "X"
-                            ? new[] { new Vector2(1, 1), new Vector2(-1, 1), new Vector2(1, -1), new Vector2(-1, -1) }
-                            : new[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
+                    string p = patSeq[patIdx % patSeq.Length];
+                    Vector2[] dirs = p == "X"
+                        ? new[] { new Vector2(1, 1), new Vector2(-1, 1), new Vector2(1, -1), new Vector2(-1, -1) }
+                        : new[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
-                        foreach (var d in dirs)
-                        {
-                            float spd = bulletSpeed * (0.8f + 0.3f * intensity);
-                            SpawnBullet(transform.position, d.normalized * spd);
-                        }
-                        patIdx++;
-                        FlashSprite(); DoHitStop(); ShakeCamera();
+                    foreach (var d in dirs)
+                    {
+                        float spd = bulletSpeed * (0.8f + 0.3f * intensity);
+                        SpawnBullet(transform.position, d.normalized * spd);
                     }
+                    patIdx++;
+                    FlashSprite(); DoHitStop(); ShakeCamera();
                 }
             }
 
+            // ===== 몹 스폰(랜덤 스폰만 사용) =====
             if (spawnMobsDuringLaser && mobTimer >= mobSpawnInterval)
             {
                 mobTimer = 0f;
                 TrimDeadMobs();
 
-                if (_aliveMobs.Count >= mobMaxAlive)
-                {
-                    if (verboseSpawnLog) Debug.Log($"[MiddleBoss] 스폰 보류: MaxAlive({_aliveMobs.Count}/{mobMaxAlive})");
-                }
-                else if (mobPrefabs == null || mobPrefabs.Count == 0)
-                {
-                    if (verboseSpawnLog) Debug.LogWarning("[MiddleBoss] 스폰 보류: mobPrefabs 비어있음");
-                }
-                else
+                if (_aliveMobs.Count < mobMaxAlive && mobPrefabs != null && mobPrefabs.Count > 0)
                 {
                     int minC = Mathf.Max(0, mobSpawnCountRange.x);
                     int maxC = Mathf.Max(minC, mobSpawnCountRange.y);
                     int spawnCount = UnityEngine.Random.Range(minC, maxC + 1);
 
-                    if (verboseSpawnLog) Debug.Log($"[MiddleBoss] 스폰 시도: {spawnCount}개");
-
                     for (int i = 0; i < spawnCount; i++)
                     {
                         if (_aliveMobs.Count >= mobMaxAlive) break;
 
-                        if (TryGetSpawnPoint(b, out var pos))
+                        if (TryGetSpawnPoint(b, out var pos))   // ← 뒤 스폰 안 씀
                         {
                             var mob = SpawnMobAt(pos);
                             if (mob != null)
@@ -1035,7 +1031,8 @@ public class MiddleBoss : MonoBehaviour
             yield return null;
         }
 
-        Destroy(leftLaser); Destroy(rightLaser);
+        // 정리
+        Destroy(leftLaserGO); Destroy(rightLaserGO);
         if (laserOutline)
         {
             if (leftOutline) Destroy(leftOutline.gameObject);
@@ -1048,6 +1045,7 @@ public class MiddleBoss : MonoBehaviour
 
         yield return StartCoroutine(SkillFinished());
     }
+
 
     // ===================== 스킬 3: 검 회전 =====================
     private IEnumerator SkillSwordPattern()

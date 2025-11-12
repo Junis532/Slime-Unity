@@ -10,6 +10,8 @@ using UnityEngine.EventSystems;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+using JetBrains.Annotations;
+
 #endif
 
 #if UNITY_AI_NAVIGATION || UNITY_2019_1_OR_NEWER
@@ -137,6 +139,8 @@ public class DialogueManager : MonoBehaviour
     bool[] _movementPrevEnabled;
 
     bool _destroyAfterDialogue = false;
+
+    public bool isHeal = false;
 
     // ===== 스프라이트 교체(초상화) + 원상복구 ==================================
     [Header("스프라이트 교체(이 오브젝트의 SpriteRenderer만)")]
@@ -513,6 +517,15 @@ public class DialogueManager : MonoBehaviour
                 cinemachineCamera = null;
                 _createdRuntimeVCam = false;
             }
+            if (isHeal)
+            {
+
+            }
+        }
+
+         void PlayerHeal()
+        {
+
         }
 
         // 플레이어/조이스틱 복구

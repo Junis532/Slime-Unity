@@ -120,7 +120,7 @@ MonoBehaviour:
   warnJumpPattern: 0
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   bulletsPerWave: 10
-  bulletSpeed: 3.5
+  bulletSpeed: 2.5
   bulletFireInterval: 0.35
   bulletPatternDuration: 6
   useGaps: 0
@@ -147,9 +147,9 @@ MonoBehaviour:
   laserWidthPulseAmt: 0.12
   useLaserColorCycle: 1
   cycleColors:
-  - {r: 0.37863874, g: 0, b: 1, a: 1}
-  - {r: 0.20277785, g: 0.025453899, b: 0.49056602, a: 1}
-  - {r: 0.237731, g: 0, b: 0.6415094, a: 1}
+  - {r: 1, g: 0.15351716, b: 0, a: 1}
+  - {r: 1, g: 0.1537725, b: 0, a: 1}
+  - {r: 0.8679245, g: 0.009259425, b: 0, a: 1}
   alphaLevels:
   - 0.35
   - 0.7
@@ -161,7 +161,7 @@ MonoBehaviour:
   - 1
   laserOutline: 1
   outlineWidthAdd: 0.08
-  outlineColor: {r: 1, g: 0.6, b: 1, a: 0.35}
+  outlineColor: {r: 1, g: 0, b: 0.06774902, a: 0.35}
   swordRotateSpeed: 150
   swordStartAngle: 90
   swordWarningDuration: 1
@@ -187,7 +187,7 @@ MonoBehaviour:
   shockwaveRadiusFrom: 0.4
   shockwaveRadiusTo: 2.4
   shockwaveSeconds: 0.22
-  shockwaveColor: {r: 1, g: 0.9, b: 1, a: 0.85}
+  shockwaveColor: {r: 1, g: 0.18251969, b: 0.16509432, a: 0.85}
   shockwaveSegments: 48
   fxLaserAfterimageBurst: 1
   laserAfterimageCount: 2
@@ -238,25 +238,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d391532107c46774bb62e2499fbf864b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bossHpBarPrefab: {fileID: 2859532901931173174, guid: 22dab1affc5386d4fa82f56ae2d4dce2, type: 3}
-  targetCanvas: {fileID: 0}
-  hpBarRootPath: HPBar
-  hpFillPath: HPBar/HPFilled
-  usePrefabLayout: 0
-  anchorPreset: 2
-  offset: {x: -60, y: -60}
-  sizeOverride: {x: 0, y: 0}
-  siblingIndex: 9999
-  playIntroOnSpawn: 1
-  useScaleGrow: 1
-  useWidthGrow: 0
-  useFillWipe: 1
-  introDelay: 0.1
-  introDuration: 0.6
-  scaleBounce: 1
-  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
+  stationary: 1
+  flashOnHit: 1
+  spawnHitFX: 1
   damageTextPrefab: {fileID: 2416023308080975537, guid: 7186bb55302d29244bf0385149d4a7f9, type: 3}
   cDamageTextPrefab: {fileID: 2416023308080975537, guid: c131f454ce1fb5041872ece322b53368, type: 3}
+  hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   currentHP: 0
 --- !u!114 &3532882702406882615
 MonoBehaviour:

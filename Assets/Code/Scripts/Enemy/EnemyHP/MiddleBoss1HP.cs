@@ -14,7 +14,7 @@ public interface IBossHPView
 public class MiddleBoss1HP : MonoBehaviour
 {
     // ───────── 자동 탐색 설정(필요시 바꿔도 무방) ─────────
-    private const string BossHpViewTag = "BossHPView"; // 있으면 최우선
+    private const string BossHpViewTag = "BossHPView1"; // 있으면 최우선
     private const string BossHpViewName = "BossHP_UI"; // 태그 없을 때 2순위
     private const float ResolveTimeout = 2f;           // 최대 대기 시간(초)
     private const int ResolveTriesPerFrame = 1;        // 프레임당 시도 횟수
