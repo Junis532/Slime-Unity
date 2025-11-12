@@ -44,6 +44,9 @@ public class GameManager : MonoSingleTone<GameManager>
     public Boss1Stats boss1Stats;
     public MiddleBoss1Stats middleBoss1Stats;
 
+    [Header("엔딩씬 관련")]
+    public Boss1HP boss1HP;
+
     [Header("패시브 관련")]
     public List<ItemStats> shops;
     public List<ItemStats> buffs;
@@ -146,44 +149,61 @@ public class GameManager : MonoSingleTone<GameManager>
         }
     }
 
-
-    private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
+    public void OnBoss1Dead()
     {
-        float elapsed = 0f;
-        Transform coinTransform = coin.transform;
-        Vector3 startPos = coinTransform.position;
-
-        while (elapsed < duration)
-        {
-            if (GameManager.Instance.playerController != null)
-            {
-                Vector3 playerPos = GameManager.Instance.playerController.transform.position;
-                coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        coinTransform.position = GameManager.Instance.playerController.transform.position;
-
-        PoolManager.Instance.ReturnToPool(coin);
+        Debug.Log("⚰️ Boss1 사망 이벤트 수신됨 — 2초 뒤 크레딧 씬으로 전환 시작");
+        StartCoroutine(LoadCreditAfterDelay());
     }
 
-    private void AutoCollectItems() // 코인 및 아이템 자동 수집 처리 함수
+    private IEnumerator LoadCreditAfterDelay()
     {
-        GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
-        foreach (GameObject coin in coins)
-        {
-            StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
-        }
+        // 🔹 전환 전 페이드아웃이나 음악 멈춤 연출을 원하면 여기서 추가 가능
+        yield return new WaitForSeconds(2f);
 
-        GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
-        foreach (GameObject zac in zacs)
-        {
-            StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
-        }
+        // 🔹 로딩 매니저가 있다면 이 방식
+        LoadingManager.LoadScene("credit");
+
     }
+
+
+
+    //private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
+    //{
+    //    float elapsed = 0f;
+    //    Transform coinTransform = coin.transform;
+    //    Vector3 startPos = coinTransform.position;
+
+    //    while (elapsed < duration)
+    //    {
+    //        if (GameManager.Instance.playerController != null)
+    //        {
+    //            Vector3 playerPos = GameManager.Instance.playerController.transform.position;
+    //            coinTransform.position = Vector3.Lerp(startPos, playerPos, elapsed / duration);
+    //        }
+
+    //        elapsed += Time.deltaTime;
+    //        yield return null;
+    //    }
+
+    //    coinTransform.position = GameManager.Instance.playerController.transform.position;
+
+    //    PoolManager.Instance.ReturnToPool(coin);
+    //}
+
+    //private void AutoCollectItems() // 코인 및 아이템 자동 수집 처리 함수
+    //{
+    //    GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+    //    foreach (GameObject coin in coins)
+    //    {
+    //        StartCoroutine(MoveCoinToPlayer(coin, 0.5f));
+    //    }
+
+    //    GameObject[] zacs = GameObject.FindGameObjectsWithTag("HPPotion");
+    //    foreach (GameObject zac in zacs)
+    //    {
+    //        StartCoroutine(MoveCoinToPlayer(zac, 0.5f));
+    //    }
+    //}
 
     //public void ChangeStateToGame()
     //{

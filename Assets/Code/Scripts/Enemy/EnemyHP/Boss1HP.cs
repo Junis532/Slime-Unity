@@ -240,7 +240,7 @@ public class Boss1HP : MonoBehaviour
         if (currentHP <= 0) Die();
     }
 
-    private void Die()
+    public void Die()
     {
         if (isDead) return;
         isDead = true;
@@ -257,8 +257,11 @@ public class Boss1HP : MonoBehaviour
                 Mathf.Clamp(GameManager.Instance.playerStats.currentHP, 0, GameManager.Instance.playerStats.maxHP);
         }
 
-        var enemiesDie = GetComponent<EnemiesDie>(); // ← null-prop 금지
+        var enemiesDie = GetComponent<EnemiesDie>();
         if (enemiesDie != null) enemiesDie.Die();
+
+        // ✅ 보스 사망 연출이 끝났을 때 GameManager로 알림
+        GameManager.Instance.OnBoss1Dead();
     }
 
     // ====== 이펙트/텍스트 ======
