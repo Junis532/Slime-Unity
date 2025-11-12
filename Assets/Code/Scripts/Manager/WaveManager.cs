@@ -245,7 +245,10 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
-        GameManager.Instance.playerController.LockMovement();
+        if (!room.instantClear)
+        {
+            GameManager.Instance.playerController.LockMovement();
+        }
 
         if (room == null || room.cameraCollider == null)
             yield break;

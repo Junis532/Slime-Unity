@@ -519,13 +519,13 @@ public class DialogueManager : MonoBehaviour
             }
             if (isHeal)
             {
-
+                playerHeal();
             }
         }
 
-         void PlayerHeal()
+        void playerHeal()
         {
-
+            GameManager.Instance.playerStats.currentHP = 600;
         }
 
         // 플레이어/조이스틱 복구
