@@ -32,6 +32,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public CameraShake cameraShake;
     public CinemachineCamera cineCamera;
     public VignetteEffect vignetteEffect;
+    public bool camreaisSHake = false;
 
     [Header("몬스터 관련")]
     public EnemyStats enemyStats;
