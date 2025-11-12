@@ -69,7 +69,9 @@ public class LongRangeEnemyBullet : MonoBehaviour
 
     void OnDisable()
     {
-        ghostActive = false;
+        if(ghostActive)
+            ghostActive = false;
+
         if (ghostPool != null)
         {
             for (int i = 0; i < ghostPool.Count; i++)
