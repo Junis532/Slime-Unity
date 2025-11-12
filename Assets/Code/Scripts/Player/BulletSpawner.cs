@@ -447,23 +447,28 @@ public class BulletSpawner : MonoBehaviour
             Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
             if (mainCanvas != null)
             {
+                // ✅ Canvas 안에 별도 캔버스 추가 ❌ → 그냥 Image만 자식으로 둠
                 GameObject flashObj = new GameObject("FXScreenFlash");
                 flashObj.transform.SetParent(mainCanvas.transform, false);
 
+                // 🔹 Image 세팅
                 _fxFlashImg = flashObj.AddComponent<Image>();
                 _fxFlashImg.color = new Color(screenFlashColor.r, screenFlashColor.g, screenFlashColor.b, 0f);
+                _fxFlashImg.raycastTarget = false;
 
-                // 🔹 Canvas 추가 및 Order in Layer 설정
-                Canvas flashCanvas = flashObj.AddComponent<Canvas>();
-                flashCanvas.overrideSorting = true;
-                flashCanvas.sortingOrder = 300;
-
+                // 🔹 RectTransform 전체 화면 맞춤
                 RectTransform rt = flashObj.GetComponent<RectTransform>();
                 rt.anchorMin = Vector2.zero;
                 rt.anchorMax = Vector2.one;
                 rt.offsetMin = Vector2.zero;
                 rt.offsetMax = Vector2.zero;
                 rt.localPosition = Vector3.zero;
+                rt.localScale = Vector3.one;
+
+                // 🔹 정렬 순서 지정 (다른 UI보다 위에)
+                CanvasGroup cg = flashObj.AddComponent<CanvasGroup>();
+                Canvas flashCanvas = mainCanvas.GetComponent<Canvas>();
+                flashCanvas.sortingOrder = 300;
             }
         }
     }

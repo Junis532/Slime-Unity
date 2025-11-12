@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip jumpSound;
     public AudioClip land;
     public AudioClip stoneFalling;
+    public AudioClip boing;
 
     [Header("터렛 발사")]
     public AudioClip playerTurretShooting;
@@ -82,6 +83,7 @@ public class AudioManager : MonoBehaviour
     public void PlayArrowHitSound(float volume = 1f) => PlaySFX(arrowHit, volume);
     public void PlayArrowSound(float volume = 1.1f) => PlaySFX(arrowSound, volume);
     public void PlayArrowWallSound(float volume = 0.9f) => PlaySFX(arrowWall, volume);
+    public void PlayBoingSound(float volume = 1f) => PlaySFX(boing, volume);
 
     // 💰 코인 사운드
     public void PlayCoinSound(float volume = 0.8f) => PlaySFX(coin, volume);
