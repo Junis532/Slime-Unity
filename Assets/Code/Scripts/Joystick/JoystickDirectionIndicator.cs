@@ -171,6 +171,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
             if (playerController != null && !playerController.canMove)
             {
                 Debug.Log("⛔ 대쉬 중 이동 불가 상태 감지! 대쉬 즉시 중단");
+                transform.localScale = new Vector3(4.5f, 4.5f, 0f);
                 seq.Kill(); // 트윈 중단
                 if (afterImageCoroutine != null)
                 {
