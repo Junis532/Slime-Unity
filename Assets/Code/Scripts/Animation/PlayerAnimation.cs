@@ -142,7 +142,7 @@ public class PlayerAnimation : MonoBehaviour
             // 🎵 두 번째 스프라이트(인덱스 1)에서 효과음 재생
             if (i == 1)
             {
-                GameManager.Instance.audioManager.PlayBoingSound(1f);
+                GameManager.Instance.audioManager.PlayBoingSound(0.9f);
             }
 
             // 개별 프레임 시간 적용: 리스트가 없거나 길이가 맞지 않으면 기본 startFrameRate 사용

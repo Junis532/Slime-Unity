@@ -36,12 +36,11 @@ public class PauseMenu : MonoBehaviour
         if (pauseMenu.activeSelf)
         {
             Time.timeScale = 0f; // Pause the game
-            GameManager.Instance.playerController.canMove = false;
         }
         else
         {
             Time.timeScale = 1f; // Resume the game
-            GameManager.Instance.playerController.canMove = true;
+
         }
         
     }
