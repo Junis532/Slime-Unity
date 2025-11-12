@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using DG.Tweening;
+using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Collider2D))]
 public class Enemy : EnemyBase
 {
     private bool isLive = true;
@@ -10,6 +12,7 @@ public class Enemy : EnemyBase
     private SpriteRenderer spriter;
     private EnemyAnimation enemyAnimation;
     private NavMeshAgent agent;
+    private Collider2D enemyCollider;
 
     [Header("AI & 이동 설정")]
     public bool AIEnabled = true;
@@ -28,27 +31,29 @@ public class Enemy : EnemyBase
 
     [Header("속도 설정")]
     [Tooltip("이 적의 이동 속도를 설정합니다.")]
-    public float moveSpeed = 3.5f; // 👈 인스펙터에서 직접 설정 가능
+    public float moveSpeed = 3.5f;
 
     [Header("충돌/반전")]
     public string obstacleTag = "AIWall";
 
+    [Header("플레이어 충돌 쿨타임")]
+    private float colliderToggleInterval = 1f; // 2초마다 콜라이더 on/off
+
     private float _repathTimer;
+    private bool isTogglingCollider = false;
 
     void Start()
     {
         spriter = GetComponent<SpriteRenderer>();
         enemyAnimation = GetComponent<EnemyAnimation>();
         agent = GetComponent<NavMeshAgent>();
+        enemyCollider = GetComponent<Collider2D>();
 
-        // 인스펙터에서 설정한 속도 사용
         speed = moveSpeed;
         originalSpeed = speed;
 
-        // 2D 세팅
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-
         agent.speed = speed;
         agent.acceleration = Mathf.Max(8f, speed * 4f);
         agent.angularSpeed = 720f;
@@ -212,9 +217,26 @@ public class Enemy : EnemyBase
             int damage = GameManager.Instance.enemyStats.attack;
             Vector3 enemyPosition = transform.position;
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
+
+            // 🔥 콜라이더 토글 루틴 시작
+            if (!isTogglingCollider)
+                StartCoroutine(ColliderToggleRoutine());
         }
 
         if (useAngleMove && collision.CompareTag(obstacleTag))
             moveDirection = -moveDirection;
+    }
+
+    private IEnumerator ColliderToggleRoutine()
+    {
+        isTogglingCollider = true;
+
+        while (true)
+        {
+            enemyCollider.enabled = false;
+            yield return new WaitForSeconds(colliderToggleInterval);
+            enemyCollider.enabled = true;
+            yield return new WaitForSeconds(colliderToggleInterval);
+        }
     }
 }
