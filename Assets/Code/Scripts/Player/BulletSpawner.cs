@@ -108,6 +108,8 @@ public class BulletSpawner : MonoBehaviour
             screenFlash.rectTransform.offsetMin = Vector2.zero;
             screenFlash.rectTransform.offsetMax = Vector2.zero;
         }
+
+        InitializeScreenFlash();
     }
 
     void Update()
@@ -159,7 +161,7 @@ public class BulletSpawner : MonoBehaviour
 
         UpdateCooldownUI();
 
-        var vignetteObj = FindAnyObjectByType<VignetEffect>();
+        var vignetteObj = FindAnyObjectByType<VignetteEffect>();
         if (vignetteObj != null)
             vignetteObj.chargeAmount = chargeAmount / maxCharge;
     }
@@ -305,6 +307,29 @@ public class BulletSpawner : MonoBehaviour
             return 15f * attackRangeMultiplier;
         }
     }
+
+    private void InitializeScreenFlash()
+    {
+        Canvas mainCanvas = Object.FindAnyObjectByType<Canvas>();
+        if (mainCanvas == null) return;
+
+        if (screenFlash == null)
+        {
+            GameObject flashObj = new GameObject("ScreenFlash");
+            flashObj.transform.SetParent(mainCanvas.transform, false);
+
+            screenFlash = flashObj.AddComponent<Image>();
+            screenFlash.color = new Color(1, 1, 1, 0);
+
+            RectTransform rt = flashObj.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            rt.localPosition = Vector3.zero;
+        }
+    }
+
     private void FireArrow(Transform centerTarget)
     {
         if (centerTarget == null) return;

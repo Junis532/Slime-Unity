@@ -50,7 +50,7 @@ public class PlayerDamaged : MonoBehaviour
         PlayHitEffect();
         playDamageColor();
 
-        GameManager.Instance.vignetEffect.PlayDamageFlash(0.6f, 0.5f);
+        GameManager.Instance.vignetteEffect.PlayDamageFlash(0.6f, 0.5f);
 
         // HP 감소
         GameManager.Instance.playerStats.currentHP -= damage;

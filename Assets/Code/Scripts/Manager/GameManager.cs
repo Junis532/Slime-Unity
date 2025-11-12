@@ -31,7 +31,7 @@ public class GameManager : MonoSingleTone<GameManager>
     [Header("카메라 관련")]
     public CameraShake cameraShake;
     public CinemachineCamera cineCamera;
-    public VignetEffect vignetEffect;
+    public VignetteEffect vignetteEffect;
 
     [Header("몬스터 관련")]
     public EnemyStats enemyStats;
@@ -139,12 +139,13 @@ public class GameManager : MonoSingleTone<GameManager>
         }
 
         // ✅ 비네트 위치 다시 중앙 고정
-        if (vignetEffect != null && vignetEffect.TryGetComponent(out Volume v))
+        if (vignetteEffect != null && vignetteEffect.TryGetComponent(out Volume v))
         {
             if (v.profile.TryGet(out Vignette vg))
                 vg.center.value = new Vector2(0.5f, 0.5f);
         }
     }
+
 
     private IEnumerator MoveCoinToPlayer(GameObject coin, float duration) // 코인을 플레이어 위치로 이동시키는 코루틴
     {
