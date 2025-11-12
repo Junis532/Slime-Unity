@@ -245,6 +245,8 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator MoveCameraToRoomAndStart(RoomData room)
     {
+        GameManager.Instance.playerController.LockMovement();
+
         if (room == null || room.cameraCollider == null)
             yield break;
 
@@ -564,9 +566,6 @@ public class WaveManager : MonoBehaviour
         // 🔵 웨이브 루프
         for (currentWaveIndex = 0; currentWaveIndex < room.waves.Count; currentWaveIndex++)
         {
-
-            GameManager.Instance.playerController.LockMovement();
-
             RoomWaveData currentWave = room.waves[currentWaveIndex];
             yield return new WaitForSeconds(currentWave.waveDelay);
             yield return StartCoroutine(SpawnWaveEnemies(currentWave));

@@ -43,6 +43,7 @@ public class PauseMenu : MonoBehaviour
             Time.timeScale = 1f; // Resume the game
             GameManager.Instance.playerController.canMove = true;
         }
+        
     }
 
     void OnLeaveClicked()

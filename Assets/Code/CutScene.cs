@@ -37,9 +37,22 @@ public class CutScene : MonoBehaviour
     public float focusDuration = 0.5f;
     public float startScale = 1.02f;
 
-    // 내부
+    [Header("고급 설정")]
+    public bool useUnscaledTime = false;      // true면 게임 일시정지에도 연출 진행
+    public bool allowSkip = true;             // 컷 사이 스킵 허용(마지막 구간 제외)
+    public float cutFadeOut = 1.0f;           // 컷 등장(검정→투명)
+    public float cutHold = 3.0f;              // 컷 유지
+    public float cutFadeIn = 1.0f;            // 다음 컷 준비(투명→검정)
+    public float cutBetween = 0.6f;           // 컷 사이 숨 고르기
+
     private readonly List<Image> _blurGhosts = new List<Image>();
     private CutsceneContainFitter _fitter;
+
+    void Awake()
+    {
+        DOTween.Init(false, true, LogBehaviour.ErrorsOnly);
+        DOTween.useSafeMode = true;
+    }
 
     void Start()
     {
@@ -50,86 +63,146 @@ public class CutScene : MonoBehaviour
             usedMessage.text = string.Empty;
             usedMessage.maxVisibleCharacters = 0;
         }
-        if (fadeBlack != null)
-        {
-            var fc = fadeBlack.color; fc.a = 1f; fadeBlack.color = fc;
-        }
+
+        EnsureFadeBlackExists(setAlpha: 1f);
+
         if (autoSetupEyelidsOnly) EnsureEyelidsExist();
 
         if (usedCutImage)
         {
+            var imgc = usedCutImage.color; imgc.a = 1f; usedCutImage.color = imgc;
             _fitter = usedCutImage.GetComponent<CutsceneContainFitter>();
         }
 
         StartCoroutine(cutSceneStart());
     }
 
+    private void EnsureFadeBlackExists(float setAlpha = 1f)
+    {
+        if (fadeBlack == null)
+        {
+            var canvas = GetTargetCanvas();
+            if (canvas != null)
+                fadeBlack = CreateFullScreenImage("FadeBlack", canvas.transform, Color.black);
+        }
+        if (fadeBlack != null)
+        {
+            var fc = fadeBlack.color; fc.a = setAlpha; fadeBlack.color = fc;
+            fadeBlack.gameObject.SetActive(true);
+            fadeBlack.transform.SetAsLastSibling(); // 시작 시 최상단 가림막
+        }
+    }
+
     public IEnumerator cutSceneStart()
     {
-        bool isMobile = Application.isMobilePlatform;
-        bool allowClickSkip = !isMobile; // PC/에디터에서 클릭으로 스킵
-
-        // 모바일은 자동 스킵이므로 바로 투명
-        if (isMobile && fadeBlack != null)
+        // 첫 컷 준비(검정 1로 가려진 상태에서 세팅)
+        if (cutScene.Count > 0 && usedCutImage)
         {
-            var fc = fadeBlack.color; fc.a = 0f; fadeBlack.color = fc;
+            yield return SetImageSpriteAndSync(usedCutImage, cutScene[0]); // ✅ 강제 교체
+            _fitter?.Fit();
+        }
+        // 보이기(검정→투명)
+        yield return DOFade(fadeBlack, 0f, cutFadeOut);
+
+        // 첫 컷 유지
+        yield return DelaySkippable(cutHold, allowSkip);
+
+        // 남은 컷 전환
+        for (int i = 1; i < cutScene.Count; i++)
+        {
+            yield return TransitionToSprite(cutScene[i], cutFadeIn, cutFadeOut, allowSkip);
+            yield return DelaySkippable(cutHold, allowSkip);
+            if (cutBetween > 0f) yield return DelaySkippable(cutBetween, allowSkip);
         }
 
-        // 컷씬 루프
-        for (int i = 0; i < cutScene.Count; i++)
-        {
-            if (usedCutImage)
-            {
-                usedCutImage.sprite = cutScene[i];
-                _fitter?.Fit(); // ★ 스프라이트 바뀔 때마다 화면비 피팅
-            }
-
-            if (!isMobile)
-            {
-                // 페이드아웃(보이기) 1초
-                yield return DOFadeSkippable(fadeBlack, 0f, 1f, allowClickSkip);
-                // 유지 3초
-                yield return DelaySkippable(3f, allowClickSkip);
-                // 페이드인(가리기) 1초
-                yield return DOFadeSkippable(fadeBlack, 1f, 1f, allowClickSkip);
-                // 대기 2초
-                yield return DelaySkippable(2f, allowClickSkip);
-            }
-            else
-            {
-                // 모바일: 즉시 다음 스프라이트로
-                yield return null; // 한 프레임 갱신
-            }
-        }
-
-        // 메시지 타이핑(스킵 없음)
-        yield return new WaitForSeconds(afterCutDelay);
+        // 텍스트 단계: 반드시 검정으로 닫고 진행
+        yield return DOFade(fadeBlack, 1f, cutFadeIn); // 스킵 불가
+        EnsureMessageOnTop();
+        yield return WaitFor(afterCutDelay);
 
         if (usedMessage != null)
         {
-            usedMessage.DOFade(1f, 0.25f);
+            yield return FadeTMP(usedMessage, 1f, 0.25f);
             yield return StartCoroutine(TypeText(finalLine, typeSpeed));
-            yield return new WaitForSeconds(keepAfterTyping);
+            yield return WaitFor(keepAfterTyping);
             yield return StartCoroutine(BackspaceDelete(backspaceSpeed));
-            usedMessage.DOFade(0f, 0.2f);
+            yield return FadeTMP(usedMessage, 0f, 0.2f);
         }
 
-        // 마지막은 스킵 금지: 눈 떠지는 연출
-        yield return new WaitForSeconds(eyeOpenDelay);
+        // 눈떠지기
+        yield return WaitFor(eyeOpenDelay);
         yield return StartCoroutine(EyeOpenReveal(awakeningSprite));
 
-        yield return new WaitForSeconds(3f);
-        // 화면 페이드아웃 후 씬 전환
+        // 마무리
+        yield return WaitFor(1.0f);
         yield return StartCoroutine(FadeOutAndLoadScene("InGame", 1f));
     }
 
-    // ----- 스킵 가능한 유틸 -----
-    private IEnumerator DOFadeSkippable(Image img, float to, float duration, bool allowSkip)
+    /// 투명→검정(스킵 가능) → 스프라이트 교체(스냅/동기화) → 검정→투명(스킵 가능)
+    private IEnumerator TransitionToSprite(Sprite next, float fadeInToBlack, float fadeOutToClear, bool canSkip)
     {
-        if (img == null)
+        yield return DOFadeSkippable(fadeBlack, 1f, fadeInToBlack, canSkip); // 닫기
+
+        if (usedCutImage)
         {
+            yield return SetImageSpriteAndSync(usedCutImage, next);          // ✅ 강제 교체
+            _fitter?.Fit();
+            Canvas.ForceUpdateCanvases();
+            yield return null; // 1프레임 동기화
+        }
+
+        yield return DOFadeSkippable(fadeBlack, 0f, fadeOutToClear, canSkip); // 열기
+    }
+
+    // ====== 🔴 스프라이트 강제 교체 유틸(누락 금지!) ======
+    private void SetImageSprite(Image img, Sprite s)
+    {
+        if (img == null || s == null) return;
+
+        img.DOKill();                 // 진행 중 트윈 제거
+        bool wasEnabled = img.enabled;
+        img.enabled = false;          // 잠깐 끄고
+
+        // 캐시 무효화 → 새 스프라이트 지정
+        img.overrideSprite = null;
+        img.sprite = null;
+        img.overrideSprite = s;
+        img.sprite = s;
+        img.preserveAspect = true;
+
+        // 즉시 리빌드
+        img.SetVerticesDirty();
+        img.SetMaterialDirty();
+        img.enabled = wasEnabled;
+
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(img.rectTransform);
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private IEnumerator SetImageSpriteAndSync(Image img, Sprite s)
+    {
+        SetImageSprite(img, s);
+        yield return null; // 1프레임 대기해 캔버스/메시 갱신 보장
+    }
+    // =====================================================
+
+    // ---------- 페이드/대기 유틸 ----------
+    private IEnumerator DOFade(Image img, float to, float duration)
+    {
+        if (img == null) yield break;
+        img.DOKill();
+        if (duration <= 0f || !img.gameObject.activeInHierarchy)
+        {
+            var c = img.color; c.a = to; img.color = c;
             yield break;
         }
+        yield return img.DOFade(to, duration).SetUpdate(useUnscaledTime).WaitForCompletion();
+    }
+
+    private IEnumerator DOFadeSkippable(Image img, float to, float duration, bool canSkip)
+    {
+        if (img == null) yield break;
+
         img.DOKill();
         if (duration <= 0f || !img.gameObject.activeInHierarchy)
         {
@@ -137,36 +210,49 @@ public class CutScene : MonoBehaviour
             yield break;
         }
 
-        Tween tw = img.DOFade(to, duration);
+        Tween tw = img.DOFade(to, duration).SetUpdate(useUnscaledTime);
         while (tw.IsActive() && tw.IsPlaying())
         {
-            if (allowSkip && IsSkipInput())
+            if (canSkip && IsSkipInput())
             {
-                tw.Complete(); // 즉시 목표값
+                tw.Complete();
                 break;
             }
             yield return null;
         }
     }
 
-    private IEnumerator DelaySkippable(float seconds, bool allowSkip)
+    private IEnumerator DelaySkippable(float seconds, bool canSkip)
     {
         float t = 0f;
         while (t < seconds)
         {
-            if (allowSkip && IsSkipInput()) break;
-            t += Time.deltaTime;
+            if (canSkip && IsSkipInput()) break;
+            t += useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             yield return null;
         }
     }
 
-    private bool IsSkipInput()
+    private IEnumerator WaitFor(float seconds)
     {
-        // PC/에디터용 스킵 입력
-        return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space);
+        if (seconds <= 0f) yield break;
+        if (useUnscaledTime) yield return new WaitForSecondsRealtime(seconds);
+        else yield return new WaitForSeconds(seconds);
     }
 
-    // ----- 타이핑 & 백스페이스 -----
+    private bool IsSkipInput()
+    {
+        bool mouse = Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return);
+        bool touch = false;
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+                if (Input.GetTouch(i).phase == TouchPhase.Began) { touch = true; break; }
+        }
+        return mouse || touch;
+    }
+
+    // ---------- 텍스트 ----------
     private IEnumerator TypeText(string msg, float perCharDelay)
     {
         usedMessage.text = msg;
@@ -177,7 +263,7 @@ public class CutScene : MonoBehaviour
         for (int i = 1; i <= total; i++)
         {
             usedMessage.maxVisibleCharacters = i;
-            yield return new WaitForSeconds(perCharDelay);
+            yield return WaitFor(perCharDelay);
         }
     }
 
@@ -189,58 +275,81 @@ public class CutScene : MonoBehaviour
         for (int i = total; i >= 0; i--)
         {
             usedMessage.maxVisibleCharacters = i;
-            yield return new WaitForSeconds(perCharDelay);
+            yield return WaitFor(perCharDelay);
         }
         usedMessage.text = string.Empty;
         usedMessage.maxVisibleCharacters = 0;
     }
 
-    // ----- 눈꺼풀 & 포커스 스냅 -----
+    private IEnumerator FadeTMP(TextMeshProUGUI tmp, float toAlpha, float duration)
+    {
+        if (tmp == null) yield break;
+        tmp.DOKill();
+        if (duration <= 0f)
+        {
+            var c = tmp.color; c.a = toAlpha; tmp.color = c;
+            yield break;
+        }
+        yield return tmp.DOFade(toAlpha, duration).SetUpdate(useUnscaledTime).WaitForCompletion();
+    }
+
+    // ---------- 눈꺼풀/포커스 ----------
     private IEnumerator EyeOpenReveal(Sprite newSprite)
     {
+        // 1) 새 스프라이트로 교체 (여전히 검정 1로 가려진 상태)
         if (newSprite && usedCutImage)
         {
-            usedCutImage.sprite = newSprite;
-            _fitter?.Fit(); // ★ 눈뜨기 컷에도 적용
+            yield return SetImageSpriteAndSync(usedCutImage, newSprite); // ✅ 강제 교체
+            _fitter?.Fit();
+            Canvas.ForceUpdateCanvases();
+            yield return null;
         }
 
-        if (fadeBlack) fadeBlack.DOFade(0f, eyeOpenDuration * 0.8f);
-
-        if (topLid && bottomLid)
+        // 2) 눈꺼풀 준비(완전히 닫힘 상태로 최상단)
+        var canvas = GetTargetCanvas();
+        if (canvas && topLid && bottomLid)
         {
-            var canvas = GetTargetCanvas();
-            if (canvas != null)
-            {
-                PrepareEyelidsClosedGeometry();
-                topLid.gameObject.SetActive(true);
-                bottomLid.gameObject.SetActive(true);
-                topLid.transform.SetAsLastSibling();
-                bottomLid.transform.SetAsLastSibling();
+            PrepareEyelidsClosedGeometry();
+            topLid.gameObject.SetActive(true);
+            bottomLid.gameObject.SetActive(true);
+            topLid.transform.SetAsLastSibling();
+            bottomLid.transform.SetAsLastSibling();
+        }
 
-                var canvasRect = canvas.GetComponent<RectTransform>().rect;
-                float moveY = (canvasRect.height * 0.5f) + lidExtraMargin;
+        // 3) 가림 역할을 눈꺼풀로 넘기고 블랙은 즉시 0
+        if (fadeBlack)
+        {
+            fadeBlack.DOKill();
+            var c = fadeBlack.color; c.a = 0f; fadeBlack.color = c; // 스냅
+        }
 
-                var topRT = topLid.rectTransform;
-                var botRT = bottomLid.rectTransform;
+        // 4) 눈꺼풀 열기
+        if (canvas && topLid && bottomLid)
+        {
+            var canvasRect = canvas.GetComponent<RectTransform>().rect;
+            float moveY = (canvasRect.height * 0.5f) + lidExtraMargin;
 
-                topRT.DOKill(); botRT.DOKill();
-                var ease = eyeOpenOvershoot > 0f ? Ease.OutBack : Ease.OutCubic;
+            var topRT = topLid.rectTransform;
+            var botRT = bottomLid.rectTransform;
 
-                var t1 = topRT.DOAnchorPosY(moveY, eyeOpenDuration).SetEase(ease);
-                if (eyeOpenOvershoot > 0f) t1.SetEase(Ease.OutBack, eyeOpenOvershoot);
+            topRT.DOKill(); botRT.DOKill();
+            var ease = eyeOpenOvershoot > 0f ? Ease.OutBack : Ease.OutCubic;
 
-                var t2 = botRT.DOAnchorPosY(-moveY, eyeOpenDuration).SetEase(ease);
-                if (eyeOpenOvershoot > 0f) t2.SetEase(Ease.OutBack, eyeOpenOvershoot);
+            Tween t1 = topRT.DOAnchorPosY(moveY, eyeOpenDuration).SetEase(ease).SetUpdate(useUnscaledTime);
+            if (eyeOpenOvershoot > 0f) t1.SetEase(Ease.OutBack, eyeOpenOvershoot);
 
-                yield return t2.WaitForCompletion();
+            Tween t2 = botRT.DOAnchorPosY(-moveY, eyeOpenDuration).SetEase(ease).SetUpdate(useUnscaledTime);
+            if (eyeOpenOvershoot > 0f) t2.SetEase(Ease.OutBack, eyeOpenOvershoot);
 
-                topLid.gameObject.SetActive(false);
-                bottomLid.gameObject.SetActive(false);
-            }
+            yield return t2.WaitForCompletion();
+
+            topLid.gameObject.SetActive(false);
+            bottomLid.gameObject.SetActive(false);
         }
         else
         {
-            if (fadeBlack) yield return fadeBlack.DOFade(0f, eyeOpenDuration).WaitForCompletion();
+            // 눈꺼풀이 없을 때만 페이드로 열기
+            if (fadeBlack) yield return fadeBlack.DOFade(0f, eyeOpenDuration).SetUpdate(useUnscaledTime).WaitForCompletion();
         }
 
         if (useFocusSnap && usedCutImage && newSprite)
@@ -257,20 +366,37 @@ public class CutScene : MonoBehaviour
         foreach (var g in _blurGhosts)
             g.transform.SetSiblingIndex(usedCutImage.transform.GetSiblingIndex() + 1);
 
-        var seq = DOTween.Sequence();
-        seq.Join(mainRT.DOScale(1f, focusDuration).SetEase(Ease.OutQuad));
+        var seq = DOTween.Sequence().SetUpdate(useUnscaledTime);
+        seq.Join(mainRT.DOScale(1f, focusDuration).SetEase(Ease.OutQuad).SetUpdate(useUnscaledTime));
         foreach (var g in _blurGhosts)
         {
             var rt = g.rectTransform;
             g.DOKill();
-            seq.Join(rt.DOAnchorPos(Vector2.zero, focusDuration).SetEase(Ease.OutCubic));
-            seq.Join(g.DOFade(0f, focusDuration).SetEase(Ease.OutCubic));
+            seq.Join(rt.DOAnchorPos(Vector2.zero, focusDuration).SetEase(Ease.OutCubic).SetUpdate(useUnscaledTime));
+            seq.Join(g.DOFade(0f, focusDuration).SetEase(Ease.OutCubic).SetUpdate(useUnscaledTime));
         }
 
         yield return seq.WaitForCompletion();
         ClearBlurGhosts();
     }
 
+    private void EnsureMessageOnTop()
+    {
+        if (usedMessage == null) return;
+        var msgTrans = usedMessage.transform;
+        msgTrans.SetAsLastSibling(); // 텍스트 최상단
+        if (fadeBlack != null)
+        {
+            var parent = msgTrans.parent;
+            if (parent == fadeBlack.transform.parent)
+            {
+                fadeBlack.transform.SetSiblingIndex(Mathf.Max(0, parent.childCount - 2));
+                msgTrans.SetAsLastSibling();
+            }
+        }
+    }
+
+    // ---------- 유틸 ----------
     private void CreateBlurGhostsIfNeeded(Sprite baseSprite)
     {
         if (_blurGhosts.Count > 0) return;
@@ -301,7 +427,6 @@ public class CutScene : MonoBehaviour
         _blurGhosts.Clear();
     }
 
-    // ----- 눈꺼풀 유틸 -----
     private void EnsureEyelidsExist()
     {
         var canvas = GetTargetCanvas();
@@ -365,23 +490,9 @@ public class CutScene : MonoBehaviour
 
     private IEnumerator FadeOutAndLoadScene(string sceneName, float duration = 1f)
     {
-        // fadeBlack이 없으면 생성
-        if (fadeBlack == null)
-        {
-            var canvas = GetTargetCanvas();
-            if (canvas != null)
-            {
-                fadeBlack = CreateFullScreenImage("FadeBlack", canvas.transform, Color.black);
-            }
-        }
-
-        fadeBlack.gameObject.SetActive(true);
+        EnsureFadeBlackExists();
         fadeBlack.DOKill();
-
-        // 알파 0 → 1로 페이드
-        yield return fadeBlack.DOFade(1f, duration).WaitForCompletion();
-
-        // 씬 로드
+        yield return fadeBlack.DOFade(1f, duration).SetUpdate(useUnscaledTime).WaitForCompletion();
         LoadingManager.LoadScene(sceneName);
     }
 }

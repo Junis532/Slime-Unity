@@ -58,7 +58,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public GameObject eventDebuffUICanvas;
 
     [Header("기타 설정")]
-    private bool isGameStarted = false;
+    //private bool isGameStarted = false;
     //private bool isEventBuffUIVisible = false;
     //private bool isEventDebuffUIVisible = false;
     public Vector3 gPositionDamping = new Vector3(0.5f, 1000000, 0.5f);

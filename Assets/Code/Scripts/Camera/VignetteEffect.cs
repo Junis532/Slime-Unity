@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
 using DG.Tweening;
 
 [RequireComponent(typeof(Volume))]
@@ -46,32 +45,8 @@ public class VignetteEffect : MonoBehaviour
         volume.priority = 10;
     }
 
-    void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // 씬이 바뀌면 Volume 다시 가져오기
-        volume = GetComponent<Volume>();
-        if (volume != null)
-        {
-            if (!volume.profile.TryGet(out vignette))
-                vignette = volume.profile.Add<Vignette>(true);
-
-            if (!volume.profile.TryGet(out colorAdjustments))
-                colorAdjustments = volume.profile.Add<ColorAdjustments>(true);
-        }
-    }
     void Update()
     {
-
         if (vignette != null)
         {
             vignette.intensity.value = Mathf.Lerp(0f, maxIntensity, chargeAmount);

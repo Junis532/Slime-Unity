@@ -176,7 +176,7 @@ public class EnemyHP : MonoBehaviour
         }
 
         // 사운드 & 텍스트 & 카메라 셰이크
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+        GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
         //if (isCritical)
         //{
         //    //ShowCriticalDamageText(damage);

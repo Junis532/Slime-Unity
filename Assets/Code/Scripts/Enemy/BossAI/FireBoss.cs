@@ -150,7 +150,7 @@ public class FireBoss : EnemyBase
 
     private IEnumerator RedScreenWaveEffect(float duration = 0.5f, float maxScale = 3f, int ringCount = 3, float delayBetweenRings = 0.1f)
     {
-        AudioManager.Instance?.PlayBossSwordSound(2f);
+        GameManager.Instance.audioManager.PlayBossSwordSound(2f);
 
         StartCoroutine(RedScreenFlash(duration));
 
@@ -316,11 +316,11 @@ public class FireBoss : EnemyBase
 
             // 1) 360도 경고 + 발사
             yield return StartCoroutine(FireballWarningAndCircle(origin, fireballCount360));
-            AudioManager.Instance?.PlayBossSkill1Sound(2f);
+            GameManager.Instance.audioManager.PlayBossSkill1Sound(2f);
 
             // 2) 플레이어 타겟 경고 + 발사
             yield return StartCoroutine(FireballWarningToPlayer(origin));
-            AudioManager.Instance?.PlayBossSkill1Sound(2f);
+            GameManager.Instance.audioManager.PlayBossSkill1Sound(2f);
 
             cycles++;
             yield return new WaitForSeconds(fireballRepeatInterval);
@@ -439,7 +439,7 @@ public class FireBoss : EnemyBase
 
         Vector3 center = transform.position + skillCenterOffset;
         enemyAnimation?.PlayAnimationAndPauseLastFrame(BossAnimation.State.Skill2Circle);
-        AudioManager.Instance?.PlayBossSkill3Sound(2f);
+        GameManager.Instance.audioManager.PlayBossSkill3Sound(2f);
 
         float skillAnimDur = Mathf.Max(0.03f, enemyAnimation.GetNonLoopDuration(BossAnimation.State.Skill2Circle) / circleSpeedMultiplier);
         yield return new WaitForSeconds(skillAnimDur);
@@ -514,7 +514,7 @@ public class FireBoss : EnemyBase
                 }
 
                 if (j % 2 == 1)
-                    AudioManager.Instance?.PlayBossSkill3FireSound(2f);
+                    GameManager.Instance.audioManager.PlayBossSkill3FireSound(2f);
 
                 yield return new WaitForSeconds(spawnStep);
             }
@@ -596,7 +596,7 @@ public class FireBoss : EnemyBase
             float angle = -dashDirX > 0 ? 0f : 180f;
             Quaternion rot = Quaternion.Euler(0f, 0f, angle);
 
-            AudioManager.Instance?.PlayBossSkill2Sound(2f);
+            GameManager.Instance.audioManager.PlayBossSkill2Sound(2f);
 
             if (swordRangePrefab != null)
             {
@@ -721,7 +721,7 @@ public class FireBoss : EnemyBase
             {
                 int remainingLoops = 6 - bossHitCount;
                 for (int i = 0; i < remainingLoops; i++)
-                    AudioManager.Instance?.PlayBossSkill1Sound(2f);
+                    GameManager.Instance.audioManager.PlayBossSkill1Sound(2f);
 
                 StopCoroutine(fireballCoroutine);
                 fireballCoroutine = null;

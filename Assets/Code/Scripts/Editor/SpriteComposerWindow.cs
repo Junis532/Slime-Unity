@@ -315,7 +315,7 @@ public class SpriteComposerWindow : EditorWindow
 
                 var bc = tile.AddComponent<BoxCollider2D>();
                 bc.size = new Vector2(cellWorldSize, cellWorldSize);
-                bc.usedByComposite = true;
+                bc.compositeOperation = Collider2D.CompositeOperation.Merge;
             }
         }
 

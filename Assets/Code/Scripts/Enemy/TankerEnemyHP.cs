@@ -98,13 +98,13 @@ public class TankerEnemyHP : MonoBehaviour
 
         if (isCritical)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowCDamageText(damage);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowDamageText(damage);
         }
 
@@ -121,7 +121,7 @@ public class TankerEnemyHP : MonoBehaviour
 
     public void FireballTakeDamage(int damage)
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+        GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
         currentHP -= damage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 

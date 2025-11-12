@@ -193,13 +193,13 @@ public class MiddleBoss1HP : MonoBehaviour
 
         if (crit)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowDamageText(damage, true);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowDamageText(damage, false);
         }
 

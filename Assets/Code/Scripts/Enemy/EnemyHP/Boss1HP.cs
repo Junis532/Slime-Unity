@@ -224,13 +224,13 @@ public class Boss1HP : MonoBehaviour
 
         if (isCritical)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowDamageText(damage, true);
             GameManager.Instance.cameraShake.GenerateImpulse();
         }
         else
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.arrowHit);
+            GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);
             ShowDamageText(damage, false);
         }
 

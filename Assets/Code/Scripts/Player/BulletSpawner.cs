@@ -340,7 +340,7 @@ public class BulletSpawner : MonoBehaviour
         if (forceCritical)
             ScreenFlash(Color.white, 0.2f, 0.3f);
 
-        AudioManager.Instance?.PlayArrowSound(1.5f);
+        GameManager.Instance.audioManager.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);
 
         if (playerController != null)
@@ -441,7 +441,7 @@ public class BulletSpawner : MonoBehaviour
         if (mainCamera == null) return;
 
         Vector3 cameraPos = mainCamera.transform.position;
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.white;
         if (attackRangeType == AttackRangeType.Circle)
             DrawWireCircle(cameraPos, GetCameraBasedAttackRange());
         else

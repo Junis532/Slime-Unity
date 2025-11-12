@@ -345,7 +345,7 @@ public class DialogueManager : MonoBehaviour
         if (uiFont != null) _hintTMP.font = uiFont;
         _hintTMP.fontSize = hintFontSize;
         _hintTMP.color = hintColor;
-        _hintTMP.enableWordWrapping = true;
+        _hintTMP.textWrappingMode = TextWrappingModes.Normal; // 자동 줄바꿈 허용
         _hintTMP.alignment = TextAlignmentOptions.TopRight;
         _hintTMP.text = holdHintText;
         _hintTMP.alpha = 0f;

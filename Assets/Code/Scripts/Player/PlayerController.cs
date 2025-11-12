@@ -179,8 +179,9 @@ public class PlayerController : MonoBehaviour
                 directionIndicatorInstance.SetActive(false);
 
             // 애니메이션 정지
-            if (playerAnimation != null)
+            if (playerAnimation != null && !playerAnimation.IsPlayingStart())
                 playerAnimation.PlayAnimation(PlayerAnimation.State.Idle);
+
         }
     }
 

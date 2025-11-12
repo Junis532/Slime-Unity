@@ -2,7 +2,7 @@
 
 public class AudioManager : MonoBehaviour
 {
-    public static AudioManager Instance;
+    //public static AudioManager Instance;
 
     [Header("배경음악")]
     public AudioSource bgmSource;
@@ -32,19 +32,19 @@ public class AudioManager : MonoBehaviour
     public AudioClip bossSkill3;
     public AudioClip bossSkill3Fire;
 
-    void Awake()
-    {
-        // 싱글톤 패턴 적용
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬 전환 시 유지
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+    //void Awake()
+    //{
+    //    // 싱글톤 패턴 적용
+    //    if (Instance == null)
+    //    {
+    //        Instance = this;
+    //        //DontDestroyOnLoad(gameObject); // 씬 전환 시 유지
+    //    }
+    //    else
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //}
 
     // 🎵 배경음 재생
     public void PlayBGM(AudioClip clip, bool loop = true)

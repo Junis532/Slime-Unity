@@ -300,7 +300,7 @@ public class ObjectAnimationController : MonoBehaviour
         }
         
         // 태그가 없는 경우를 위해 이름으로도 검색
-        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         foreach (GameObject obj in allObjects)
         {
             if (obj.name.Contains("KeyCollectEffect") || obj.name.Contains("Key Collect Effect"))

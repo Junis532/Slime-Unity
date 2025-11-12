@@ -49,6 +49,8 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     public bool IsUsingSkill => isSkillActive;
 
+    private Sequence dashSequence; // 현재 대쉬 트윈 저장용
+
     private void Start()
     {
         originalScale = transform.localScale;
@@ -93,7 +95,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
         if (isSkillActive) return;
         isSkillActive = true;
 
-        AudioManager.Instance?.PlayDashSound(1.5f);
+        GameManager.Instance.audioManager.PlayDashSound(1.5f);
 
         transform.DOKill();
         //AudioManager.Instance.PlaySFX(AudioManager.Instance.jumpSound);
@@ -147,6 +149,9 @@ public class JoystickDirectionIndicator : MonoBehaviour
         if (afterImageCoroutine != null) StopCoroutine(afterImageCoroutine);
         afterImageCoroutine = StartCoroutine(SpawnAfterImages());
 
+        // 대쉬 감시 코루틴 시작
+        StartCoroutine(DashCancelWatcher(seq));
+
         seq.OnComplete(() =>
         {
             if (afterImageCoroutine != null)
@@ -157,6 +162,28 @@ public class JoystickDirectionIndicator : MonoBehaviour
             StartCoroutine(EndSkillAfterDelay(0.5f));
         });
     }
+
+    private IEnumerator DashCancelWatcher(Sequence seq)
+    {
+        // 대쉬 중일 때만 감시
+        while (isSkillActive)
+        {
+            if (playerController != null && !playerController.canMove)
+            {
+                Debug.Log("⛔ 대쉬 중 이동 불가 상태 감지! 대쉬 즉시 중단");
+                seq.Kill(); // 트윈 중단
+                if (afterImageCoroutine != null)
+                {
+                    StopCoroutine(afterImageCoroutine);
+                    afterImageCoroutine = null;
+                }
+                isSkillActive = false;
+                yield break;
+            }
+            yield return null;
+        }
+    }
+
 
     private IEnumerator EndSkillAfterDelay(float delay)
     {
