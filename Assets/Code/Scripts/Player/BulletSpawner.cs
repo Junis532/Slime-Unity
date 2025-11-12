@@ -313,7 +313,7 @@ public class BulletSpawner : MonoBehaviour
 
         // 🔥 차징 완료 시 화면 반짝임
         if (forceCritical)
-            ScreenFlash(Color.red, 0.2f, 0.3f);  // 빨강색으로 강조
+            ScreenFlash(Color.white, 0.2f, 0.3f);  // 빨강색으로 강조
 
         AudioManager.Instance?.PlayArrowSound(1.5f);
         VibrationManager.Vibrate(50);

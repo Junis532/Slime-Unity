@@ -6,6 +6,8 @@ using TMPro;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -99,7 +101,6 @@ public class GameManager : MonoSingleTone<GameManager>
     private void Start()
     {
         string sceneName = SceneManager.GetActiveScene().name; // 현재 씬 이름 가져오기
-
         //if (sceneName == "Lobby") // 로비 씬일 경우
         //{
         //    ChangeStateToLobby();
@@ -135,6 +136,13 @@ public class GameManager : MonoSingleTone<GameManager>
             {
                 panel.SetActive(true);
             }
+        }
+
+        // ✅ 비네트 위치 다시 중앙 고정
+        if (vignetEffect != null && vignetEffect.TryGetComponent(out Volume v))
+        {
+            if (v.profile.TryGet(out Vignette vg))
+                vg.center.value = new Vector2(0.5f, 0.5f);
         }
     }
 
