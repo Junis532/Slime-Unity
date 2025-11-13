@@ -19,6 +19,9 @@ public class BtnType : MonoBehaviour
     private void Start()
     {
         defaultScale = buttonScale.localScale;
+
+        if (usedsource != null)
+            usedsource.volume = 0.2f; // 0~1 사이 값으로 볼륨 조절
     }
 
     public void OnBtnClick()   // 버튼 OnClick에 이거만 연결
@@ -34,8 +37,7 @@ public class BtnType : MonoBehaviour
         // 🔊 1. 클릭 사운드 재생
         if (usedsource != null && usedclip != null)
         {
-            usedsource.clip = usedclip;
-            usedsource.Play();
+            usedsource.PlayOneShot(usedclip, 0.2f);
 
             // 클립 길이만큼 기다리기 (길면 0.1f~0.2f로 줄여도 됨)
             yield return new WaitForSeconds(usedclip.length);

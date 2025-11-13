@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
 public class EnemyHPBar : MonoBehaviour
 {
     public Slider hpSlider;
-    private Transform target; // µû¶ó°¥ ´ë»ó(Àû)
-    private Vector3 offset = new Vector3(0, 0.7f, 0); // HP¹Ù À§Ä¡ ¿ÀÇÁ¼Â
+    private Transform target; // ë”°ë¼ê°ˆ ëŒ€ìƒ(ì )
+    private Vector3 offset = new Vector3(0, 0.7f, 0); // HPë°” ìœ„ì¹˜ ì˜¤í”„ì…‹
 
     public void Init(Transform target, float maxHP)
     {
@@ -26,9 +26,13 @@ public class EnemyHPBar : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        // ¿ùµå À§Ä¡ ¡æ Äµ¹ö½º À§Ä¡ º¯È¯
+
+        // ì›”ë“œ ìœ„ì¹˜ â†’ ìº”ë²„ìŠ¤ ìœ„ì¹˜ ë³€í™˜
         Vector3 worldPos = target.position + offset;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
         transform.position = screenPos;
+
+        // âœ… ìŠ¤ì¼€ì¼ ê³ ì •
+        transform.localScale = Vector3.one;
     }
 }
