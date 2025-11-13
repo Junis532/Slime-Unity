@@ -738,4 +738,4 @@ public class FireBoss : EnemyBase
             }
         }
     }
-}
+} 
