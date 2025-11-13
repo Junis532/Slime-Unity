@@ -55,11 +55,10 @@ public class EnemyHP : MonoBehaviour
     // ========== 라이프사이클 ==========
     private IEnumerator Start()
     {
-        // GameManager HP 설정
+        // 기존 HP 초기화
         if (useGameManagerHP)
             maxHP = GameManager.Instance.enemyStats.maxHP;
 
-        // 공유 HP 초기화
         if (shareHPByID && !string.IsNullOrEmpty(ID))
         {
             if (initializeSharedToMaxOnStart || !SharedHP.ContainsKey(ID))
@@ -71,22 +70,16 @@ public class EnemyHP : MonoBehaviour
             currentHP = maxHP;
         }
 
-        yield return null; // ✅ 한 프레임 기다림 — Canvas 보장됨
+        yield return null; // 한 프레임 기다림
 
-        if (hpBar == null)
+        // EnemyHP 캔버스 찾기
+        Canvas enemyHPCanvas = GameObject.Find("EnemyHP")?.GetComponent<Canvas>();
+        if (enemyHPCanvas != null && hpBarPrefab != null)
         {
-            // 혹시 풀에 반환되었거나 아직 생성 안 됐을 때 다시 복구
-            Canvas worldCanvas = Object.FindAnyObjectByType<Canvas>();
-            if (worldCanvas != null && hpBarPrefab != null)
-            {
-                GameObject hpBarObj = PoolManager.Instance.SpawnFromPool(hpBarPrefab.name, Vector3.zero, Quaternion.identity);
-                if (hpBarObj != null)
-                {
-                    hpBarObj.transform.SetParent(worldCanvas.transform, false);
-                    hpBar = hpBarObj.GetComponent<EnemyHPBar>();
-                    hpBar.Init(transform, maxHP);
-                }
-            }
+            GameObject hpBarObj = Instantiate(hpBarPrefab, enemyHPCanvas.transform);
+            hpBarObj.transform.localScale = Vector3.one;
+            hpBar = hpBarObj.GetComponent<EnemyHPBar>();
+            hpBar.Init(transform, maxHP);
         }
 
         if (hpBar != null)
@@ -95,14 +88,12 @@ public class EnemyHP : MonoBehaviour
             hpBar.gameObject.SetActive(true);
         }
 
-
         criticalChance = GameManager.Instance.playerStats.criticalChance;
         spriteRenderer = GetComponent<SpriteRenderer>();
         bulletSpawner = Object.FindFirstObjectByType<BulletSpawner>();
         var playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) playerTransform = playerObj.transform;
     }
-
     void Update()
     {
         // 공유 HP 모드라면, 다른 동일 ID 개체가 먼저 맞아 SharedHP가 내려갔을 때 동기화

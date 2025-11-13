@@ -7,11 +7,20 @@ public class EnemyHPBar : MonoBehaviour
     private Transform target; // 따라갈 대상(적)
     private Vector3 offset = new Vector3(0, 0.7f, 0); // HP바 위치 오프셋
 
+    private RectTransform rectTransform;
+
+    private void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        rectTransform.localScale = Vector3.one; // 항상 1,1,1
+    }
+
     public void Init(Transform target, float maxHP)
     {
         this.target = target;
         hpSlider.maxValue = maxHP;
         hpSlider.value = maxHP;
+        gameObject.SetActive(true);
     }
 
     public void SetHP(float hp)
@@ -23,16 +32,20 @@ public class EnemyHPBar : MonoBehaviour
     {
         if (target == null)
         {
-            Destroy(gameObject);
+            hpSlider.gameObject.SetActive(false);
             return;
         }
 
-        // 월드 위치 → 캔버스 위치 변환
         Vector3 worldPos = target.position + offset;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
-        transform.position = screenPos;
 
-        // ✅ 스케일 고정
-        transform.localScale = Vector3.one;
+        if (screenPos.z < 0)
+            hpSlider.gameObject.SetActive(false);
+        else
+        {
+            hpSlider.gameObject.SetActive(true);
+            rectTransform.position = screenPos;
+            rectTransform.localScale = Vector3.one;
+        }
     }
 }
