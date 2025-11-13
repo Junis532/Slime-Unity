@@ -1824,7 +1824,7 @@ GameObject:
   - component: {fileID: 6370222143886915931}
   - component: {fileID: 1673935331592910600}
   - component: {fileID: 6055942406927827571}
-  - component: {fileID: 5064000388438275122}
+  - component: {fileID: 5940569271551192755}
   m_Layer: 10
   m_Name: Enemy (1)
   m_TagString: Enemy
@@ -1930,6 +1930,7 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 1.4
+  damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &7790223845527478286
 MonoBehaviour:
@@ -2150,8 +2151,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5064000388438275122
-CapsuleCollider2D:
+--- !u!61 &5940569271551192755
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2184,9 +2185,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
+  m_Offset: {x: 0.025183365, y: -0.036631234}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.16263714, y: 0.35842514}
+  m_EdgeRadius: 0
 --- !u!1 &6548683378722442010
 GameObject:
   m_ObjectHideFlags: 0
@@ -2203,7 +2213,7 @@ GameObject:
   - component: {fileID: 7995011893759781866}
   - component: {fileID: 1189029296734190917}
   - component: {fileID: 3186300841109902869}
-  - component: {fileID: 4564452495672373401}
+  - component: {fileID: 4630157977180815404}
   m_Layer: 10
   m_Name: Enemy
   m_TagString: Enemy
@@ -2309,6 +2319,7 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 1.4
+  damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &7179131614588887898
 MonoBehaviour:
@@ -2529,8 +2540,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &4564452495672373401
-CapsuleCollider2D:
+--- !u!61 &4630157977180815404
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2563,9 +2574,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
+  m_Offset: {x: 0.026472084, y: -0.03630571}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.15932019, y: 0.3622627}
+  m_EdgeRadius: 0
 --- !u!1 &6926351570301249631
 GameObject:
   m_ObjectHideFlags: 0

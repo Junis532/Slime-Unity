@@ -1803,7 +1803,6 @@ GameObject:
   - component: {fileID: 6465412287469142228}
   - component: {fileID: 7150466029500088094}
   - component: {fileID: 6882567426318554190}
-  - component: {fileID: 5540545178444788418}
   - component: {fileID: 5350569261095411452}
   m_Layer: 10
   m_Name: Enemy
@@ -1910,6 +1909,7 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 1.5
+  damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &1160432315157897473
 MonoBehaviour:
@@ -2103,8 +2103,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &5540545178444788418
-CapsuleCollider2D:
+--- !u!61 &5350569261095411452
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2137,44 +2137,7 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
---- !u!61 &5350569261095411452
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2979784221784508737}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.048592396}
+  m_Offset: {x: 0.024718255, y: -0.043838985}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2184,7 +2147,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.3, y: 0.3528152}
+  m_Size: {x: 0.16690165, y: 0.3433084}
   m_EdgeRadius: 0
 --- !u!1 &3056824862564968077
 GameObject:

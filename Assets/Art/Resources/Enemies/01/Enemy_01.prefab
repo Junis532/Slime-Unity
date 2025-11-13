@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3919504832523882487}
   - component: {fileID: 5194721634238323032}
   - component: {fileID: 8407973863613411848}
-  - component: {fileID: 7480247300697232516}
+  - component: {fileID: 766693005260095877}
   m_Layer: 10
   m_Name: Enemy (2)
   m_TagString: Enemy
@@ -122,8 +122,8 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 2.2
+  damageInterval: 1
   obstacleTag: AIWall
-  colliderToggleInterval: 1
 --- !u!114 &4266732110058391367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,8 +343,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &7480247300697232516
-CapsuleCollider2D:
+--- !u!61 &766693005260095877
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -377,9 +377,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
+  m_Offset: {x: 0.023299865, y: -0.04642897}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.16312079, y: 0.3339268}
+  m_EdgeRadius: 0
 --- !u!1 &358754552456485078
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,7 +712,7 @@ GameObject:
   - component: {fileID: 1186752949382301128}
   - component: {fileID: 7929584024515302247}
   - component: {fileID: 5959334105822083127}
-  - component: {fileID: 4743412099805683387}
+  - component: {fileID: 7815854901521557054}
   m_Layer: 10
   m_Name: Enemy
   m_TagString: Enemy
@@ -809,8 +818,8 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 2.2
+  damageInterval: 1
   obstacleTag: AIWall
-  colliderToggleInterval: 1
 --- !u!114 &2101680581805837688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1030,8 +1039,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &4743412099805683387
-CapsuleCollider2D:
+--- !u!61 &7815854901521557054
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1064,9 +1073,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
+  m_Offset: {x: 0.024504341, y: -0.038045987}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.16071203, y: 0.35069272}
+  m_EdgeRadius: 0
 --- !u!1 &2805774196095795580
 GameObject:
   m_ObjectHideFlags: 0
@@ -2202,7 +2220,7 @@ GameObject:
   - component: {fileID: 5410147760321286160}
   - component: {fileID: 3848061535102420671}
   - component: {fileID: 711370793717738991}
-  - component: {fileID: 1927392275373099875}
+  - component: {fileID: 7170274108544371102}
   m_Layer: 10
   m_Name: Enemy (1)
   m_TagString: Enemy
@@ -2308,8 +2326,8 @@ MonoBehaviour:
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
   moveSpeed: 2.2
+  damageInterval: 1
   obstacleTag: AIWall
-  colliderToggleInterval: 1
 --- !u!114 &5063785849894246560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2529,8 +2547,8 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!70 &1927392275373099875
-CapsuleCollider2D:
+--- !u!61 &7170274108544371102
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2563,6 +2581,15 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.23, y: 0.4}
-  m_Direction: 0
+  m_Offset: {x: 0.023859479, y: -0.036756307}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.3, y: 0.45}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.15426365, y: 0.35327274}
+  m_EdgeRadius: 0

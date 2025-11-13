@@ -30,17 +30,17 @@ public class Enemy : EnemyBase
     public float minMoveSpeedToAnimate = 0.1f;
 
     [Header("속도 설정")]
-    [Tooltip("이 적의 이동 속도를 설정합니다.")]
     public float moveSpeed = 3.5f;
+
+    [Header("플레이어 지속 데미지 설정")]
+    public float damageInterval = 1f; // 일정 시간마다 데미지
+    private Coroutine damageRoutine;
+    private GameObject playerInRange;
 
     [Header("충돌/반전")]
     public string obstacleTag = "AIWall";
 
-    [Header("플레이어 충돌 쿨타임")]
-    private float colliderToggleInterval = 1f; // 2초마다 콜라이더 on/off
-
     private float _repathTimer;
-    private bool isTogglingCollider = false;
 
     void Start()
     {
@@ -203,40 +203,51 @@ public class Enemy : EnemyBase
             agent.isStopped = false;
     }
 
+    // === 🔥 지속 감지 로직 ===
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!isLive) return;
+        if (!collision.CompareTag("Player")) return;
 
-        if (collision.CompareTag("Player"))
+        playerInRange = collision.gameObject;
+
+        if (damageRoutine == null)
+            damageRoutine = StartCoroutine(DamageOverTimeRoutine());
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject == playerInRange)
         {
-            enemyAnimation.PlayAnimation(EnemyAnimation.State.Attack);
+            playerInRange = null;
+            if (damageRoutine != null)
+            {
+                StopCoroutine(damageRoutine);
+                damageRoutine = null;
+            }
+        }
+    }
 
-            if (GameManager.Instance.joystickDirectionIndicator == null || GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
-                return;
+    private IEnumerator DamageOverTimeRoutine()
+    {
+        while (playerInRange != null)
+        {
+            if (GameManager.Instance.joystickDirectionIndicator == null ||
+                GameManager.Instance.joystickDirectionIndicator.IsUsingSkill)
+            {
+                yield return null;
+                continue;
+            }
+
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Attack);
 
             int damage = GameManager.Instance.enemyStats.attack;
             Vector3 enemyPosition = transform.position;
             GameManager.Instance.playerDamaged.TakeDamage(damage, enemyPosition);
 
-            // 🔥 콜라이더 토글 루틴 시작
-            if (!isTogglingCollider)
-                StartCoroutine(ColliderToggleRoutine());
+            yield return new WaitForSeconds(damageInterval);
         }
 
-        if (useAngleMove && collision.CompareTag(obstacleTag))
-            moveDirection = -moveDirection;
-    }
-
-    private IEnumerator ColliderToggleRoutine()
-    {
-        isTogglingCollider = true;
-
-        while (true)
-        {
-            enemyCollider.enabled = false;
-            yield return new WaitForSeconds(colliderToggleInterval);
-            enemyCollider.enabled = true;
-            yield return new WaitForSeconds(colliderToggleInterval);
-        }
+        damageRoutine = null;
     }
 }
