@@ -119,6 +119,8 @@ MonoBehaviour:
   fireballSpawnRadius: 1.5
   warningDuration: 0.7
   fireballRepeatInterval: 1.7
+  fireballMaxCycles: 3
+  fireballSkillTimeout: 10
   skill1Prefab: {fileID: 1461563650131805762, guid: d7bc0699caa2a1449800ba00266be586, type: 3}
   swordPrefab: {fileID: 4162590138607052791, guid: 026d06537af4688429f7c3538238c2d0, type: 3}
   swordSpawnDistance: 1
@@ -138,6 +140,11 @@ MonoBehaviour:
   - 1
   skillCenterOffset: {x: 0, y: 0, z: 0}
   warningDelay: 0.5
+  circleRadiusMultiplier: 1.25
+  circleSpeedMultiplier: 1.6
+  pillarBaseScale: 9
+  pillarRiseYOffset: 0.25
+  pillarDensity: 3.5
 --- !u!195 &9035533090209629525
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -240,7 +247,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.015892953, y: 0.024830177}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.71885663, y: 0.28869018}
@@ -250,7 +257,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.74, y: 0.59}
+  m_Size: {x: 0.37450153, y: 0.5403396}
   m_EdgeRadius: 0
 --- !u!114 &2597315182798925133
 MonoBehaviour:
