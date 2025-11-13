@@ -411,6 +411,7 @@ public class WaveManager : MonoBehaviour
         GameObject fadeObj = new GameObject("FullScreenFade_Auto");
         Canvas canvas = fadeObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 300;
         fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         fadeObj.AddComponent<GraphicRaycaster>();
 
@@ -465,6 +466,7 @@ public class WaveManager : MonoBehaviour
         GameObject fadeObj = new GameObject("FullScreenFade_Auto");
         Canvas canvas = fadeObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 300;
         fadeObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         fadeObj.AddComponent<GraphicRaycaster>();
 

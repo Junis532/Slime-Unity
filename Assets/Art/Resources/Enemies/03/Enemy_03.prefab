@@ -446,7 +446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  hpBarPrefab: {fileID: 0}
   maxHP: 6000
   currentHP: 0
   ID: 2525
@@ -676,7 +676,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 4.2
+  bulletSpeed: 3.9
   bulletLifetime: 3
   secondaryDelay: 1
   secondarySpeed: 2
@@ -986,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  hpBarPrefab: {fileID: 0}
   maxHP: 6000
   currentHP: 0
   ID: 2525
@@ -1216,7 +1216,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 4.2
+  bulletSpeed: 3.9
   bulletLifetime: 3
   secondaryDelay: 1
   secondarySpeed: 2
@@ -1924,7 +1924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 450
+  maxHP: 900
   currentHP: 0
   ID: 2525
   shareHPByID: 1
@@ -2256,7 +2256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  hpBarPrefab: {fileID: 0}
   maxHP: 6000
   currentHP: 0
   ID: 2525
@@ -2486,7 +2486,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 4.2
+  bulletSpeed: 3.9
   bulletLifetime: 3
   secondaryDelay: 1
   secondarySpeed: 2
@@ -3137,7 +3137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  hpBarPrefab: {fileID: 0}
   maxHP: 6000
   currentHP: 0
   ID: 2525
@@ -3367,7 +3367,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 4.2
+  bulletSpeed: 3.9
   bulletLifetime: 3
   secondaryDelay: 1
   secondarySpeed: 2
@@ -4727,7 +4727,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9996f2482162fb459ff914db0249385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
+  hpBarPrefab: {fileID: 0}
   maxHP: 6000
   currentHP: 0
   ID: 2525
@@ -4957,7 +4957,7 @@ MonoBehaviour:
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 4.2
+  bulletSpeed: 3.9
   bulletLifetime: 3
   secondaryDelay: 1
   secondarySpeed: 2
@@ -5083,7 +5083,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: bulletSpeed
-      value: 3.5
+      value: 3.2
       objectReference: {fileID: 0}
     - target: {fileID: -5459176625060136006, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: bulletPrefab

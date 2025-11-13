@@ -1077,10 +1077,43 @@ public class MiddleBoss : MonoBehaviour
             ang += swordRotateSpeed * (1f + 0.2f * intensity) * Time.deltaTime;
             float rad = ang * Mathf.Deg2Rad;
             Vector3 da = new(Mathf.Cos(rad), Mathf.Sin(rad), 0f);
-            SetLineByDir(la, c, da, r);
-            SetLineByDir(lb, c, -da, r);
-            CheckLaserDamage(c, da, r);
-            CheckLaserDamage(c, -da, r);
+            // ----- Obstacle 충돌 감지 및 막힘 처리 -----
+            float maxDist = r;
+            LayerMask obstacleMask = LayerMask.GetMask("Obstacle");
+
+            // 오른쪽
+            RaycastHit2D hitA = Physics2D.Raycast(c, da, maxDist, obstacleMask);
+            if (hitA.collider != null)
+            {
+                SetLineByDir(la, c, da, hitA.distance);
+                // 검이 막힌 만큼만 데미지 판정
+                CheckLaserDamage(c, da, hitA.distance);
+            }
+            else
+            {
+                SetLineByDir(la, c, da, maxDist);
+                CheckLaserDamage(c, da, maxDist);
+            }
+
+            // 왼쪽
+            RaycastHit2D hitB = Physics2D.Raycast(c, -da, maxDist, obstacleMask);
+            if (hitB.collider != null)
+            {
+                SetLineByDir(lb, c, -da, hitB.distance);
+                CheckLaserDamage(c, -da, hitB.distance);
+            }
+            else
+            {
+                SetLineByDir(lb, c, -da, maxDist);
+                CheckLaserDamage(c, -da, maxDist);
+            }
+
+
+            // 플레이어 데미지 판정은 그대로 유지
+            CheckLaserDamage(c, da, maxDist);
+            CheckLaserDamage(c, -da, maxDist);
+
+
 
             if (useLaserColorCycle)
             {
@@ -1238,12 +1271,26 @@ public class MiddleBoss : MonoBehaviour
             if (h.collider && h.collider.CompareTag("Player"))
                 GameManager.Instance?.playerDamaged?.TakeDamage(laserDamage, transform.position);
     }
-    private void CheckLaserDamage(Vector3 start, Vector3 dir, float dist)
+   void CheckLaserDamage(Vector3 start, Vector3 dir, float dist)
+{
+    // 장애물에 부딪히면 더 이상 레이저가 통과하지 않게 함
+    RaycastHit2D wallHit = Physics2D.Raycast(start, dir, dist, LayerMask.GetMask("Obstacle"));
+    float limit = dist;
+    if (wallHit.collider != null)
+        limit = wallHit.distance;
+
+    // 플레이어 충돌은 제한된 거리까지만 검사
+    var hits = Physics2D.LinecastAll(start, start + dir * limit, LayerMask.GetMask("Player"));
+    foreach (var h in hits)
     {
-        var h = Physics2D.Raycast(start, dir, dist, LayerMask.GetMask("Player"));
-        if (h.collider && h.collider.CompareTag("Player"))
-            GameManager.Instance?.playerDamaged?.TakeDamage(laserDamage, transform.position);
+        if (h.collider != null && h.collider.CompareTag("Player"))
+        {
+            GameManager.Instance?.playerDamaged?.TakeDamage(laserDamage, start);
+            break;
+        }
     }
+}
+
 
     // ===================== 몹 스폰/정리 =====================
     private void TrimDeadMobs()
