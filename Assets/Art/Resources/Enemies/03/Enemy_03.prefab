@@ -1908,7 +1908,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  moveSpeed: 1.5
+  moveSpeed: 1.8
   damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &1160432315157897473
@@ -1924,7 +1924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 3000
+  maxHP: 450
   currentHP: 0
   ID: 2525
   shareHPByID: 1
@@ -5107,7 +5107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3138796063724582110, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 3613910191475756443, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_Layer
@@ -5167,11 +5167,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5839185285267714875, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: ID
-      value: 2525
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5839185285267714875, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: maxHP
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 5839185285267714875, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: shareHPByID
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5839185285267714875, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: initializeSharedToMaxOnStart
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5138593776206699716, guid: 01be7502d2af2934282e92bef068d69c, type: 3}

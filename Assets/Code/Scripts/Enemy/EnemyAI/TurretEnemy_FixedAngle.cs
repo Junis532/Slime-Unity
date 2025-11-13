@@ -32,7 +32,7 @@ public class TurretEnemy_FixedAngle : MonoBehaviour
     [Header("Bullet 설정")]
     public GameObject bulletPrefab;
     public GameObject secondaryBulletPrefab;
-    public float bulletSpeed = 1.5f;
+    private float bulletSpeed = 1.2f;
     public float bulletLifetime = 3f;
 
     [Header("두 번째 Bullet 속도 변경")]

@@ -26,7 +26,7 @@ public class TurretEnemy_PlayerTracking : MonoBehaviour
 
     [Header("탄환 설정")]
     public GameObject bulletPrefab;
-    public float bulletSpeed = 1.5f;
+    private float bulletSpeed = 1.2f;
     public float bulletLifetime = 3f;
 
     [Header("탄환 패턴 설정")]

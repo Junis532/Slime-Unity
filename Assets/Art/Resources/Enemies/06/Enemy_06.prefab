@@ -1947,7 +1947,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  moveSpeed: 1.4
+  moveSpeed: 1.8
   damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &7790223845527478286
@@ -1963,7 +1963,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 2800
+  maxHP: 450
   currentHP: 0
   ID: 123123
   shareHPByID: 1
@@ -2336,7 +2336,7 @@ MonoBehaviour:
   centerSnapRange: 0.35
   disableObstacleAvoid: 1
   minMoveSpeedToAnimate: 0.1
-  moveSpeed: 1.4
+  moveSpeed: 1.8
   damageInterval: 1
   obstacleTag: AIWall
 --- !u!114 &7179131614588887898
@@ -2352,7 +2352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 2800
+  maxHP: 450
   currentHP: 0
   ID: 123123
   shareHPByID: 1

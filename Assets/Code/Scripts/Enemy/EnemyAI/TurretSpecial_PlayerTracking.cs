@@ -23,7 +23,7 @@ public class TurretSpecial_PlayerTracking : MonoBehaviour
 
     [Header("탄환 설정")]
     public GameObject bulletPrefab;
-    public float bulletSpeed = 1.5f;
+    private float bulletSpeed = 1.2f;
     public float bulletLifetime = 3f;
 
     [Header("두 번째 Bullet 설정")]

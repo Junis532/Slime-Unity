@@ -19,7 +19,7 @@ public class JoystickDirectionIndicator : MonoBehaviour
 
     [Header("쿨타임 관련")]
     public Image CooltimeImage;
-    public int waitInterval = 10;
+    public float waitInterval = 10;
 
     [Header("넉백 관련")]
     public float knockbackDistance = 1f;
