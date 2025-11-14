@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public interface IBossHPView
@@ -13,13 +14,13 @@ public interface IBossHPView
 [DisallowMultipleComponent]
 public class MiddleBoss1HP : MonoBehaviour
 {
-    // ───────── 자동 탐색 설정(필요시 바꿔도 무방) ─────────
-    private const string BossHpViewTag = "LastBossHPView"; // 있으면 최우선
-    private const string BossHpViewName = "BossHP_UI"; // 태그 없을 때 2순위
-    private const float ResolveTimeout = 2f;           // 최대 대기 시간(초)
-    private const int ResolveTriesPerFrame = 1;        // 프레임당 시도 횟수
+    private const string BossHpViewTag = "LastBossHPView";
+    private const string BossHpViewName = "BossHP_UI";
 
-    // ───────── 전투/연출 옵션 ─────────
+    private const float ResolveTimeout = 2f;
+    private const int ResolveTriesPerFrame = 1;
+
+    // ───────── 옵션 ─────────
     public bool stationary = true;
     public bool flashOnHit = true;
     public bool spawnHitFX = true;
@@ -28,7 +29,7 @@ public class MiddleBoss1HP : MonoBehaviour
     public GameObject cDamageTextPrefab;
     public GameObject hitEffectPrefab;
 
-    private static IBossHPView s_cachedView; // 한 번 찾으면 모든 보스가 공유
+    private static IBossHPView s_cachedView;     // 🔥 반드시 살펴보고 Unity null 확인 필요
     private IBossHPView hpView;
     private bool isDead;
 
@@ -39,6 +40,28 @@ public class MiddleBoss1HP : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private BulletSpawner bulletSpawner;
     private Rigidbody2D rb;
+
+    private void OnEnable()
+    {
+        // 씬 재로드 또는 재시작 시 static 참조 자동 리셋
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        // 씬이 완전 바뀔 때마다 캐시 초기화
+        s_cachedView = null;
+    }
+
+    private bool IsUnityNull(object obj)
+    {
+        return (obj is Object uObj) && uObj == null;
+    }
 
     private void Awake()
     {
@@ -65,24 +88,38 @@ public class MiddleBoss1HP : MonoBehaviour
 
     private IEnumerator EnsureBindHpViewAndInit()
     {
-        // 이미 캐시돼 있으면 바로 사용
         hpView = s_cachedView;
+
+        // 🔥 static이지만 실제 Unity 객체는 파괴된 상태인지 검사
+        if (hpView != null && IsUnityNull(hpView))
+        {
+            hpView = null;
+            s_cachedView = null;
+        }
+
+        // 캐시가 없으면 새로 찾기
         if (hpView == null)
         {
             float end = Time.realtimeSinceStartup + ResolveTimeout;
-            // 몇 프레임 동안 UI 로딩/활성 기다리며 탐색
+
             while (hpView == null && Time.realtimeSinceStartup < end)
             {
                 for (int i = 0; i < ResolveTriesPerFrame && hpView == null; i++)
+                {
                     hpView = TryResolveViewOnce();
+                }
 
-                if (hpView != null) break;
-                yield return null; // 다음 프레임
+                if (hpView != null)
+                {
+                    s_cachedView = hpView;
+                    break;
+                }
+
+                yield return null; // UI 로드 대기
             }
-
-            if (hpView != null) s_cachedView = hpView;
         }
 
+        // 최종 초기화
         if (hpView != null)
         {
             hpView.Init(maxHP, currentHP);
@@ -90,7 +127,7 @@ public class MiddleBoss1HP : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[MiddleBoss1HP] 씬에서 IBossHPView를 찾지 못했음. HP UI에 구현 컴포넌트 붙여줘.");
+            Debug.LogError("[MiddleBoss1HP] HP UI를 끝내 찾지 못했습니다. 씬에 IBossHPView 구현체가 필요합니다.");
         }
     }
 
@@ -104,7 +141,7 @@ public class MiddleBoss1HP : MonoBehaviour
             if (v != null) return v;
         }
 
-        // 2) Name 2순위
+        // 2) 이름
         var named = GameObject.Find(BossHpViewName);
         if (named)
         {
@@ -112,7 +149,7 @@ public class MiddleBoss1HP : MonoBehaviour
             if (v != null) return v;
         }
 
-        // 3) 씬 전역 첫 번째
+        // 3) 최후의 수단: 씬 전체 검색
         var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (var m in all)
         {
@@ -128,30 +165,33 @@ public class MiddleBoss1HP : MonoBehaviour
 
         // 자기 자신
         var self = go.GetComponents<MonoBehaviour>();
-        for (int i = 0; i < self.Length; i++)
-            if (self[i] is IBossHPView v1) return v1;
+        foreach (var mb in self)
+            if (mb is IBossHPView v1) return v1;
 
         // 자식
         var children = go.GetComponentsInChildren<MonoBehaviour>(true);
-        for (int i = 0; i < children.Length; i++)
-            if (children[i] is IBossHPView v2) return v2;
+        foreach (var mb in children)
+            if (mb is IBossHPView v2) return v2;
 
-        // 부모
+        // 부모 체인
         var p = go.transform.parent;
         while (p != null)
         {
             var parents = p.GetComponents<MonoBehaviour>();
-            for (int i = 0; i < parents.Length; i++)
-                if (parents[i] is IBossHPView v3) return v3;
+            foreach (var mb in parents)
+                if (mb is IBossHPView v3) return v3;
+
             p = p.parent;
         }
+
         return null;
     }
 
     // ───────── 외부 호출 ─────────
     public void OnBossActivated()
     {
-        if (hpView == null) return;
+        if (hpView == null || IsUnityNull(hpView)) return;
+
         hpView.Init(maxHP, currentHP);
         hpView.Show();
     }
@@ -179,6 +219,7 @@ public class MiddleBoss1HP : MonoBehaviour
         currentHP = Mathf.Clamp(currentHP - damage, 0, maxHP);
         hpView?.SetHP(currentHP, maxHP);
 
+        // 타격 연출
         if (!bulletSpawner || !bulletSpawner.slowSkillActive)
         {
             if (flashOnHit && spriteRenderer)
@@ -191,6 +232,7 @@ public class MiddleBoss1HP : MonoBehaviour
             if (spawnHitFX) PlayHitEffect();
         }
 
+        // 데미지 텍스트 + 사운드
         if (crit)
         {
             GameManager.Instance.audioManager.PlayArrowHitSound(1.5f);

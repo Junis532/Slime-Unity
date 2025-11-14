@@ -12,6 +12,7 @@ public class LoadingManager : MonoBehaviour
 
     public static void LoadScene(string sceneName)
     {
+        Time.timeScale = 1f;
         nextScene = sceneName;
         SceneManager.LoadScene("Loading");
     }
