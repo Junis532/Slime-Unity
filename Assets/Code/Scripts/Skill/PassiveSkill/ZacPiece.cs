@@ -6,7 +6,7 @@ public class ZacPiece : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            GameManager.Instance.playerStats.currentHP += 40;
+            GameManager.Instance.playerStats.currentHP += 50;
             if (GameManager.Instance.playerStats.currentHP > GameManager.Instance.playerStats.maxHP)
             {
                 GameManager.Instance.playerStats.currentHP = GameManager.Instance.playerStats.maxHP;

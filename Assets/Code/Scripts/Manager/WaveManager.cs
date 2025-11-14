@@ -250,6 +250,8 @@ public class WaveManager : MonoBehaviour
             GameManager.Instance.playerController.LockMovement();
         }
 
+        GameManager.Instance.bulletSpawner.ResetCharge();
+
         if (room == null || room.cameraCollider == null)
             yield break;
 
@@ -430,7 +432,6 @@ public class WaveManager : MonoBehaviour
 
         // ✅ 카메라 흔들림 코루틴 시작
         Coroutine shakeCoroutine = StartCoroutine(ContinuousCameraShake());
-        yield return new WaitForSeconds(3f);
 
         // ✅ 두 번 깜빡임
         for (int i = 0; i < 2; i++)
@@ -444,17 +445,63 @@ public class WaveManager : MonoBehaviour
         // ✅ 완전 암전
         yield return fadeGroup.DOFade(1f, 0.15f).WaitForCompletion();
 
+        // 플레이어 위치 세팅 (높은 곳에 배치)
         if (playerTransform != null)
-            playerTransform.position = new Vector3(19f, 76.5f, 0f);
+        {
+            playerTransform.position = new Vector3(18.52f, 81f, 0f); // 살짝 위에서 시작
+        }
 
-        // ✅ 카메라 흔들림 중지
-        StopCoroutine(shakeCoroutine);
+        SpriteRenderer sr = playerTransform.GetComponentInChildren<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.flipX = false;
+        }
 
         // ✅ 암전 상태 유지 (2초)
         yield return new WaitForSeconds(2f);
+        // ✅ 화면 서서히 밝아짐
+        fadeGroup.DOFade(0f, 1.5f).WaitForCompletion();
 
-        // ✅ 천천히 화면 다시 밝아짐 (페이드 인)
-        yield return fadeGroup.DOFade(0f, 2f).WaitForCompletion();
+        if (playerTransform != null)
+        {
+            Vector3 groundPos = new Vector3(18.52f, 76.39f, 0f);
+            float originalX = playerTransform.position.x;
+
+            // 1️⃣ 바닥까지 떨어짐 (X축 고정)
+            yield return playerTransform.DOMoveY(groundPos.y, 1.0f)
+                .SetEase(Ease.InQuad)
+                .OnUpdate(() =>
+                {
+                    Vector3 pos = playerTransform.position;
+                    pos.x = originalX;
+                    playerTransform.position = pos;
+                })
+                .WaitForCompletion();
+
+            // 2️⃣ 첫 번째 튕김: 높게, X 앞으로
+            float bounce1Height = 0.6f;
+            float forward1 = 0.3f;
+            Tween moveX1 = playerTransform.DOMoveX(originalX + forward1, 0.4f).SetEase(Ease.Linear);
+            Tween moveY1 = playerTransform.DOMoveY(groundPos.y + bounce1Height, 0.2f)
+                .SetEase(Ease.OutSine)
+                .OnComplete(() =>
+                {
+                    playerTransform.DOMoveY(groundPos.y, 0.2f).SetEase(Ease.InSine);
+                });
+            yield return DOTween.Sequence().Join(moveX1).Join(moveY1).WaitForCompletion();
+
+            // 3️⃣ 두 번째 튕김: 낮게, 조금 앞으로
+            float bounce2Height = 0.3f;
+            float forward2 = 0.2f;
+            Tween moveX2 = playerTransform.DOMoveX(originalX + forward1 + forward2, 0.35f).SetEase(Ease.Linear);
+            Tween moveY2 = playerTransform.DOMoveY(groundPos.y + bounce2Height, 0.15f)
+                .SetEase(Ease.OutSine)
+                .OnComplete(() =>
+                {
+                    playerTransform.DOMoveY(groundPos.y, 0.15f).SetEase(Ease.InSine);
+                });
+            yield return DOTween.Sequence().Join(moveX2).Join(moveY2).WaitForCompletion();
+        }
         GameManager.Instance.playerController.UnLockMovement();
         // ✅ 자동 생성된 페이드 오브젝트 삭제
         Destroy(fadeObj);
@@ -588,6 +635,42 @@ public class WaveManager : MonoBehaviour
 
         // HPPotion 자석 이동 호출
         AutoCollectItems();
+
+        // 씬에 있는 Bullet 태그 오브젝트 모두 제거
+        GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
+        foreach (var bullet in bullets)
+        {
+            Destroy(bullet);
+        }
+
+        // ✅ 클리어 시 오브젝트 DOTween으로 사라지기
+        if (room.objectsToDisappear != null && room.objectsToDisappear.Count > 0)
+        {
+            foreach (var obj in room.objectsToDisappear)
+            {
+                if (obj != null)
+                {
+                    CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+                    SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+
+                    if (cg != null)
+                    {
+                        cg.DOFade(0f, 1f).OnComplete(() => Destroy(obj));
+                    }
+                    else if (sr != null)
+                    {
+                        sr.DOFade(0f, 1f).OnComplete(() => Destroy(obj));
+                    }
+                    else
+                    {
+                        obj.transform.DOScale(Vector3.zero, 0.6f)
+                            .SetEase(Ease.InBack)
+                            .OnComplete(() => Destroy(obj));
+                    }
+                }
+            }
+        }
+
 
         // ✅ 클리어 시 오브젝트 DOTween으로 사라지기
         if (room.objectsToDisappear != null && room.objectsToDisappear.Count > 0)

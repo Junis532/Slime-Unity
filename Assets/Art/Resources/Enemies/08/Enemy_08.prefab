@@ -1331,7 +1331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -4951,7 +4951,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -5499,7 +5499,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -11347,7 +11347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -11808,7 +11808,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -13892,7 +13892,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -14019,7 +14019,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -14073,14 +14073,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2
@@ -16801,7 +16801,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -16928,7 +16928,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -16982,14 +16982,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2
@@ -20571,7 +20571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -23220,7 +23220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -23731,7 +23731,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -23858,7 +23858,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -23912,14 +23912,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2
@@ -24570,7 +24570,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -24854,7 +24854,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -25546,7 +25546,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -25673,7 +25673,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -25727,14 +25727,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2
@@ -26347,7 +26347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 3793972446879093038, guid: 87ea4258fb89e6f4586fdab27a894143, type: 3}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -27256,7 +27256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -29776,7 +29776,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -29903,7 +29903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -29957,14 +29957,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2
@@ -31434,7 +31434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarPrefab: {fileID: 0}
-  maxHP: 2500
+  maxHP: 300
   currentHP: 0
   ID: WALL1
   shareHPByID: 1
@@ -31914,7 +31914,7 @@ MonoBehaviour:
   currentHP: 0
   ID: TurretWALL
   shareHPByID: 1
-  initializeSharedToMaxOnStart: 0
+  initializeSharedToMaxOnStart: 1
   useGameManagerHP: 0
   hitEffectPrefab: {fileID: 2315181900567158067, guid: f5626c3984554f74cbf3637de7b8980d, type: 3}
   dotEffectPrefab: {fileID: 3215093522351024483, guid: 3f4553dbb29d7e84495daf284de4dda7, type: 3}
@@ -32041,7 +32041,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -32095,14 +32095,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyAnim: {fileID: 0}
   fireRange: 50
-  firstFireDelay: 2
+  firstFireDelay: 0
   preWindUp: 0.15
   extraPreWindUp: 0.25
   ringPulseCount: 2
   ringPulseScale: 1.08
   bulletPrefab: {fileID: 6382944771956985129, guid: abe76506e589e7746ae3048d98ab7bde, type: 3}
   secondaryBulletPrefab: {fileID: 0}
-  bulletSpeed: 1.2
+  bulletSpeed: 1.5
   bulletLifetime: 30
   secondaryDelay: 1
   secondarySpeed: 2

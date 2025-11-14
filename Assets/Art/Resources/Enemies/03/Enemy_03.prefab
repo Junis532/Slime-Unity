@@ -615,7 +615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -1155,7 +1155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -2425,7 +2425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -3306,7 +3306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -4896,7 +4896,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deathStyle: 0
   potionPrefab: {fileID: 510499459271775873, guid: b0bc246e0a63f1440a0d36ece44ea731, type: 3}
-  potionDropChance: 0.1
+  potionDropChance: 0.5
   classicBackwardTime: 0.5
   classicBackwardDistance: 0.5
   classicShrinkTime: 0.5
@@ -5100,6 +5100,10 @@ PrefabInstance:
     - target: {fileID: 2393456143100656406, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_Layer
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2765103744664436448, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
+      propertyPath: potionDropChance
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3138796063724582110, guid: 01be7502d2af2934282e92bef068d69c, type: 3}
       propertyPath: m_Name

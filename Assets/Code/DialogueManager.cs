@@ -525,7 +525,7 @@ public class DialogueManager : MonoBehaviour
 
         void playerHeal()
         {
-            GameManager.Instance.playerStats.currentHP = 600;
+            GameManager.Instance.playerStats.currentHP = 800;
         }
 
         // 플레이어/조이스틱 복구

@@ -154,6 +154,34 @@ public class BulletSpawner : MonoBehaviour
         var vignetteObj = FindAnyObjectByType<VignetteEffect>();
         if (vignetteObj != null)
             vignetteObj.chargeAmount = chargeAmount / maxCharge;
+
+        // ================= 차징 처리 =================
+        if (closestEnemy != null) // 적이 존재할 때만 차징
+        {
+            chargeAmount += chargeSpeed * Time.deltaTime;
+            chargeAmount = Mathf.Min(chargeAmount, maxCharge);
+
+            if (chargeAmount >= maxCharge && activeChargeEffect == null && chargeEffectPrefab != null)
+            {
+                activeChargeEffect = Instantiate(chargeEffectPrefab, playerController.transform);
+                activeChargeEffect.transform.localPosition = Vector3.zero;
+            }
+        }
+        else
+        {
+            // 적이 없으면 차징 초기화
+            chargeAmount = 0f;
+            if (chargeUI != null)
+                chargeUI.fillAmount = 0f;
+
+            if (activeChargeEffect != null)
+            {
+                Destroy(activeChargeEffect);
+                activeChargeEffect = null;
+            }
+        }
+
+
     }
 
     private void UpdateCooldownUI()
@@ -482,6 +510,21 @@ public class BulletSpawner : MonoBehaviour
         _fxFlashImg.DOFade(screenFlashColor.a, screenFlashIn).SetEase(Ease.OutQuad)
             .OnComplete(() => _fxFlashImg.DOFade(0f, screenFlashOut).SetEase(Ease.InQuad));
     }
+
+    public void ResetCharge()
+    {
+        chargeAmount = 0f;
+
+        if (chargeUI != null)
+            chargeUI.fillAmount = 0f;
+
+        if (activeChargeEffect != null)
+        {
+            Destroy(activeChargeEffect);
+            activeChargeEffect = null;
+        }
+    }
+
 }
 
 public enum AttackRangeType

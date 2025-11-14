@@ -18,7 +18,7 @@ public class MiddleBoss1Stats : ScriptableObject
     public void ResetStats()
     {
         speed = 0f;
-        maxHP = 9000;
+        maxHP = 7000;
         currentHP = maxHP;
         attack = 100;
     }

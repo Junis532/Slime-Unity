@@ -27,6 +27,7 @@ public class GameManager : MonoSingleTone<GameManager>
     public PlayerStats playerStats;
     public JoystickDirectionIndicator joystickDirectionIndicator;
     public ShopEnter shopEnter;
+    public BulletSpawner bulletSpawner;
 
     [Header("카메라 관련")]
     public CameraShake cameraShake;
