@@ -636,12 +636,7 @@ public class WaveManager : MonoBehaviour
         // HPPotion 자석 이동 호출
         AutoCollectItems();
 
-        // 씬에 있는 Bullet 태그 오브젝트 모두 제거
-        GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
-        foreach (var bullet in bullets)
-        {
-            Destroy(bullet);
-        }
+        StartCoroutine(ClearAllBulletsSafely());
 
         // ✅ 클리어 시 오브젝트 DOTween으로 사라지기
         if (room.objectsToDisappear != null && room.objectsToDisappear.Count > 0)
@@ -716,6 +711,21 @@ public class WaveManager : MonoBehaviour
         OpenDoors();
         RaiseSpecialDoors(currentRoomIndex);
     }
+
+    private IEnumerator ClearAllBulletsSafely()
+    {
+        float timer = 0.2f;
+        while (timer > 0f)
+        {
+            GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
+            foreach (var bullet in bullets)
+                Destroy(bullet);
+
+            timer -= Time.deltaTime;
+            yield return null; // 다음 프레임까지 기다림
+        }
+    }
+
 
     private void StartObstacleTurns(RoomData room)
     {
